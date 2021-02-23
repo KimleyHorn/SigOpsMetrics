@@ -1,0 +1,72 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+code {
+  color: #e01a76;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.special-text {
+  color: green;
+  font-weight: bold;
+  font-style: italic;
+  background-color: papayawhip;
+}
+
+.header {
+  /* position: fixed; */
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.span-spacer {
+  flex: 1 1 auto;
+}
+
+// .router-host {
+//   margin-left: 5px;
+// }
+
+.main-sidenav {
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 100vh;
+}
+
+.example-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.example-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+// .main-router {
+//   display: flex;
+//   flex-direction: column;
+//   flex: 1 1 auto;
+
+// }
+
+mat-sidenav-container {
+  height: 90%;
+}
+html, body { height: 100%;}
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
