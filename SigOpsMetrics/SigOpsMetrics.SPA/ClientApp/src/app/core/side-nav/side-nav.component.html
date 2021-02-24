@@ -1,0 +1,16 @@
+<mat-sidenav-container>
+    <mat-sidenav #sidenav mode="side" opened class="main-sidenav">
+      <mat-nav-list>
+        <mat-accordion>
+            <a *ngFor="let item of menuItems" mat-list-item>
+                <mat-icon mat-list-icon>{{ item.icon }}</mat-icon>
+                <a class="nav-link text-dark" [routerLink]="item.path">{{ item.text }}</a>
+            </a>
+        </mat-accordion>
+      </mat-nav-list>
+      <img src="/assets/images/PoweredByGDOT.png" width="150px" style="position: fixed; bottom: 15px; margin-left: 15px;"  />
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+</mat-sidenav-container>
