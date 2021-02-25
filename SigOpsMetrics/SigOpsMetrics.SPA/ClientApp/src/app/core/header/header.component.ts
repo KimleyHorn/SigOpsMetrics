@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MatSidenav } from '@angular/material/sidenav';
+import { SideNavService } from '../side-nav/side-nav.service';
 
 @Component({
   selector: 'app-header',
@@ -7,10 +7,13 @@ import { MatSidenav } from '@angular/material/sidenav';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-
-  @Input() inputSideNav: MatSidenav;
-  constructor() { }
+  
+  constructor(private sideNav: SideNavService) { }
 
   ngOnInit(): void {
+  }
+
+  toggleSideNav(){
+    this.sideNav.toggle();
   }
 }
