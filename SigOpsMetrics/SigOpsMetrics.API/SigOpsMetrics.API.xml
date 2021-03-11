@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SigOpsMetrics.API</name>
+    </assembly>
+    <members>
+        <member name="T:SigOpsMetrics.API.Controllers.MetricsController">
+            <summary>
+            Controller for SigOps Metrics ATSPM data
+            </summary>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.MetricsController.Get(System.String,System.String,System.String,System.String,System.DateTime,System.DateTime)">
+            <summary>
+            API method for returning high-level metric data from SigOpsMetrics.com
+            </summary>
+            <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+            <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
+            <param name="interval">One of {qu, mo, wk, dy} for Quarterly, Monthly, Weekly or Daily data. Note that not all measures are aggregated at all levels.</param>
+            <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+            <param name="start">Start date for data pull</param>
+            <param name="end">End date for data pull</param>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetByZoneGroup(System.String,System.String,System.String,System.String,System.DateTime,System.DateTime,System.String)">
+            <summary>
+            API method for returning metric data by zone group from SigOpsMetrics.com
+            </summary>
+            <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+            <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
+            <param name="interval">One of {qu, mo, wk, dy} for Quarterly, Monthly, Weekly or Daily data. Note that not all measures are aggregated at all levels.</param>
+            <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+            <param name="start">Start date for data pull</param>
+            <param name="end">End date for data pull</param>
+            <param name="zoneGroup">Zone Group (aka Signal Group) to pull data for</param>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetByCorridor(System.String,System.String,System.String,System.String,System.DateTime,System.DateTime,System.String)">
+            <summary>
+            API method for returning metric data by corridor from SigOpsMetrics.com
+            </summary>
+            <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+            <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
+            <param name="interval">One of {qu, mo, wk, dy} for Quarterly, Monthly, Weekly or Daily data. Note that not all measures are aggregated at all levels.</param>
+            <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+            <param name="start">Start date for data pull</param>
+            <param name="end">End date for data pull</param>
+            <param name="corridor">Corridor to pull data for</param>
+            <returns></returns>
+        </member>
+        <member name="T:SigOpsMetrics.API.Controllers.SignalsController">
+            <summary>
+            Controller for signals, corridors, and groups
+            </summary>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.Get">
+            <summary>
+            Return a list of signals + all details in the SigOps system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetNames">
+            <summary>
+            Return a list of signal names in the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetZoneGroups">
+            <summary>
+            Return a list of zone groups in the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetZones">
+            <summary>
+            Return a list of zones in the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetCorridors">
+            <summary>
+            Return a list of corridors in the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetCorridorsByZone(System.String)">
+            <summary>
+            Return a list of corridors by zone in the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetSubCorridors">
+            <summary>
+            Return a list of subcorridors in the system
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetSubCorridorsByCorridor(System.String)">
+            <summary>
+            Return a list of subcorridors by corridor in the system
+            </summary>
+            <returns></returns>
+        </member>
+    </members>
+</doc>
