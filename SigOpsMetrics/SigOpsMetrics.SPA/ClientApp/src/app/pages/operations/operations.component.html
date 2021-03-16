@@ -1,1 +1,50 @@
-<p>operations works!</p>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12" style="text-align: center;">
+            <br/>
+            <app-chart-toggle></app-chart-toggle>
+        </div>
+    </div>
+    
+    <div *ngIf="toggleValue == '1'" class="row">
+        <div class="col-12">
+            <app-throughput-graph></app-throughput-graph>
+        </div>
+    </div>
+
+    <div *ngIf="toggleValue == '2'" class="row">
+        <div class="col-12">
+            Arrivals on Green
+        </div>
+    </div>
+
+    <div *ngIf="toggleValue == '3'" class="row">
+        <div class="col-12">
+            Progression Ratio
+        </div>
+    </div>
+
+    <div *ngIf="toggleValue == '4'" class="row">
+        <div class="col-12">
+            Spillback Rate
+        </div>
+    </div>
+
+    <div *ngIf="toggleValue == '5'" class="row">
+        <div class="col-12">
+            Split Failures
+        </div>
+    </div>
+
+    <div *ngIf="toggleValue == '6'" class="row">
+        <div class="col-12">
+            Travel Time Index
+        </div>
+    </div>
+
+    <div *ngIf="toggleValue == '7'" class="row">
+        <div class="col-12">
+            Planning Time Index
+        </div>
+    </div>
+</div>
