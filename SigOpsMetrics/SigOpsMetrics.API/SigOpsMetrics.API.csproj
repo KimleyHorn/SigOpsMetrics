@@ -5,7 +5,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>C:\Users\mark.wood\Source\Repos\KimleyHorn\SigOpsMetrics\SigOpsMetrics\SigOpsMetrics.API\SigOpsMetrics.API.xml</DocumentationFile>
+    <DocumentationFile>bin\Debug\SigOpsMetrics.API.xml</DocumentationFile>
+    <OutputPath>bin\Debug\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
