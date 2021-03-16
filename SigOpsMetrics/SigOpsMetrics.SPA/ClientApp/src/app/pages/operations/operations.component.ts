@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ChartToggleService } from 'src/app/components/toggles/chart-toggle/chart-toggle.service';
 
 @Component({
   selector: 'app-operations',
@@ -6,10 +7,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./operations.component.css']
 })
 export class OperationsComponent implements OnInit {
+  toggleValue: string;
 
-  constructor() { }
+  constructor(private toggleService: ChartToggleService) { }
 
   ngOnInit(): void {
+    this.toggleService.toggleValue.subscribe(value => {
+      this.toggleValue = value;
+    });
   }
 
 }

@@ -1,0 +1,3 @@
+<mat-button-toggle-group (change)="toggleChange($event.value)" [value]="selectedValue">
+    <mat-button-toggle *ngFor="let chartType of chartTypes" value="{{ chartType.chartTypeValue }}">{{ chartType.chartTypeName }}</mat-button-toggle>
+</mat-button-toggle-group>

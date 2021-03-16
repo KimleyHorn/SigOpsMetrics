@@ -24,6 +24,8 @@ import { RampMetersComponent } from './pages/ramp-meters/ramp-meters.component';
 
 import { HeaderComponent } from './core/header/header.component';
 import { MapComponent } from './components/map/map.component';
+import { ChartToggleComponent } from './components/toggles/chart-toggle/chart-toggle.component';
+import { ThroughputGraphComponent } from './components/graphs/throughput-graph/throughput-graph.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -51,7 +53,9 @@ const routes = [
     TeamsTasksComponent,
     ReportsComponent,
     HealthMetricsComponent,
-    RampMetersComponent
+    RampMetersComponent,
+    ChartToggleComponent,
+    ThroughputGraphComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
