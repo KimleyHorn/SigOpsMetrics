@@ -63,6 +63,9 @@ namespace SigOpsMetrics.API
         private static string CreateDateRangeClause(string interval, DateTime start, DateTime end)
         {
             string period;
+            string startFormat = start.ToString();
+            string endFormat = end.ToString();
+
             switch (interval)
             {
                 case "dy":
@@ -71,6 +74,8 @@ namespace SigOpsMetrics.API
                     break;
                 case "mo":
                     period = "month";
+                    startFormat = start.ToString("yyyy-MM-dd");
+                    endFormat = end.ToString("yyyy-MM-dd");
                     break;
                 case "qu":
                     period = "quarter";
@@ -79,7 +84,7 @@ namespace SigOpsMetrics.API
                     return string.Empty;
             }
 
-            return $"where {period} >= '{start}' and {period} <= '{end}'";
+            return $"where {period} >= '{startFormat}' and {period} <= '{endFormat}'";
         }
 
         private static string CreateZoneGroupAndClause(string zoneGroup)
