@@ -2,6 +2,7 @@
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
@@ -15,7 +16,13 @@ namespace SigOpsMetrics.API.Controllers
     [Route("Metrics")]
     public class MetricsController : _BaseController
     {
-        public MetricsController(IOptions<AppConfig> settings, MySqlConnection connection) : base(settings, connection)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="connection"></param>
+        /// <param name="cache"></param>
+        public MetricsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(settings, connection, cache)
         {
 
         }
@@ -34,10 +41,19 @@ namespace SigOpsMetrics.API.Controllers
         /// <returns></returns>
         [HttpGet("")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
-        public async Task<DataTable> Get(string source, string level, string interval, string measure, DateTime start, DateTime end)
+        public async Task<DataTable> Get(string source, string level, string interval, string measure, DateTime start,
+            DateTime end)
         {
-            var dt = await DataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start, end);
-            return dt;
+            var cacheEntry = Cache.GetOrCreate($"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}",
+                async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
+
+                    var dt = await DataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
+                        end);
+                    return dt;
+                });
+            return await cacheEntry;
         }
 
         /// <summary>
@@ -56,8 +72,17 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<DataTable> GetByZoneGroup(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string zoneGroup)
         {
-            var dt = await DataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure, start, end, zoneGroup);
-            return dt;
+            var cacheEntry = Cache.GetOrCreate(
+                $"Metrics/ZoneGroup/{source}/{level}/{interval}/{measure}/{start}/{end}/{zoneGroup}",
+                async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
+
+                    var dt = await DataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
+                        start, end, zoneGroup);
+                    return dt;
+                });
+            return await cacheEntry;
         }
 
         /// <summary>
@@ -76,8 +101,17 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<DataTable> GetByCorridor(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string corridor)
         {
-            var dt = await DataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure, start, end, corridor);
-            return dt;
+            var cacheEntry = Cache.GetOrCreate(
+                $"Metrics/Corridor/{source}/{level}/{interval}/{measure}/{start}/{end}/{corridor}",
+                async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
+
+                    var dt = await DataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
+                        start, end, corridor);
+                    return dt;
+                });
+            return await cacheEntry;
         }
 
         #endregion

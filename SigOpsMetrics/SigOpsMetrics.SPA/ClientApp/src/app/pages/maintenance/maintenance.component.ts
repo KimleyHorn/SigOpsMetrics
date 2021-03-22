@@ -10,6 +10,7 @@ export class MaintenanceComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    
   }
 
 }
