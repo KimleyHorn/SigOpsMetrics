@@ -17,20 +17,3 @@ export class SignalsService {
     return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/all');
   }
 }
-
-// export interface SignalInfo {
-//   signalID: string;
-//   zoneGroup: string;
-//   zone: string;
-//   corridor: string;
-//   subcorridor: string;
-//   agency: string;
-//   mainStreetName: string;
-//   sideStreetName: string;
-//   milepost: string;
-//   asOf: Date;
-//   duplicate: string;
-//   include: string;
-//   modified: Date;
-//   note: string;
-// }

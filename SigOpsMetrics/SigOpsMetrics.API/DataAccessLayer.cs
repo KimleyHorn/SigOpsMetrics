@@ -65,9 +65,7 @@ namespace SigOpsMetrics.API
             string period;
             string startFormat = start.ToString();
             string endFormat = end.ToString();
-
-
-
+            
             switch (interval)
             {
                 case "dy":

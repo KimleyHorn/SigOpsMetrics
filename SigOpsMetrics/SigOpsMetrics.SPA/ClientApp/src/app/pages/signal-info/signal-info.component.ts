@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
-import { SignalsService} from '../../services/signals.service';
-import { SignalInfo} from '../../models/signal-info';
+import { SignalsService } from '../../services/signals.service';
+import { SignalInfo } from '../../models/signal-info';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -14,7 +14,7 @@ import { MatTableDataSource } from '@angular/material/table';
 export class SignalInfoComponent implements OnInit, AfterViewInit {
   public signalList: SignalInfo[];
   dataSource: MatTableDataSource<SignalInfo> = new MatTableDataSource<SignalInfo>();
-  displayedColumns: string[] = ['signalID', 'zoneGroup', 'zone', 'corridor', 'subcorridor', 'agency', 'mainStreetName', 'sideStreetName', 'milepost', 'asOf', 'duplicate', 'include', 'modified', 'note'];
+  displayedColumns: string[] = ['signalID', 'zoneGroup', 'zone', 'corridor', 'subcorridor', 'agency', 'mainStreetName', 'sideStreetName', 'milepost', 'asOf', 'duplicate', 'include', 'modified', 'note', 'latitude', 'longitude'];
   constructor(private signalsService: SignalsService) { }
 
   ngOnInit(): void {
