@@ -1,31 +1,58 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from "@angular/core";
+import { SignalInfo } from "src/app/models/signal-info";
+import { SignalsService } from "../../services/signals.service";
+import { environment } from "../../../environments/environment";
 
 @Component({
-  selector: 'app-map',
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css']
+  selector: "app-map",
+  templateUrl: "./map.component.html",
+  styleUrls: ["./map.component.css"],
 })
 export class MapComponent implements OnInit {
-
-  zoom = 12
-  center: google.maps.LatLngLiteral
+  markers = [];
+  defaultLat: number;
+  defaultLon: number;
+  zoom = 12;
+  center: google.maps.LatLngLiteral;
   options: google.maps.MapOptions = {
-    mapTypeId: 'hybrid',
+    mapTypeId: "hybrid",
     zoomControl: false,
     scrollwheel: true,
     disableDoubleClickZoom: true,
     maxZoom: 15,
     minZoom: 8,
-  }
-  constructor() { }
+  };
+
+  constructor(private signalsService: SignalsService) {}
 
   ngOnInit() {
-    navigator.geolocation.getCurrentPosition((position) => {
-      this.center = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      }
-    })
+    this.center = {
+      lat: environment.mapCenterLat,
+      lng: environment.mapCenterLon,
+    };
+    this.addMarkers();
   }
 
+  addMarkers() {
+    this.signalsService.getData().subscribe((data) => {
+      data.forEach((element) => {
+        this.addMarker(element);
+      });
+    });
+  }
+
+  addMarker(signal: SignalInfo) {
+    this.markers.push({
+      position: {
+        lat: signal.latitude,
+        lng: signal.longitude,
+      },
+      title: signal.mainStreetName + " @ " + signal.sideStreetName,
+      options: {
+        //icon: svgMarker
+        icon: "../../assets/images/greencircle.png",
+        //animation: google.maps.Animation.BOUNCE
+      },
+    });
+  }
 }

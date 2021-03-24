@@ -267,11 +267,13 @@ namespace SigOpsMetrics.API.Controllers
                         Duplicate = sheet.Cells[row, ++col].Text,
                         Include = sheet.Cells[row, ++col].Text,
                         Modified = sheet.Cells[row, ++col].Text.ToNullableDateTime(),
-                        Note = sheet.Cells[row, ++col].Text
+                        Note = sheet.Cells[row, ++col].Text,
+                        Latitude = sheet.Cells[row, ++col].Text.ToDouble(),
+                        Longitude = sheet.Cells[row, ++col].Text.ToDouble()
                     };
                     retVal.Add(newSignal);
                 } 
-                return retVal;
+                return retVal.Where(x => x.SignalID != "-1");
             }
             catch (Exception ex)
             {
