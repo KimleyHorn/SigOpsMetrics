@@ -17,7 +17,7 @@ export class SideNavComponent implements OnInit {
 
   ngOnInit(): void {
     this.sideNavService.setSideNav(this.sideNav);
-    
+
     var routes = this.router.config.filter(item => item["text"] !== undefined && item["text"] !== "");
     this.menuItems = this.mapItems(routes);
   }
