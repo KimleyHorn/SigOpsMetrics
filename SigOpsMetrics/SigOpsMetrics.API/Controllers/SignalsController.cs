@@ -310,8 +310,7 @@ namespace SigOpsMetrics.API.Controllers
         private IEnumerable<string> GetZoneGroups(ExcelWorksheet sheet)
         {
             var retVal = GetSingleColumnFromSpreadsheet(sheet, 2).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
-                .ToList();
-            retVal = retVal.OrderBy(x => x).ToList();
+                .OrderBy(x => x).ToList();
             retVal.Insert(0, "All RTOP"); //Hardcode in an 'all' option - will have to check for special case in Metrics controller
             return retVal;
         }
