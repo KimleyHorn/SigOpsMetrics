@@ -40,7 +40,7 @@ namespace SigOpsMetrics.API
                     builder =>
                     {
                         //Add future domains here
-                        builder.WithOrigins("http://localhost:4200");
+                        builder.WithOrigins("http://localhost:4200", "http://sigops-test.s3-website-us-east-1.amazonaws.com");
                     });
             });
             services.AddResponseCaching();
