@@ -8,5 +8,10 @@ namespace SigOpsMetrics.API.Classes.Extensions
         {
             return DateTime.TryParse(text, out var date) ? date : (DateTime?) null;
         }
+
+        public static double ToDouble(this string text)
+        {
+            return !double.TryParse(text, out var retVal) ? 0.0 : retVal;
+        }
     }
 }
