@@ -8,6 +8,9 @@ import { GoogleMapsModule } from '@angular/google-maps';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MaterialModule } from './modules/material-module';
 
+import { PlotlyViaCDNModule } from 'angular-plotly.js';
+PlotlyViaCDNModule.setPlotlyVersion('latest');
+
 import { AppComponent } from './app.component';
 import { SideNavComponent } from './core/side-nav/side-nav.component';
 
@@ -65,7 +68,8 @@ const routes = [
     { relativeLinkResolution: 'legacy' }),
     BrowserAnimationsModule,
     MaterialModule,
-    GoogleMapsModule
+    GoogleMapsModule,
+    PlotlyViaCDNModule
   ],
   providers: [],
   bootstrap: [AppComponent]

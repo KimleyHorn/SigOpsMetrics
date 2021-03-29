@@ -13,8 +13,8 @@ export class SignalsService {
     this.baseUrl = baseUrlInject;
   }
 
-  getData() {
-    return this.http.get<SignalInfo[]>(this.baseUrl + 'signals');
+  getData(endpoint: string = "") {
+    return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/' + endpoint);
   }
 }
 
