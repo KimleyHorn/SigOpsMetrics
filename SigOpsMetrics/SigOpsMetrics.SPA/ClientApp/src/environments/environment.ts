@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  API_PATH: 'https://localhost:44347/'
+  API_PATH: 'https://localhost:44347/',
+  mapCenterLat: 33.757776,
+  mapCenterLon: -84.391578
 };
 
 /*

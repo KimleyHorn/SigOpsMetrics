@@ -29,6 +29,7 @@ import { HeaderComponent } from './core/header/header.component';
 import { MapComponent } from './components/map/map.component';
 import { ChartToggleComponent } from './components/toggles/chart-toggle/chart-toggle.component';
 import { ThroughputGraphComponent } from './components/graphs/throughput-graph/throughput-graph.component';
+import { FilterSidenavComponent } from './core/filter-sidenav/filter-sidenav.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -58,13 +59,14 @@ const routes = [
     HealthMetricsComponent,
     RampMetersComponent,
     ChartToggleComponent,
-    ThroughputGraphComponent
+    ThroughputGraphComponent,
+    FilterSidenavComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
     HttpClientModule,
     FormsModule,
-    RouterModule.forRoot(routes, 
+    RouterModule.forRoot(routes,
     { relativeLinkResolution: 'legacy' }),
     BrowserAnimationsModule,
     MaterialModule,

@@ -18,5 +18,7 @@ namespace SigOpsMetrics.API.Classes.DTOs
         public string Include { get; set; }
         public DateTime? Modified { get; set; }
         public string Note { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
     }
 }

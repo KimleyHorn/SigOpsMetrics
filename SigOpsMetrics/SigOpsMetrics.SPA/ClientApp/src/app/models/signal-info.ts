@@ -13,4 +13,6 @@ export class SignalInfo {
   include: string;
   modified: Date;
   note: string;
+  latitude: number;
+  longitude: number;
 }

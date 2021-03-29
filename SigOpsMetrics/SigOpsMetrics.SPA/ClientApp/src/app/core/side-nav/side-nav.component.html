@@ -10,6 +10,9 @@
       </mat-nav-list>
       <img src="/assets/images/PoweredByGDOT.png" width="150px" style="position: fixed; bottom: 15px; margin-left: 15px;"  />
     </mat-sidenav>
+    <mat-sidenav position="end" mode="side" opened>
+      <app-filter-sidenav></app-filter-sidenav>
+    </mat-sidenav>
     <mat-sidenav-content>
       <router-outlet></router-outlet>
     </mat-sidenav-content>

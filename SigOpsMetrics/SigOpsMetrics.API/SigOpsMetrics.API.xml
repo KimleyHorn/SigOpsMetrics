@@ -100,5 +100,23 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="T:SigOpsMetrics.API.LambdaEntryPoint">
+            <summary>
+            This class extends from APIGatewayProxyFunction which contains the method FunctionHandlerAsync which is the 
+            actual Lambda function entry point. The Lambda handler field should be set to
+            
+            SigOpsMetrics::SigOpsMetrics.LambdaEntryPoint::FunctionHandlerAsync
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "M:SigOpsMetrics.API.LambdaEntryPoint.Init(Microsoft.AspNetCore.Hosting.IWebHostBuilder)" -->
+        <member name="M:SigOpsMetrics.API.LambdaEntryPoint.Init(Microsoft.Extensions.Hosting.IHostBuilder)">
+            <summary>
+            Use this override to customize the services registered with the IHostBuilder. 
+            
+            It is recommended not to call ConfigureWebHostDefaults to configure the IWebHostBuilder inside this method.
+            Instead customize the IWebHostBuilder in the Init(IWebHostBuilder) overload.
+            </summary>
+            <param name="builder"></param>
+        </member>
     </members>
 </doc>
