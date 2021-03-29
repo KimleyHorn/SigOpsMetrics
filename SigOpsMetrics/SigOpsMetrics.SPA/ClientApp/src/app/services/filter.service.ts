@@ -1,10 +1,13 @@
 import { Component, Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilterService {
+  private _filters = new BehaviorSubject<any>(null);
+  public filters = this._filters.asObservable();
 
   baseUrl: string;
   public signalGroups: Array<any> = [];
@@ -28,5 +31,9 @@ export class FilterService {
 
   public getSignalGroupsFromDb() {
     return this.http.get<any[]>(this.baseUrl + 'signals/zonegroups');
+  }
+
+  public setValue(key: string, value: any){
+    this._filters.next(null);
   }
 }
