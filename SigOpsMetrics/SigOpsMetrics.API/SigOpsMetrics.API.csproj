@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>bin\Debug\SigOpsMetrics.API.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\netcoreapp3.1\publish\SigOpsMetrics.API.xml</DocumentationFile>
     <OutputPath>bin\Release\netcoreapp3.1\publish</OutputPath>
   </PropertyGroup>
 

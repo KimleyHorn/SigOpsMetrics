@@ -19,7 +19,7 @@ namespace SigOpsMetrics.API.Controllers
     /// Controller for signals, corridors, and groups
     /// </summary>
     [ApiController]
-    [Route("Signals")]
+    [Route("signals")]
     public class SignalsController : _BaseController
     {
         private const string KeyName = "Corridors_Latest.xlsx";
@@ -42,7 +42,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <returns></returns>
         //todo: known issue with Swagger - this crashes it due to response size
         //todo: Leave it for now and hope Swagger fixes it down the road - MJW 3/2/21
-        [HttpGet("All")]
+        [HttpGet("all")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<SignalDTO>> Get()
         {
@@ -70,7 +70,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of signal names in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("Names")]
+        [HttpGet("names")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetNames()
         {
@@ -91,7 +91,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of zone groups in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("ZoneGroups")]
+        [HttpGet("zonegroups")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZoneGroups()
         {
@@ -113,7 +113,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of zones in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("Zones")]
+        [HttpGet("zones")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZones()
         {
@@ -133,7 +133,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of corridors in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("Corridors")]
+        [HttpGet("corridors")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridors()
         {
@@ -154,7 +154,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of corridors by zone in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("CorridorsByZone")]
+        [HttpGet("corridorsbyzone")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridorsByZone(string zone)
         {
@@ -174,7 +174,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of subcorridors in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("SubCorridors")]
+        [HttpGet("subcorridors")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridors()
         {
@@ -195,7 +195,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of subcorridors by corridor in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("SubCorridorsByCorridor")]
+        [HttpGet("subcorridorsbycorridor")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridorsByCorridor(string corridor)
         {
