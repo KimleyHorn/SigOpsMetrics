@@ -47,7 +47,7 @@ export class ThroughputGraphComponent implements OnInit {
   ngOnInit(): void {
     this.metricsService.getMetrics(this.source, this.level, this.interval, this.measure, this.start, this.end).subscribe(response => {
       this.data = response;
-      this.corridors = new Set(this.data.filter(value => value['corridor'] !== null && value['zone_Group'] === 'All RTOP').map(data => data['corridor']));
+      this.corridors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
       console.log(response);
 
       this.loadBarGraph();
