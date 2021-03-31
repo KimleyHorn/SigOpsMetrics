@@ -19,14 +19,14 @@
         ],
         "Events": {
           "ProxyResource": {
-            "Type": "HttpApi",
+            "Type": "Api",
             "Properties": {
               "Path": "/{proxy+}",
               "Method": "ANY"
             }
           },
           "RootResource": {
-            "Type": "HttpApi",
+            "Type": "Api",
             "Properties": {
               "Path": "/",
               "Method": "ANY"
@@ -40,7 +40,7 @@
     "ApiURL": {
       "Description": "API endpoint URL for Prod environment",
       "Value": {
-        "Fn::Sub": "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+        "Fn::Sub": "https://${ServerlessApi}.execute-api.${AWS::Region}.amazonaws.com/"
       }
     }
   }
