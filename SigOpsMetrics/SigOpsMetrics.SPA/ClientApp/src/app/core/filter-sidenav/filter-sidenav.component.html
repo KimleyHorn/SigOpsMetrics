@@ -36,7 +36,8 @@
       </mat-expansion-panel-header>
       <mat-form-field appearance="fill">
         <mat-label>Select A Signal Group</mat-label>
-        <mat-select [(ngModel)]="selectedSignalGroup">
+        <mat-select [(ngModel)]="selectedSignalGroup"
+          (selectionChange)='signalGroupSelected($event)'>
           <mat-option
             *ngFor="let signalGroup of signalGroups"
             [value]="signalGroup"

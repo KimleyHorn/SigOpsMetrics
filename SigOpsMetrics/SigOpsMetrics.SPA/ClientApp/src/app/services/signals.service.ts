@@ -14,7 +14,7 @@ export class SignalsService {
   }
 
   getData(endpoint: string = "") {
-    return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/' + endpoint);
+    return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/all' + endpoint);
   }
 }
 

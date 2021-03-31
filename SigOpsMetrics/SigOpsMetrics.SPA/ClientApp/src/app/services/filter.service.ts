@@ -1,12 +1,14 @@
 import { Component, Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { Filter } from '../models/filter';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FilterService {
-  private _filters = new BehaviorSubject<any>(null);
+  private filt: Filter = new Filter();
+  private _filters = new BehaviorSubject<Filter>(null);
   public filters = this._filters.asObservable();
 
   baseUrl: string;
@@ -34,6 +36,7 @@ export class FilterService {
   }
 
   public setValue(key: string, value: any){
-    this._filters.next(null);
+    this.filt[key] = value;
+    this._filters.next(this.filt);
   }
 }

@@ -53,29 +53,37 @@ export class ThroughputGraphComponent implements OnInit {
       this.loadBarGraph();
       this.loadLineGraph();
     });
+
+    this.filtersService.filters.subscribe(filter => {
+      console.log(filter);
+      console.log('filter changed');
+      this.data = this.data.filter(value => value['zone_Group'] === filter.zoneGroup);
+      this.loadBarGraph();
+      this.loadLineGraph();
+    });
   }
 
   loadLineGraph(){
     let graphData: any[] = [];
-    this.corridors.forEach(corridor => {
-      let filterData = this.data.filter(data => data['corridor'] === corridor);
-      let trace = {
-        name: corridor,
-        x: filterData.map(value => new Date(value['month'])),
-        y: filterData.map(value => value['vph']),
-        text: filterData.map(value => value['corridor']),
-        hovertemplate:
-          '<b>%{text}</b>' +
-          '<br>Week of: <b>%{x}</b>' +
-          '<br>Throughput (peak veh/hr): <b>%{y}</b>' +
-          '<extra></extra>',
-        mode: 'lines'
-      };
-
-      graphData.push(trace);
-    });
-
-    console.log(graphData);
+    if(this.corridors !== undefined){
+      this.corridors.forEach(corridor => {
+        let filterData = this.data.filter(data => data['corridor'] === corridor);
+        let trace = {
+          name: corridor,
+          x: filterData.map(value => new Date(value['month'])),
+          y: filterData.map(value => value['vph']),
+          text: filterData.map(value => value['corridor']),
+          hovertemplate:
+            '<b>%{text}</b>' +
+            '<br>Week of: <b>%{x}</b>' +
+            '<br>Throughput (peak veh/hr): <b>%{y}</b>' +
+            '<extra></extra>',
+          mode: 'lines'
+        };
+  
+        graphData.push(trace);
+      });
+    }
 
     this.lineGraph.data = graphData;
   }
@@ -84,22 +92,24 @@ export class ThroughputGraphComponent implements OnInit {
     let graphData: any[] = [];
     let currentMonth = new Date().getMonth();
 
-    this.corridors.forEach(corridor => {
-      let monthData = this.data.filter(data => data['corridor'] === corridor && new Date(data['month']).getMonth() === currentMonth);
-      let trace = {
-        name: corridor,
-        x: monthData.map(value => value['vph']),
-        y: monthData.map(value => value['corridor']),
-        orientation: 'h',
-        type: 'bar',
-        hovertemplate:
-          '<b>%{y}</b>' +
-          '<br>Throughput (peak veh/hr): <b>%{x}</b>' +
-          '<extra></extra>',
-      };
+    if(this.corridors !== undefined){
+      this.corridors.forEach(corridor => {
+        let monthData = this.data.filter(data => data['corridor'] === corridor && new Date(data['month']).getMonth() === currentMonth);
+        let trace = {
+          name: corridor,
+          x: monthData.map(value => value['vph']),
+          y: monthData.map(value => value['corridor']),
+          orientation: 'h',
+          type: 'bar',
+          hovertemplate:
+            '<b>%{y}</b>' +
+            '<br>Throughput (peak veh/hr): <b>%{x}</b>' +
+            '<extra></extra>',
+        };
 
-      graphData.push(trace);
-    });
+        graphData.push(trace);
+      });
+    }
 
     this.barGraph.data = graphData;
   }

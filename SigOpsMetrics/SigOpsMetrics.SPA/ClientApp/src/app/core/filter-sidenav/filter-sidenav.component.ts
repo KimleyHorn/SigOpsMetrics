@@ -24,4 +24,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.selectedSignalGroup = data[0]; //All RTOP
     });
   }
+
+  signalGroupSelected(e){
+    console.log(e);
+    this.filterService.setValue("zoneGroup", e.value);
+  }
 }
