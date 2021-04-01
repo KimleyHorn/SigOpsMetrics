@@ -1,0 +1,7 @@
+mat-sidenav {
+    background-color: #fafafa;
+}
+
+.selected-item {
+    background-color: darkgrey !important;
+}
