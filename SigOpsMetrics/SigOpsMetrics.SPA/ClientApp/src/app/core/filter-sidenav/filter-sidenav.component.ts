@@ -10,7 +10,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   filterIsExpanded: boolean;
 
   signalGroups: Array<string> = [];
+  agencies: Array<string> = [];
   selectedSignalGroup: string;
+  selectedAgency: string;
 
   constructor(private filterService: FilterService) {}
 
@@ -21,7 +23,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.filterService.getSignalGroupsFromDb().subscribe((data) => {
       this.signalGroups = data;
-      this.selectedSignalGroup = data[0]; //All RTOP
+      //this.selectedSignalGroup = data[0]; //All RTOP
+    });
+
+    this.filterService.getAgenciesFromDb().subscribe((data) => {
+      this.agencies = data;
     });
   }
 }

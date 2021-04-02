@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using MySqlConnector;
 #pragma warning disable 1591
@@ -8,6 +9,8 @@ namespace SigOpsMetrics.API
 {
     public static class DataAccessLayer
     {
+        private const string ApplicationName = "SigOpsMetrics.API";
+
         public static async Task<DataTable> GetMetric(MySqlConnection sqlConnection, string source, string level,
             string interval, string measure, DateTime start, DateTime end)
         {
@@ -54,6 +57,8 @@ namespace SigOpsMetrics.API
             }
             catch (Exception ex)
             {
+                await WriteToErrorLog(sqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    nameof(GetFromDatabase), ex);
                 //Invalid configuration
                 return new DataTable();
             }
@@ -114,6 +119,33 @@ namespace SigOpsMetrics.API
                 return string.Empty;
 
             return dateRangeClause + CreateCorridorAndClause(corridor);
+        }
+
+        public static async Task WriteToErrorLog(MySqlConnection sqlConnection, string applicationName, string functionName, Exception ex)
+        {
+            await WriteToErrorLog(sqlConnection, applicationName, functionName, ex.Message, ex.InnerException?.ToString());
+        }
+
+        public static async Task WriteToErrorLog(MySqlConnection sqlConnection, string applicationName,
+            string functionName, string exception, string innerException)
+        {
+            try
+            {
+                await sqlConnection.OpenAsync();
+                using (var cmd = new MySqlCommand())
+                {
+
+                    cmd.Connection = sqlConnection;
+                    cmd.CommandText =
+                        $"insert into mark1.errorlog (applicationname, functionname, exception, innerexception) values ('{applicationName}', '{functionName}', '{exception.Substring(0, exception.Length > 500 ? 500 : exception.Length)}', '{innerException}') ";
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
     }
 }

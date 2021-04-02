@@ -29,4 +29,8 @@ export class FilterService {
   public getSignalGroupsFromDb() {
     return this.http.get<any[]>(this.baseUrl + 'signals/zonegroups');
   }
+
+  public getAgenciesFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
+  }
 }

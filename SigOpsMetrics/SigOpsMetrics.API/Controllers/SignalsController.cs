@@ -46,9 +46,10 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<SignalDTO>> Get()
         {
+            const string cacheName = "signals/all";
             try
             {
-                var cacheEntry = Cache.GetOrCreate("Signals/All", async entry =>
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
@@ -61,7 +62,9 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                //todo
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
                 return null;
             }
         }
@@ -74,17 +77,27 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetNames()
         {
-            var cacheEntry = Cache.GetOrCreate("Signals/Names", async entry =>
+            const string cacheName = "signals/names";
+            try
             {
-                entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                var worksheet = GetSpreadsheet();
+                    var worksheet = GetSpreadsheet();
 
-                var retVal = GetSignalNames(await worksheet);
-                return retVal;
-            });
-            return await cacheEntry;
-
+                    var retVal = GetSignalNames(await worksheet);
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -95,18 +108,28 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZoneGroups()
         {
-            var cacheEntry = Cache.GetOrCreate("Signals/ZoneGroups", async entry =>
+            const string cacheName = "signals/zonegroups";
+            try
             {
-                entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                var worksheet = GetSpreadsheet();
+                    var worksheet = GetSpreadsheet();
 
-                var retVal = GetZoneGroups(await worksheet);
-                return retVal;
+                    var retVal = GetZoneGroups(await worksheet);
+                    return retVal;
 
-            });
-            return await cacheEntry;
-
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -117,16 +140,27 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZones()
         {
-            var cacheEntry = Cache.GetOrCreate("Signals/Zones", async entry =>
+            const string cacheName = "signals/zones";
+            try
             {
-                entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                var worksheet = GetSpreadsheet();
+                    var worksheet = GetSpreadsheet();
 
-                var retVal = GetZones(await worksheet);
-                return retVal;
-            });
-            return await cacheEntry;
+                    var retVal = GetZones(await worksheet);
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -137,17 +171,27 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridors()
         {
-            var cacheEntry = Cache.GetOrCreate("Signals/Corridors", async entry =>
+            const string cacheName = "signals/corridors";
+            try
             {
-                entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                var worksheet = GetSpreadsheet();
+                    var worksheet = GetSpreadsheet();
 
-                var retVal = GetCorridors(await worksheet);
-                return retVal;
-            });
-            return await cacheEntry;
-
+                    var retVal = GetCorridors(await worksheet);
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -158,16 +202,28 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridorsByZone(string zone)
         {
-            var cacheEntry = Cache.GetOrCreate($"Signals/CorridorsByZone/{zone}", async entry =>
+            var cacheName = $"signals/corridorsbyzone/{zone}";
+            try
             {
-                entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                var worksheet = GetSpreadsheet();
+                    var worksheet = GetSpreadsheet();
 
-                var retVal = GetCorridorsByZone(await worksheet, zone);
-                return retVal;
-            });
-            return await cacheEntry;
+                    var retVal = GetCorridorsByZone(await worksheet, zone);
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -178,17 +234,27 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridors()
         {
-            var cacheEntry = Cache.GetOrCreate("Signals/SubCorridors", async entry =>
+            const string cacheName = "signals/subcorridors";
+            try
             {
-                entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                var worksheet = GetSpreadsheet();
+                    var worksheet = GetSpreadsheet();
 
-                var retVal = GetSubCorridors(await worksheet);
-                return retVal;
-            });
-            return await cacheEntry;
-
+                    var retVal = GetSubCorridors(await worksheet);
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -199,17 +265,53 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridorsByCorridor(string corridor)
         {
-            var cacheEntry = Cache.GetOrCreate($"Signals/SubCorridorsByCorridor/{corridor}", async entry =>
+            var cacheName = $"signals/subcorridorsbycorridor/{corridor}";
+            try
             {
-                entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                var worksheet = GetSpreadsheet();
+                    var worksheet = GetSpreadsheet();
 
-                var retVal = GetSubCorridorsByCorridor(await worksheet, corridor);
-                return retVal;
-            });
-            return await cacheEntry;
+                    var retVal = GetSubCorridorsByCorridor(await worksheet, corridor);
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
+        }
 
+        [HttpGet("agencies")]
+        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<IEnumerable<string>> GetAgencies(string corridor)
+        {
+            const string cacheName = "signals/agencies";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+
+                    var worksheet = GetSpreadsheet();
+                    var retVal = GetAgencies(await worksheet);
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         #endregion
@@ -272,11 +374,15 @@ namespace SigOpsMetrics.API.Controllers
                         Longitude = sheet.Cells[row, ++col].Text.ToDouble()
                     };
                     retVal.Add(newSignal);
-                } 
+                }
+
                 return retVal.Where(x => x.SignalID != "-1");
             }
             catch (Exception ex)
             {
+                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/getallsignaldata", ex).GetAwaiter();
             }
 
             return new List<SignalDTO>();
@@ -303,7 +409,9 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-
+                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/getsignalnames", ex).GetAwaiter();
             }
 
             return new List<string>();
@@ -313,18 +421,18 @@ namespace SigOpsMetrics.API.Controllers
         {
             var retVal = GetSingleColumnFromSpreadsheet(sheet, 2).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
                 .OrderBy(x => x).ToList();
-            retVal.Insert(0, "All RTOP"); //Hardcode in an 'all' option - will have to check for special case in Metrics controller
+            //retVal.Insert(0, "All RTOP"); //Hardcode in an 'all' option - will have to check for special case in Metrics controller
             return retVal;
         }
 
         private IEnumerable<string> GetZones(ExcelWorksheet sheet)
         {
-            return GetSingleColumnFromSpreadsheet(sheet, 3).Distinct();
+            return GetSingleColumnFromSpreadsheet(sheet, 3).Distinct().OrderBy(x => x);
         }
 
         private IEnumerable<string> GetCorridors(ExcelWorksheet sheet)
         {
-            return GetSingleColumnFromSpreadsheet(sheet, 4).Distinct();
+            return GetSingleColumnFromSpreadsheet(sheet, 4).Distinct().OrderBy(x => x);
         }
 
         private IEnumerable<string> GetCorridorsByZone(ExcelWorksheet sheet, string zoneName)
@@ -347,7 +455,9 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-
+                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/getcorridorsbyzone", ex).GetAwaiter();
             }
 
             return new List<string>();
@@ -355,7 +465,7 @@ namespace SigOpsMetrics.API.Controllers
 
         private IEnumerable<string> GetSubCorridors(ExcelWorksheet sheet)
         {
-            return GetSingleColumnFromSpreadsheet(sheet, 5).Distinct();
+            return GetSingleColumnFromSpreadsheet(sheet, 5).Distinct().OrderBy(x => x);
         }
 
         private IEnumerable<string> GetSubCorridorsByCorridor(ExcelWorksheet sheet, string corridor)
@@ -378,10 +488,17 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-
+                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/getsubcorridorsbycorridor", ex).GetAwaiter();
             }
 
             return new List<string>();
+        }
+
+        private IEnumerable<string> GetAgencies(ExcelWorksheet sheet)
+        {
+            return GetSingleColumnFromSpreadsheet(sheet, 6).Distinct().OrderBy(x => x);
         }
 
         private IEnumerable<string> GetSingleColumnFromSpreadsheet(ExcelWorksheet sheet, int col)
@@ -395,18 +512,24 @@ namespace SigOpsMetrics.API.Controllers
 
                 for (var row = start.Row + 1; row <= end.Row; row++)
                 {
-                    retVal.Add(sheet.Cells[row, col].Text.Trim());
+                    var stringToEnter = sheet.Cells[row, col].Text.Trim();
+                    if (!string.IsNullOrWhiteSpace(stringToEnter))
+                        retVal.Add(stringToEnter);
                 }
 
                 return retVal;
             }
             catch (Exception ex)
             {
-
+                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    $"signals/getsinglecolumnfromspreadsheet/{col}", ex).GetAwaiter();
             }
 
             return new List<string>();
         }
+
+        
 
         #endregion
         

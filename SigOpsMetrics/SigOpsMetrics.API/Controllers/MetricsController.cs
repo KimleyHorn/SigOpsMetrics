@@ -44,8 +44,10 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<DataTable> Get(string source, string level, string interval, string measure, DateTime start,
             DateTime end)
         {
-            var cacheEntry = Cache.GetOrCreate($"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}",
-                async entry =>
+            var cacheName = $"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
@@ -53,7 +55,15 @@ namespace SigOpsMetrics.API.Controllers
                         end);
                     return dt;
                 });
-            return await cacheEntry;
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -72,9 +82,10 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<DataTable> GetByZoneGroup(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string zoneGroup)
         {
-            var cacheEntry = Cache.GetOrCreate(
-                $"Metrics/ZoneGroup/{source}/{level}/{interval}/{measure}/{start}/{end}/{zoneGroup}",
-                async entry =>
+            var cacheName = $"Metrics/ZoneGroup/{source}/{level}/{interval}/{measure}/{start}/{end}/{zoneGroup}";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
@@ -82,7 +93,15 @@ namespace SigOpsMetrics.API.Controllers
                         start, end, zoneGroup);
                     return dt;
                 });
-            return await cacheEntry;
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -101,9 +120,10 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<DataTable> GetByCorridor(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string corridor)
         {
-            var cacheEntry = Cache.GetOrCreate(
-                $"Metrics/Corridor/{source}/{level}/{interval}/{measure}/{start}/{end}/{corridor}",
-                async entry =>
+            var cacheName = $"Metrics/Corridor/{source}/{level}/{interval}/{measure}/{start}/{end}/{corridor}";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
@@ -111,7 +131,15 @@ namespace SigOpsMetrics.API.Controllers
                         start, end, corridor);
                     return dt;
                 });
-            return await cacheEntry;
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
         }
 
         #endregion
