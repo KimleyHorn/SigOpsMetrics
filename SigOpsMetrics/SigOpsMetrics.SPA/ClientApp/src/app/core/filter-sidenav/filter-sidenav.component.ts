@@ -7,7 +7,6 @@ import { FilterService } from "../../services/filter.service";
   styleUrls: ["./filter-sidenav.component.css"],
 })
 export class FilterSidenavComponent implements OnInit, AfterViewInit {
-  filterIsExpanded: boolean;
 
   signalGroups: Array<string> = [];
   selectedSignalGroup: string;
@@ -15,7 +14,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   constructor(private filterService: FilterService) {}
 
   ngOnInit(): void {
-    this.filterIsExpanded = false;
+
   }
 
   ngAfterViewInit(): void {

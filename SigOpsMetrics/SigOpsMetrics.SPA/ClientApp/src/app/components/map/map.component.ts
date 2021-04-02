@@ -21,6 +21,9 @@ export class MapComponent implements OnInit {
     disableDoubleClickZoom: true,
     maxZoom: 15,
     minZoom: 8,
+    fullscreenControlOptions: {
+      position: google.maps.ControlPosition.BOTTOM_RIGHT
+    }
   };
 
   constructor(private signalsService: SignalsService) {}
