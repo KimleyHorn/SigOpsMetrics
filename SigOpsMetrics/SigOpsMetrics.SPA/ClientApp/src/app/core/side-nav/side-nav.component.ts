@@ -14,6 +14,7 @@ export class SideNavComponent implements OnInit {
 
   public menuItems: Array<any> = [];
   public isExpanded: boolean = true;
+  public filterIsExpanded: boolean = false;
 
   constructor(private router: Router, private sideNavService: SideNavService){}
 

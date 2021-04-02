@@ -5,3 +5,8 @@ mat-sidenav {
 .selected-item {
     background-color: darkgrey !important;
 }
+
+button {
+    outline: none;
+    border-radius: 0px;
+  }
