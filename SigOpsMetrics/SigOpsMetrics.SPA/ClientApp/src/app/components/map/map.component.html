@@ -6,6 +6,7 @@
     [center]="center"
     [options]="options"
   >
+  <map-traffic-layer [autoRefresh]="false"></map-traffic-layer>
     <map-marker
       *ngFor="let marker of markers"
       [position]="marker.position"

@@ -46,6 +46,13 @@
       <mat-expansion-panel-header>
         <mat-panel-title>Managing Agency</mat-panel-title>
       </mat-expansion-panel-header>
+      <mat-form-field appearance="fill">
+        <mat-label>Select An Agency</mat-label>
+        <mat-select [(ngModel)]="selectedAgency">
+          <mat-option *ngFor="let agency of agencies"
+          [value]="agency">{{ agency }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </mat-expansion-panel>
     <mat-expansion-panel>
       <mat-expansion-panel-header>
