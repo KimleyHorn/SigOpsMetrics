@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ThroughputGraphComponent } from './throughput-graph.component';
+import { LineBarGraphComponent } from './line-bar-graph.component';
 
-describe('ThroughputGraphComponent', () => {
-  let component: ThroughputGraphComponent;
-  let fixture: ComponentFixture<ThroughputGraphComponent>;
+describe('LineBarGraphComponent', () => {
+  let component: LineBarGraphComponent;
+  let fixture: ComponentFixture<LineBarGraphComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ThroughputGraphComponent ]
+      declarations: [ LineBarGraphComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ThroughputGraphComponent);
+    fixture = TestBed.createComponent(LineBarGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

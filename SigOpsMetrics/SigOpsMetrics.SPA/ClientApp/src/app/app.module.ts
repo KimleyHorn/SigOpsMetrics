@@ -28,8 +28,8 @@ import { RampMetersComponent } from './pages/ramp-meters/ramp-meters.component';
 import { HeaderComponent } from './core/header/header.component';
 import { MapComponent } from './components/map/map.component';
 import { ChartToggleComponent } from './components/toggles/chart-toggle/chart-toggle.component';
-import { ThroughputGraphComponent } from './components/graphs/throughput-graph/throughput-graph.component';
 import { FilterSidenavComponent } from './core/filter-sidenav/filter-sidenav.component';
+import { LineBarGraphComponent } from './components/graphs/line-bar-graph/line-bar-graph.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -59,8 +59,8 @@ const routes = [
     HealthMetricsComponent,
     RampMetersComponent,
     ChartToggleComponent,
-    ThroughputGraphComponent,
-    FilterSidenavComponent
+    FilterSidenavComponent,
+    LineBarGraphComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

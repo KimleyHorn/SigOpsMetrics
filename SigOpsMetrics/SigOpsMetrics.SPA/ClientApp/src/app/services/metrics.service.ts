@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { Metrics } from '../models/metrics';
 
 @Injectable({
   providedIn: 'root'
@@ -10,12 +11,12 @@ export class MetricsService {
 
   constructor(private http: HttpClient) { }
 
-  getMetrics(source: string, level: string, interval: string, measure: string, start: string, end: string){
-    return this.http.get<any[]>(this._baseUrl + 'metrics?source=' + source
-                                                    + '&level=' + level 
-                                                    + "&interval=" + interval 
-                                                    + "&measure=" + measure 
-                                                    + "&start="+ start 
-                                                    + "&end="+ end);
+  getMetrics(metrics: Metrics){
+    return this.http.get<any[]>(this._baseUrl + 'metrics?source=' + metrics.source
+                                                    + '&level=' + metrics.level 
+                                                    + "&interval=" + metrics.interval 
+                                                    + "&measure=" + metrics.measure 
+                                                    + "&start="+ metrics.start 
+                                                    + "&end="+ metrics.end);
   }
 }

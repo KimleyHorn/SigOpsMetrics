@@ -1,0 +1,19 @@
+<div class='row'>
+    <div class='col-lg-12'>
+        <h4>{{ title }}</h4>
+    </div>
+</div>
+<div class='row'> 
+    <div class='col-lg-6'>
+        <plotly-plot 
+            [data]='barGraph.data'
+            [layout]='barGraph.layout'>
+        </plotly-plot>
+    </div>
+    <div class='col-lg-6'>
+        <plotly-plot 
+            [data]='lineGraph.data'
+            [layout]='lineGraph.layout'>
+        </plotly-plot>
+    </div>
+</div>

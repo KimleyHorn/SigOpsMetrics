@@ -13,24 +13,7 @@ export class SignalsService {
     this.baseUrl = baseUrlInject;
   }
 
-  getData(endpoint: string = "") {
-    return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/all' + endpoint);
+  getData() {
+    return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/all');
   }
 }
-
-// export interface SignalInfo {
-//   signalID: string;
-//   zoneGroup: string;
-//   zone: string;
-//   corridor: string;
-//   subcorridor: string;
-//   agency: string;
-//   mainStreetName: string;
-//   sideStreetName: string;
-//   milepost: string;
-//   asOf: Date;
-//   duplicate: string;
-//   include: string;
-//   modified: Date;
-//   note: string;
-// }
