@@ -1,18 +1,10 @@
 <div class="col">
-  <button
-    mat-mini-fab
-    (click)="filterIsExpanded = !filterIsExpanded"
-    color="primary"
-    style="margin: 10px"
-  >
-    <mat-icon aria-label="Menu">filter_alt</mat-icon>
-  </button>
-  <mat-accordion *ngIf="filterIsExpanded" style="margin-left: 35px">
-    <button mat-flat-button color="primary" style="width: 150px">Apply</button>
+  <mat-accordion style="margin-left: 35px;">
+    <button mat-flat-button color="primary" style="width: 150px; margin-top:10px;">Apply</button>
   </mat-accordion>
 </div>
 <div class="col">
-  <mat-accordion *ngIf="filterIsExpanded">
+  <mat-accordion>
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>Date Range</mat-panel-title>
@@ -55,6 +47,13 @@
       <mat-expansion-panel-header>
         <mat-panel-title>Managing Agency</mat-panel-title>
       </mat-expansion-panel-header>
+      <mat-form-field appearance="fill">
+        <mat-label>Select An Agency</mat-label>
+        <mat-select [(ngModel)]="selectedAgency">
+          <mat-option *ngFor="let agency of agencies"
+          [value]="agency">{{ agency }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </mat-expansion-panel>
     <mat-expansion-panel>
       <mat-expansion-panel-header>

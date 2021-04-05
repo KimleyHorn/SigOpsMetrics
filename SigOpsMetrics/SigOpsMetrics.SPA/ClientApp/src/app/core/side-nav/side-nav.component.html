@@ -1,16 +1,25 @@
-<mat-sidenav-container>
-    <mat-sidenav #sidenav mode="side" opened class="main-sidenav">
+<button
+mat-mini-fab
+(click)="filterIsExpanded = !filterIsExpanded"
+color="primary"
+style="position: absolute; top: 70px; right: 5px; z-index: 2;"
+>
+<mat-icon aria-label="Menu">filter_alt</mat-icon>
+</button>
+<mat-sidenav-container autosize hasBackdrop="false">
+    <mat-sidenav #sidenav mode="side" opened class="main-sidenav" [style.max-width.px]="this.isExpanded ? '200' : '65'">
       <mat-nav-list>
         <mat-accordion>
-            <a *ngFor="let item of menuItems" mat-list-item>
-                <mat-icon mat-list-icon>{{ item.icon }}</mat-icon>
-                <a class="nav-link text-dark" [routerLink]="item.path">{{ item.text }}</a>
+            <a *ngFor="let item of menuItems" mat-list-item [routerLink]="item.path" [routerLinkActive]="['selected-item']" [routerLinkActiveOptions]="{exact: true}" >
+              <mat-icon mat-list-icon>{{ item.icon }}</mat-icon>
+              <a *ngIf="this.isExpanded" class="nav-link text-dark" >{{ item.text }}</a>
             </a>
         </mat-accordion>
       </mat-nav-list>
-      <img src="/assets/images/PoweredByGDOT.png" width="150px" style="position: fixed; bottom: 15px; margin-left: 15px;"  />
+      <img *ngIf="this.isExpanded" src="/assets/images/PoweredByGDOT.png" width="150px" style="position: fixed; bottom: 15px; margin-left: 15px;"  />
+      <img *ngIf="!this.isExpanded" src="/assets/images/PoweredByGDOT-mini.png" width="30px" style="position: fixed; bottom: 10px; margin-left: 15px;"  />
     </mat-sidenav>
-    <mat-sidenav position="end" mode="side" opened>
+    <mat-sidenav *ngIf="filterIsExpanded" position="end" mode="over" opened disableClose>
       <app-filter-sidenav></app-filter-sidenav>
     </mat-sidenav>
     <mat-sidenav-content>

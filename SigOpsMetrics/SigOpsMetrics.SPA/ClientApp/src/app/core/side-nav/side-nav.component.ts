@@ -6,12 +6,15 @@ import { SideNavService } from "../side-nav/side-nav.service";
 @Component({
   selector: 'app-side-nav',
   templateUrl: './side-nav.component.html',
+  styleUrls: ['./side-nav.component.css']
 })
 
 export class SideNavComponent implements OnInit {
   @ViewChild('sidenav', {static: true}) public sideNav: MatSidenav;
 
   public menuItems: Array<any> = [];
+  public isExpanded: boolean = true;
+  public filterIsExpanded: boolean = false;
 
   constructor(private router: Router, private sideNavService: SideNavService){}
 
@@ -20,6 +23,12 @@ export class SideNavComponent implements OnInit {
 
     var routes = this.router.config.filter(item => item["text"] !== undefined && item["text"] !== "");
     this.menuItems = this.mapItems(routes);
+
+  
+    this.sideNavService.isExpanded.subscribe((value) => {
+      this.isExpanded = value;
+    })
+
   }
 
   public mapItems(routes: any[]){
@@ -36,4 +45,5 @@ export class SideNavComponent implements OnInit {
 
     return items;
   }
+
 }

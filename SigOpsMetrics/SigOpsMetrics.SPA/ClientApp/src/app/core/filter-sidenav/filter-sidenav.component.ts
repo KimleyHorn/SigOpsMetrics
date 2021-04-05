@@ -7,21 +7,26 @@ import { FilterService } from "../../services/filter.service";
   styleUrls: ["./filter-sidenav.component.css"],
 })
 export class FilterSidenavComponent implements OnInit, AfterViewInit {
-  filterIsExpanded: boolean;
 
   signalGroups: Array<string> = [];
+  agencies: Array<string> = [];
   selectedSignalGroup: string;
+  selectedAgency: string;
 
   constructor(private filterService: FilterService) {}
 
   ngOnInit(): void {
-    this.filterIsExpanded = false;
+
   }
 
   ngAfterViewInit(): void {
     this.filterService.getSignalGroupsFromDb().subscribe((data) => {
       this.signalGroups = data;
-      this.selectedSignalGroup = data[0]; //All RTOP
+      //this.selectedSignalGroup = data[0]; //All RTOP
+    });
+
+    this.filterService.getAgenciesFromDb().subscribe((data) => {
+      this.agencies = data;
     });
   }
 
