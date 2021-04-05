@@ -7,13 +7,15 @@
     <div class='col-lg-6'>
         <plotly-plot 
             [data]='barGraph.data'
-            [layout]='barGraph.layout'>
+            [layout]='barGraph.layout'
+            (plotlyClick)='graphClicked($event)'>
         </plotly-plot>
     </div>
     <div class='col-lg-6'>
         <plotly-plot 
             [data]='lineGraph.data'
-            [layout]='lineGraph.layout'>
+            [layout]='lineGraph.layout'
+            (plotlyClick)='graphClicked($event)'>
         </plotly-plot>
     </div>
 </div>

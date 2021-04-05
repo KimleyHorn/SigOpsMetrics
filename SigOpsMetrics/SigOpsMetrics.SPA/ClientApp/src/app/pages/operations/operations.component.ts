@@ -11,11 +11,17 @@ import { Metrics } from 'src/app/models/metrics';
 export class OperationsComponent implements OnInit {
   toggleValue: string;
 
-  //throughput inputs
-  tpMetrics: Metrics = {
-    measure: 'tp'
-  }
+  tpMetrics: Metrics = new Metrics();
   tpTitle: string = 'Throughput (peak veh/hr)';
+  tpBar: Graph = {
+    title: 'Throughput (vph)',
+    x: 'vph',
+    y: 'corridor',
+    hoverTemplate: 
+      '<b>%{y}</b>' +
+      '<br>Throughput (peak veh/hr): <b>%{x}</b>' +
+      '<extra></extra>',
+  };
   tpLine: Graph = {
     title: 'Vehicles per Hour Trend',
     x: 'month',
@@ -27,21 +33,19 @@ export class OperationsComponent implements OnInit {
       '<br>Throughput (peak veh/hr): <b>%{y}</b>' +
       '<extra></extra>'
   };
-  tpBar: Graph = {
-    title: 'Vehicles per Hour Trend',
+
+  //queue spillback rate inputs
+  qsdMetrics: Metrics = new Metrics();
+  qsdTitle: string = 'Queue Spillback Rate';
+  qsdBar: Graph = {
+    title: 'Queue Spillback Rate',
     x: 'vph',
     y: 'corridor',
     hoverTemplate: 
       '<b>%{y}</b>' +
-      '<br>Throughput (peak veh/hr): <b>%{x}</b>' +
+      '<br>Queue Spillback Rate: <b>%{x}</b>' +
       '<extra></extra>',
   };
-
-  //queue spillback rate inputs
-  qsdMetrics: Metrics = {
-    measure: 'qsd'
-  }
-  qsdTitle: string = 'Queue Spillback Rate';
   qsdLine: Graph = {
     title: 'Queue Spillback Trend',
     x: 'month',
@@ -53,17 +57,11 @@ export class OperationsComponent implements OnInit {
       '<br>Queue Spillback Rate: <b>%{y}</b>' +
       '<extra></extra>'
   };
-  qsdBar: Graph = {
-    title: 'Queue Spillback Rate',
-    x: 'vph',
-    y: 'corridor',
-    hoverTemplate: 
-      '<b>%{y}</b>' +
-      '<br>Queue Spillback Rate: <b>%{x}</b>' +
-      '<extra></extra>',
-  };
 
-  constructor(private toggleService: ChartToggleService) { }
+  constructor(private toggleService: ChartToggleService) {
+    this.tpMetrics.measure = 'tp';
+    this.qsdMetrics.measure = 'qsd';
+   }
 
   ngOnInit(): void {
     this.toggleService.toggleValue.subscribe(value => {

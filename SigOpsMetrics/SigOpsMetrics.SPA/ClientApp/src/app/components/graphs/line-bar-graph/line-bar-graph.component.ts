@@ -27,36 +27,46 @@ export class LineBarGraphComponent implements OnInit {
   barGraph: any;
   barData: any;
 
+  defaultColor: string = '#A9A9A9';
+  selectColor: string = 'red';
+
   constructor(private _filterService: FilterService, private _metricsService: MetricsService) {}
 
   ngOnInit(): void {
+    this.barGraph = {
+      data: [],
+      layout: { 
+        showlegend: false,
+        xaxis: {
+          title: this.bar.title,
+          tickangle: 90
+        },
+        yaxis:{
+          automargin: true,
+        },
+        hovermode: 'closest'
+      }
+    };
+
     this.lineGraph = {
       data: [],
       layout: { 
         showlegend: false,
         xaxis: {
           title: this.line.title
-        }
-      }
-    };
-  
-    this.barGraph = {
-      data: [],
-      layout: { 
-        showlegend: false,
-        xaxis: {
-          title: this.bar.title
-        }
+        },
+        yaxis:{
+          automargin: true,
+        },
+        hovermode: 'closest'
       }
     };
 
     this._metricsService.getMetrics(this.metrics).subscribe(response => {
-      console.log(this.metrics);
       //this.filteredData = response;
       this.data = response;
       this.filteredData = response;
-      this.corridors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
-      console.log(response);
+      this.corridors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']).slice(0, 20));
       this._loadGraphs();
     });
 
@@ -92,6 +102,9 @@ export class LineBarGraphComponent implements OnInit {
           orientation: 'h',
           type: 'bar',
           hovertemplate: this.bar.hoverTemplate,
+          marker: {
+            color: this.defaultColor
+          }
         };
 
         graphData.push(trace);
@@ -112,7 +125,10 @@ export class LineBarGraphComponent implements OnInit {
           y: lineData.map(value => value[this.line.y]),
           text: lineData.map(value => value[this.line.text]),
           hovertemplate: this.line.hoverTemplate,
-          mode: 'lines'
+          mode: 'lines',
+          line: {
+            color: this.defaultColor
+          }
         };
   
         graphData.push(trace);
@@ -120,5 +136,40 @@ export class LineBarGraphComponent implements OnInit {
     }
 
     this.lineGraph.data = graphData;
+  }
+
+  graphClicked(e){
+    this._resetColor();
+    
+    var name = e.points[0].data.name;
+    this._selectColor(name);
+  }
+
+  private _selectColor(name: string){
+    this.barGraph.data
+    .filter(item => item.name === name)
+    .map(dataItem => {
+      dataItem.marker.color = this.selectColor;
+      return dataItem;
+    });
+
+    this.lineGraph.data
+    .filter(item => item.name === name)
+    .map(dataItem => {
+      dataItem.line.color = this.selectColor;
+      return dataItem;
+    });
+  }
+
+  private _resetColor(){
+    this.barGraph.data.map(dataItem => {
+      dataItem.marker.color = this.defaultColor;
+      return dataItem;
+    });
+
+    this.lineGraph.data.map(dataItem => {
+      dataItem.line.color = this.defaultColor;
+      return dataItem;
+    });
   }
 }
