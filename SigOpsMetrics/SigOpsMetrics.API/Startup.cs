@@ -92,7 +92,14 @@ namespace SigOpsMetrics.API
 
             app.UseSwagger();
 
+#if DEBUG
+            
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "SigOps Metrics API V1"); });
+#else
+
             app.UseSwaggerUI(c => { c.SwaggerEndpoint("/dev/swagger/v1/swagger.json", "SigOps Metrics API V1"); });
+
+#endif
         }
     }
 }
