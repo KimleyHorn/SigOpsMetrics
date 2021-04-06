@@ -8,7 +8,12 @@
     
     <div *ngIf="toggleValue == '1'" class="row">
         <div class="col-12">
-            <app-throughput-graph></app-throughput-graph>
+            <app-line-bar-graph 
+                [title]='tpTitle'
+                [metrics]='tpMetrics'
+                [line]='tpLine'
+                [bar]='tpBar'>
+            </app-line-bar-graph>
         </div>
     </div>
 
@@ -26,7 +31,12 @@
 
     <div *ngIf="toggleValue == '4'" class="row">
         <div class="col-12">
-            Spillback Rate
+            <app-line-bar-graph 
+                [title]='qsdTitle'
+                [metrics]='qsdMetrics'
+                [line]='qsdLine'
+                [bar]='qsdBar'>
+            </app-line-bar-graph>
         </div>
     </div>
 

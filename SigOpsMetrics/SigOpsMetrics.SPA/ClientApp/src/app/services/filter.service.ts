@@ -5,6 +5,9 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class FilterService {
+  private filt: Filter = new Filter();
+  private _filters = new BehaviorSubject<Filter>(null);
+  public filters = this._filters.asObservable();
 
   baseUrl: string;
   public signalGroups: Array<any> = [];
@@ -32,5 +35,10 @@ export class FilterService {
 
   public getAgenciesFromDb() {
     return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
+  }
+
+  public setValue(key: string, value: any){
+    this.filt[key] = value;
+    this._filters.next(this.filt);
   }
 }

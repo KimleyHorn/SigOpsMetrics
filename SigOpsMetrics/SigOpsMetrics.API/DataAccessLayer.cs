@@ -70,7 +70,7 @@ namespace SigOpsMetrics.API
             string period;
             string startFormat = start.ToString();
             string endFormat = end.ToString();
-            
+
             switch (interval)
             {
                 case "dy":
@@ -88,7 +88,7 @@ namespace SigOpsMetrics.API
                 default:
                     return string.Empty;
             }
-            
+
             return $"where {period} >= '{startFormat}' and {period} <= '{endFormat}'";
         }
 

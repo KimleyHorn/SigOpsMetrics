@@ -29,4 +29,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.agencies = data;
     });
   }
+
+  signalGroupSelected(e){
+    console.log(e);
+    this.filterService.setValue("zoneGroup", e.value);
+  }
 }
