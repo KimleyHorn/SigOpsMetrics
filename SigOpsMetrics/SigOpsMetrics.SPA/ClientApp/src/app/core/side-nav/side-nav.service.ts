@@ -17,15 +17,8 @@ export class SideNavService {
     this.sideNav = sideNav;
   }
 
-  public open(){
-    return this.sideNav.open();
-  }
-
-  public close(){
-    return this.sideNav.close();
-  }
-
   public toggle(): void{
     this._isExpanded.next(!this._isExpanded.value);
   }
+
 }
