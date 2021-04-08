@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import { SignalInfo } from "src/app/models/signal-info";
 import { SignalsService } from "../../services/signals.service";
 import { environment } from "../../../environments/environment";
@@ -9,6 +9,7 @@ import { environment } from "../../../environments/environment";
   styleUrls: ["./map.component.css"],
 })
 export class MapComponent implements OnInit {
+  @Input() height: string;
   markers = [];
   defaultLat: number;
   defaultLon: number;

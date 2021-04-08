@@ -1,0 +1,34 @@
+<div class='row margin-bottom'>
+    <div class='col-lg-3'>
+        <div class='row margin-bottom'>
+            <div class='col-sm-12'>
+                <app-metric-card 
+                    [metricValue]='metricValue' 
+                    [metricLabel]='metricLabel'>
+                </app-metric-card>
+            </div>
+        </div>
+        <div class='row'>
+            <div class='col-sm-12'>
+                <app-metric-card 
+                    [metricValue]='changeValue' 
+                    [metricLabel]='changeLabel'>
+                </app-metric-card>
+            </div>
+        </div>
+    </div>
+
+    <div class='col-lg-9'>
+        <mat-card class="map-card">
+            <app-map [height]="'100%'"></app-map>
+        </mat-card>
+    </div>
+</div>
+
+<div class='row'>
+    <div class='col-12'>
+        <mat-card>
+            <ng-containter [ngTemplateOutlet]="template" [ngTemplateOutletContext]="{$implicit: filteredData }"></ng-containter>
+        </mat-card>
+    </div>
+</div>

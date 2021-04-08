@@ -29,7 +29,9 @@ import { HeaderComponent } from './core/header/header.component';
 import { MapComponent } from './components/map/map.component';
 import { ChartToggleComponent } from './components/toggles/chart-toggle/chart-toggle.component';
 import { FilterSidenavComponent } from './core/filter-sidenav/filter-sidenav.component';
-import { LineBarGraphComponent } from './components/graphs/line-bar-graph/line-bar-graph.component';
+import { MetricCardComponent } from './components/cards/metric-card/metric-card.component';
+import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
+import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/graph-dashboard.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -60,7 +62,9 @@ const routes = [
     RampMetersComponent,
     ChartToggleComponent,
     FilterSidenavComponent,
-    LineBarGraphComponent
+    MetricCardComponent,
+    BarLineGraphComponent,
+    GraphDashboardComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

@@ -1,22 +1,17 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Graph } from 'src/app/models/graph';
-import { Metrics } from 'src/app/models/metrics';
-import { FilterService } from 'src/app/services/filter.service';
-import { MetricsService } from 'src/app/services/metrics.service';
 
 @Component({
-  selector: 'app-line-bar-graph',
-  templateUrl: './line-bar-graph.component.html',
-  styleUrls: ['./line-bar-graph.component.css']
+  selector: 'app-bar-line-graph',
+  templateUrl: './bar-line-graph.component.html',
+  styleUrls: ['./bar-line-graph.component.css']
 })
-export class LineBarGraphComponent implements OnInit {
+export class BarLineGraphComponent implements OnInit, OnChanges {
   private _currentMonth = new Date().getMonth();
 
   @Input() title: string = "";
-  @Input() metrics: Metrics;
   corridors: any;
-  data: any;
-  filteredData: any;
+  @Input() data: any;
 
   @Input() line: Graph;
   lineGraph: any;
@@ -30,9 +25,11 @@ export class LineBarGraphComponent implements OnInit {
   defaultColor: string = '#A9A9A9';
   selectColor: string = 'red';
 
-  constructor(private _filterService: FilterService, private _metricsService: MetricsService) {}
+  constructor() {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngOnChanges(changes: SimpleChanges){
     this.barGraph = {
       data: [],
       layout: { 
@@ -43,6 +40,9 @@ export class LineBarGraphComponent implements OnInit {
         },
         yaxis:{
           automargin: true,
+        },
+        margin:{
+          t:25
         },
         hovermode: 'closest'
       }
@@ -58,32 +58,24 @@ export class LineBarGraphComponent implements OnInit {
         yaxis:{
           automargin: true,
         },
+        margin:{
+          t:25
+        },
         hovermode: 'closest'
       }
     };
 
-    this._metricsService.getMetrics(this.metrics).subscribe(response => {
-      //this.filteredData = response;
-      this.data = response;
-      this.filteredData = response;
-      this.corridors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']).slice(0, 20));
+    if(this.data !== undefined){
       this._loadGraphs();
-    });
-
-    this._filterService.filters.subscribe(filter => {
-      if(this.data !== undefined){
-        this.filteredData = this.data.filter(value => value['zone_Group'] === filter.zoneGroup);
-
-        this._loadGraphs();
-      }
-    });
+    }
   }
-
+  
   private _loadGraphs(){
-    this.lineData = this.filteredData;
+    this.lineData = this.data;
     //TODO: adjusted this filter to be based on the selected month
-    this.barData = this.filteredData.filter(dataItem => new Date(dataItem['month']).getMonth() === this._currentMonth);
-    
+    this.barData = this.data.filter(dataItem => new Date(dataItem['month']).getMonth() === this._currentMonth);
+    this.corridors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
+
     this._loadBarGraph();
     this._loadLineGraph();
   }
@@ -92,13 +84,13 @@ export class LineBarGraphComponent implements OnInit {
     let graphData: any[] = [];
 
     if(this.corridors !== undefined){
-      this.corridors.forEach(corridor => {
-        //TODO: need to determine if this data should be handled separately
-        let monthData = this.barData.filter(data => data['corridor'] === corridor);
+      let sortedData = this.barData.sort((n1, n2) => n1[this.bar.x] - n2[this.bar.x]);
+
+      sortedData.forEach(sortItem => {
         let trace = {
-          name: corridor,
-          x: monthData.map(value => value[this.bar.x]),
-          y: monthData.map(value => value[this.bar.y]),
+          name: sortItem['corridor'],
+          x: [sortItem[this.bar.x]],
+          y: [sortItem[this.bar.y]],
           orientation: 'h',
           type: 'bar',
           hovertemplate: this.bar.hoverTemplate,
@@ -159,6 +151,11 @@ export class LineBarGraphComponent implements OnInit {
       dataItem.line.color = this.selectColor;
       return dataItem;
     });
+
+    // let index = this.lineGraph.data.findIndex(item => item.name === name);
+    // var lineItem = this.lineGraph.data[index];
+    // this.lineGraph.data.splice(index, 1);
+    // this.lineGraph.data.splice(0, 0, lineItem);
   }
 
   private _resetColor(){

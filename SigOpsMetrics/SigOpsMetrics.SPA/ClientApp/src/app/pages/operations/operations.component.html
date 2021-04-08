@@ -1,5 +1,5 @@
 <div class="container-fluid">
-    <div class="row">
+    <div class="row margin-bottom">
         <div class="col-12" style="text-align: center;">
             <br/>
             <app-chart-toggle></app-chart-toggle>
@@ -8,12 +8,21 @@
     
     <div *ngIf="toggleValue == '1'" class="row">
         <div class="col-12">
-            <app-line-bar-graph 
-                [title]='tpTitle'
+            <app-graph-dashboard
                 [metrics]='tpMetrics'
-                [line]='tpLine'
-                [bar]='tpBar'>
-            </app-line-bar-graph>
+                [metricField]='"vph"'
+                [metricLabel]='"Average monthly vehicles per hour"'
+                [changeLabel]='"Changes from prior month"'
+                [template]="tpTemplate">
+                <ng-template let-filteredData #tpTemplate>
+                    <app-bar-line-graph 
+                        [data]='filteredData'
+                        [title]='tpTitle'
+                        [line]='tpLine'
+                        [bar]='tpBar'>
+                    </app-bar-line-graph>
+                </ng-template>
+            </app-graph-dashboard>
         </div>
     </div>
 
@@ -31,12 +40,21 @@
 
     <div *ngIf="toggleValue == '4'" class="row">
         <div class="col-12">
-            <app-line-bar-graph 
-                [title]='qsdTitle'
+            <app-graph-dashboard
                 [metrics]='qsdMetrics'
-                [line]='qsdLine'
-                [bar]='qsdBar'>
-            </app-line-bar-graph>
+                [metricField]='"vph"'
+                [metricLabel]='"Spillback rate"'
+                [changeLabel]='"Changes from prior month"'
+                [template]="qsdTemplate">
+                <ng-template let-filteredData #qsdTemplate>
+                    <app-bar-line-graph 
+                        [data]='filteredData'
+                        [title]='qsdTitle'
+                        [line]='qsdLine'
+                        [bar]='qsdBar'>
+                    </app-bar-line-graph>
+                </ng-template>
+            </app-graph-dashboard>
         </div>
     </div>
 

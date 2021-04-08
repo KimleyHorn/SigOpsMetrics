@@ -4,18 +4,20 @@
     </div>
 </div>
 <div class='row'> 
-    <div class='col-lg-6'>
+    <div *ngIf="barGraph.data.length !== 0" class='col-lg-6'>
         <plotly-plot 
             [data]='barGraph.data'
             [layout]='barGraph.layout'
-            (plotlyClick)='graphClicked($event)'>
+            (plotlyClick)='graphClicked($event)'
+            [useResizeHandler]='true'>
         </plotly-plot>
     </div>
-    <div class='col-lg-6'>
+    <div *ngIf="lineGraph.data.length !== 0" class='col-lg-6'>
         <plotly-plot 
             [data]='lineGraph.data'
             [layout]='lineGraph.layout'
-            (plotlyClick)='graphClicked($event)'>
+            (plotlyClick)='graphClicked($event)'
+            [useResizeHandler]='true'>
         </plotly-plot>
     </div>
 </div>
