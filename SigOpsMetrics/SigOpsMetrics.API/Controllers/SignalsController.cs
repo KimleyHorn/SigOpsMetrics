@@ -163,6 +163,33 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
+        [HttpGet("zonesbyzonegroup")]
+        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<IEnumerable<string>> GetZonesByZoneGroup(string zoneGroup)
+        {
+            string cacheName = $"signals/zonesbyzonegroup/{zoneGroup}";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+                    var worksheet = GetSpreadsheet();
+
+                    var retVal = GetZonesByZoneGroup(await worksheet, zoneGroup);
+
+                    return retVal;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
+        }
+
         /// <summary>
         /// Return a list of corridors in the system
         /// </summary>
@@ -215,6 +242,33 @@ namespace SigOpsMetrics.API.Controllers
                     var retVal = GetCorridorsByZone(await worksheet, zone);
                     return retVal;
                 });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
+        }
+
+        [HttpGet("corridorsbyzonegroup")]
+        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<IEnumerable<string>> GetCorridorsByZoneGroup(string zoneGroup)
+        {
+            var cacheName = $"signals/corridorsbyzonegroup/{zoneGroup}";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+
+                    var worksheet = GetSpreadsheet();
+                    var retVal = GetCorridorsByZoneGroup(await worksheet, zoneGroup);
+                    return retVal;
+                });
+
                 return await cacheEntry;
             }
             catch (Exception ex)
@@ -428,6 +482,62 @@ namespace SigOpsMetrics.API.Controllers
         private IEnumerable<string> GetZones(ExcelWorksheet sheet)
         {
             return GetSingleColumnFromSpreadsheet(sheet, 3).Distinct().OrderBy(x => x);
+        }
+
+        private IEnumerable<string> GetZonesByZoneGroup(ExcelWorksheet sheet, string zoneGroupName)
+        {
+            try
+            {
+                var start = sheet.Dimension.Start;
+                var end = sheet.Dimension.End;
+
+                var retVal = new List<string>();
+
+                for (var row = start.Row + 1; row <= end.Row; row++)
+                {
+                    if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
+                        StringComparison.CurrentCultureIgnoreCase))
+                        retVal.Add(sheet.Cells[row, 3].Text.Trim());
+                }
+
+                return retVal.Distinct();
+            }
+            catch (Exception ex)
+            {
+                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/getzonesbyzonegroup", ex).GetAwaiter();
+            }
+
+            return new List<string>();
+        }
+
+        private IEnumerable<string> GetCorridorsByZoneGroup(ExcelWorksheet sheet, string zoneGroupName)
+        {
+            try
+            {
+                var start = sheet.Dimension.Start;
+                var end = sheet.Dimension.End;
+
+                var retVal = new List<string>();
+
+                for (var row = start.Row + 1; row <= end.Row; row++)
+                {
+                    if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
+                        StringComparison.CurrentCultureIgnoreCase))
+                        retVal.Add(sheet.Cells[row, 4].Text.Trim());
+                }
+
+                return retVal.Distinct();
+            }
+            catch(Exception ex)
+            {
+                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/getcorridorsbyzonegroup", ex).GetAwaiter();
+            }
+
+            return new List<string>();
         }
 
         private IEnumerable<string> GetCorridors(ExcelWorksheet sheet)

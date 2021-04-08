@@ -14,7 +14,7 @@ namespace SigOpsMetrics.API
         public static async Task<DataTable> GetMetric(MySqlConnection sqlConnection, string source, string level,
             string interval, string measure, DateTime start, DateTime end)
         {
-            var whereClause = CreateDateRangeClause(interval, start, end);
+            var whereClause = CreateDateRangeClause(interval, measure, start, end);
             if (whereClause == string.Empty)
                 return new DataTable();
 
@@ -24,7 +24,7 @@ namespace SigOpsMetrics.API
         public static async Task<DataTable> GetMetricByZoneGroup(MySqlConnection sqlConnection, string source, string level,
             string interval, string measure, DateTime start, DateTime end, string zoneGroup)
         {
-            var whereClause = CreateDateRangeAndZoneGroupClause(interval, start, end, zoneGroup);
+            var whereClause = CreateDateRangeAndZoneGroupClause(interval, measure, start, end, zoneGroup);
             if (whereClause == string.Empty)
                 return new DataTable();
 
@@ -34,7 +34,7 @@ namespace SigOpsMetrics.API
         public static async Task<DataTable> GetMetricByCorridor(MySqlConnection sqlConnection, string source, string level,
             string interval, string measure, DateTime start, DateTime end, string corridor)
         {
-            var whereClause = CreateDateRangeAndCorridorClause(interval, start, end, corridor);
+            var whereClause = CreateDateRangeAndCorridorClause(interval, measure, start, end, corridor);
             if (whereClause == string.Empty)
                 return new DataTable();
 
@@ -65,7 +65,7 @@ namespace SigOpsMetrics.API
 
         }
 
-        private static string CreateDateRangeClause(string interval, DateTime start, DateTime end)
+        private static string CreateDateRangeClause(string interval, string measure, DateTime start, DateTime end)
         {
             string period;
             string startFormat = start.ToString();
@@ -78,9 +78,18 @@ namespace SigOpsMetrics.API
                     period = "date";
                     break;
                 case "mo":
-                    period = "month";
-                    startFormat = start.ToString("yyyy-MM-dd");
-                    endFormat = end.ToString("yyyy-MM-dd");
+                    if (measure == "aogh") //todo more hourly measures?
+                    {
+                        period = "hour";
+                        startFormat = start.ToString("yyyy-MM-dd");
+                        endFormat = end.ToString("yyyy-MM-dd");
+                    }
+                    else
+                    {
+                        period = "month";
+                        startFormat = start.ToString("yyyy-MM-dd");
+                        endFormat = end.ToString("yyyy-MM-dd");
+                    }
                     break;
                 case "qu":
                     period = "quarter";
@@ -102,19 +111,19 @@ namespace SigOpsMetrics.API
             return $" and Corridor = '{corridor}'";
         }
 
-        private static string CreateDateRangeAndZoneGroupClause(string level, DateTime start, DateTime end, string zoneGroup)
+        private static string CreateDateRangeAndZoneGroupClause(string level, string measure, DateTime start, DateTime end, string zoneGroup)
         {
-            var dateRangeClause = CreateDateRangeClause(level, start, end);
+            var dateRangeClause = CreateDateRangeClause(level, measure, start, end);
             if (dateRangeClause == string.Empty)
                 return string.Empty;
 
             return dateRangeClause + CreateZoneGroupAndClause(zoneGroup);
         }
 
-        private static string CreateDateRangeAndCorridorClause(string level, DateTime start, DateTime end,
+        private static string CreateDateRangeAndCorridorClause(string level, string measure, DateTime start, DateTime end,
             string corridor)
         {
-            var dateRangeClause = CreateDateRangeClause(level, start, end);
+            var dateRangeClause = CreateDateRangeClause(level, measure, start, end);
             if (dateRangeClause == string.Empty)
                 return string.Empty;
 

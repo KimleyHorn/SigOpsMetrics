@@ -9,6 +9,14 @@
             Controller for SigOps Metrics ATSPM data
             </summary>
         </member>
+        <member name="M:SigOpsMetrics.API.Controllers.MetricsController.#ctor(Microsoft.Extensions.Options.IOptions{SigOpsMetrics.API.Classes.AppConfig},MySqlConnector.MySqlConnection,Microsoft.Extensions.Caching.Memory.IMemoryCache)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="settings"></param>
+            <param name="connection"></param>
+            <param name="cache"></param>
+        </member>
         <member name="M:SigOpsMetrics.API.Controllers.MetricsController.Get(System.String,System.String,System.String,System.String,System.DateTime,System.DateTime)">
             <summary>
             API method for returning high-level metric data from SigOpsMetrics.com
@@ -51,6 +59,14 @@
             <summary>
             Controller for signals, corridors, and groups
             </summary>
+        </member>
+        <member name="M:SigOpsMetrics.API.Controllers.SignalsController.#ctor(Microsoft.Extensions.Options.IOptions{SigOpsMetrics.API.Classes.AppConfig},MySqlConnector.MySqlConnection,Microsoft.Extensions.Caching.Memory.IMemoryCache)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="settings"></param>
+            <param name="connection"></param>
+            <param name="cache"></param>
         </member>
         <member name="M:SigOpsMetrics.API.Controllers.SignalsController.Get">
             <summary>

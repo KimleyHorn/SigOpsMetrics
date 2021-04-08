@@ -2,7 +2,6 @@ import { Component, Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Filter } from '../models/filter';
 import { BehaviorSubject } from 'rxjs';
-import { group } from '@angular/animations';
 
 @Injectable({
   providedIn: 'root'
