@@ -1,15 +1,10 @@
 <div class="col">
-  <mat-accordion style="margin-left: 35px;">
-    <button mat-flat-button color="primary" style="width: 150px; margin-top:10px;">Apply</button>
-  </mat-accordion>
-</div>
-<div class="col">
   <mat-accordion>
     <mat-expansion-panel>
       <mat-expansion-panel-header>
         <mat-panel-title>Date Range</mat-panel-title>
       </mat-expansion-panel-header>
-      <mat-selection-list>
+      <mat-selection-list #datesSelector>
         <mat-list-option>Custom</mat-list-option>
         <mat-list-option>Current Week</mat-list-option>
         <mat-list-option>Prior Week</mat-list-option>
@@ -76,4 +71,9 @@
       </mat-expansion-panel-header>
     </mat-expansion-panel>
   </mat-accordion>
+</div>
+<div class="container" style="display: flex; justify-content: space-evenly; margin-top:10px;">
+    <button mat-raised-button color="basic">Set As Defaults</button>
+    <button mat-raised-button color="basic" (click)="this.resetSelections();">Clear</button>
+    <button mat-raised-button color="primary" (click)="this.toggleFilter.emit();">Apply</button>
 </div>

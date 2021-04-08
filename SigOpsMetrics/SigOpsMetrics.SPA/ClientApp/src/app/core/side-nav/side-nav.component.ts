@@ -46,4 +46,8 @@ export class SideNavComponent implements OnInit {
     return items;
   }
 
+  toggleFilter() {
+    this.filterIsExpanded = !this.filterIsExpanded;
+  }
+
 }
