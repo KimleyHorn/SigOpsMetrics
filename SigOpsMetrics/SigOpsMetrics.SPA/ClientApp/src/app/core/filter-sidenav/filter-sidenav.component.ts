@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit } from "@angular/core";
+import { MatSelectChange } from "@angular/material/select";
 import { FilterService } from "../../services/filter.service";
 
 @Component({
@@ -30,8 +31,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     });
   }
 
-  signalGroupSelected(e){
-    console.log(e);
-    this.filterService.setValue("zoneGroup", e.value);
+  signalGroupSelected(e: MatSelectChange){
+    this.filterService.setValue("zone_Group", e.value);
   }
 }

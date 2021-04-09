@@ -14,14 +14,18 @@
                 [metricLabel]='"Average monthly vehicles per hour"'
                 [changeLabel]='"Changes from prior month"'
                 [template]="tpTemplate">
+
                 <ng-template let-filteredData #tpTemplate>
+
                     <app-bar-line-graph 
                         [data]='filteredData'
                         [title]='tpTitle'
                         [line]='tpLine'
                         [bar]='tpBar'>
                     </app-bar-line-graph>
+                
                 </ng-template>
+
             </app-graph-dashboard>
         </div>
     </div>

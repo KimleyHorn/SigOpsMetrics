@@ -31,16 +31,16 @@ export class GraphDashboardComponent implements OnInit {
 
   constructor(private _filterService: FilterService, 
     private _metricsService: MetricsService,
-    private _formatService: FormatService,
-    private _signalsService: SignalsService) { }
+    private _formatService: FormatService) { }
 
     ngOnInit(): void {
-      this._signalsService.getData().subscribe(response => {
-        this.signals = response;
+      // this._signalsService.signals.subscribe(response => {
+      //   this.signals = [];
+      //   console.log(response);
+      //   this._loadData();
+      // });
 
-        this._loadData();
-      });
-
+      this.signals = [];
       this._metricsService.getMetrics(this.metrics).subscribe(response => {
         this.data = response;
 
@@ -55,18 +55,29 @@ export class GraphDashboardComponent implements OnInit {
     }
   
     private _loadData(){
-      this.filteredData = this._filterService.filterData(this.data);
-      this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
-
-      if(this.signals !== undefined){
-        console.log(this.signals);
-        console.log(this.data);
+      if(this.data !== undefined && this.signals !== undefined){
+        this.filteredData = this._filterService.filterData(this.data);
+        this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
+  
+        if(this.signals !== undefined){
+          let newArray = this._mergeArrayObjects(this.signals, this.data);
+        }
+  
+        let metricData = this._filterService.getZoneGroupData(this.filteredData);
+        if(metricData !== undefined){
+          this.metricValue = this._formatService.formatNumber(metricData[this.metricField]);
+          this.changeValue = this._formatService.formatPercent(metricData[this.changeField],2);
+        }
       }
+    }
 
-      let metricData = this._filterService.getZoneGroupData(this.filteredData);
-      if(metricData !== undefined){
-        this.metricValue = this._formatService.formatNumber(metricData[this.metricField]);
-        this.changeValue = this._formatService.formatPercent(metricData[this.changeField],2);
-      }
+    private _mergeArrayObjects(arr1,arr2){
+      return arr1.map((item,i)=>{
+        let newObj = arr2.filter(dataItem => dataItem.corridor === item.corridor);
+        if(newObj !== undefined){
+          return Object.assign({},item,newObj)
+
+        }
+      })
     }
 }

@@ -32,6 +32,7 @@ import { FilterSidenavComponent } from './core/filter-sidenav/filter-sidenav.com
 import { MetricCardComponent } from './components/cards/metric-card/metric-card.component';
 import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
 import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/graph-dashboard.component';
+import { DatePipe } from '@angular/common';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -77,7 +78,7 @@ const routes = [
     GoogleMapsModule,
     PlotlyViaCDNModule
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 //export class MaterialModule {}
