@@ -8,7 +8,8 @@
     "build:ssr": "ng run SigOpsMetrics:server:dev",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "gzip": "gzipper c --verbose --output-file-format [filename].[ext] ./dist ./dist/gzip/"
   },
   "private": true,
   "dependencies": {
