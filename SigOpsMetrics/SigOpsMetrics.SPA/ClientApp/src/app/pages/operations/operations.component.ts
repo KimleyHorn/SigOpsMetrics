@@ -11,7 +11,9 @@ import { Metrics } from 'src/app/models/metrics';
 export class OperationsComponent implements OnInit {
   toggleValue: string;
 
-  tpMetrics: Metrics = new Metrics();
+  tpMetricField: string = 'vph';
+  tpGraphMetrics: Metrics = new Metrics();
+  tpMapMetrics: Metrics = new Metrics();
   tpTitle: string = 'Throughput (peak veh/hr)';
   tpBar: Graph = {
     title: 'Throughput (vph)',
@@ -35,11 +37,13 @@ export class OperationsComponent implements OnInit {
   };
 
   //queue spillback rate inputs
-  qsdMetrics: Metrics = new Metrics();
+  qsdMetricField: string = 'qs_freq';
+  qsdGraphMetrics: Metrics = new Metrics();
+  qsdMapMetrics: Metrics = new Metrics();
   qsdTitle: string = 'Queue Spillback Rate';
   qsdBar: Graph = {
     title: 'Queue Spillback Rate',
-    x: 'vph',
+    x: 'qs_freq',
     y: 'corridor',
     hoverTemplate: 
       '<b>%{y}</b>' +
@@ -49,7 +53,7 @@ export class OperationsComponent implements OnInit {
   qsdLine: Graph = {
     title: 'Queue Spillback Trend',
     x: 'month',
-    y: 'vph',
+    y: 'qs_freq',
     text: 'corridor',
     hoverTemplate: 
       '<b>%{text}</b>' +
@@ -59,8 +63,19 @@ export class OperationsComponent implements OnInit {
   };
 
   constructor(private toggleService: ChartToggleService) {
-    this.tpMetrics.measure = 'tp';
-    this.qsdMetrics.measure = 'qsd';
+    this.tpGraphMetrics.measure = 'tp';
+
+    this.tpMapMetrics.measure = 'tp';
+    this.tpMapMetrics.level = 'sig';
+    this.tpMapMetrics.start = '2021-03-01';
+    this.tpMapMetrics.end = '2021-03-02';
+
+    this.qsdGraphMetrics.measure = 'qsd';
+
+    this.qsdMapMetrics.measure = 'qsd';
+    this.qsdMapMetrics.level = 'sig';
+    this.qsdMapMetrics.start = '2021-03-01';
+    this.qsdMapMetrics.end = '2021-03-02';
    }
 
   ngOnInit(): void {

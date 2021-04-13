@@ -1,20 +1,14 @@
-<div class="container-fluid">
-    <div class="row margin-bottom">
-        <div class="col-12" style="text-align: center;">
-            <br/>
-            <app-chart-toggle></app-chart-toggle>
-        </div>
-    </div>
-    
-    <div *ngIf="toggleValue == '1'" class="row">
-        <div class="col-12">
+
+<mat-tab-group>
+    <mat-tab label="Throughput"> 
+        <ng-template matTabContent>
             <app-graph-dashboard
-                [metrics]='tpMetrics'
-                [metricField]='"vph"'
+                [graphMetrics]='tpGraphMetrics'
+                [mapMetrics]='tpMapMetrics'
+                [metricField]='tpMetricField'
                 [metricLabel]='"Average monthly vehicles per hour"'
                 [changeLabel]='"Changes from prior month"'
                 [template]="tpTemplate">
-
                 <ng-template let-filteredData #tpTemplate>
 
                     <app-bar-line-graph 
@@ -25,29 +19,27 @@
                     </app-bar-line-graph>
                 
                 </ng-template>
-
             </app-graph-dashboard>
-        </div>
-    </div>
+        </ng-template>
+        
+    </mat-tab>
+    
+    <mat-tab label="Arrivals on Green"> 
 
-    <div *ngIf="toggleValue == '2'" class="row">
-        <div class="col-12">
-            Arrivals on Green
-        </div>
-    </div>
+    </mat-tab>
+    
+    <mat-tab label="Progression Ratio">
+        
+    </mat-tab>
 
-    <div *ngIf="toggleValue == '3'" class="row">
-        <div class="col-12">
-            Progression Ratio
-        </div>
-    </div>
-
-    <div *ngIf="toggleValue == '4'" class="row">
-        <div class="col-12">
+    <mat-tab label="Spillback Rate">
+        <ng-template matTabContent>
             <app-graph-dashboard
-                [metrics]='qsdMetrics'
-                [metricField]='"vph"'
+                [graphMetrics]='qsdGraphMetrics'
+                [mapMetrics]='qsdMapMetrics'
+                [metricField]='qsdMetricField'
                 [metricLabel]='"Spillback rate"'
+                [metricDecimals]='2'
                 [changeLabel]='"Changes from prior month"'
                 [template]="qsdTemplate">
                 <ng-template let-filteredData #qsdTemplate>
@@ -59,24 +51,109 @@
                     </app-bar-line-graph>
                 </ng-template>
             </app-graph-dashboard>
-        </div>
-    </div>
+        </ng-template>
+        
+    </mat-tab>
 
-    <div *ngIf="toggleValue == '5'" class="row">
-        <div class="col-12">
-            Split Failures
-        </div>
-    </div>
+    <mat-tab label="Split Failures">
+        
+    </mat-tab>
 
-    <div *ngIf="toggleValue == '6'" class="row">
-        <div class="col-12">
-            Travel Time Index
-        </div>
-    </div>
+    <mat-tab label="Travel Time Index">
+        
+    </mat-tab>
 
-    <div *ngIf="toggleValue == '7'" class="row">
+    <mat-tab label="Planning Time Index">
+        
+    </mat-tab>
+</mat-tab-group>
+        
+
+<!-- <div class="container-fluid">
+    <div class="row">
         <div class="col-12">
-            Planning Time Index
+            <div class="row margin-bottom">
+                <div class="col-12" style="text-align: center;">
+                    <br/>
+                    <app-chart-toggle></app-chart-toggle>
+                </div>
+            </div>
+            
+            <div *ngIf="toggleValue == '1'" class="row">
+                <div class="col-12">
+                    <app-graph-dashboard
+                        [graphMetrics]='tpGraphMetrics'
+                        [mapMetrics]='tpMapMetrics'
+                        [metricField]='tpMetricField'
+                        [metricLabel]='"Average monthly vehicles per hour"'
+                        [changeLabel]='"Changes from prior month"'
+                        [template]="tpTemplate">
+                        <ng-template let-filteredData #tpTemplate>
+
+                            <app-bar-line-graph 
+                                [data]='filteredData'
+                                [title]='tpTitle'
+                                [line]='tpLine'
+                                [bar]='tpBar'>
+                            </app-bar-line-graph>
+                        
+                        </ng-template>
+
+                    </app-graph-dashboard>
+                </div>
+            </div>
+
+            <div *ngIf="toggleValue == '2'" class="row">
+                <div class="col-12">
+                    Arrivals on Green
+                </div>
+            </div>
+
+            <div *ngIf="toggleValue == '3'" class="row">
+                <div class="col-12">
+                    Progression Ratio
+                </div>
+            </div>
+
+            <div *ngIf="toggleValue == '4'" class="row">
+                <div class="col-12">
+                    <app-graph-dashboard
+                        [graphMetrics]='qsdGraphMetrics'
+                        [mapMetrics]='qsdMapMetrics'
+                        [metricField]='qsdMetricField'
+                        [metricLabel]='"Spillback rate"'
+                        [metricDecimals]='2'
+                        [changeLabel]='"Changes from prior month"'
+                        [template]="qsdTemplate">
+                        <ng-template let-filteredData #qsdTemplate>
+                            <app-bar-line-graph 
+                                [data]='filteredData'
+                                [title]='qsdTitle'
+                                [line]='qsdLine'
+                                [bar]='qsdBar'>
+                            </app-bar-line-graph>
+                        </ng-template>
+                    </app-graph-dashboard>
+                </div>
+            </div>
+
+            <div *ngIf="toggleValue == '5'" class="row">
+                <div class="col-12">
+                    Split Failures
+                </div>
+            </div>
+
+            <div *ngIf="toggleValue == '6'" class="row">
+                <div class="col-12">
+                    Travel Time Index
+                </div>
+            </div>
+
+            <div *ngIf="toggleValue == '7'" class="row">
+                <div class="col-12">
+                    Planning Time Index
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</div> -->

@@ -4,7 +4,7 @@
     </div>
 </div>
 <div class='row'> 
-    <div *ngIf="barGraph.data.length !== 0" class='col-lg-6'>
+    <div *ngIf="barGraph.data.length !== 0" class='col-lg-4'>
         <plotly-plot 
             [data]='barGraph.data'
             [layout]='barGraph.layout'
@@ -12,7 +12,7 @@
             [useResizeHandler]='true'>
         </plotly-plot>
     </div>
-    <div *ngIf="lineGraph.data.length !== 0" class='col-lg-6'>
+    <div *ngIf="lineGraph.data.length !== 0" class='col-lg-8'>
         <plotly-plot 
             [data]='lineGraph.data'
             [layout]='lineGraph.layout'

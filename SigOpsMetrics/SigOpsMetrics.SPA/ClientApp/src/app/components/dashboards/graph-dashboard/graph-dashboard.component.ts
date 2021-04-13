@@ -2,6 +2,7 @@ import { Component, ContentChild, Input, OnInit, TemplateRef } from '@angular/co
 import { Graph } from 'src/app/models/graph';
 import { Metrics } from 'src/app/models/metrics';
 import { SignalInfo } from 'src/app/models/signal-info';
+import { ReportsComponent } from 'src/app/pages/reports/reports.component';
 import { FilterService } from 'src/app/services/filter.service';
 import { FormatService } from 'src/app/services/format.service';
 import { MetricsService } from 'src/app/services/metrics.service';
@@ -15,14 +16,18 @@ import { SignalsService } from 'src/app/services/signals.service';
 export class GraphDashboardComponent implements OnInit {
   @ContentChild(TemplateRef) template: TemplateRef<any>;
 
-  @Input() metrics: Metrics;
+  @Input() graphMetrics: Metrics;
   @Input() metricLabel: string = '';
   @Input() metricField: string = '';
+  @Input() metricDecimals: number = 0;
   metricValue: string = '';
   
   @Input() changeLabel: string = '';
   @Input() changeField: string = 'delta';
   changeValue: string = '';
+
+  @Input() mapMetrics: Metrics;
+  markers: any;
 
   corridors: any;
   data: any;
@@ -34,14 +39,8 @@ export class GraphDashboardComponent implements OnInit {
     private _formatService: FormatService) { }
 
     ngOnInit(): void {
-      // this._signalsService.signals.subscribe(response => {
-      //   this.signals = [];
-      //   console.log(response);
-      //   this._loadData();
-      // });
-
       this.signals = [];
-      this._metricsService.getMetrics(this.metrics).subscribe(response => {
+      this._metricsService.getMetrics(this.graphMetrics).subscribe(response => {
         this.data = response;
 
         this._loadData();
@@ -59,25 +58,12 @@ export class GraphDashboardComponent implements OnInit {
         this.filteredData = this._filterService.filterData(this.data);
         this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
   
-        if(this.signals !== undefined){
-          let newArray = this._mergeArrayObjects(this.signals, this.data);
-        }
-  
         let metricData = this._filterService.getZoneGroupData(this.filteredData);
+
         if(metricData !== undefined){
-          this.metricValue = this._formatService.formatNumber(metricData[this.metricField]);
+          this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.metricDecimals);
           this.changeValue = this._formatService.formatPercent(metricData[this.changeField],2);
         }
       }
-    }
-
-    private _mergeArrayObjects(arr1,arr2){
-      return arr1.map((item,i)=>{
-        let newObj = arr2.filter(dataItem => dataItem.corridor === item.corridor);
-        if(newObj !== undefined){
-          return Object.assign({},item,newObj)
-
-        }
-      })
     }
 }

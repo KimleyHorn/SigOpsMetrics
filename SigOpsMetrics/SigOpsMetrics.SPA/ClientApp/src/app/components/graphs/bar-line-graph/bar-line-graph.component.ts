@@ -151,11 +151,6 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       dataItem.line.color = this.selectColor;
       return dataItem;
     });
-
-    // let index = this.lineGraph.data.findIndex(item => item.name === name);
-    // var lineItem = this.lineGraph.data[index];
-    // this.lineGraph.data.splice(index, 1);
-    // this.lineGraph.data.splice(0, 0, lineItem);
   }
 
   private _resetColor(){

@@ -198,6 +198,8 @@ export class FilterService {
       }
     });
 
+    console.log(groupData);
+
     return groupData[0];
   }
 }
