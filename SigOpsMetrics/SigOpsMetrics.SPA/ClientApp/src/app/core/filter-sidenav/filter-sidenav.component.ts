@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit } from "@angular/core";
-import { MatSelectChange } from "@angular/material/select";
+import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild } from "@angular/core";
+import { MatSelectionList } from "@angular/material/list";
 import { FilterService } from "../../services/filter.service";
 
 @Component({
@@ -8,7 +8,8 @@ import { FilterService } from "../../services/filter.service";
   styleUrls: ["./filter-sidenav.component.css"],
 })
 export class FilterSidenavComponent implements OnInit, AfterViewInit {
-
+  @ViewChild('datesSelector') datesSelector: MatSelectionList;
+  @Output("toggleFilter") toggleFilter: EventEmitter<any> = new EventEmitter();
   signalGroups: Array<string> = [];
   agencies: Array<string> = [];
   selectedSignalGroup: string;
@@ -34,4 +35,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   signalGroupSelected(e: MatSelectChange){
     this.filterService.setValue("zone_Group", e.value);
   }
+
+  resetSelections() {
+    this.selectedSignalGroup = "";
+    this.selectedAgency = "";  
+    this.datesSelector.deselectAll();
+  }
 }
+
