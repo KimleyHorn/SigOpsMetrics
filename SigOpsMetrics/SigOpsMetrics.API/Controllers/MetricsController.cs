@@ -40,7 +40,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="end">End date for data pull</param>
         /// <returns></returns>
         [HttpGet("")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<DataTable> Get(string source, string level, string interval, string measure, DateTime start,
             DateTime end)
         {
