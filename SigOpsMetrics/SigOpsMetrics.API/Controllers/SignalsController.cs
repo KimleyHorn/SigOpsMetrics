@@ -342,9 +342,9 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        [HttpGet("agencies/{corridor}")]
+        [HttpGet("agencies")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
-        public async Task<IEnumerable<string>> GetAgencies(string corridor)
+        public async Task<IEnumerable<string>> GetAgencies()
         {
             const string cacheName = "signals/agencies";
             try
