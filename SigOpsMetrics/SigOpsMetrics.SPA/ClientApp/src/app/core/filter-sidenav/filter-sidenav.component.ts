@@ -1,5 +1,6 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild } from "@angular/core";
 import { MatSelectionList } from "@angular/material/list";
+import { MatSelectChange } from "@angular/material/select";
 import { FilterService } from "../../services/filter.service";
 
 @Component({
@@ -38,7 +39,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   resetSelections() {
     this.selectedSignalGroup = "";
-    this.selectedAgency = "";  
+    this.selectedAgency = "";
     this.datesSelector.deselectAll();
   }
 }
