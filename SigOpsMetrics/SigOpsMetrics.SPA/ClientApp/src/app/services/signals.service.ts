@@ -17,3 +17,4 @@ export class SignalsService {
     return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/all');
   }
 }
+

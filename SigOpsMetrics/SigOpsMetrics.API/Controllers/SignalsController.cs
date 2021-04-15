@@ -163,7 +163,7 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        [HttpGet("zonesbyzonegroup")]
+        [HttpGet("zonesbyzonegroup/{zoneGroup}")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZonesByZoneGroup(string zoneGroup)
         {
@@ -225,7 +225,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of corridors by zone in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("corridorsbyzone")]
+        [HttpGet("corridorsbyzone/{zone}")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridorsByZone(string zone)
         {
@@ -253,7 +253,7 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        [HttpGet("corridorsbyzonegroup")]
+        [HttpGet("corridorsbyzonegroup/{zoneGroup}")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridorsByZoneGroup(string zoneGroup)
         {
@@ -315,7 +315,7 @@ namespace SigOpsMetrics.API.Controllers
         /// Return a list of subcorridors by corridor in the system
         /// </summary>
         /// <returns></returns>
-        [HttpGet("subcorridorsbycorridor")]
+        [HttpGet("subcorridorsbycorridor/{corridor}")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridorsByCorridor(string corridor)
         {
@@ -342,7 +342,7 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        [HttpGet("agencies")]
+        [HttpGet("agencies/{corridor}")]
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetAgencies(string corridor)
         {
@@ -495,9 +495,24 @@ namespace SigOpsMetrics.API.Controllers
 
                 for (var row = start.Row + 1; row <= end.Row; row++)
                 {
-                    if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
+                    if(zoneGroupName == "All RTOP")
+                    {
+                        if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP1", StringComparison.CurrentCultureIgnoreCase) 
+                            || string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP2", StringComparison.CurrentCultureIgnoreCase))
+                            retVal.Add(sheet.Cells[row, 3].Text.Trim());
+                    }
+                    else if (zoneGroupName == "Zone 7")
+                    {
+                        if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7m", StringComparison.CurrentCultureIgnoreCase) 
+                            || string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7d", StringComparison.CurrentCultureIgnoreCase))
+                            retVal.Add(sheet.Cells[row, 3].Text.Trim());
+                    }
+                    else
+                    {
+                        if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
                         StringComparison.CurrentCultureIgnoreCase))
-                        retVal.Add(sheet.Cells[row, 3].Text.Trim());
+                            retVal.Add(sheet.Cells[row, 3].Text.Trim());
+                    }
                 }
 
                 return retVal.Distinct();
@@ -523,9 +538,24 @@ namespace SigOpsMetrics.API.Controllers
 
                 for (var row = start.Row + 1; row <= end.Row; row++)
                 {
-                    if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
+                    if (zoneGroupName == "All RTOP")
+                    {
+                        if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP1", StringComparison.CurrentCultureIgnoreCase) 
+                            || string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP2", StringComparison.CurrentCultureIgnoreCase))
+                            retVal.Add(sheet.Cells[row, 4].Text.Trim());
+                    }
+                    else if (zoneGroupName == "Zone 7")
+                    {
+                        if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7m", StringComparison.CurrentCultureIgnoreCase) 
+                            || string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7d", StringComparison.CurrentCultureIgnoreCase))
+                            retVal.Add(sheet.Cells[row, 4].Text.Trim());
+                    }
+                    else
+                    {
+                        if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
                         StringComparison.CurrentCultureIgnoreCase))
-                        retVal.Add(sheet.Cells[row, 4].Text.Trim());
+                            retVal.Add(sheet.Cells[row, 4].Text.Trim());
+                    }
                 }
 
                 return retVal.Distinct();

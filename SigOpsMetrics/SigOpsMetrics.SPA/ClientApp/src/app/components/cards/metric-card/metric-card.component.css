@@ -1,0 +1,19 @@
+.metric-card{
+    text-align: center;
+}
+
+.outer{
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.inner{
+    display: inline-block;
+}
+
+.mat-card-subtitle{
+    margin-bottom: 0em;
+}

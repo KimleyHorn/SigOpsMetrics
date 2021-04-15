@@ -32,9 +32,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     });
   }
 
-  signalGroupSelected(e){
-    console.log(e);
-    this.filterService.setValue("zoneGroup", e.value);
+  signalGroupSelected(e: MatSelectChange){
+    this.filterService.setValue("zone_Group", e.value);
   }
 
   resetSelections() {
