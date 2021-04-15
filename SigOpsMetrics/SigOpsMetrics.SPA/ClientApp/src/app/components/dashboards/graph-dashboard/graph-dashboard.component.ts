@@ -42,7 +42,6 @@ export class GraphDashboardComponent implements OnInit {
       this.signals = [];
       this._metricsService.getMetrics(this.graphMetrics).subscribe(response => {
         this.data = response;
-
         this._loadData();
       });
   
