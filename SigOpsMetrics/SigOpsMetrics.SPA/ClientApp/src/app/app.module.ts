@@ -31,7 +31,9 @@ import { ChartToggleComponent } from './components/toggles/chart-toggle/chart-to
 import { FilterSidenavComponent } from './core/filter-sidenav/filter-sidenav.component';
 import { MetricCardComponent } from './components/cards/metric-card/metric-card.component';
 import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
+import { BarLineLineGraphComponent } from './components/graphs/bar-line-line-graph/bar-line-line-graph.component';
 import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/graph-dashboard.component';
+// import { GraphsDashboardComponent} from './components/dashboards/graphs-dashboard/graphs-dashboard.component.spec';
 import { DatePipe } from '@angular/common';
 import { ScatterMapComponent } from './components/maps/scatter-map/scatter-map.component';
 
@@ -66,7 +68,9 @@ const routes = [
     FilterSidenavComponent,
     MetricCardComponent,
     BarLineGraphComponent,
+    BarLineLineGraphComponent,
     GraphDashboardComponent,
+    // GraphsDashboardComponent,
     ScatterMapComponent
   ],
   imports: [
