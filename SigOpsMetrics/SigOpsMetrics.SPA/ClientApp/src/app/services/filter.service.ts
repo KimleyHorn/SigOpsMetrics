@@ -35,6 +35,7 @@ export class FilterService {
   public corridors = this._corridors.asObservable();
   public corridorData: string[];
 
+    //this.getSignalGroupsFromDb().subscribe(data => this.signalGroups = data);
   private _subcorridors: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   public subcorridors = this._subcorridors.asObservable();
   public subcorridorData: string[];
@@ -47,21 +48,31 @@ export class FilterService {
     this._loadData(this.filter);
   }
 
-  public getSignalGroups() {
-    if (this.signalGroups.length === 0) {
-      this.getSignalGroupsFromDb().subscribe(data => {
-        this.signalGroups = data;
-        return this.signalGroups;});
-    }
-    else {
-      return this.signalGroups;
-    }
-  }
+  // public getSignalGroups() {
+  //   if (this.signalGroups.length === 0) {
+  //     this.getSignalGroupsFromDb().subscribe(data => {
+  //       this.signalGroups = data;
+  //       return this.signalGroups;});
+  //   }
+  //   else {
+  //     return this.signalGroups;
+  //   }
+  // }
 
+  public setValue(key: string, value: any){
+    this.filt[key] = value;
+    this._filters.next(this.filt);
+  }
+  
+  //Region
   public getSignalGroupsFromDb() {
     return this.http.get<any[]>(this.baseUrl + 'signals/zonegroups');
   }
-
+  //District
+  public getDistrictsFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/zones');
+  }
+  //Managing Agency
   public getAgenciesFromDb() {
     return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
   }
