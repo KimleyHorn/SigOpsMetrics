@@ -109,10 +109,10 @@ export class FilterService {
         return response;
       })
     ).subscribe(response => this._corridors.next(response));;
-  }
+  }v
 
   getCorridorsByZone(zone: string){
-    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyzone/?zone' + zone).pipe(
+    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyzone/' + zone).pipe(
       map(response => {
         this.corridorData = response;
         return response;
