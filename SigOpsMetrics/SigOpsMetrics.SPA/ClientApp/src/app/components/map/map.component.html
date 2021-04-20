@@ -1,6 +1,6 @@
 <body>
   <google-map
-    height="90vh"
+    [height]="height"
     width="100%"
     [zoom]="zoom"
     [center]="center"
@@ -8,12 +8,15 @@
   >
   <map-traffic-layer [autoRefresh]="false"></map-traffic-layer>
     <map-marker
+      #markerElem="mapMarker"
       *ngFor="let marker of markers"
       [position]="marker.position"
       [label]="marker.label"
       [title]="marker.title"
       [options]="marker.options"
-    >
+      (mapClick)="openInfo(markerElem, marker.info)">
     </map-marker>
+
+    <map-info-window [innerHtml]="infoContent"></map-info-window>
   </google-map>
 </body>
