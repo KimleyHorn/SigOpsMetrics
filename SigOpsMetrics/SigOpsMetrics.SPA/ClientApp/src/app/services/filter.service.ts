@@ -18,7 +18,7 @@ export class FilterService {
 
   baseUrl: string;
   public signalGroups: Array<any> = [];
-  
+
   private _signals: BehaviorSubject<SignalInfo[]> = new BehaviorSubject<SignalInfo[]>([]);
   public signals = this._signals.asObservable();
   public signalData: SignalInfo[];
@@ -48,22 +48,6 @@ export class FilterService {
     this._loadData(this.filter);
   }
 
-  // public getSignalGroups() {
-  //   if (this.signalGroups.length === 0) {
-  //     this.getSignalGroupsFromDb().subscribe(data => {
-  //       this.signalGroups = data;
-  //       return this.signalGroups;});
-  //   }
-  //   else {
-  //     return this.signalGroups;
-  //   }
-  // }
-
-  public setValue(key: string, value: any){
-    this.filt[key] = value;
-    this._filters.next(this.filt);
-  }
-  
   //Region
   public getSignalGroupsFromDb() {
     return this.http.get<any[]>(this.baseUrl + 'signals/zonegroups');

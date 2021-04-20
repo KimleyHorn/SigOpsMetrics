@@ -15,7 +15,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   @ViewChild("startTime") startTime: MatDatepicker<Date>;
   @ViewChild("endTime") endTime: MatDatepicker<Date>;
   @Output("toggleFilter") toggleFilter: EventEmitter<any> = new EventEmitter();
-    
+
   //Region
   signalGroups: Array<string> = [];
   selectedSignalGroup: string;
@@ -61,17 +61,21 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.districts = data;
     });
 
-    this.filterService.getCorridorsFromDb().subscribe((data) => {
+    this.filterService.corridors.subscribe(data => {
       this.corridors = data;
     });
 
-    this.filterService.getCountiesFromDb().subscribe((data) => {
-      this.counties = data;
-    });
+    // this.filterService.getCorridorsFromDb().subscribe((data) => {
+    //   this.corridors = data;
+    // });
 
-    this.filterService.getCitiesFromDb().subscribe((data) => {
-      this.cities = data;
-    });
+    // this.filterService.getCountiesFromDb().subscribe((data) => {
+    //   this.counties = data;
+    // });
+
+    // this.filterService.getCitiesFromDb().subscribe((data) => {
+    //   this.cities = data;
+    // });
   }
 
   updateFilter(type, e){
@@ -80,7 +84,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   resetSelections() {
     this.selectedSignalGroup = "";
-    this.selectedAgency = "";  
+    this.selectedAgency = "";
     this.selectedDateOption = "";
     this.selectedDistrict = "";
     this.selectedAgency = "";

@@ -5,6 +5,17 @@ export class Filter {
     corridor: string
     month: string
 
+    zoneGroup: string // aka signal group
+    zone: string //aka district
+    agency: string
+    county: string
+    city: string
+    timePeriod: number
+    customStart: Date
+    customEnd: Date
+    startTime: Date
+    endTime: Date
+
     constructor(){
         let _dt = new Date();
         let newMonth = _dt.getMonth() - 1;
@@ -16,15 +27,5 @@ export class Filter {
 
         this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
     }
-    zoneGroup: string // aka signal group
-    zone: string //aka district 
-    agency: string 
-    county: string
-    city: string
-    corridor: string 
-    timePeriod: number
-    customStart: Date
-    customEnd: Date
-    startTime: Date
-    endTime: Date
+
 }
