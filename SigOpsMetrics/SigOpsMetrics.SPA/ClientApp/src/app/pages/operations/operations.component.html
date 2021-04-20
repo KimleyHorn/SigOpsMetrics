@@ -25,7 +25,29 @@
     </mat-tab>
     
     <mat-tab label="Arrivals on Green"> 
+        <ng-template matTabContent>
+            <!-- [graphMetrics2]='aoghGraphMetrics' -->
+            <app-graph-dashboard
+                [graphMetrics]='aogdGraphMetrics'
+                [mapMetrics]='aogdMapMetrics'
+                [metricField]='aogdMetricField'
+                [metricLabel]='"Arrivals on Green"'
+                [changeLabel]='"Changes from prior month"'
+                [template]="aogTemplate">
+                <ng-template let-filteredData #aogTemplate>
 
+                    <app-bar-line-line-graph 
+                        [data1]='filteredData'
+                        [additionalMetrics]='aoghGraphMetrics'
+                        [title]='aogTitle'
+                        [line1]='aogdLine'
+                        [line2]='aoghLine'
+                        [bar]='aogBar'>
+                    </app-bar-line-line-graph>
+                
+                </ng-template>
+            </app-graph-dashboard>
+        </ng-template>
     </mat-tab>
     
     <mat-tab label="Progression Ratio">

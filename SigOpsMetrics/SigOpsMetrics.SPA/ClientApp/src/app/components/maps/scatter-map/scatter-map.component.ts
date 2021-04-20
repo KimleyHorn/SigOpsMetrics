@@ -51,8 +51,6 @@ export class ScatterMapComponent implements OnInit {
     this._metricsService.getMetrics(this.metrics).subscribe(response => {
       this._metricData = response;
  
-      console.log(this.metrics);
-
       this.createMarkers();
     });
 
@@ -68,7 +66,7 @@ export class ScatterMapComponent implements OnInit {
 
       let joinedData = this._signals.map(signal =>{
         let newSignal = signal;
-        let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID)[0]
+        let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID || md["corridor"] === signal.corridor)[0]
         if(dataItem !== undefined){
           newSignal[this.metricField] = dataItem[this.metricField];
         }else{
@@ -156,7 +154,8 @@ export class ScatterMapComponent implements OnInit {
 
   private _filterGreen(signal){
     if((this.metricField === "vph" && signal[this.metricField] < 5000)
-      || (this.metricField === "qs_freq" && signal[this.metricField] < 0.2))
+      || (this.metricField === "qs_freq" && signal[this.metricField] < 0.2)
+      || (this.metricField === "aog" && signal[this.metricField] < 0.2))
       return true;
 
     return false;
@@ -164,7 +163,8 @@ export class ScatterMapComponent implements OnInit {
 
   private _filterYellow(signal){
     if(this.metricField === "vph" && signal[this.metricField] >= 5000 && signal[this.metricField] < 10000
-      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4))
+      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4)
+      || (this.metricField === "aog" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4))
       return true;
     
     return false;
@@ -172,7 +172,8 @@ export class ScatterMapComponent implements OnInit {
 
   private _filterOrange(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 10000 && signal[this.metricField] < 15000) 
-      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6))
+      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6)
+      || (this.metricField === "aog" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6))
       return true;
 
     return false;
@@ -180,7 +181,8 @@ export class ScatterMapComponent implements OnInit {
 
   private _filterRedOrange(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 15000 && signal[this.metricField] < 20000)
-      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8))
+      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8)
+      || (this.metricField === "aog" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8))
       return true;
 
     return false;
@@ -188,7 +190,8 @@ export class ScatterMapComponent implements OnInit {
 
   private _filterRed(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 20000)
-      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.8))
+      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.8)
+      || (this.metricField === "aog" && signal[this.metricField] >= 0.8))
       return true;
 
     return false;

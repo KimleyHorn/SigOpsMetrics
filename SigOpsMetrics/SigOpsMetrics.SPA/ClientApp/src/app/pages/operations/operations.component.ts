@@ -36,6 +36,47 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
+  //aog inputs
+  aogdMetricField: string = 'aog';
+  // aoghMetricField: string ='aogh';
+  aogdGraphMetrics: Metrics = new Metrics();
+  aogdMapMetrics: Metrics = new Metrics();
+  aoghGraphMetrics: Metrics = new Metrics();
+  aoghMapMetrics: Metrics = new Metrics();
+  aogTitle: string = 'Arrivals on Green [%]';
+  aogBar: Graph = {
+    title: 'Arrivals on Green',
+    x: 'aog',
+    y: 'corridor',
+    hoverTemplate: 
+      '<b>%{y}</b>' +
+      '<br>Selected Month <b>%{x}</b>' +
+      '<extra></extra>',
+  };
+  aogdLine: Graph = {
+    title: 'Weekly Trend',
+    x: 'month',
+    y: 'aog',
+    text: 'corridor',
+    hoverTemplate: 
+      '<b>%{text}</b>' +
+      '<br>Week of: <b>%{x}</b>' +
+      '<br>Arrivals on Green: <b>%{y}</b>' +
+      '<extra></extra>'
+  };
+
+  aoghLine: Graph = {
+    title: 'Arrivals on Green [%]',
+    x: 'hour',
+    y: 'aog',
+    text: 'corridor',
+    hoverTemplate: 
+      '<b>%{text}</b>' +
+      '<br>Week of: <b>%{x}</b>' +
+      '<br>Arrivals on Green: <b>%{y}</b>' +
+      '<extra></extra>'
+  };
+
   //queue spillback rate inputs
   qsdMetricField: string = 'qs_freq';
   qsdGraphMetrics: Metrics = new Metrics();
@@ -69,6 +110,20 @@ export class OperationsComponent implements OnInit {
     this.tpMapMetrics.level = 'sig';
     this.tpMapMetrics.start = '2021-03-01';
     this.tpMapMetrics.end = '2021-03-02';
+
+    this.aogdGraphMetrics.measure = 'aogd';
+
+    this.aogdMapMetrics.measure = 'aogd';
+    this.aogdMapMetrics.level = 'cor';
+    this.aogdMapMetrics.start = '2020-03-01';
+    this.aogdMapMetrics.end = '2021-03-01';
+
+    this.aoghGraphMetrics.measure = 'aogh';
+
+    this.aoghMapMetrics.measure = 'aogh';
+    this.aoghMapMetrics.level = 'cor';
+    this.aoghMapMetrics.start = '2021-03-01';
+    this.aoghMapMetrics.end = '2021-03-01';
 
     this.qsdGraphMetrics.measure = 'qsd';
 
