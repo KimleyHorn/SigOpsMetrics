@@ -1,76 +1,112 @@
 <div class="col">
-  <mat-accordion>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>Date Range</mat-panel-title>
-      </mat-expansion-panel-header>
-      <mat-selection-list #datesSelector>
-        <mat-list-option>Custom</mat-list-option>
-        <mat-list-option>Current Week</mat-list-option>
-        <mat-list-option>Prior Week</mat-list-option>
-        <mat-list-option>Prior Quarter</mat-list-option>
-        <mat-list-option>Prior Year</mat-list-option>
-      </mat-selection-list>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>Time Range</mat-panel-title>
-      </mat-expansion-panel-header>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>Region</mat-panel-title>
-      </mat-expansion-panel-header>
-      <mat-form-field appearance="fill">
-        <mat-label>Select A Signal Group</mat-label>
-        <mat-select [(ngModel)]="selectedSignalGroup"
-          (selectionChange)='signalGroupSelected($event)'>
-          <mat-option
-            *ngFor="let signalGroup of signalGroups"
-            [value]="signalGroup"
-            >{{ signalGroup }}</mat-option
-          >
-        </mat-select>
-      </mat-form-field>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>District</mat-panel-title>
-      </mat-expansion-panel-header>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>Managing Agency</mat-panel-title>
-      </mat-expansion-panel-header>
-      <mat-form-field appearance="fill">
-        <mat-label>Select An Agency</mat-label>
-        <mat-select [(ngModel)]="selectedAgency">
-          <mat-option *ngFor="let agency of agencies"
-          [value]="agency">{{ agency }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>County</mat-panel-title>
-      </mat-expansion-panel-header>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>City</mat-panel-title>
-      </mat-expansion-panel-header>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>Corridor</mat-panel-title>
-      </mat-expansion-panel-header>
-    </mat-expansion-panel>
-    <mat-expansion-panel>
-      <mat-expansion-panel-header>
-        <mat-panel-title>MVID</mat-panel-title>
-      </mat-expansion-panel-header>
-    </mat-expansion-panel>
-  </mat-accordion>
+  <span class="header-label" style="font-size:12px; margin-top:10px;">Filters</span>
+  <div class="filter-break"></div>
+  <span class="header-label">Date Range</span>
+  <mat-radio-group class="date-range-radio-group" [(ngModel)]="selectedDateOption">
+    <mat-radio-button class="date-range-radio-button" *ngFor="let option of options" [value]="option">
+      {{option}}
+    </mat-radio-button>
+  </mat-radio-group>
+  <mat-form-field appearance="outline" style="max-width:45%;" *ngIf="this.selectedDateOption === 'Custom'">
+    <mat-label>Start Date</mat-label>
+    <input matInput [matDatepicker]="startDate" (dateChange)="updateFilter('customStart',$event)">
+    <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+    <mat-datepicker #startDate></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field appearance="outline" style="max-width:45%;margin-left:25px;" *ngIf="this.selectedDateOption === 'Custom'">
+    <mat-label>End Date</mat-label>
+    <input matInput [matDatepicker]="endDate" (dateChange)="updateFilter('customEnd',$event)">
+    <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
+    <mat-datepicker #endDate></mat-datepicker>
+  </mat-form-field>
+  <div class="filter-break"></div>
+  <span class="header-label">Time Range</span>
+
+  <mat-form-field appearance="outline" style="max-width:45%" >
+    <mat-label>Begin Time</mat-label>
+    <input matInput [matDatepicker]="startTime" (dateChange)="updateFilter('startTime',$event)">
+    <mat-datepicker-toggle matSuffix [for]="startTime"></mat-datepicker-toggle>
+    <mat-datepicker #startTime type="time" [twelveHour]="true">
+      <mat-datepicker-actions>
+        <button mat-button matDatepickerCancel>Cancel</button>
+        <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+      </mat-datepicker-actions>
+    </mat-datepicker>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" style="max-width:45%; margin-left:25px;" >
+    <mat-label>End Time</mat-label>
+    <input matInput [matDatepicker]="endTime" (dateChange)="updateFilter('endTime',$event)">
+    <mat-datepicker-toggle matSuffix [for]="endTime"></mat-datepicker-toggle>
+    <mat-datepicker #endTime type="time" [twelveHour]="true">
+      <mat-datepicker-actions>
+        <button mat-button matDatepickerCancel>Cancel</button>
+        <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+      </mat-datepicker-actions>
+    </mat-datepicker>
+  </mat-form-field>
+
+
+  <div class="filter-break"></div>
+  <span class="header-label">Data Aggregation</span>
+  <mat-form-field appearance="outline" style="display: block;"  >
+    <mat-label>Select Time Period?</mat-label>
+    <mat-select (selectionChange)="updateFilter('timePeriod',$event)" [(ngModel)]="selectedDataAggregationOption">
+      <mat-option *ngFor="let time of timeOptions" [value]="time">
+        {{time}} Minutes
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <div class="filter-break"></div>
+  <span class="header-label">Signal Attributes</span>
+  <mat-form-field ngDefaultControl appearance="outline" style="display: block;">
+    <mat-label>Select Region</mat-label>
+    <mat-select (selectionChange)="updateFilter('zoneGroup',$event)" [(ngModel)]="selectedSignalGroup">
+      <mat-option *ngFor="let signal of signalGroups" [value]="signal">
+        {{signal}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" style="display: block;">
+    <mat-label>Select District</mat-label>
+    <mat-select (selectionChange)="updateFilter('zone',$event)" [(ngModel)]="selectedDistrict">
+      <mat-option *ngFor="let district of districts" [value]="district">
+        {{district}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" style="display: block;">
+    <mat-label>Select Managing Agency</mat-label>
+    <mat-select (selectionChange)="updateFilter('agency',$event)" [(ngModel)]="selectedAgency">
+      <mat-option *ngFor="let agency of agencies" [value]="agency">
+        {{agency}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" style="display: block;">
+    <mat-label>Select County</mat-label>
+    <mat-select (selectionChange)="updateFilter('county',$event)" [(ngModel)]="selectedCounty">
+      <mat-option *ngFor="let agency of agencies" [value]="agency">
+        {{agency}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" style="display: block;">
+    <mat-label>Select City</mat-label>
+    <mat-select (selectionChange)="updateFilter('city',$event)" [(ngModel)]="selectedCity">
+      <mat-option *ngFor="let agency of agencies" [value]="agency">
+        {{agency}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  <mat-form-field appearance="outline" style="display: block;">
+    <mat-label>Select Corridor</mat-label>
+    <mat-select (selectionChange)="updateFilter('corridor',$event)" [(ngModel)]="selectedCorridor">
+      <mat-option *ngFor="let corridor of corridors" [value]="corridor">
+        {{corridor}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 <div class="container" style="display: flex; justify-content: space-evenly; margin-top:10px;">
     <button mat-raised-button color="basic">Set As Defaults</button>

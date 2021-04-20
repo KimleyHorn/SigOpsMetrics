@@ -48,7 +48,7 @@ namespace SigOpsMetrics.API
                         builder.WithOrigins("http://localhost:4200", "http://sigops-test.s3-website-us-east-1.amazonaws.com");
                     });
             });
-            services.AddResponseCaching();
+            //services.AddResponseCaching();
             services.AddMvc(options =>
             {
                 options.CacheProfiles.Add(CacheProfiles.Default, new CacheProfile()
@@ -90,7 +90,7 @@ namespace SigOpsMetrics.API
 
             app.UseCors(MyAllowSpecificOrigins);
 
-            app.UseResponseCaching();
+            //app.UseResponseCaching();
 
             //app.UseAuthorization();
 
