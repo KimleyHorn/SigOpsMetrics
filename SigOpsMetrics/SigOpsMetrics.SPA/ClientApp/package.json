@@ -25,6 +25,7 @@
     "@angular/platform-browser-dynamic": "11.1.2",
     "@angular/platform-server": "11.1.2",
     "@angular/router": "11.1.2",
+    "@matheo/datepicker": "^11.2.8",
     "angular-plotly.js": "^3.1.0",
     "aspnet-prerendering": "^3.0.1",
     "bootstrap": "^4.3.1",

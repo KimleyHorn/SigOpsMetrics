@@ -17,30 +17,47 @@ export class FilterService {
   constructor(private http: HttpClient, @Inject('BASE_URL') baseUrlInject: string) {
     this.baseUrl = baseUrlInject;
 
-    this.getSignalGroupsFromDb().subscribe(data => this.signalGroups = data);
+    //this.getSignalGroupsFromDb().subscribe(data => this.signalGroups = data);
   }
 
-  public getSignalGroups() {
-    if (this.signalGroups.length === 0) {
-      this.getSignalGroupsFromDb().subscribe(data => {
-        this.signalGroups = data;
-        return this.signalGroups;});
-    }
-    else {
-      return this.signalGroups;
-    }
-  }
-
-  public getSignalGroupsFromDb() {
-    return this.http.get<any[]>(this.baseUrl + 'signals/zonegroups');
-  }
-
-  public getAgenciesFromDb() {
-    return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
-  }
+  // public getSignalGroups() {
+  //   if (this.signalGroups.length === 0) {
+  //     this.getSignalGroupsFromDb().subscribe(data => {
+  //       this.signalGroups = data;
+  //       return this.signalGroups;});
+  //   }
+  //   else {
+  //     return this.signalGroups;
+  //   }
+  // }
 
   public setValue(key: string, value: any){
     this.filt[key] = value;
     this._filters.next(this.filt);
+  }
+  
+  //Region
+  public getSignalGroupsFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/zonegroups');
+  }
+  //District
+  public getDistrictsFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/zones');
+  }
+  //Managing Agency
+  public getAgenciesFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
+  }
+  //County
+  public getCountiesFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
+  }
+  //City
+  public getCitiesFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
+  }
+  //Corridor
+  public getCorridorsFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/corridors');
   }
 }
