@@ -60,7 +60,11 @@ export class GraphDashboardComponent implements OnInit {
         let metricData = this._filterService.getZoneGroupData(this.filteredData);
 
         if(metricData !== undefined){
-          this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.metricDecimals);
+          if(this.metricField === 'aog'){
+            this.metricValue = this._formatService.formatPercent(metricData[this.metricField],1);
+          } else{
+            this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.metricDecimals);
+          }
           this.changeValue = this._formatService.formatPercent(metricData[this.changeField],2);
         }
       }
