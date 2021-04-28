@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Metrics } from 'src/app/models/metrics';
+import { FilterService } from 'src/app/services/filter.service';
 import { MetricsService } from 'src/app/services/metrics.service';
 import { SignalsService } from 'src/app/services/signals.service';
 import { environment } from 'src/environments/environment';
@@ -17,20 +18,21 @@ export class ScatterMapComponent implements OnInit {
 
   public mapGraph: any;
 
-  constructor(private _metricsService: MetricsService, 
-    private _signalsService: SignalsService) { }
+  constructor(private _metricsService: MetricsService,
+    private _signalsService: SignalsService,
+    private _filterService: FilterService) { }
 
   ngOnInit(): void {
     this.mapGraph = {
       data: [],
       layout: {
         dragmode: "zoom",
-        mapbox: { 
-          style: "carto-positron", 
-          center: { 
-            lat: environment.mapCenterLat, 
-            lon: environment.mapCenterLon 
-          }, 
+        mapbox: {
+          style: "carto-positron",
+          center: {
+            lat: environment.mapCenterLat,
+            lon: environment.mapCenterLon
+          },
           zoom: 12
         },
         margin: { r: 0, t: 0, b: 0, l: 0 },
@@ -50,20 +52,23 @@ export class ScatterMapComponent implements OnInit {
 
     this._metricsService.getMetrics(this.metrics).subscribe(response => {
       this._metricData = response;
- 
+
       this.createMarkers();
     });
 
-    this._signalsService.getData().subscribe((data) => {
+    this._signalsService.getData().subscribe(data => {
       this._signals = data;
-      
+
+      this.createMarkers();
+    });
+
+    this._filterService.filters.subscribe(filters =>{
       this.createMarkers();
     });
   }
 
   createMarkers(){
     if(this._metricData !== undefined && this._signals !== undefined){
-
       let joinedData = this._signals.map(signal =>{
         let newSignal = signal;
         let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID || md["corridor"] === signal.corridor)[0]
@@ -75,6 +80,7 @@ export class ScatterMapComponent implements OnInit {
         return newSignal;
       });
 
+      joinedData = this._filterService.filterData(joinedData);
 
       let data = [
         {
@@ -84,9 +90,9 @@ export class ScatterMapComponent implements OnInit {
           text: joinedData.filter(signal => this._filterGreen(signal)).map(signal => {
             return this._generateText(signal);
           }),
-          marker: { 
+          marker: {
             color: 'green',
-            size: 6 
+            size: 6
           },
           hovertemplate: '%{text}' +
             '<extra></extra>'
@@ -98,9 +104,9 @@ export class ScatterMapComponent implements OnInit {
           text: joinedData.filter(signal => this._filterYellow(signal)).map(signal => {
             return this._generateText(signal);
           }),
-          marker: { 
+          marker: {
             color: 'yellow',
-            size: 6 
+            size: 6
           },
           hovertemplate: '%{text}' +
             '<extra></extra>'
@@ -112,9 +118,9 @@ export class ScatterMapComponent implements OnInit {
           text: joinedData.filter(signal => this._filterOrange(signal)).map(signal => {
             return this._generateText(signal);
           }),
-          marker: { 
+          marker: {
             color: 'orange',
-            size: 6 
+            size: 6
           },
           hovertemplate: '%{text}' +
             '<extra></extra>'
@@ -126,9 +132,9 @@ export class ScatterMapComponent implements OnInit {
           text: joinedData.filter(signal => this._filterRedOrange(signal)).map(signal => {
             return this._generateText(signal);
           }),
-          marker: { 
+          marker: {
             color: 'redorange',
-            size: 6 
+            size: 6
           },
           hovertemplate: '%{text}' +
             '<extra></extra>'
@@ -140,9 +146,9 @@ export class ScatterMapComponent implements OnInit {
           text: joinedData.filter(signal => this._filterRed(signal)).map(signal => {
             return this._generateText(signal);
           }),
-          marker: { 
+          marker: {
             color: 'red',
-            size: 6 
+            size: 6
           },
           hovertemplate: '%{text}' +
             '<extra></extra>'
@@ -155,6 +161,7 @@ export class ScatterMapComponent implements OnInit {
   private _filterGreen(signal){
     if((this.metricField === "vph" && signal[this.metricField] < 5000)
       || (this.metricField === "qs_freq" && signal[this.metricField] < 0.2)
+      || (this.metricField === "pr" && signal[this.metricField] < 1)
       || (this.metricField === "aog" && signal[this.metricField] < 0.2))
       return true;
 
@@ -163,16 +170,18 @@ export class ScatterMapComponent implements OnInit {
 
   private _filterYellow(signal){
     if(this.metricField === "vph" && signal[this.metricField] >= 5000 && signal[this.metricField] < 10000
-      || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4)
+    || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4)
+    || (this.metricField === "pr" && signal[this.metricField] >= 1 && signal[this.metricField] < 2)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4))
       return true;
-    
+
     return false;
   }
 
   private _filterOrange(signal){
-    if((this.metricField === "vph" && signal[this.metricField] >= 10000 && signal[this.metricField] < 15000) 
+    if((this.metricField === "vph" && signal[this.metricField] >= 10000 && signal[this.metricField] < 15000)
       || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6)
+      || (this.metricField === "pr" && signal[this.metricField] >= 2 && signal[this.metricField] < 3)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6))
       return true;
 
@@ -182,6 +191,7 @@ export class ScatterMapComponent implements OnInit {
   private _filterRedOrange(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 15000 && signal[this.metricField] < 20000)
       || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8)
+      || (this.metricField === "pr" && signal[this.metricField] >= 3 && signal[this.metricField] < 4)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8))
       return true;
 
@@ -191,6 +201,7 @@ export class ScatterMapComponent implements OnInit {
   private _filterRed(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 20000)
       || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.8)
+      || (this.metricField === "pr" && signal[this.metricField] >= 4)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.8))
       return true;
 
@@ -202,5 +213,5 @@ export class ScatterMapComponent implements OnInit {
     let metricText = "<br><b>" + this.metricField + ": " + signal[this.metricField] + "</b>";
     return sigText + metricText;
   }
- 
+
 }

@@ -5,7 +5,7 @@ export class Filter {
     corridor: string
     month: string
 
-    zoneGroup: string // aka signal group
+    //zoneGroup: string // aka signal group
     zone: string //aka district
     agency: string
     county: string
