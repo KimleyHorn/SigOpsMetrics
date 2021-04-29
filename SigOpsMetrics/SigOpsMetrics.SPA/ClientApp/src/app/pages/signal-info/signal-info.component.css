@@ -1,0 +1,28 @@
+table {
+  width: 100%;
+  border-spacing: 0 8px !important;
+}
+
+td.mat-cell {
+ padding: 16px 4px 16px 4px;
+ border-bottom: 1px solid black;
+ border-right: 1px solid black;
+ border-top: 1px solid black;
+}
+
+td.mat-cell:first-child {
+  border-left: 1px solid black;
+}
+
+td.mat-cell:last-child {
+  border-right: 1px solid black;
+}
+
+th.mat-header-cell {
+  text-align: center !important;
+}
+
+mat-form-field.mat-form-field {
+  font-size: 14px;
+}
+

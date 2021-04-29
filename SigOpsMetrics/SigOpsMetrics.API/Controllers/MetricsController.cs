@@ -78,7 +78,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="zoneGroup">Zone Group (aka Signal Group) to pull data for</param>
         /// <returns></returns>
         [HttpGet(("zonegroup"))]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<DataTable> GetByZoneGroup(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string zoneGroup)
         {
@@ -116,7 +116,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="corridor">Corridor to pull data for</param>
         /// <returns></returns>
         [HttpGet(("corridor"))]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<DataTable> GetByCorridor(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string corridor)
         {
