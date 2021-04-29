@@ -1,42 +1,36 @@
 
 <mat-tab-group>
-    <mat-tab label="Throughput"> 
+    <mat-tab label="Throughput">
         <ng-template matTabContent>
             <app-graph-dashboard
                 [graphMetrics]='tpGraphMetrics'
                 [mapMetrics]='tpMapMetrics'
                 [metricField]='tpMetricField'
                 [metricLabel]='"Average monthly vehicles per hour"'
-                [changeLabel]='"Changes from prior month"'
-                [template]="tpTemplate">
+                [changeLabel]='"Changes from prior month"'>
                 <ng-template let-filteredData #tpTemplate>
-
-                    <app-bar-line-graph 
+                    <app-bar-line-graph
                         [data]='filteredData'
                         [title]='tpTitle'
                         [line]='tpLine'
                         [bar]='tpBar'>
                     </app-bar-line-graph>
-                
                 </ng-template>
             </app-graph-dashboard>
         </ng-template>
-        
+
     </mat-tab>
-    
-    <mat-tab label="Arrivals on Green"> 
+
+    <mat-tab label="Arrivals on Green">
         <ng-template matTabContent>
-            <!-- [graphMetrics2]='aoghGraphMetrics' -->
             <app-graph-dashboard
                 [graphMetrics]='aogdGraphMetrics'
                 [mapMetrics]='aogdMapMetrics'
                 [metricField]='aogdMetricField'
                 [metricLabel]='"Arrivals on Green"'
-                [changeLabel]='"Changes from prior month"'
-                [template]="aogTemplate">
+                [changeLabel]='"Changes from prior month"'>
                 <ng-template let-filteredData #aogTemplate>
-
-                    <app-bar-line-line-graph 
+                    <app-bar-line-line-graph
                         [data1]='filteredData'
                         [additionalMetrics]='aoghGraphMetrics'
                         [title]='aogTitle'
@@ -44,14 +38,30 @@
                         [line2]='aoghLine'
                         [bar]='aogBar'>
                     </app-bar-line-line-graph>
-                
                 </ng-template>
             </app-graph-dashboard>
         </ng-template>
     </mat-tab>
-    
+
     <mat-tab label="Progression Ratio">
-        
+      <ng-template matTabContent>
+        <app-graph-dashboard
+            [graphMetrics]='prdGraphMetrics'
+            [mapMetrics]='prdMapMetrics'
+            [metricField]='prdMetricField'
+            [metricDecimals]='2'
+            [metricLabel]='"Progression Ratio"'
+            [changeLabel]='"Changes from prior month"'>
+            <ng-template let-filteredData #prTemplate>
+              <app-bar-line-graph
+                  [data]='filteredData'
+                  [title]='prdTitle'
+                  [line]='prdLine'
+                  [bar]='prdBar'>
+              </app-bar-line-graph>
+            </ng-template>
+        </app-graph-dashboard>
+      </ng-template>
     </mat-tab>
 
     <mat-tab label="Spillback Rate">
@@ -62,10 +72,9 @@
                 [metricField]='qsdMetricField'
                 [metricLabel]='"Spillback rate"'
                 [metricDecimals]='2'
-                [changeLabel]='"Changes from prior month"'
-                [template]="qsdTemplate">
+                [changeLabel]='"Changes from prior month"'>
                 <ng-template let-filteredData #qsdTemplate>
-                    <app-bar-line-graph 
+                    <app-bar-line-graph
                         [data]='filteredData'
                         [title]='qsdTitle'
                         [line]='qsdLine'
@@ -74,22 +83,73 @@
                 </ng-template>
             </app-graph-dashboard>
         </ng-template>
-        
+
     </mat-tab>
 
     <mat-tab label="Split Failures">
-        
+      <ng-template matTabContent>
+        <app-graph-dashboard
+              [graphMetrics]='sfGraphMetrics'
+              [mapMetrics]='sfMapMetrics'
+              [metricField]='sfMetricField'
+              [metricLabel]='"Split Failures"'
+              [metricDecimals]='2'
+              [changeLabel]='"Changes from prior month"'>
+              <ng-template let-filteredData #sfTemplate>
+                  <app-bar-line-graph
+                      [data]='filteredData'
+                      [title]='sfTitle'
+                      [line]='sfLine'
+                      [bar]='sfBar'>
+                  </app-bar-line-graph>
+              </ng-template>
+          </app-graph-dashboard>
+      </ng-template>
     </mat-tab>
 
     <mat-tab label="Travel Time Index">
-        
+      <ng-template matTabContent>
+        <app-graph-dashboard
+              [graphMetrics]='ttiGraphMetrics'
+              [mapMetrics]='ttiMapMetrics'
+              [metricField]='ttiMetricField'
+              [metricLabel]='"Travel Time Incex"'
+              [metricDecimals]='2'
+              [changeLabel]='"Changes from prior month"'>
+              <ng-template let-filteredData #ttiTemplate>
+                  <app-bar-line-graph
+                      [data]='filteredData'
+                      [title]='ttiTitle'
+                      [line]='ttiLine'
+                      [bar]='ttiBar'>
+                  </app-bar-line-graph>
+              </ng-template>
+          </app-graph-dashboard>
+      </ng-template>
     </mat-tab>
 
     <mat-tab label="Planning Time Index">
-        
+      <ng-template matTabContent>
+        <app-graph-dashboard
+              [graphMetrics]='ptiGraphMetrics'
+              [mapMetrics]='ptiMapMetrics'
+              [metricField]='ptiMetricField'
+              [metricLabel]='"Planning Time Incex"'
+              [metricDecimals]='2'
+              [changeLabel]='"Changes from prior month"'>
+              <ng-template let-filteredData #ptiTemplate>
+                  <app-bar-line-graph
+                      [data]='filteredData'
+                      [title]='ptiTitle'
+                      [line]='ptiLine'
+                      [bar]='ptiBar'>
+                  </app-bar-line-graph>
+              </ng-template>
+          </app-graph-dashboard>
+      </ng-template>
     </mat-tab>
 </mat-tab-group>
-        
+
 
 <!-- <div class="container-fluid">
     <div class="row">
@@ -100,7 +160,7 @@
                     <app-chart-toggle></app-chart-toggle>
                 </div>
             </div>
-            
+
             <div *ngIf="toggleValue == '1'" class="row">
                 <div class="col-12">
                     <app-graph-dashboard
@@ -112,13 +172,13 @@
                         [template]="tpTemplate">
                         <ng-template let-filteredData #tpTemplate>
 
-                            <app-bar-line-graph 
+                            <app-bar-line-graph
                                 [data]='filteredData'
                                 [title]='tpTitle'
                                 [line]='tpLine'
                                 [bar]='tpBar'>
                             </app-bar-line-graph>
-                        
+
                         </ng-template>
 
                     </app-graph-dashboard>
@@ -148,7 +208,7 @@
                         [changeLabel]='"Changes from prior month"'
                         [template]="qsdTemplate">
                         <ng-template let-filteredData #qsdTemplate>
-                            <app-bar-line-graph 
+                            <app-bar-line-graph
                                 [data]='filteredData'
                                 [title]='qsdTitle'
                                 [line]='qsdLine'

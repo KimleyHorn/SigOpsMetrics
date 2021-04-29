@@ -35,10 +35,13 @@ export class FilterService {
   public corridors = this._corridors.asObservable();
   public corridorData: string[];
 
-    //this.getSignalGroupsFromDb().subscribe(data => this.signalGroups = data);
   private _subcorridors: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
   public subcorridors = this._subcorridors.asObservable();
   public subcorridorData: string[];
+
+  private _agencies: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  public agencies = this._agencies.asObservable();
+  public agencyData: string[];
 
   constructor(private http: HttpClient, @Inject('BASE_URL') baseUrlInject: string, private _formatService: FormatService) {
     this.baseUrl = baseUrlInject;
@@ -104,7 +107,7 @@ export class FilterService {
         return response;
       })
     ).subscribe(response => this._corridors.next(response));;
-  }v
+  }
 
   getCorridorsByZone(zone: string){
     return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyzone/' + zone).pipe(
@@ -142,22 +145,48 @@ export class FilterService {
     ).subscribe(response => this._subcorridors.next(response));;
   }
 
+  getAgencies(){
+    return this.http.get<string[]>(this.baseUrl + 'signals/agencies').pipe(
+      map(response => {
+        this.agencyData = response;
+        return response;
+      })
+    ).subscribe(response => this._agencies.next(response));;
+  }
+
   private _loadData(filter: Filter){
     this.getZoneGroups();
     this.getZonesByZoneGroup(filter.zone_Group);
     this.getCorridorsByZoneGroup(filter.zone_Group);
     this.getSubcorridors();
+    this.getAgencies();
     this.getSignals();
   }
 
   public setValue(key: string, value: any){
+    switch (key) {
+      case "zone_Group":
+        this.getZonesByZoneGroup(value);
+        this.getCorridorsByZoneGroup(value);
+        break;
+      case "zone":
+        this.getCorridorsByZone(value);
+      case "corridor":
+        this.getSubcorridorsByCorridor(value);
+      default:
+        break;
+    }
+
     this.filter[key] = value;
+    //this._filters.next(this.filter);
+  }
+
+  public updateFilter(){
     this._filters.next(this.filter);
   }
 
   public filterData(data: any){
     let filteredData = data;
-
     for (let key of Object.keys(this.filter)) {
       if(this.filter[key] !== undefined && key !== 'month'){
         switch (key) {
@@ -168,6 +197,7 @@ export class FilterService {
                 return dataItem;
               }
             });
+
             break;
           default:
             filteredData = filteredData.filter(dataItem => dataItem[key] === this.filter[key]);
@@ -175,13 +205,7 @@ export class FilterService {
         }
       }
     }
-
     return filteredData;
-  }
-
-  public signalFilterData(data: any){
-    let filteredData = data.filter(dataItem => dataItem['month'] === this.filter.month);
-
   }
 
   public getZoneGroupData(data: any){

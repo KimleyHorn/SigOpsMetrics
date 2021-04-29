@@ -16,13 +16,13 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   @ViewChild("endTime") endTime: MatDatepicker<Date>;
   @Output("toggleFilter") toggleFilter: EventEmitter<any> = new EventEmitter();
 
-  //Region
+  //Region | ZONE GROUP
   signalGroups: Array<string> = [];
   selectedSignalGroup: string;
-  //District
+  //District | ZONE
   districts: Array<string> = [];
   selectedDistrict: string;
-  //Managing Agency
+  //Managing Agency | AGENCY
   agencies: Array<string> = [];
   selectedAgency: string;
   //County
@@ -31,7 +31,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   //City
   cities: Array<string> = [];
   selectedCity: string;
-  //Corridor
+  //Corridor | CORRIDOR
   corridors: Array<string> = [];
   selectedCorridor: string;
   // Data Aggregation
@@ -48,16 +48,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.filterService.getSignalGroupsFromDb().subscribe((data) => {
+    this.filterService.zoneGroups.subscribe(data =>{
       this.signalGroups = data;
-      //this.selectedSignalGroup = data[0]; //All RTOP
     });
 
-    this.filterService.getAgenciesFromDb().subscribe((data) => {
-      this.agencies = data;
-    });
-
-    this.filterService.getDistrictsFromDb().subscribe((data) => {
+    this.filterService.zones.subscribe(data => {
       this.districts = data;
     });
 
@@ -65,17 +60,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.corridors = data;
     });
 
-    // this.filterService.getCorridorsFromDb().subscribe((data) => {
-    //   this.corridors = data;
-    // });
-
-    // this.filterService.getCountiesFromDb().subscribe((data) => {
-    //   this.counties = data;
-    // });
-
-    // this.filterService.getCitiesFromDb().subscribe((data) => {
-    //   this.cities = data;
-    // });
+    this.filterService.agencies.subscribe(data =>{
+      this.agencies = data;
+    });
   }
 
   updateFilter(type, e){
@@ -102,5 +89,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.endTime.select(null);
   }
 
+  applyFilter(){
+    this.filterService.updateFilter();
+    this.toggleFilter.emit();
+  }
 }
 
