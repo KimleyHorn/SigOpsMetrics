@@ -24,6 +24,8 @@ export class GraphDashboardComponent implements OnInit {
   changeValue: string = '';
 
   @Input() mapMetrics: Metrics;
+  @Input() mapColors: string[] = ["green","yellow","orange","redorange","red"];
+  @Input() mapLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
   markers: any;
 
   corridors: any;

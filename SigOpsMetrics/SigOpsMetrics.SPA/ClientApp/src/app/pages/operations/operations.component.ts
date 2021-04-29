@@ -14,6 +14,7 @@ export class OperationsComponent implements OnInit {
   tpMetricField: string = 'vph';
   tpGraphMetrics: Metrics = new Metrics();
   tpMapMetrics: Metrics = new Metrics();
+  tpMapLabels: string[] = ["0-5,000","5,000-10,000","10,000-15,000","15,000-20,000","Over 20,000"]
   tpTitle: string = 'Throughput (peak veh/hr)';
   tpBar: Graph = {
     title: 'Throughput (vph)',

@@ -3,34 +3,32 @@
         <div class='col-lg-3'>
             <div class='row'>
                 <div class='col-sm-6 col-lg-12 margin-bottom'>
-                    <app-metric-card 
-                        [metricValue]='metricValue' 
+                    <app-metric-card
+                        [metricValue]='metricValue'
                         [metricLabel]='metricLabel'>
                     </app-metric-card>
                 </div>
                 <div class='col-sm-6 col-lg-12'>
-                    <app-metric-card 
-                        [metricValue]='changeValue' 
+                    <app-metric-card
+                        [metricValue]='changeValue'
                         [metricLabel]='changeLabel'>
                     </app-metric-card>
                 </div>
             </div>
         </div>
-    
+
         <div class='col-lg-9'>
             <mat-card class="map-card">
                 <app-scatter-map
                     [metrics]="mapMetrics"
-                    [metricField]="metricField">
+                    [metricField]="metricField"
+                    [legendColors]="mapColors"
+                    [legendLabels]="mapLabels">
                 </app-scatter-map>
-                <!-- <app-map 
-                    [metrics]="mapMetrics"
-                    [height]="'100%'">
-                </app-map> -->
             </mat-card>
         </div>
     </div>
-    
+
     <div class='row margin-bottom'>
         <div class='col-12'>
             <mat-card>
