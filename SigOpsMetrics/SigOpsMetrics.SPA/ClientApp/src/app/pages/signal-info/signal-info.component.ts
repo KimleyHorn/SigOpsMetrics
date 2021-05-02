@@ -18,7 +18,6 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
   constructor(private signalsService: SignalsService) { }
 
   ngOnInit(): void {
-    //this.getSignals();
   }
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -29,7 +28,7 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
     this.signalsService.getData().subscribe(data => this.dataSource.data = data);
   }
 
-  getSignals(): void {
-    //this.signalList = this.signalsService.signalInfos;
+  public doFilter = (value: string) => {
+    this.dataSource.filter = value.trim().toLocaleLowerCase();
   }
 }

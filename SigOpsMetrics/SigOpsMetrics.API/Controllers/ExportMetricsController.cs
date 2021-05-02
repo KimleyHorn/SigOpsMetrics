@@ -1,36 +1,27 @@
 ﻿using System;
 using System.Data;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
+using SigOpsMetrics.API.Classes.Extensions;
 
 namespace SigOpsMetrics.API.Controllers
 {
-    /// <summary>
-    /// Controller for SigOps Metrics ATSPM data
-    /// </summary>
+    [Route("metrics/csv")]
     [ApiController]
-    [Route("metrics")]
-    public class MetricsController : _BaseController
+    public class ExportMetricsController : _BaseController
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="settings"></param>
-        /// <param name="connection"></param>
-        /// <param name="cache"></param>
-        public MetricsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(settings, connection, cache)
+        public ExportMetricsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(settings, connection, cache)
         {
 
         }
 
-        #region Endpoints
-
         /// <summary>
-        /// API method for returning high-level metric data from SigOpsMetrics.com
+        /// API method for returning high-level metric data from SigOpsMetrics.com in CSV format.
         /// </summary>
         /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
         /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
@@ -41,13 +32,13 @@ namespace SigOpsMetrics.API.Controllers
         /// <returns></returns>
         [HttpGet("")]
         //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
-        public async Task<DataTable> Get(string source, string level, string interval, string measure, DateTime start,
+        public async Task<FileStreamResult> Get(string source, string level, string interval, string measure, DateTime start,
             DateTime end)
         {
             var cacheName = $"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                Task<DataTable> cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
@@ -55,7 +46,8 @@ namespace SigOpsMetrics.API.Controllers
                         end);
                     return dt;
                 });
-                return await cacheEntry;
+
+                return File(StreamExtensions.ConvertToCSV(cacheEntry), "text/plain","data.csv");
             }
             catch (Exception ex)
             {
@@ -67,7 +59,7 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning metric data by zone group from SigOpsMetrics.com
+        /// API method for returning metric data by zone group from SigOpsMetrics.com in CSV format.
         /// </summary>
         /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
         /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
@@ -78,14 +70,14 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="zoneGroup">Zone Group (aka Signal Group) to pull data for</param>
         /// <returns></returns>
         [HttpGet(("zonegroup"))]
-        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
-        public async Task<DataTable> GetByZoneGroup(string source, string level, string interval, string measure,
+        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<FileStreamResult> GetByZoneGroup(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string zoneGroup)
         {
             var cacheName = $"Metrics/ZoneGroup/{source}/{level}/{interval}/{measure}/{start}/{end}/{zoneGroup}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                Task<DataTable> cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
@@ -93,7 +85,7 @@ namespace SigOpsMetrics.API.Controllers
                         start, end, zoneGroup);
                     return dt;
                 });
-                return await cacheEntry;
+                return File(StreamExtensions.ConvertToCSV(cacheEntry), "text/plain", "data.csv"); ;
             }
             catch (Exception ex)
             {
@@ -105,7 +97,7 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning metric data by corridor from SigOpsMetrics.com
+        /// API method for returning metric data by corridor from SigOpsMetrics.com in CSV format.
         /// </summary>
         /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
         /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
@@ -116,14 +108,14 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="corridor">Corridor to pull data for</param>
         /// <returns></returns>
         [HttpGet(("corridor"))]
-        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
-        public async Task<DataTable> GetByCorridor(string source, string level, string interval, string measure,
+        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<FileStreamResult> GetByCorridor(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string corridor)
         {
             var cacheName = $"Metrics/Corridor/{source}/{level}/{interval}/{measure}/{start}/{end}/{corridor}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                Task<DataTable> cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
@@ -131,7 +123,7 @@ namespace SigOpsMetrics.API.Controllers
                         start, end, corridor);
                     return dt;
                 });
-                return await cacheEntry;
+                return File(StreamExtensions.ConvertToCSV(cacheEntry), "text/plain", "data.csv");
             }
             catch (Exception ex)
             {
@@ -141,8 +133,5 @@ namespace SigOpsMetrics.API.Controllers
                 return null;
             }
         }
-
-        #endregion
-
     }
 }
