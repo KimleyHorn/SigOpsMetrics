@@ -80,6 +80,7 @@ export class OperationsComponent implements OnInit {
   prdMetricField: string = 'pr';
   prdGraphMetrics: Metrics = new Metrics();
   prdMapMetrics: Metrics = new Metrics();
+  prdMapLabels: string[] = ["0-1","1-2","2-3","3-4","Over 4"];
   prdTitle: string = 'Progression Ratio';
   prdBar: Graph = {
     title: 'Selected Month',
@@ -106,6 +107,7 @@ export class OperationsComponent implements OnInit {
   qsdMetricField: string = 'qs_freq';
   qsdGraphMetrics: Metrics = new Metrics();
   qsdMapMetrics: Metrics = new Metrics();
+  qsdMapLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","Over 0.8"];
   qsdTitle: string = 'Queue Spillback Rate';
   qsdBar: Graph = {
     title: 'Queue Spillback Rate',
@@ -132,6 +134,7 @@ export class OperationsComponent implements OnInit {
   sfMetricField: string = 'sf_freq';
   sfGraphMetrics: Metrics = new Metrics();
   sfMapMetrics: Metrics = new Metrics();
+  sfMapLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","Over 0.8"];
   sfTitle: string = 'Split Failures Rate [%]';
   sfBar: Graph = {
     title: 'Selected Month',
@@ -157,7 +160,6 @@ export class OperationsComponent implements OnInit {
   //travel time index inputs
   ttiMetricField: string = 'tti';
   ttiGraphMetrics: Metrics = new Metrics();
-  ttiMapMetrics: Metrics = new Metrics();
   ttiTitle: string = 'Travel Time Index (TTI)';
   ttiBar: Graph = {
     title: 'Selected Month TTI',
@@ -183,7 +185,6 @@ export class OperationsComponent implements OnInit {
   //planning time index inputs
   ptiMetricField: string = 'pti';
   ptiGraphMetrics: Metrics = new Metrics();
-  ptiMapMetrics: Metrics = new Metrics();
   ptiTitle: string = 'Planning Time Index (PTI)';
   ptiBar: Graph = {
     title: 'Selected Month PTI',
@@ -223,10 +224,8 @@ export class OperationsComponent implements OnInit {
     this.aogdMapMetrics.end = mapEnd;
 
     this.aoghGraphMetrics.measure = 'aogh';
-    this.aoghMapMetrics.measure = 'aogh';
-    this.aoghMapMetrics.level = 'cor';
-    this.aoghMapMetrics.start = mapStart;
-    this.aoghMapMetrics.end = mapEnd;
+    this.aoghGraphMetrics.start = mapStart;
+    this.aoghGraphMetrics.end = mapEnd;
 
     this.prdGraphMetrics.measure = 'prd';
     this.prdMapMetrics.measure = 'prd';
@@ -247,16 +246,8 @@ export class OperationsComponent implements OnInit {
     this.sfMapMetrics.end = mapEnd;
 
     this.ttiGraphMetrics.measure = 'tti';
-    this.ttiMapMetrics.measure = 'tti';
-    this.ttiMapMetrics.level = 'sig';
-    this.ttiMapMetrics.start = mapStart;
-    this.ttiMapMetrics.end = mapEnd;
 
     this.ptiGraphMetrics.measure = 'pti';
-    this.ptiMapMetrics.measure = 'pti';
-    this.ptiMapMetrics.level = 'sig';
-    this.ptiMapMetrics.start = mapStart;
-    this.ptiMapMetrics.end = mapEnd;
    }
 
   ngOnInit(): void {

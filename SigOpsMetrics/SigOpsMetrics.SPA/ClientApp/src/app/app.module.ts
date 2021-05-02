@@ -36,6 +36,9 @@ import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/
 // import { GraphsDashboardComponent} from './components/dashboards/graphs-dashboard/graphs-dashboard.component.spec';
 import { DatePipe } from '@angular/common';
 import { ScatterMapComponent } from './components/maps/scatter-map/scatter-map.component';
+import { MetricsDashboardComponent } from './components/dashboards/metrics-dashboard/metrics-dashboard.component';
+import { BaseDashboardComponent } from './components/dashboards/base-dashboard/base-dashboard.component';
+import { MapDashboardComponent } from './components/dashboards/map-dashboard/map-dashboard.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -71,7 +74,10 @@ const routes = [
     BarLineLineGraphComponent,
     GraphDashboardComponent,
     // GraphsDashboardComponent,
-    ScatterMapComponent
+    ScatterMapComponent,
+    MetricsDashboardComponent,
+    BaseDashboardComponent,
+    MapDashboardComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
