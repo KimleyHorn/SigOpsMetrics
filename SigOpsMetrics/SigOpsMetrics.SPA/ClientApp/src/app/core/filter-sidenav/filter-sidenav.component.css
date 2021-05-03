@@ -59,3 +59,20 @@
 .mat-form-field {
     font-size: smaller;
 }
+
+.days-list {
+    display: inline;
+    max-width: 10px;
+}
+.days-list-btn {
+    max-width: 40px;
+    margin: 0px;
+    padding: 0px 7px 0px 7px;
+    border-radius: 0px;
+    border-color: white;
+    background: grey;
+}
+
+.mat-drawer-inner-container::-webkit-scrollbar {
+    display: none;
+}
