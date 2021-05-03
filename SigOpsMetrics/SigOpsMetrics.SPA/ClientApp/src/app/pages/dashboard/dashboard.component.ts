@@ -23,9 +23,9 @@ export class DashboardComponent  implements OnInit {
     this.mapLabels = this.mapSettings.tpMapLabels;
 
     this._metricSelectService.selectedMetric.subscribe(value => {
-      console.log(value);
       switch (value) {
         case "aogd":
+          console.log(this.mapSettings.aogdMapMetrics);
           this.mapField = this.mapSettings.aogdMapField;
           this.mapMetrics = this.mapSettings.aogdMapMetrics;
           this.mapLabels = this.mapSettings.aogdMapLabels;

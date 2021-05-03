@@ -1,11 +1,9 @@
-import { Component, Injectable, Inject } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Filter } from '../models/filter';
 import { BehaviorSubject } from 'rxjs';
-import { SignalsService } from './signals.service';
 import { SignalInfo } from '../models/signal-info';
 import { map } from 'rxjs/operators';
-import { DatePipe } from '@angular/common';
 import { FormatService } from './format.service';
 
 @Injectable({

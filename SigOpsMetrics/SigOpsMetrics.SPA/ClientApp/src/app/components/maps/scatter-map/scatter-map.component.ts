@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
 import { MetricsService } from 'src/app/services/metrics.service';
@@ -22,36 +22,38 @@ export class ScatterMapComponent implements OnInit {
 
   constructor(private _metricsService: MetricsService,
     private _signalsService: SignalsService,
-    private _filterService: FilterService) { }
-
-  ngOnInit(): void {
-    this.mapGraph = {
-      data: [],
-      layout: {
-        dragmode: "zoom",
-        mapbox: {
-          style: "carto-positron",
-          center: {
-            lat: environment.mapCenterLat,
-            lon: environment.mapCenterLon
+    private _filterService: FilterService) {
+      this.mapGraph = {
+        data: [],
+        layout: {
+          dragmode: "zoom",
+          mapbox: {
+            style: "carto-positron",
+            center: {
+              lat: environment.mapCenterLat,
+              lon: environment.mapCenterLon
+            },
+            zoom: 12
           },
-          zoom: 12
-        },
-        margin: { r: 0, t: 0, b: 0, l: 0 },
-        xaxis: {
-          zeroline: false
-        },
-        yaxis: {
-          zeroline: false
-        },
-        legend: {
-          x: 1,
-          xanchor: 'right',
-          y: 0.9,
+          margin: { r: 0, t: 0, b: 0, l: 0 },
+          xaxis: {
+            zeroline: false
+          },
+          yaxis: {
+            zeroline: false
+          },
+          legend: {
+            x: 1,
+            xanchor: 'right',
+            y: 0.9,
+          }
         }
       }
     }
 
+  ngOnInit(): void {}
+
+  ngOnChanges(changes: SimpleChanges){
     this._metricsService.getMetrics(this.metrics).subscribe(response => {
       this._metricData = response;
 
@@ -64,7 +66,7 @@ export class ScatterMapComponent implements OnInit {
       this.createMarkers();
     });
 
-    this._filterService.filters.subscribe(filters =>{
+    this._filterService.filters.subscribe(() =>{
       this.createMarkers();
     });
   }

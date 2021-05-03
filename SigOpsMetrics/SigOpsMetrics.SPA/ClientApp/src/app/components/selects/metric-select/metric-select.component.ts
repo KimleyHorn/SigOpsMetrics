@@ -17,12 +17,10 @@ export class MetricSelectComponent implements OnInit {
     // { text: "Off-Peak Split Failures", value: "" },
   ]
 
+  selectedMetric: string = "tp";
+
   constructor(public metricSelectService: MetricSelectService) { }
 
   ngOnInit(): void {
-  }
-
-  test(event: any){
-    console.log(event);
   }
 }
