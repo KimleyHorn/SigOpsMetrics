@@ -1,6 +1,7 @@
 <div class="col">
   <span class="header-label" style="font-size:12px; margin-top:10px;">Filters</span>
   <div class="filter-break"></div>
+
   <span class="header-label">Date Range</span>
   <mat-radio-group class="date-range-radio-group" [(ngModel)]="selectedDateOption">
     <mat-radio-button class="date-range-radio-button" *ngFor="let option of options" [value]="option">
@@ -19,6 +20,18 @@
     <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
     <mat-datepicker #endDate></mat-datepicker>
   </mat-form-field>
+
+  <div *ngIf="this.selectedDateOption === 'Custom'">
+    <span class="header-label">Day(s) of Week</span>
+    <ul style="list-style-type:none; padding: 0px;">
+      <li class="days-list" *ngFor="let day of daysOfWeek">
+        <label class="btn btn-primary days-list-btn" [style.background-color]="day.selected ? '#0070ed' : 'grey'" (click)="this.toggleDay(day);">
+          {{day.day}}
+        </label>
+      </li>
+    </ul>
+  </div>
+
   <div class="filter-break"></div>
   <span class="header-label">Time Range</span>
 
