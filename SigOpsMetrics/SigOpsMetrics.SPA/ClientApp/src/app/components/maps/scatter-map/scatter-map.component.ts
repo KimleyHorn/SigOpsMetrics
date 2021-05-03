@@ -189,6 +189,7 @@ export class ScatterMapComponent implements OnInit {
   private _filter0(signal){
     if((this.metricField === "vph" && signal[this.metricField] < 5000)
       || (this.metricField === "qs_freq" && signal[this.metricField] < 0.2)
+      || (this.metricField === "sf_freq" && signal[this.metricField] < 0.2)
       || (this.metricField === "pr" && signal[this.metricField] < 1)
       || (this.metricField === "aog" && signal[this.metricField] < 0.2))
       return true;
@@ -199,6 +200,7 @@ export class ScatterMapComponent implements OnInit {
   private _filter1(signal){
     if(this.metricField === "vph" && signal[this.metricField] >= 5000 && signal[this.metricField] < 10000
     || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4)
+    || (this.metricField === "sf_freq" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4)
     || (this.metricField === "pr" && signal[this.metricField] >= 1 && signal[this.metricField] < 2)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.2 && signal[this.metricField] < 0.4))
       return true;
@@ -209,6 +211,7 @@ export class ScatterMapComponent implements OnInit {
   private _filter2(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 10000 && signal[this.metricField] < 15000)
       || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6)
+      || (this.metricField === "sf_freq" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6)
       || (this.metricField === "pr" && signal[this.metricField] >= 2 && signal[this.metricField] < 3)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.4 && signal[this.metricField] < 0.6))
       return true;
@@ -219,6 +222,7 @@ export class ScatterMapComponent implements OnInit {
   private _filter3(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 15000 && signal[this.metricField] < 20000)
       || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8)
+      || (this.metricField === "sf_freq" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8)
       || (this.metricField === "pr" && signal[this.metricField] >= 3 && signal[this.metricField] < 4)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.6 && signal[this.metricField] < 0.8))
       return true;
@@ -229,6 +233,7 @@ export class ScatterMapComponent implements OnInit {
   private _filter4(signal){
     if((this.metricField === "vph" && signal[this.metricField] >= 20000)
       || (this.metricField === "qs_freq" && signal[this.metricField] >= 0.8)
+      || (this.metricField === "sf_freq" && signal[this.metricField] >= 0.8)
       || (this.metricField === "pr" && signal[this.metricField] >= 4)
       || (this.metricField === "aog" && signal[this.metricField] >= 0.8))
       return true;

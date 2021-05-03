@@ -119,7 +119,8 @@ export class OperationsComponent implements OnInit {
   };
 
   //split failure rate inputs
-  sfGraphMetrics: Metrics = new Metrics();
+  psfGraphMetrics: Metrics = new Metrics();
+  osfGraphMetrics: Metrics = new Metrics();
   sfTitle: string = 'Split Failures Rate [%]';
   sfBar: Graph = {
     title: 'Selected Month',
@@ -208,7 +209,8 @@ export class OperationsComponent implements OnInit {
 
     this.qsdGraphMetrics.measure = 'qsd';
 
-    this.sfGraphMetrics.measure = 'sfo';
+    this.psfGraphMetrics.measure = 'sfd';
+    this.osfGraphMetrics.measure = 'sfo';
 
     this.ttiGraphMetrics.measure = 'tti';
 

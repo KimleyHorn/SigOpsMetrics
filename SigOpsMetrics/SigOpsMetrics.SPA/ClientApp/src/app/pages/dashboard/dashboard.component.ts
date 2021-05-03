@@ -40,6 +40,16 @@ export class DashboardComponent  implements OnInit {
           this.mapMetrics = this.mapSettings.qsdMapMetrics;
           this.mapLabels = this.mapSettings.qsdMapLabels;
           break;
+        case "sfd":
+          this.mapField = this.mapSettings.psfMapField;
+          this.mapMetrics = this.mapSettings.psfMapMetrics;
+          this.mapLabels = this.mapSettings.psfMapLabels;
+          break;
+        case "sfo":
+          this.mapField = this.mapSettings.osfMapField;
+          this.mapMetrics = this.mapSettings.osfMapMetrics;
+          this.mapLabels = this.mapSettings.osfMapLabels;
+          break;
         default:
           this.mapField = this.mapSettings.tpMapField;
           this.mapMetrics = this.mapSettings.tpMapMetrics;

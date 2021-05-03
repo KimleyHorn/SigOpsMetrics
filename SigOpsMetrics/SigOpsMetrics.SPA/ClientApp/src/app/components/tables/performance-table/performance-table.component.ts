@@ -32,8 +32,8 @@ export class PerformanceTableComponent implements OnInit {
       { name: "Arrivals on Green", measure: "aogd", metric: "aog", format:"percent", precision: 1 },
       { name: "Progression Rate", measure: "prd", metric: "pr", format:"number", precision: 2 },
       { name: "Spillback Rate", measure: "qsd", metric: "qs_freq", format:"percent", precision: 1 },
-      // {name: "Peak Period Split Failures", format:"percent", precision: 1, value:0 },
-      // {name: "Off-Peak Split Failures", format:"percent", precision: 1, value: 0 },
+      { name: "Peak Period Split Failures", measure: "sfd", metric: "sf_freq", format:"number", precision: 2, value:0 },
+      { name: "Off-Peak Split Failures", measure: "sfo", metric: "sf_freq", format:"number", precision: 2, value: 0 },
       { name: "Travel Time Index", measure: "tti", metric: "tti", format:"number", precision: 2 },
       { name: "Planning Time Index", measure: "pti", metric: "pti", format:"number", precision: 2 },
     ];
