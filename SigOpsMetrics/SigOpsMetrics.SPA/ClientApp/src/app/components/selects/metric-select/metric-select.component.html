@@ -1,0 +1,8 @@
+<mat-form-field appearance="fill">
+  <mat-label>Performance Metric</mat-label>
+  <mat-select (selectionChange)="metricSelectService.selectMetric($event)">
+    <mat-option *ngFor="let metric of metrics" [value]="metric.value">
+      {{ metric.text }}
+    </mat-option>
+  </mat-select>
+</mat-form-field>

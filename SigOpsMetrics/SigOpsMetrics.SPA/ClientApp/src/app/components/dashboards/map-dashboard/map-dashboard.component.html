@@ -1,1 +1,39 @@
-<p>map-dashboard works!</p>
+<div class="container-fluid map-dashboard">
+  <div class='row margin-bottom'>
+      <div class='col-lg-3'>
+          <div class='row'>
+              <div class='col-sm-6 col-lg-12 margin-bottom'>
+                  <app-metric-card
+                      [metricValue]='metricValue'
+                      [metricLabel]='metricLabel'>
+                  </app-metric-card>
+              </div>
+              <div class='col-sm-6 col-lg-12'>
+                  <app-metric-card
+                      [metricValue]='changeValue'
+                      [metricLabel]='changeLabel'>
+                  </app-metric-card>
+              </div>
+          </div>
+      </div>
+
+      <div class='col-lg-9'>
+          <mat-card class="map-card">
+              <app-scatter-map
+                  [metrics]="mapMetrics"
+                  [metricField]="metricField"
+                  [legendColors]="mapColors"
+                  [legendLabels]="mapLabels">
+              </app-scatter-map>
+          </mat-card>
+      </div>
+  </div>
+
+  <div class='row margin-bottom'>
+      <div class='col-12'>
+          <mat-card>
+              <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="{$implicit: filteredData }"></ng-container>
+          </mat-card>
+      </div>
+  </div>
+</div>

@@ -1,22 +1,51 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { MetricSelectService } from 'src/app/components/selects/metric-select/metric-select.service';
+import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.css'],
+  providers:[MapSettings]
 })
-export class DashboardComponent {
+export class DashboardComponent  implements OnInit {
+  mapField: string;
+  mapMetrics: Metrics;
+  mapLabels: string[];
+  mapColors: string[];
 
-  tpMetricField: string = 'vph';
-  tpGraphMetrics: Metrics = new Metrics();
-  tpMapMetrics: Metrics = new Metrics();
+  constructor(public mapSettings: MapSettings, private _metricSelectService: MetricSelectService) { }
 
-  constructor() {
-    this.tpGraphMetrics.measure = 'tp';
+  ngOnInit(){
+    this.mapField = this.mapSettings.tpMapField;
+    this.mapMetrics = this.mapSettings.tpMapMetrics;
+    this.mapLabels = this.mapSettings.tpMapLabels;
 
-    this.tpMapMetrics.measure = 'tp';
-    this.tpMapMetrics.level = 'sig';
-    this.tpMapMetrics.start = '2021-03-01';
-    this.tpMapMetrics.end = '2021-03-02';
+    this._metricSelectService.selectedMetric.subscribe(value => {
+      console.log(value);
+      switch (value) {
+        case "aogd":
+          this.mapField = this.mapSettings.aogdMapField;
+          this.mapMetrics = this.mapSettings.aogdMapMetrics;
+          this.mapLabels = this.mapSettings.aogdMapLabels;
+          break;
+        case "prd":
+          this.mapField = this.mapSettings.prdMapField;
+          this.mapMetrics = this.mapSettings.prdMapMetrics;
+          this.mapLabels = this.mapSettings.prdMapLabels;
+          break;
+        case "qsd":
+          this.mapField = this.mapSettings.qsdMapField;
+          this.mapMetrics = this.mapSettings.qsdMapMetrics;
+          this.mapLabels = this.mapSettings.qsdMapLabels;
+          break;
+        default:
+          this.mapField = this.mapSettings.tpMapField;
+          this.mapMetrics = this.mapSettings.tpMapMetrics;
+          this.mapLabels = this.mapSettings.tpMapLabels;
+          break;
+      }
+    });
   }
 }

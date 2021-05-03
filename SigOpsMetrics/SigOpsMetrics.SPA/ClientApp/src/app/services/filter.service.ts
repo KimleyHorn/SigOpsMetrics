@@ -211,7 +211,6 @@ export class FilterService {
   public getZoneGroupData(data: any){
     let groupData = data.filter(dataItem => {
       let dt = this._formatService.formatDate(dataItem['month']);
-
       if(dt === this.filter.month && dataItem['zone_Group'] === this.filter.zone_Group){
         return dataItem;
       }
