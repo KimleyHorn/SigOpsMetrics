@@ -26,6 +26,9 @@ export class Filter {
         _dt.setMonth(newMonth);
 
         this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
+
+        //todo: need to remove this when data is properly populated in the database
+        this.month = "3/2021";
     }
 
 }

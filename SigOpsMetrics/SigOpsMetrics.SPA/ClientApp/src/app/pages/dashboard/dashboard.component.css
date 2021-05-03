@@ -1,0 +1,13 @@
+.container-fluid{
+  padding-top:1em;
+}
+
+.map-card{
+  padding: 0;
+  height: calc(100vh - 120px);
+}
+
+.metric-select{
+  position:absolute;
+  top:0;
+}

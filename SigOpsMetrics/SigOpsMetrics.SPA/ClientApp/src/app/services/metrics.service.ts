@@ -13,10 +13,10 @@ export class MetricsService {
 
   getMetrics(metrics: Metrics){
     return this.http.get<any[]>(this._baseUrl + 'metrics?source=' + metrics.source
-                                                    + '&level=' + metrics.level 
-                                                    + "&interval=" + metrics.interval 
-                                                    + "&measure=" + metrics.measure 
-                                                    + "&start="+ metrics.start 
+                                                    + '&level=' + metrics.level
+                                                    + "&interval=" + metrics.interval
+                                                    + "&measure=" + metrics.measure
+                                                    + "&start="+ metrics.start
                                                     + "&end="+ metrics.end);
   }
 }

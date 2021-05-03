@@ -33,9 +33,12 @@ import { MetricCardComponent } from './components/cards/metric-card/metric-card.
 import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
 import { BarLineLineGraphComponent } from './components/graphs/bar-line-line-graph/bar-line-line-graph.component';
 import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/graph-dashboard.component';
-// import { GraphsDashboardComponent} from './components/dashboards/graphs-dashboard/graphs-dashboard.component.spec';
 import { DatePipe } from '@angular/common';
 import { ScatterMapComponent } from './components/maps/scatter-map/scatter-map.component';
+import { BaseDashboardComponent } from './components/dashboards/base-dashboard/base-dashboard.component';
+import { MapDashboardComponent } from './components/dashboards/map-dashboard/map-dashboard.component';
+import { PerformanceTableComponent } from './components/tables/performance-table/performance-table.component';
+import { MetricSelectComponent } from './components/selects/metric-select/metric-select.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -71,7 +74,11 @@ const routes = [
     BarLineLineGraphComponent,
     GraphDashboardComponent,
     // GraphsDashboardComponent,
-    ScatterMapComponent
+    ScatterMapComponent,
+    BaseDashboardComponent,
+    MapDashboardComponent,
+    PerformanceTableComponent,
+    MetricSelectComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

@@ -20,4 +20,17 @@ export class FormatService {
   public formatDate(val: any, format: string = 'M/yyyy'):string{
     return this._datePipe.transform(val, format);
   }
+
+  public formatData(val: any, format: string = null, dec: number = 0): string{
+    if(val === undefined){
+      return "";
+    }else{
+      switch (format) {
+        case "percent":
+            return this.formatPercent(val, dec);
+        default:
+            return this.formatNumber(val, dec);
+      }
+    }
+  }
 }

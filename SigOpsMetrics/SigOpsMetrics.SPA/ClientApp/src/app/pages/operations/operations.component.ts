@@ -1,19 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { ChartToggleService } from 'src/app/components/toggles/chart-toggle/chart-toggle.service';
 import { Graph } from 'src/app/models/graph';
+import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';
 
 @Component({
   selector: 'app-operations',
   templateUrl: './operations.component.html',
-  styleUrls: ['./operations.component.css']
+  styleUrls: ['./operations.component.css'],
+  providers: [MapSettings]
 })
 export class OperationsComponent implements OnInit {
   toggleValue: string;
 
-  tpMetricField: string = 'vph';
   tpGraphMetrics: Metrics = new Metrics();
-  tpMapMetrics: Metrics = new Metrics();
   tpTitle: string = 'Throughput (peak veh/hr)';
   tpBar: Graph = {
     title: 'Throughput (vph)',
@@ -36,13 +36,8 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  //aog inputs
-  aogdMetricField: string = 'aog';
-  // aoghMetricField: string ='aogh';
   aogdGraphMetrics: Metrics = new Metrics();
-  aogdMapMetrics: Metrics = new Metrics();
   aoghGraphMetrics: Metrics = new Metrics();
-  aoghMapMetrics: Metrics = new Metrics();
   aogTitle: string = 'Arrivals on Green [%]';
   aogBar: Graph = {
     title: 'Arrivals on Green',
@@ -76,9 +71,7 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  prdMetricField: string = 'pr';
   prdGraphMetrics: Metrics = new Metrics();
-  prdMapMetrics: Metrics = new Metrics();
   prdTitle: string = 'Progression Ratio';
   prdBar: Graph = {
     title: 'Selected Month',
@@ -102,9 +95,7 @@ export class OperationsComponent implements OnInit {
   };
 
   //queue spillback rate inputs
-  qsdMetricField: string = 'qs_freq';
   qsdGraphMetrics: Metrics = new Metrics();
-  qsdMapMetrics: Metrics = new Metrics();
   qsdTitle: string = 'Queue Spillback Rate';
   qsdBar: Graph = {
     title: 'Queue Spillback Rate',
@@ -128,9 +119,7 @@ export class OperationsComponent implements OnInit {
   };
 
   //split failure rate inputs
-  sfMetricField: string = 'sf_freq';
   sfGraphMetrics: Metrics = new Metrics();
-  sfMapMetrics: Metrics = new Metrics();
   sfTitle: string = 'Split Failures Rate [%]';
   sfBar: Graph = {
     title: 'Selected Month',
@@ -156,7 +145,6 @@ export class OperationsComponent implements OnInit {
   //travel time index inputs
   ttiMetricField: string = 'tti';
   ttiGraphMetrics: Metrics = new Metrics();
-  ttiMapMetrics: Metrics = new Metrics();
   ttiTitle: string = 'Travel Time Index (TTI)';
   ttiBar: Graph = {
     title: 'Selected Month TTI',
@@ -182,7 +170,6 @@ export class OperationsComponent implements OnInit {
   //planning time index inputs
   ptiMetricField: string = 'pti';
   ptiGraphMetrics: Metrics = new Metrics();
-  ptiMapMetrics: Metrics = new Metrics();
   ptiTitle: string = 'Planning Time Index (PTI)';
   ptiBar: Graph = {
     title: 'Selected Month PTI',
@@ -205,57 +192,27 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  constructor(private toggleService: ChartToggleService) {
+  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings) {
     let mapStart = '2021-03-01';
     let mapEnd = '2021-03-02';
 
     this.tpGraphMetrics.measure = 'tp';
-    this.tpMapMetrics.measure = 'tp';
-    this.tpMapMetrics.level = 'sig';
-    this.tpMapMetrics.start = mapStart;
-    this.tpMapMetrics.end = mapEnd;
 
     this.aogdGraphMetrics.measure = 'aogd';
-    this.aogdMapMetrics.measure = 'aogd';
-    this.aogdMapMetrics.level = 'cor';
-    this.aogdMapMetrics.start = mapStart;
-    this.aogdMapMetrics.end = mapEnd;
 
     this.aoghGraphMetrics.measure = 'aogh';
-    this.aoghMapMetrics.measure = 'aogh';
-    this.aoghMapMetrics.level = 'cor';
-    this.aoghMapMetrics.start = mapStart;
-    this.aoghMapMetrics.end = mapEnd;
+    this.aoghGraphMetrics.start = mapStart;
+    this.aoghGraphMetrics.end = mapEnd;
 
     this.prdGraphMetrics.measure = 'prd';
-    this.prdMapMetrics.measure = 'prd';
-    this.prdMapMetrics.level = 'sig';
-    this.prdMapMetrics.start = mapStart;
-    this.prdMapMetrics.end = mapEnd;
 
     this.qsdGraphMetrics.measure = 'qsd';
-    this.qsdMapMetrics.measure = 'qsd';
-    this.qsdMapMetrics.level = 'sig';
-    this.qsdMapMetrics.start = mapStart;
-    this.qsdMapMetrics.end = mapEnd;
 
     this.sfGraphMetrics.measure = 'sfo';
-    this.sfMapMetrics.measure = 'sfo';
-    this.sfMapMetrics.level = 'sig';
-    this.sfMapMetrics.start = mapStart;
-    this.sfMapMetrics.end = mapEnd;
 
     this.ttiGraphMetrics.measure = 'tti';
-    this.ttiMapMetrics.measure = 'tti';
-    this.ttiMapMetrics.level = 'sig';
-    this.ttiMapMetrics.start = mapStart;
-    this.ttiMapMetrics.end = mapEnd;
 
     this.ptiGraphMetrics.measure = 'pti';
-    this.ptiMapMetrics.measure = 'pti';
-    this.ptiMapMetrics.level = 'sig';
-    this.ptiMapMetrics.start = mapStart;
-    this.ptiMapMetrics.end = mapEnd;
    }
 
   ngOnInit(): void {

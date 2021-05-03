@@ -1,1 +1,19 @@
-<app-scatter-map [metrics]="tpMapMetrics" [metricField]="tpMetricField"></app-scatter-map>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-4">
+      <app-performance-table></app-performance-table>
+    </div>
+
+    <div class="col-lg-8">
+      <mat-card class="map-card">
+        <app-scatter-map
+          [metrics]="mapMetrics"
+          [metricField]="mapField"
+          [legendLabels]="mapLabels">
+        </app-scatter-map>
+
+        <app-metric-select class="metric-select"></app-metric-select>
+      </mat-card>
+    </div>
+  </div>
+</div>
