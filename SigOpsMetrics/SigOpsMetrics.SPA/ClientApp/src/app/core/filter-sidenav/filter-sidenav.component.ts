@@ -40,7 +40,16 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   // Date Range
   selectedDateOption: string;
   options: string[] = ['Prior Day','Prior Quarter','Prior Week','Prior Year','Prior Month','Custom']
-
+  // Days of Week
+  daysOfWeek: any[] = [
+    {day:'Su',selected: false},
+    {day:'Mo',selected: false},
+    {day:'Tu',selected: false},
+    {day:'We',selected: false},
+    {day:'Th',selected: false},
+    {day:'Fr',selected: false},
+    {day:'Sa',selected: false},
+]
   constructor(private filterService: FilterService) {}
 
   ngOnInit(): void {
@@ -87,11 +96,22 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     }
     this.startTime.select(null);
     this.endTime.select(null);
+    this.daysOfWeek.forEach(element => {
+      element.selected = false;
+    })
   }
 
   applyFilter(){
     this.filterService.updateFilter();
     this.toggleFilter.emit();
+  }
+
+  toggleDay(day) {
+    this.daysOfWeek.forEach(element => {
+      if (element.day == day.day) {
+        element.selected = !element.selected;
+      }
+    })
   }
 }
 
