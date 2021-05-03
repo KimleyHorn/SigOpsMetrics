@@ -33,14 +33,20 @@
               [metricLabel]='"Arrivals on Green"'
               [changeLabel]='"Changes from prior month"'>
               <ng-template let-filteredData #aogTemplate>
-                  <app-bar-line-line-graph
-                      [data1]='filteredData'
-                      [additionalMetrics]='aoghGraphMetrics'
-                      [title]='aogTitle'
-                      [line1]='aogdLine'
-                      [line2]='aoghLine'
-                      [bar]='aogBar'>
-                  </app-bar-line-line-graph>
+                <app-bar-line-graph
+                  [data]='filteredData'
+                  [title]='aogTitle'
+                  [line]='aogdLine'
+                  [bar]='aogBar'>
+                </app-bar-line-graph>
+                <!-- <app-bar-line-line-graph
+                    [data1]='filteredData'
+                    [additionalMetrics]='aoghGraphMetrics'
+                    [title]='aogTitle'
+                    [line1]='aogdLine'
+                    [line2]='aoghLine'
+                    [bar]='aogBar'>
+                </app-bar-line-line-graph> -->
               </ng-template>
             </app-map-dashboard>
           </div>
@@ -96,15 +102,15 @@
         </ng-template>
     </mat-tab>
 
-    <mat-tab label="Split Failures">
+    <mat-tab label="Peak Period Split Failures">
       <ng-template matTabContent>
         <div class="container-fluid">
           <app-map-dashboard
-            [graphMetrics]='sfGraphMetrics'
-            [mapMetrics]='mapSettings.sfMapMetrics'
-            [mapLabels]='mapSettings.sfMapLabels'
-            [metricField]='mapSettings.sfMapField'
-            [metricLabel]='"Split Failures"'
+            [graphMetrics]='psfGraphMetrics'
+            [mapMetrics]='mapSettings.psfMapMetrics'
+            [mapLabels]='mapSettings.psfMapLabels'
+            [metricField]='mapSettings.psfMapField'
+            [metricLabel]='"Peak Period Split Failures"'
             [metricDecimals]='2'
             [changeLabel]='"Changes from prior month"'>
             <ng-template let-filteredData #sfTemplate>
@@ -117,7 +123,30 @@
             </ng-template>
           </app-map-dashboard>
         </div>
+      </ng-template>
+    </mat-tab>
 
+    <mat-tab label="Off-Peak Split Failures">
+      <ng-template matTabContent>
+        <div class="container-fluid">
+          <app-map-dashboard
+            [graphMetrics]='osfGraphMetrics'
+            [mapMetrics]='mapSettings.osfMapMetrics'
+            [mapLabels]='mapSettings.osfMapLabels'
+            [metricField]='mapSettings.osfMapField'
+            [metricLabel]='"Off-Peak Split Failures"'
+            [metricDecimals]='2'
+            [changeLabel]='"Changes from prior month"'>
+            <ng-template let-filteredData #sfTemplate>
+                <app-bar-line-graph
+                    [data]='filteredData'
+                    [title]='sfTitle'
+                    [line]='sfLine'
+                    [bar]='sfBar'>
+                </app-bar-line-graph>
+            </ng-template>
+          </app-map-dashboard>
+        </div>
       </ng-template>
     </mat-tab>
 

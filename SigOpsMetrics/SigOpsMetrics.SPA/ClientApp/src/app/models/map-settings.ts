@@ -25,7 +25,11 @@ export class MapSettings {
   qsdMapMetrics: Metrics = { measure: "qsd", source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
   qsdMapLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","Over 0.8"];
 
-  sfMapField: string = "sf_freq";
-  sfMapMetrics: Metrics = { measure: "sfo", source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
-  sfMapLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","Over 0.8"];
+  psfMapField: string = "sf_freq";
+  psfMapMetrics: Metrics = { measure: "sfd", source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  psfMapLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","Over 0.8"];
+
+  osfMapField: string = "sf_freq";
+  osfMapMetrics: Metrics = { measure: "sfo", source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  osfMapLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","Over 0.8"];
 }

@@ -13,8 +13,8 @@ export class MetricSelectComponent implements OnInit {
     { text: "Arrivals on Green", value: "aogd" },
     { text: "Progression Rate", value: "prd" },
     { text: "Spillback Rate", value: "qsd" },
-    // { text: "Peak Period Split Failures", value: "" },
-    // { text: "Off-Peak Split Failures", value: "" },
+    { text: "Peak Period Split Failures", value: "sfd" },
+    { text: "Off-Peak Split Failures", value: "sfo" },
   ]
 
   selectedMetric: string = "tp";
