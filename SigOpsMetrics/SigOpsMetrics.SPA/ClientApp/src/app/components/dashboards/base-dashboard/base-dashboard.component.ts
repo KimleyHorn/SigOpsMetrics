@@ -1,5 +1,4 @@
 import { Component, ContentChild, Input, OnInit, TemplateRef } from '@angular/core';
-import { filter } from 'rxjs/operators';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
 import { FormatService } from 'src/app/services/format.service';
@@ -24,8 +23,9 @@ export class BaseDashboardComponent implements OnInit {
   changeValue: string = '';
 
   @Input() mapMetrics: Metrics;
-  @Input() mapColors: string[] = ["green","yellow","orange","redorange","red"];
-  @Input() mapLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
+  @Input() mapRanges: number[][] = [];
+  @Input() legendColors: string[] = ["green","yellow","orange","redorange","red"];
+  @Input() legendLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
   markers: any;
 
   corridors: any;
