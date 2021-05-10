@@ -3,3 +3,11 @@
   background-size: cover;
   color: #fff;
 }
+
+.menu-div {
+  background: #fafafa !important;
+}
+
+.mat-menu-content {
+  padding-top:0px !important;
+}

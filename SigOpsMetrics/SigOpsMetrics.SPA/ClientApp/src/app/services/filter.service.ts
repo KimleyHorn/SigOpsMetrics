@@ -162,19 +162,18 @@ export class FilterService {
   }
 
   public setValue(key: string, value: any){
-    switch (key) {
-      case "zone_Group":
-        this.getZonesByZoneGroup(value);
-        this.getCorridorsByZoneGroup(value);
-        break;
-      case "zone":
-        this.getCorridorsByZone(value);
-      case "corridor":
-        this.getSubcorridorsByCorridor(value);
-      default:
-        break;
-    }
-
+      switch (key) {
+        case "zone_Group":
+          this.getZonesByZoneGroup(value);
+          this.getCorridorsByZoneGroup(value);
+          break;
+        case "zone":
+          this.getCorridorsByZone(value);
+        case "corridor":
+          this.getSubcorridorsByCorridor(value);
+        default:
+          break;
+      }
     this.filter[key] = value;
     //this._filters.next(this.filter);
   }
@@ -186,7 +185,7 @@ export class FilterService {
   public filterData(data: any){
     let filteredData = data;
     for (let key of Object.keys(this.filter)) {
-      if(this.filter[key] !== undefined && key !== 'month'){
+      if(this.filter[key] && key !== 'month'){
         switch (key) {
           case 'zone_Group':
             filteredData = filteredData.filter(dataItem => {
