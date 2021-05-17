@@ -12,4 +12,7 @@ export class Colors {
   blue: string = "#0070ed";
   darkBlue: string = "#0070ed";
   purple: string = "#6600cc";
+
+  gray: string = "a9a9a9";
+  darkGray: string = "000000de";
 }

@@ -1,5 +1,6 @@
 import { isNgTemplate } from '@angular/compiler';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Colors } from 'src/app/models/colors';
 import { Filter } from 'src/app/models/filter';
 import { Graph } from 'src/app/models/graph';
 import { FilterService } from 'src/app/services/filter.service';
@@ -11,6 +12,7 @@ import { FilterService } from 'src/app/services/filter.service';
 })
 export class BarLineGraphComponent implements OnInit, OnChanges {
   private _currentMonth = new Date().getMonth();
+  private _color = new Colors();
 
   @Input() title: string = "";
   corridors: any;
@@ -27,9 +29,9 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
 
   filter: Filter;
 
-  defaultColor: string = '#a9a9a9';
-  primaryColor: string = '#0070ed';
-  secondaryColor: string = "#000000de";
+  defaultColor: string = this._color.gray;
+  primaryColor: string = this._color.blue;
+  secondaryColor: string = this._color.darkGray;
 
   constructor(private _filterService: FilterService) {}
 

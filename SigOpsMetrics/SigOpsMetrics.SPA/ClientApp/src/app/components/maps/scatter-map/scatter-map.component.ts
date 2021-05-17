@@ -1,6 +1,7 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
+import { FormatService } from 'src/app/services/format.service';
 import { MetricsService } from 'src/app/services/metrics.service';
 import { SignalsService } from 'src/app/services/signals.service';
 import { environment } from 'src/environments/environment';
@@ -11,11 +12,7 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./scatter-map.component.css']
 })
 export class ScatterMapComponent implements OnInit {
-  @Input() metrics: Metrics;
-  @Input() metricField: string = "vph";
-  @Input() legendColors: string[] = ["green","yellow","orange","redorange","red"];
-  @Input() legendLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
-  @Input() mapRanges: number[][] = [];
+  @Input() mapSettings;
   private _metricData;
   private _signals;
 
@@ -23,7 +20,8 @@ export class ScatterMapComponent implements OnInit {
 
   constructor(private _metricsService: MetricsService,
     private _signalsService: SignalsService,
-    private _filterService: FilterService) {
+    private _filterService: FilterService,
+    private _formatService: FormatService) {
       this.mapGraph = {
         data: [],
         layout: {
@@ -55,7 +53,7 @@ export class ScatterMapComponent implements OnInit {
   ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges){
-    this._metricsService.getMetrics(this.metrics).subscribe(response => {
+    this._metricsService.getMetrics(this.mapSettings.metrics).subscribe(response => {
       this._metricData = response;
 
       this.createMarkers();
@@ -78,9 +76,9 @@ export class ScatterMapComponent implements OnInit {
         let newSignal = signal;
         let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID || md["corridor"] === signal.corridor)[0]
         if(dataItem !== undefined){
-          newSignal[this.metricField] = dataItem[this.metricField];
+          newSignal[this.mapSettings.metrics.field] = dataItem[this.mapSettings.metrics.field];
         }else{
-          newSignal[this.metricField] = 0;
+          newSignal[this.mapSettings.metrics.field] = 0;
         }
         return newSignal;
       });
@@ -89,11 +87,11 @@ export class ScatterMapComponent implements OnInit {
 
       let data = [];
 
-      for (let index = 0; index < this.mapRanges.length; index++) {
-        const range = this.mapRanges[index];
+      for (let index = 0; index < this.mapSettings.ranges.length; index++) {
+        const range = this.mapSettings.ranges[index];
 
         let markerSignals = joinedData.filter(signal => {
-          if(signal[this.metricField] >= range[0] && signal[this.metricField] < range[1])
+          if(signal[this.mapSettings.metrics.field] >= range[0] && signal[this.mapSettings.metrics.field] < range[1])
             return true;
 
           return false;
@@ -107,10 +105,10 @@ export class ScatterMapComponent implements OnInit {
             return this._generateText(signal);
           }),
           marker: {
-            color: this.legendColors[index],
+            color: this.mapSettings.legendColors[index],
             size: 6
           },
-          name: this.legendLabels[index],
+          name: this.mapSettings.legendLabels[index],
           showlegend: true,
           hovertemplate: '%{text}' +
             '<extra></extra>'
@@ -131,7 +129,15 @@ export class ScatterMapComponent implements OnInit {
 
   private _generateText(signal){
     let sigText = "<b>Signal: " + signal.signalID + "</b> | " + signal.mainStreetName + " @ " + signal.sideStreetName;
-    let metricText = "<br><b>" + this.metrics.label + ": " + signal[this.metricField] + "</b>";
+    let value = "";
+
+    if(this.mapSettings.metrics.formatType === "percent"){
+      value = this._formatService.formatPercent(signal[this.mapSettings.metrics.field], this.mapSettings.metrics.formatDecimals);
+    }else{
+      value = this._formatService.formatNumber(signal[this.mapSettings.metrics.field], this.mapSettings.metrics.formatDecimals);
+    }
+
+    let metricText = "<br><b>" + this.mapSettings.metrics.label + ": " + value + "</b>";
     return sigText + metricText;
   }
 

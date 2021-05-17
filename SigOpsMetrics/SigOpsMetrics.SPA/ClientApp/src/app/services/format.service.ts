@@ -8,11 +8,19 @@ export class FormatService {
 
   constructor(private _datePipe: DatePipe) { }
 
-  public formatNumber(val:number, dec: number = 0): string{
+  public formatNumber(val:any, dec: number = 0): string{
+    if(val === null){
+      val = 0;
+    }
+
     return Number(val.toFixed(dec)).toLocaleString();
   }
 
-  public formatPercent(val:number, dec: number = 0): string{
+  public formatPercent(val:any, dec: number = 0): string{
+    if(val === null){
+      val = 0;
+    }
+
     let newVal = this.formatNumber(val * 100, dec);
     return newVal + '%';
   }
