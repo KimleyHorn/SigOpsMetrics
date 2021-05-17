@@ -22,10 +22,11 @@ export class BaseDashboardComponent implements OnInit {
   @Input() changeField: string = 'delta';
   changeValue: string = '';
 
-  @Input() mapMetrics: Metrics;
-  @Input() mapRanges: number[][] = [];
-  @Input() legendColors: string[] = ["green","yellow","orange","redorange","red"];
-  @Input() legendLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
+  @Input() mapSettings: any;
+  // @Input() mapMetrics: Metrics;
+  // @Input() mapRanges: number[][] = [];
+  // @Input() legendColors: string[] = ["green","yellow","orange","redorange","red"];
+  // @Input() legendLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
   markers: any;
 
   corridors: any;
@@ -57,12 +58,12 @@ export class BaseDashboardComponent implements OnInit {
         let metricData = this._filterService.getZoneGroupData(this.filteredData);
 
         if(metricData !== undefined){
-          if(this.metricField === 'aog'){
-            this.metricValue = this._formatService.formatPercent(metricData[this.metricField],1);
+          if(this.graphMetrics.formatType === "percent"){
+            this.metricValue = this._formatService.formatPercent(metricData[this.metricField], this.graphMetrics.formatDecimals);
+          }else{
+            this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.graphMetrics.formatDecimals);
           }
-          else{
-            this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.metricDecimals);
-          }
+
           this.changeValue = this._formatService.formatPercent(metricData[this.changeField],2);
         }
       }

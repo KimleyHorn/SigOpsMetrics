@@ -1,5 +1,9 @@
+import { isNgTemplate } from '@angular/compiler';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Colors } from 'src/app/models/colors';
+import { Filter } from 'src/app/models/filter';
 import { Graph } from 'src/app/models/graph';
+import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
   selector: 'app-bar-line-graph',
@@ -8,6 +12,7 @@ import { Graph } from 'src/app/models/graph';
 })
 export class BarLineGraphComponent implements OnInit, OnChanges {
   private _currentMonth = new Date().getMonth();
+  private _color = new Colors();
 
   @Input() title: string = "";
   corridors: any;
@@ -22,17 +27,20 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
   barGraph: any;
   barData: any;
 
-  defaultColor: string = '#A9A9A9';
-  selectColor: string = 'red';
+  filter: Filter;
 
-  constructor() {}
+  defaultColor: string = this._color.gray;
+  primaryColor: string = this._color.blue;
+  secondaryColor: string = this._color.darkGray;
+
+  constructor(private _filterService: FilterService) {}
 
   ngOnInit(): void {}
 
   ngOnChanges(changes: SimpleChanges){
     this.barGraph = {
       data: [],
-      layout: { 
+      layout: {
         showlegend: false,
         xaxis: {
           title: this.bar.title,
@@ -50,7 +58,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
 
     this.lineGraph = {
       data: [],
-      layout: { 
+      layout: {
         showlegend: false,
         xaxis: {
           title: this.line.title
@@ -65,19 +73,22 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       }
     };
 
-    if(this.data !== undefined){
-      this._loadGraphs();
-    }
-  }
-  
-  private _loadGraphs(){
-    this.lineData = this.data;
-    //TODO: adjusted this filter to be based on the selected month
-    this.barData = this.data.filter(dataItem => new Date(dataItem['month']).getMonth() === this._currentMonth);
-    this.corridors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
+    //when the filters are loaded or changed
+    this._filterService.filters.subscribe(filter => {
+      if(this.data !== undefined){
+        this.lineData = this.data;
+        //TODO: adjusted this filter to be based on the selected month
+        //format the data for the bar graph
+        this.barData = this.data.filter(dataItem => new Date(dataItem['month']).getMonth() === this._currentMonth);
+        let cors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
+        this.corridors = Array.from(cors);
+      }
 
-    this._loadBarGraph();
-    this._loadLineGraph();
+      //set the local filter variable
+      this.filter = filter;
+      //set the color for the trace
+      this._selectTrace(filter.zone_Group);
+    });
   }
 
   private _loadBarGraph(){
@@ -122,7 +133,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
             color: this.defaultColor
           }
         };
-  
+
         graphData.push(trace);
       });
     }
@@ -130,37 +141,52 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     this.lineGraph.data = graphData;
   }
 
+  //triggered when a graph trace is selected
   graphClicked(e){
-    this._resetColor();
-    
     var name = e.points[0].data.name;
-    this._selectColor(name);
+    this._selectTrace(name);
   }
 
-  private _selectColor(name: string){
-    this.barGraph.data
-    .filter(item => item.name === name)
-    .map(dataItem => {
-      dataItem.marker.color = this.selectColor;
-      return dataItem;
-    });
+  private _selectTrace(name: string){
+    if(this.corridors !== undefined){
+      //reorder corridors to bring the selected trace to the front
+      let cor = this.corridors.filter(x => x === name)[0];
+      this.corridors.push(this.corridors.splice(this.corridors.indexOf(cor), 1)[0]);
+      this._loadBarGraph();
+      this._loadLineGraph();
+    }
 
-    this.lineGraph.data
-    .filter(item => item.name === name)
+    //reset the trace colors to the default
+    this._resetColor(this.barGraph.data, "marker");
+    this._resetColor(this.lineGraph.data, "line");
+
+    //update the trace colors for each graph
+    this._changeColor(this.barGraph.data, "marker", name);
+    this._changeColor(this.lineGraph.data, "line", name);
+  }
+
+  //adjust the color for the selected trace
+  private _changeColor(data, traceType, name){
+    data.filter(item => item.name === name || item.name === this.filter.zone_Group)
     .map(dataItem => {
-      dataItem.line.color = this.selectColor;
+      if(dataItem.name === name && name === this.filter.zone_Group){
+        //if the filered zone group is the selected trace, set the trace to the secondary color
+        dataItem[traceType].color = this.primaryColor;
+      }else if(dataItem.name === this.filter.zone_Group){
+        //if the filered zone group is not the selected trace, set the trace to the secondary color
+        dataItem[traceType].color = this.secondaryColor;
+      }else{
+        //all other selected traces will be the primary color
+        dataItem[traceType].color = this.primaryColor;
+      }
       return dataItem;
     });
   }
 
-  private _resetColor(){
-    this.barGraph.data.map(dataItem => {
-      dataItem.marker.color = this.defaultColor;
-      return dataItem;
-    });
-
-    this.lineGraph.data.map(dataItem => {
-      dataItem.line.color = this.defaultColor;
+  //reset the color of all traces to default
+  private _resetColor(data, traceType){
+    data.map(dataItem => {
+      dataItem[traceType].color = this.defaultColor;
       return dataItem;
     });
   }

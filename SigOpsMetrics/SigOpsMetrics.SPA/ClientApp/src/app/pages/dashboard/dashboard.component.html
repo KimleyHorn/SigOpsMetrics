@@ -7,11 +7,7 @@
     <div class="col-lg-8">
       <mat-card class="map-card">
         <app-scatter-map
-          [metrics]="mapMetrics"
-          [metricField]="mapField"
-          [mapRanges]="mapRanges"
-          [legendLabels]="legendLabels"
-          [legendColors]="legendColors">
+          [mapSettings]="selectedSettings">
         </app-scatter-map>
 
         <app-metric-select class="metric-select"></app-metric-select>

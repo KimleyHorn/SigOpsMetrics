@@ -4,10 +4,7 @@
           <div class="container-fluid">
             <app-map-dashboard
               [graphMetrics]='tpGraphMetrics'
-              [mapMetrics]='mapSettings.tpMapMetrics'
-              [mapRanges]='mapSettings.tpMapRanges'
-              [legendLabels]='mapSettings.tpLegendLabels'
-              [legendColors]='mapSettings.tpLegendColors'
+              [mapSettings]='mapSettings.tpMapSettings'
               [metricField]='mapSettings.tpMapField'
               [metricLabel]='"Average monthly vehicles per hour"'
               [changeLabel]='"Changes from prior month"'>
@@ -29,10 +26,7 @@
           <div class="container-fluid">
             <app-map-dashboard
               [graphMetrics]='aogdGraphMetrics'
-              [mapMetrics]='mapSettings.aogdMapMetrics'
-              [mapRanges]='mapSettings.aogdMapRanges'
-              [legendLabels]='mapSettings.aogdLegendLabels'
-              [legendColors]='mapSettings.aogdLegendColors'
+              [mapSettings]='mapSettings.aogdMapSettings'
               [metricField]='mapSettings.aogdMapField'
               [metricLabel]='"Arrivals on Green"'
               [changeLabel]='"Changes from prior month"'>
@@ -62,10 +56,7 @@
         <div class="container-fluid">
           <app-map-dashboard
             [graphMetrics]='prdGraphMetrics'
-            [mapMetrics]='mapSettings.prdMapMetrics'
-            [mapRanges]='mapSettings.prdMapRanges'
-            [legendLabels]='mapSettings.prdLegendLabels'
-            [legendColors]='mapSettings.prdLegendColors'
+            [mapSettings]='mapSettings.prdMapSettings'
             [metricField]='mapSettings.prdMapField'
             [metricDecimals]='2'
             [metricLabel]='"Progression Ratio"'
@@ -89,10 +80,7 @@
           <div class="container-fluid">
             <app-map-dashboard
               [graphMetrics]='qsdGraphMetrics'
-              [mapMetrics]='mapSettings.qsdMapMetrics'
-              [mapRanges]='mapSettings.qsdMapRanges'
-              [legendLabels]='mapSettings.qsdLegendLabels'
-              [legendColors]='mapSettings.qsdLegendColors'
+              [mapSettings]='mapSettings.qsdMapSettings'
               [metricField]='mapSettings.qsdMapField'
               [metricLabel]='"Spillback rate"'
               [metricDecimals]='2'
@@ -115,10 +103,7 @@
         <div class="container-fluid">
           <app-map-dashboard
             [graphMetrics]='psfGraphMetrics'
-            [mapMetrics]='mapSettings.psfMapMetrics'
-            [mapRanges]='mapSettings.psfMapRanges'
-            [legendLabels]='mapSettings.psfLegendLabels'
-            [legendColors]='mapSettings.psfLegendColors'
+            [mapSettings]='mapSettings.psfMapSettings'
             [metricField]='mapSettings.psfMapField'
             [metricLabel]='"Peak Period Split Failures"'
             [metricDecimals]='2'
@@ -141,10 +126,7 @@
         <div class="container-fluid">
           <app-map-dashboard
             [graphMetrics]='osfGraphMetrics'
-            [mapMetrics]='mapSettings.osfMapMetrics'
-            [mapRanges]='mapSettings.osfMapRanges'
-            [legendLabels]='mapSettings.osfLegendLabels'
-            [legendColors]='mapSettings.osfLegendColors'
+            [mapSettings]='mapSettings.osfMapSettings'
             [metricField]='mapSettings.osfMapField'
             [metricLabel]='"Off-Peak Split Failures"'
             [metricDecimals]='2'

@@ -39,6 +39,7 @@ import { BaseDashboardComponent } from './components/dashboards/base-dashboard/b
 import { MapDashboardComponent } from './components/dashboards/map-dashboard/map-dashboard.component';
 import { PerformanceTableComponent } from './components/tables/performance-table/performance-table.component';
 import { MetricSelectComponent } from './components/selects/metric-select/metric-select.component';
+import { TicketsGraphComponent } from './components/graphs/tickets-graph/tickets-graph.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -78,7 +79,8 @@ const routes = [
     BaseDashboardComponent,
     MapDashboardComponent,
     PerformanceTableComponent,
-    MetricSelectComponent
+    MetricSelectComponent,
+    TicketsGraphComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
