@@ -1,10 +1,20 @@
 <div class="container-fluid">
   <div class="row">
-    <div class="col-lg-4">
-      <app-performance-table></app-performance-table>
+    <div class="col-lg-3">
+      <app-dashboard-table
+        [tableTitle]="'Performance'"
+        [tableData]="performanceTableData">
+      </app-dashboard-table>
     </div>
 
-    <div class="col-lg-8">
+    <div class="col-lg-3">
+      <app-dashboard-table
+        [tableTitle]="'Volume & Equipment'"
+        [tableData]="volumeTableData">
+      </app-dashboard-table>
+    </div>
+
+    <div class="col-lg-6">
       <mat-card class="map-card">
         <app-scatter-map
           [mapSettings]="selectedSettings">

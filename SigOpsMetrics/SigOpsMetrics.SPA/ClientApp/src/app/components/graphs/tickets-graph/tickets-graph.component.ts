@@ -1,4 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Filter } from 'src/app/models/filter';
 import { Graph } from 'src/app/models/graph';
 import { Metrics } from 'src/app/models/metrics';
@@ -11,6 +12,8 @@ import { MetricsService } from 'src/app/services/metrics.service';
   styleUrls: ['./tickets-graph.component.css']
 })
 export class TicketsGraphComponent implements OnInit {
+  private _filterSubscription: Subscription;
+
   @Input() metrics: Metrics = new Metrics();
   @Input() graph: Graph = new Graph();
   graphConfig: any;
@@ -43,7 +46,7 @@ export class TicketsGraphComponent implements OnInit {
     }
 
     //load the filters
-    this._filterService.filters.subscribe(filter => {
+    this._filterSubscription = this._filterService.filters.subscribe(filter => {
       this.graphFilter = filter;
 
       this._loadGraph();
@@ -55,6 +58,10 @@ export class TicketsGraphComponent implements OnInit {
 
       this._loadGraph();
     });
+  }
+
+  ngOnDestroy(): void {
+    this._filterSubscription.unsubscribe();
   }
 
   private _loadGraph(){

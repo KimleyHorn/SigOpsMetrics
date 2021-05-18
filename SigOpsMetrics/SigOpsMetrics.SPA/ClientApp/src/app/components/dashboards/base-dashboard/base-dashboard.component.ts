@@ -1,4 +1,5 @@
 import { Component, ContentChild, Input, OnInit, TemplateRef } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
 import { FormatService } from 'src/app/services/format.service';
@@ -11,6 +12,8 @@ import { MetricsService } from 'src/app/services/metrics.service';
 })
 export class BaseDashboardComponent implements OnInit {
   @ContentChild(TemplateRef) template: TemplateRef<any>;
+
+  private _filterSubscription: Subscription;
 
   @Input() graphMetrics: Metrics;
   @Input() metricLabel: string = '';
@@ -43,11 +46,15 @@ export class BaseDashboardComponent implements OnInit {
         this._loadData();
       });
 
-      this._filterService.filters.subscribe(() => {
+      this._filterSubscription = this._filterService.filters.subscribe(() => {
         if(this.data !== undefined){
           this._loadData();
         }
       });
+    }
+
+    ngOnDestroy(): void {
+      this._filterSubscription.unsubscribe();
     }
 
     private _loadData(){

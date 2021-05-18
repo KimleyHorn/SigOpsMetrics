@@ -37,9 +37,9 @@ import { DatePipe } from '@angular/common';
 import { ScatterMapComponent } from './components/maps/scatter-map/scatter-map.component';
 import { BaseDashboardComponent } from './components/dashboards/base-dashboard/base-dashboard.component';
 import { MapDashboardComponent } from './components/dashboards/map-dashboard/map-dashboard.component';
-import { PerformanceTableComponent } from './components/tables/performance-table/performance-table.component';
 import { MetricSelectComponent } from './components/selects/metric-select/metric-select.component';
 import { TicketsGraphComponent } from './components/graphs/tickets-graph/tickets-graph.component';
+import { DashboardTableComponent } from './components/tables/dashboard-table/dashboard-table.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -78,9 +78,9 @@ const routes = [
     ScatterMapComponent,
     BaseDashboardComponent,
     MapDashboardComponent,
-    PerformanceTableComponent,
     MetricSelectComponent,
-    TicketsGraphComponent
+    TicketsGraphComponent,
+    DashboardTableComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

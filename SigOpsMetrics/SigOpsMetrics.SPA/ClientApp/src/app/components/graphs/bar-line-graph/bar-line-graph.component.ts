@@ -1,5 +1,6 @@
 import { isNgTemplate } from '@angular/compiler';
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Colors } from 'src/app/models/colors';
 import { Filter } from 'src/app/models/filter';
 import { Graph } from 'src/app/models/graph';
@@ -11,6 +12,7 @@ import { FilterService } from 'src/app/services/filter.service';
   styleUrls: ['./bar-line-graph.component.css']
 })
 export class BarLineGraphComponent implements OnInit, OnChanges {
+  private _filterSubscription: Subscription;
   private _currentMonth = new Date().getMonth();
   private _color = new Colors();
 
@@ -74,7 +76,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     };
 
     //when the filters are loaded or changed
-    this._filterService.filters.subscribe(filter => {
+    this._filterSubscription = this._filterService.filters.subscribe(filter => {
       if(this.data !== undefined){
         this.lineData = this.data;
         //TODO: adjusted this filter to be based on the selected month
@@ -89,6 +91,10 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       //set the color for the trace
       this._selectTrace(filter.zone_Group);
     });
+  }
+
+  ngOnDestroy(): void {
+    this._filterSubscription.unsubscribe();
   }
 
   private _loadBarGraph(){

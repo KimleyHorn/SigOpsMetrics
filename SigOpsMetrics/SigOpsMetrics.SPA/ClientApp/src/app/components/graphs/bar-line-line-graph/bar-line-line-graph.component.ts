@@ -10,7 +10,7 @@ import { MetricsService } from 'src/app/services/metrics.service';
 })
 export class BarLineLineGraphComponent implements OnInit, OnChanges {
   private _currentMonth = new Date().getMonth();
-  
+
   @Input() additionalMetrics: Metrics;
 
   @Input() title: string = "";
@@ -46,7 +46,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges){
     this.barGraph = {
       data: [],
-      layout: { 
+      layout: {
         showlegend: false,
         autosize: true,
         xaxis: {
@@ -65,7 +65,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
 
     this.lineGraph1 = {
       data: [],
-      layout: { 
+      layout: {
         showlegend: false,
         xaxis: {
           title: this.line1.title
@@ -82,7 +82,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
 
     this.lineGraph2 = {
       data: [],
-      layout: { 
+      layout: {
         showlegend: false,
         xaxis: {
           title: this.line2.title
@@ -99,7 +99,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
 
       this._loadGraphs();
   }
-  
+
   private _loadGraphs(){
     if(this.data1 !== undefined && this.lineData2 !== undefined){
       this.lineData1 = this.data1;
@@ -155,7 +155,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
             color: this.defaultColor
           }
         };
-  
+
         graphData1.push(trace);
       });
     }
@@ -179,7 +179,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
             color: this.defaultColor
           }
         };
-  
+
         graphData2.push(trace);
       });
     }
@@ -189,7 +189,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
 
   graphClicked(e){
     this._resetColor();
-    
+
     var name = e.points[0].data.name;
     this._selectColor(name);
   }

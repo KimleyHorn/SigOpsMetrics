@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
 import { FormatService } from 'src/app/services/format.service';
@@ -12,6 +13,8 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./scatter-map.component.css']
 })
 export class ScatterMapComponent implements OnInit {
+  private _filterSubscription: Subscription;
+
   @Input() mapSettings;
   private _metricData;
   private _signals;
@@ -65,9 +68,13 @@ export class ScatterMapComponent implements OnInit {
       this.createMarkers();
     });
 
-    this._filterService.filters.subscribe(() =>{
+    this._filterSubscription = this._filterService.filters.subscribe(() =>{
       this.createMarkers();
     });
+  }
+
+  ngOnDestroy(): void {
+    this._filterSubscription.unsubscribe();
   }
 
   createMarkers(){
