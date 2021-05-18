@@ -169,7 +169,7 @@ export class TeamsTasksComponent implements OnInit {
             orientation: item.trace.orientation,
             type: item.trace.type,
             hovertemplate: item.metricLabel +
-            '<b>%{y}</b>' +
+            '<b>: %{y}</b>' +
             '<extra></extra>',
             marker: {
               color: item.trace.color

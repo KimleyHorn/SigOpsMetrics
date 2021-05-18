@@ -121,8 +121,8 @@ export class OperationsComponent implements OnInit {
   };
 
   //split failure rate inputs
-  psfGraphMetrics: Metrics = new Metrics({ measure: "sfd", formatDecimals: 2 });
-  osfGraphMetrics: Metrics = new Metrics({ measure: "sfo", formatDecimals: 2 });
+  psfGraphMetrics: Metrics = new Metrics({ measure: "sfd", formatDecimals: 2, formatType: "percent" });
+  osfGraphMetrics: Metrics = new Metrics({ measure: "sfo", formatDecimals: 2, formatType: "percent" });
   sfTitle: string = 'Split Failures Rate [%]';
   sfBar: Graph = {
     title: 'Selected Month',
@@ -130,7 +130,7 @@ export class OperationsComponent implements OnInit {
     y: 'corridor',
     hoverTemplate:
       '<b>%{y}</b>' +
-      '<br>Split Failures Rate[%]: <b>%{y}</b>' +
+      '<br>Split Failures Rate[%]: <b>%{x}</b>' +
       '<extra></extra>',
   };
   sfLine: Graph = {
