@@ -48,7 +48,7 @@ const routes = [
   { text: 'TEAMS Tasks', icon: 'build', path: 'teams-tasks', component: TeamsTasksComponent},
   { text: 'Reports', icon: 'receipt', path: 'reports', component: ReportsComponent},
   { text: 'Health Metrics', icon: 'healing', path: 'health-metrics', component: HealthMetricsComponent},
-  { text: 'Signal Info', icon: 'help', path: 'signal-info', component: SignalInfoComponent}
+  { text: 'Signal Info', icon: 'info', path: 'signal-info', component: SignalInfoComponent}
 ];
 
 @NgModule({
