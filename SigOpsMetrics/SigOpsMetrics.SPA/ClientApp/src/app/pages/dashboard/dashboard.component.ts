@@ -38,19 +38,19 @@ export class DashboardComponent  implements OnInit {
           this.selectedSettings = this.mapSettings.dtvMapSettings;
           break;
           case "papd":
-          this.selectedSettings = this.mapSettings.dtvMapSettings;
+          this.selectedSettings = this.mapSettings.papdMapSettings;
           break;
           case "du":
-          this.selectedSettings = this.mapSettings.dtvMapSettings;
+          this.selectedSettings = this.mapSettings.duMapSettings;
           break;
           case "pau":
-          this.selectedSettings = this.mapSettings.dtvMapSettings;
+          this.selectedSettings = this.mapSettings.pauMapSettings;
           break;
           case "cctv":
-          this.selectedSettings = this.mapSettings.dtvMapSettings;
+          this.selectedSettings = this.mapSettings.cctvMapSettings;
           break;
           case "cu":
-          this.selectedSettings = this.mapSettings.dtvMapSettings;
+          this.selectedSettings = this.mapSettings.cuMapSettings;
           break;
         default:
           this.selectedSettings = this.mapSettings.tpMapSettings;
