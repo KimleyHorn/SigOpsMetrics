@@ -1,0 +1,24 @@
+.table-container{
+  max-height: 250px;
+  overflow: auto;
+}
+
+.mat-card-title{
+  font-size: 20px;
+  padding: 0px 16px;
+}
+
+.total-outstanding{
+  font-size: 16px;
+  float: right;
+}
+
+.total-outstanding label{
+  color: #ff0000;
+  font-weight: bold;
+}
+
+.tickets-column{
+  text-align: right;
+  font-weight: bold;
+}
