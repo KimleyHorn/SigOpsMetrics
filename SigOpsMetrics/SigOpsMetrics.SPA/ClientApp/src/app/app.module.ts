@@ -23,7 +23,6 @@ import { WatchdogComponent } from './pages/watchdog/watchdog.component';
 import { TeamsTasksComponent } from './pages/teams-tasks/teams-tasks.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { HealthMetricsComponent } from './pages/health-metrics/health-metrics.component';
-import { RampMetersComponent } from './pages/ramp-meters/ramp-meters.component';
 
 import { HeaderComponent } from './core/header/header.component';
 import { MapComponent } from './components/map/map.component';
@@ -49,8 +48,7 @@ const routes = [
   { text: 'TEAMS Tasks', icon: 'build', path: 'teams-tasks', component: TeamsTasksComponent},
   { text: 'Reports', icon: 'receipt', path: 'reports', component: ReportsComponent},
   { text: 'Health Metrics', icon: 'healing', path: 'health-metrics', component: HealthMetricsComponent},
-  { text: 'Ramp Meters', icon: 'traffic', path: 'ramp-meters', component: RampMetersComponent},
-  { text: 'Signal Info', icon: 'help', path: 'signal-info', component: SignalInfoComponent}
+  { text: 'Signal Info', icon: 'info', path: 'signal-info', component: SignalInfoComponent}
 ];
 
 @NgModule({
@@ -67,7 +65,6 @@ const routes = [
     TeamsTasksComponent,
     ReportsComponent,
     HealthMetricsComponent,
-    RampMetersComponent,
     ChartToggleComponent,
     FilterSidenavComponent,
     MetricCardComponent,
