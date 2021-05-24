@@ -131,4 +131,77 @@ export class MapSettings {
   detMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   detLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   detLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
+
+  //daily traffic volume
+  dtvMapField: string = "vpd";
+  dtvMapMetrics: Metrics = { measure: "vpd", field: "vpd", label: "Daily Traffic Volume", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  dtvMapRanges: number[][] = [[0,20000],[20000,40000],[40000,60000],[60000,80000],[80000,100000]];
+  dtvLegendLabels: string[] = ["0-20,000","20,000-40,000","40,000-60,000","60,000-80,000","80,000-100,000"];
+  dtvLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  dtvMapSettings = {
+    metrics: this.dtvMapMetrics,
+    ranges: this.dtvMapRanges,
+    legendLabels: this.dtvLegendLabels,
+    legendColors: this.dtvLegendColors,
+  };
+  //daily pedestrian pushbutton activity
+  papdMapField: string = "papd";
+  papdMapMetrics: Metrics = { measure: "papd", field: "papd", label: "Daily Pedestrian Pushbutton Activity", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  papdMapRanges: number[][] = [[0,1000],[1000,2000],[2000,3000],[3000,4000],[4000,5000]];
+  papdLegendLabels: string[] = ["0-1,000","1,000-2,000","2,000-3,000","3,000-4,000","4,000-5,000"];
+  papdLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  papdMapSettings = {
+    metrics: this.papdMapMetrics,
+    ranges: this.papdMapRanges,
+    legendLabels: this.papdLegendLabels,
+    legendColors: this.papdLegendColors,
+  };
+  //detector uptime
+  duMapField: string = "uptime";
+  duMapMetrics: Metrics = { measure: "du", field: "uptime", label: "Detector Uptime", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  duMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
+  duLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
+  duLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  duMapSettings = {
+    metrics: this.duMapMetrics,
+    ranges: this.duMapRanges,
+    legendLabels: this.duLegendLabels,
+    legendColors: this.duLegendColors,
+  };
+  //pedestrian pushbutton uptime
+  pauMapField: string = "uptime";
+  pauMapMetrics: Metrics = { measure: "pau", field: "uptime", label: "Pedestrian Pushbutton Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  pauMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
+  pauLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
+  pauLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  pauMapSettings = {
+    metrics: this.pauMapMetrics,
+    ranges: this.pauMapRanges,
+    legendLabels: this.pauLegendLabels,
+    legendColors: this.pauLegendColors,
+  };
+  //cctv uptime
+  cctvMapField: string = "uptime";
+  cctvMapMetrics: Metrics = { measure: "cctv", field: "uptime", label: "CCTV Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  cctvMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
+  cctvLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
+  cctvLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  cctvMapSettings = {
+    metrics: this.cctvMapMetrics,
+    ranges: this.cctvMapRanges,
+    legendLabels: this.cctvLegendLabels,
+    legendColors: this.cctvLegendColors,
+  };
+  //communication uptime
+  cuMapField: string = "uptime";
+  cuMapMetrics: Metrics = { measure: "cu", field: "uptime", label: "Communication Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
+  cuMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
+  cuLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
+  cuLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  cuMapSettings = {
+    metrics: this.cuMapMetrics,
+    ranges: this.cuMapRanges,
+    legendLabels: this.cuLegendLabels,
+    legendColors: this.cuLegendColors,
+  };
 }

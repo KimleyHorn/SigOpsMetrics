@@ -63,7 +63,6 @@ export class BaseDashboardComponent implements OnInit {
         this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
 
         let metricData = this._filterService.getZoneGroupData(this.filteredData);
-
         if(metricData !== undefined){
           if(this.graphMetrics.formatType === "percent"){
             this.metricValue = this._formatService.formatPercent(metricData[this.metricField], this.graphMetrics.formatDecimals);
