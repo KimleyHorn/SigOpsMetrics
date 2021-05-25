@@ -1,17 +1,27 @@
 <div class="container-fluid">
   <div class="row">
-    <div class="col-lg-3">
-      <app-dashboard-table
-        [tableTitle]="'Performance'"
-        [tableData]="performanceTableData">
-      </app-dashboard-table>
-    </div>
+    <div class="col-lg-6">
+      <div class="row margin-bottom">
+        <div class="col">
+          <app-dashboard-table
+            [tableTitle]="'Performance'"
+            [tableData]="performanceTableData">
+          </app-dashboard-table>
+        </div>
 
-    <div class="col-lg-3">
-      <app-dashboard-table
-        [tableTitle]="'Volume & Equipment'"
-        [tableData]="volumeTableData">
-      </app-dashboard-table>
+        <div class="col">
+          <app-dashboard-table
+            [tableTitle]="'Volume & Equipment'"
+            [tableData]="volumeTableData">
+          </app-dashboard-table>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <app-tickets-table></app-tickets-table>
+        </div>
+      </div>
     </div>
 
     <div class="col-lg-6">
