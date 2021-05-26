@@ -1,7 +1,5 @@
 .mat-toolbar {
-  background: url("/assets/images/headerbanner.png") no-repeat center;
-  background-size: cover;
-  color: #fff;
+  background: #0070ed url("/assets/images/headerbanner.png") center no-repeat !important;
 }
 
 .menu-div {
