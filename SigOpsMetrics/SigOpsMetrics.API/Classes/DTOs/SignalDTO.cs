@@ -4,7 +4,7 @@ namespace SigOpsMetrics.API.Classes.DTOs
 {
     public class SignalDTO
     {
-        public string SignalID { get; set; }
+        public int SignalID { get; set; }
         public string ZoneGroup { get; set; }
         public string Zone { get; set; }
         public string Corridor { get; set; }
@@ -12,13 +12,16 @@ namespace SigOpsMetrics.API.Classes.DTOs
         public string Agency { get; set; }
         public string MainStreetName { get; set; }
         public string SideStreetName { get; set; }
-        public string Milepost { get; set; }
+        public decimal Milepost { get; set; }
         public DateTime? AsOf { get; set; }
-        public string Duplicate { get; set; }
-        public string Include { get; set; }
+        public int Duplicate { get; set; }
+        public bool Include { get; set; }
         public DateTime? Modified { get; set; }
         public string Note { get; set; }
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public decimal Latitude { get; set; }
+        public decimal Longitude { get; set; }
+        public string County { get; set; }
+        public string City { get; set; }
+
     }
 }

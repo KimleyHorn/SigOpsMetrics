@@ -12,6 +12,7 @@ using OfficeOpenXml;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
+using System.Data;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -53,9 +54,9 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = SixHourCache;
 
-                    var worksheet = GetSpreadsheet();
+                    //var worksheet = GetSpreadsheet();
 
-                    var retVal = GetAllSignalData(await worksheet);
+                    var retVal = GetAllSignalData(SqlConnection);
                     return retVal;
                 });
                 return await cacheEntry;
@@ -368,6 +369,30 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint for performing daily pata pull of corridors_latest.xls into sql table.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("datapull/{key}")]
+        public async Task DataPull(string key)
+        {
+            try
+            {
+                if (key == "45632456236246")
+                {
+                    Task<ExcelWorksheet> worksheet = GetSpreadsheet();
+                    var ws = await worksheet;
+                    await DataAccessLayer.WriteToCorridorsLatest(SqlConnection, ws);
+                }
+            }
+            catch (Exception ex)
+            {
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "DataPull", ex);
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -393,53 +418,97 @@ namespace SigOpsMetrics.API.Controllers
             return package.Workbook.Worksheets[0];
         }
 
-        private IEnumerable<SignalDTO> GetAllSignalData(ExcelWorksheet sheet)
+        private IEnumerable<SignalDTO> GetAllSignalData(MySqlConnection sqlConnection)
         {
+            List<SignalDTO> signals = new List<SignalDTO>();
             try
             {
-                var start = sheet.Dimension.Start;
-                var end = sheet.Dimension.End;
-
-                var retVal = new List<SignalDTO>();
-
-                //todo error handling
-                //Headers in row 1, data starts in row 2
-                for (var row = start.Row + 1; row <= end.Row; row++)
+                sqlConnection.Open();
+                using (var cmd = new MySqlCommand())
                 {
-                    //Excel is 1-based
-                    var col = 1;
-                    var newSignal = new SignalDTO
+
+                    cmd.Connection = sqlConnection;
+                    cmd.CommandText = "SELECT * FROM mark1.corridors_latest";
+                    MySqlDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
                     {
-                        SignalID = sheet.Cells[row, col].Text,
-                        ZoneGroup = sheet.Cells[row, ++col].Text,
-                        Zone = sheet.Cells[row, ++col].Text,
-                        Corridor = sheet.Cells[row, ++col].Text,
-                        Subcorridor = sheet.Cells[row, ++col].Text,
-                        Agency = sheet.Cells[row, ++col].Text,
-                        MainStreetName = sheet.Cells[row, ++col].Text,
-                        SideStreetName = sheet.Cells[row, ++col].Text,
-                        Milepost = sheet.Cells[row, ++col].Text,
-                        AsOf = sheet.Cells[row, ++col].Text.ToNullableDateTime(),
-                        Duplicate = sheet.Cells[row, ++col].Text,
-                        Include = sheet.Cells[row, ++col].Text,
-                        Modified = sheet.Cells[row, ++col].Text.ToNullableDateTime(),
-                        Note = sheet.Cells[row, ++col].Text,
-                        Latitude = sheet.Cells[row, ++col].Text.ToDouble(),
-                        Longitude = sheet.Cells[row, ++col].Text.ToDouble()
-                    };
-                    retVal.Add(newSignal);
+                        SignalDTO row = new SignalDTO
+                        {
+                            SignalID = reader.IsDBNull(0) ? 0 : reader.GetInt32(0),
+                            ZoneGroup = reader.IsDBNull(1) ? "" : reader.GetString(1),
+                            Zone = reader.IsDBNull(2) ? "" : reader.GetString(2),
+                            Corridor = reader.IsDBNull(3) ? "" : reader.GetString(3),
+                            Subcorridor = reader.IsDBNull(4) ? "" : reader.GetString(4),
+                            Agency = reader.IsDBNull(5) ? "" : reader.GetString(5),
+                            MainStreetName = reader.IsDBNull(6) ? "" : reader.GetString(6),
+                            SideStreetName = reader.IsDBNull(7) ? "" : reader.GetString(7),
+                            Milepost = reader.IsDBNull(8) ? 0 : reader.GetDecimal(8),
+                            AsOf = reader.IsDBNull(9) ? DateTime.MinValue : reader.GetDateTime(9),
+                            Duplicate = reader.IsDBNull(10) ? 0 : reader.GetInt32(10),
+                            Include = reader.IsDBNull(11) ? false : reader.GetBoolean(11),
+                            Modified = reader.IsDBNull(12) ? DateTime.MinValue : reader.GetDateTime(12),
+                            Note = reader.IsDBNull(13) ? "" : reader.GetString(13),
+                            Latitude = reader.IsDBNull(14) ? 0 : reader.GetDecimal(14),
+                            Longitude = reader.IsDBNull(15) ? 0 : reader.GetDecimal(15),
+                            County = reader.IsDBNull(16) ? "" : reader.GetString(16),
+                            City = reader.IsDBNull(17) ? "" : reader.GetString(17)
+                        };
+                        signals.Add(row);
+                    }
                 }
-
-                return retVal.Where(x => x.SignalID != "-1");
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
-                DataAccessLayer.WriteToErrorLog(SqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    "signals/getallsignaldata", ex).GetAwaiter();
+                Console.WriteLine(e);
+                throw;
             }
+            return signals;
 
-            return new List<SignalDTO>();
+            //try
+            //{
+            //    var start = sheet.Dimension.Start;
+            //    var end = sheet.Dimension.End;
+
+            //    var retVal = new List<SignalDTO>();
+
+            //    //todo error handling
+            //    //Headers in row 1, data starts in row 2
+            //    for (var row = start.Row + 1; row <= end.Row; row++)
+            //    {
+            //        //Excel is 1-based
+            //        var col = 1;
+            //        var newSignal = new SignalDTO
+            //        {
+            //            SignalID = sheet.Cells[row, col].Text,
+            //            ZoneGroup = sheet.Cells[row, ++col].Text,
+            //            Zone = sheet.Cells[row, ++col].Text,
+            //            Corridor = sheet.Cells[row, ++col].Text,
+            //            Subcorridor = sheet.Cells[row, ++col].Text,
+            //            Agency = sheet.Cells[row, ++col].Text,
+            //            MainStreetName = sheet.Cells[row, ++col].Text,
+            //            SideStreetName = sheet.Cells[row, ++col].Text,
+            //            Milepost = sheet.Cells[row, ++col].Text,
+            //            AsOf = sheet.Cells[row, ++col].Text.ToNullableDateTime(),
+            //            Duplicate = sheet.Cells[row, ++col].Text,
+            //            Include = sheet.Cells[row, ++col].Text,
+            //            Modified = sheet.Cells[row, ++col].Text.ToNullableDateTime(),
+            //            Note = sheet.Cells[row, ++col].Text,
+            //            Latitude = sheet.Cells[row, ++col].Text.ToDouble(),
+            //            Longitude = sheet.Cells[row, ++col].Text.ToDouble()
+            //        };
+            //        retVal.Add(newSignal);
+            //    }
+
+            //    return retVal.Where(x => x.SignalID != "-1");
+            //}
+            //catch (Exception ex)
+            //{
+            //    DataAccessLayer.WriteToErrorLog(SqlConnection,
+            //        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+            //        "signals/getallsignaldata", ex).GetAwaiter();
+            //}
+
+            //return new List<SignalDTO>();
         }
 
         private IEnumerable<string> GetSignalNames(ExcelWorksheet sheet)
