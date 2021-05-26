@@ -7,6 +7,7 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class MetricCardComponent implements OnInit {
   @Input() metricValue: string;
+  @Input() metricChange: string;
   @Input() metricLabel: string;
 
   constructor() { }

@@ -1,1 +1,42 @@
-<p>teams-tasks works!</p>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="row">
+        <div class="col-md" *ngFor="let metric of metrics">
+          <app-metric-card
+            [metricLabel]="metric.metricLabel"
+            [metricValue]="metric.metricValue"
+            [metricChange]="metric.metricChange">
+          </app-metric-card>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <mat-card>
+            <plotly-plot
+              [data]='bigGraphConfig.data'
+              [layout]='bigGraphConfig.layout'
+              [useResizeHandler]='true'>
+            </plotly-plot>
+          </mat-card>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <mat-card>
+        <mat-tab-group>
+          <mat-tab *ngFor="let tab of tabs;" [label]="tab.label">
+            <ng-template matTabContent>
+              <app-tickets-graph
+                [metrics]="tab.metrics"
+                [graph]="tab.graph">
+              </app-tickets-graph>
+            </ng-template>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card>
+    </div>
+  </div>
+</div>

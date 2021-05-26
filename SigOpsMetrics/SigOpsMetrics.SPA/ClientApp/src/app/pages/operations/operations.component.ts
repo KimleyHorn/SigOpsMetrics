@@ -12,8 +12,10 @@ import { Metrics } from 'src/app/models/metrics';
 })
 export class OperationsComponent implements OnInit {
   toggleValue: string;
+  mapStart = '2021-03-01';
+  mapEnd = '2021-03-02';
 
-  tpGraphMetrics: Metrics = new Metrics();
+  tpGraphMetrics: Metrics = new Metrics({ measure: "tp" });
   tpTitle: string = 'Throughput (peak veh/hr)';
   tpBar: Graph = {
     title: 'Throughput (vph)',
@@ -36,8 +38,8 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  aogdGraphMetrics: Metrics = new Metrics();
-  aoghGraphMetrics: Metrics = new Metrics();
+  aogdGraphMetrics: Metrics = new Metrics({ measure: "aogd", formatDecimals: 1, formatType: "percent" });
+  aoghGraphMetrics: Metrics = new Metrics({ measure: "aogh", formatDecimals: 1, formatType: "percent", start: this.mapStart, end: this.mapEnd });
   aogTitle: string = 'Arrivals on Green [%]';
   aogBar: Graph = {
     title: 'Arrivals on Green',
@@ -71,7 +73,7 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  prdGraphMetrics: Metrics = new Metrics();
+  prdGraphMetrics: Metrics = new Metrics({ measure: "prd", formatDecimals: 2 });
   prdTitle: string = 'Progression Ratio';
   prdBar: Graph = {
     title: 'Selected Month',
@@ -95,7 +97,7 @@ export class OperationsComponent implements OnInit {
   };
 
   //queue spillback rate inputs
-  qsdGraphMetrics: Metrics = new Metrics();
+  qsdGraphMetrics: Metrics = new Metrics({ measure: "qsd", formatDecimals: 1, formatType: "percent" });
   qsdTitle: string = 'Queue Spillback Rate';
   qsdBar: Graph = {
     title: 'Queue Spillback Rate',
@@ -119,8 +121,8 @@ export class OperationsComponent implements OnInit {
   };
 
   //split failure rate inputs
-  psfGraphMetrics: Metrics = new Metrics();
-  osfGraphMetrics: Metrics = new Metrics();
+  psfGraphMetrics: Metrics = new Metrics({ measure: "sfd", formatDecimals: 2, formatType: "percent" });
+  osfGraphMetrics: Metrics = new Metrics({ measure: "sfo", formatDecimals: 2, formatType: "percent" });
   sfTitle: string = 'Split Failures Rate [%]';
   sfBar: Graph = {
     title: 'Selected Month',
@@ -128,7 +130,7 @@ export class OperationsComponent implements OnInit {
     y: 'corridor',
     hoverTemplate:
       '<b>%{y}</b>' +
-      '<br>Split Failures Rate[%]: <b>%{y}</b>' +
+      '<br>Split Failures Rate[%]: <b>%{x}</b>' +
       '<extra></extra>',
   };
   sfLine: Graph = {
@@ -145,7 +147,7 @@ export class OperationsComponent implements OnInit {
 
   //travel time index inputs
   ttiMetricField: string = 'tti';
-  ttiGraphMetrics: Metrics = new Metrics();
+  ttiGraphMetrics: Metrics = new Metrics({ measure: "tti", formatDecimals: 2 });
   ttiTitle: string = 'Travel Time Index (TTI)';
   ttiBar: Graph = {
     title: 'Selected Month TTI',
@@ -170,7 +172,7 @@ export class OperationsComponent implements OnInit {
 
   //planning time index inputs
   ptiMetricField: string = 'pti';
-  ptiGraphMetrics: Metrics = new Metrics();
+  ptiGraphMetrics: Metrics = new Metrics({ measure: "pti", formatDecimals: 2 });
   ptiTitle: string = 'Planning Time Index (PTI)';
   ptiBar: Graph = {
     title: 'Selected Month PTI',
@@ -193,29 +195,7 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings) {
-    let mapStart = '2021-03-01';
-    let mapEnd = '2021-03-02';
-
-    this.tpGraphMetrics.measure = 'tp';
-
-    this.aogdGraphMetrics.measure = 'aogd';
-
-    this.aoghGraphMetrics.measure = 'aogh';
-    this.aoghGraphMetrics.start = mapStart;
-    this.aoghGraphMetrics.end = mapEnd;
-
-    this.prdGraphMetrics.measure = 'prd';
-
-    this.qsdGraphMetrics.measure = 'qsd';
-
-    this.psfGraphMetrics.measure = 'sfd';
-    this.osfGraphMetrics.measure = 'sfo';
-
-    this.ttiGraphMetrics.measure = 'tti';
-
-    this.ptiGraphMetrics.measure = 'pti';
-   }
+  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings) {}
 
   ngOnInit(): void {
     this.toggleService.toggleValue.subscribe(value => {

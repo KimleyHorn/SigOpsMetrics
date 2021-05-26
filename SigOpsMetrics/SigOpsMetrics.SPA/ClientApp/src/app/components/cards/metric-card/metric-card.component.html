@@ -1,8 +1,9 @@
 <mat-card class='metric-card'>
     <div class='outer'>
         <div class='inner'>
-            <mat-card-title>{{metricValue}}</mat-card-title>
-            <mat-card-subtitle>{{metricLabel}}</mat-card-subtitle>
+            <mat-card-title *ngIf="metricValue !== null">{{metricValue}}</mat-card-title>
+            <mat-card-subtitle *ngIf="metricChange !== null">{{metricChange}}</mat-card-subtitle>
+            <mat-card-footer *ngIf="metricLabel !== null">{{metricLabel}}</mat-card-footer>
         </div>
     </div>
 </mat-card>

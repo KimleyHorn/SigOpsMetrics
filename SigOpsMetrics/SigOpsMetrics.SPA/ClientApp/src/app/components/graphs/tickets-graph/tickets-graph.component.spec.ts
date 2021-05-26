@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RampMetersComponent } from './ramp-meters.component';
+import { TicketsGraphComponent } from './tickets-graph.component';
 
-describe('RampMetersComponent', () => {
-  let component: RampMetersComponent;
-  let fixture: ComponentFixture<RampMetersComponent>;
+describe('TicketsGraphComponent', () => {
+  let component: TicketsGraphComponent;
+  let fixture: ComponentFixture<TicketsGraphComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ RampMetersComponent ]
+      declarations: [ TicketsGraphComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(RampMetersComponent);
+    fixture = TestBed.createComponent(TicketsGraphComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -23,7 +23,6 @@ import { WatchdogComponent } from './pages/watchdog/watchdog.component';
 import { TeamsTasksComponent } from './pages/teams-tasks/teams-tasks.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { HealthMetricsComponent } from './pages/health-metrics/health-metrics.component';
-import { RampMetersComponent } from './pages/ramp-meters/ramp-meters.component';
 
 import { HeaderComponent } from './core/header/header.component';
 import { MapComponent } from './components/map/map.component';
@@ -37,8 +36,10 @@ import { DatePipe } from '@angular/common';
 import { ScatterMapComponent } from './components/maps/scatter-map/scatter-map.component';
 import { BaseDashboardComponent } from './components/dashboards/base-dashboard/base-dashboard.component';
 import { MapDashboardComponent } from './components/dashboards/map-dashboard/map-dashboard.component';
-import { PerformanceTableComponent } from './components/tables/performance-table/performance-table.component';
 import { MetricSelectComponent } from './components/selects/metric-select/metric-select.component';
+import { TicketsGraphComponent } from './components/graphs/tickets-graph/tickets-graph.component';
+import { DashboardTableComponent } from './components/tables/dashboard-table/dashboard-table.component';
+import { TicketsTableComponent } from './components/tables/tickets-table/tickets-table.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -48,8 +49,7 @@ const routes = [
   { text: 'TEAMS Tasks', icon: 'build', path: 'teams-tasks', component: TeamsTasksComponent},
   { text: 'Reports', icon: 'receipt', path: 'reports', component: ReportsComponent},
   { text: 'Health Metrics', icon: 'healing', path: 'health-metrics', component: HealthMetricsComponent},
-  { text: 'Ramp Meters', icon: 'traffic', path: 'ramp-meters', component: RampMetersComponent},
-  { text: 'Signal Info', icon: 'help', path: 'signal-info', component: SignalInfoComponent}
+  { text: 'Signal Info', icon: 'info', path: 'signal-info', component: SignalInfoComponent}
 ];
 
 @NgModule({
@@ -66,7 +66,6 @@ const routes = [
     TeamsTasksComponent,
     ReportsComponent,
     HealthMetricsComponent,
-    RampMetersComponent,
     ChartToggleComponent,
     FilterSidenavComponent,
     MetricCardComponent,
@@ -77,8 +76,10 @@ const routes = [
     ScatterMapComponent,
     BaseDashboardComponent,
     MapDashboardComponent,
-    PerformanceTableComponent,
-    MetricSelectComponent
+    MetricSelectComponent,
+    TicketsGraphComponent,
+    DashboardTableComponent,
+    TicketsTableComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

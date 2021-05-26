@@ -1,4 +1,5 @@
 import { Component, ContentChild, Input, OnInit, TemplateRef } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
 import { FormatService } from 'src/app/services/format.service';
@@ -12,6 +13,8 @@ import { MetricsService } from 'src/app/services/metrics.service';
 export class BaseDashboardComponent implements OnInit {
   @ContentChild(TemplateRef) template: TemplateRef<any>;
 
+  private _filterSubscription: Subscription;
+
   @Input() graphMetrics: Metrics;
   @Input() metricLabel: string = '';
   @Input() metricField: string = '';
@@ -22,10 +25,11 @@ export class BaseDashboardComponent implements OnInit {
   @Input() changeField: string = 'delta';
   changeValue: string = '';
 
-  @Input() mapMetrics: Metrics;
-  @Input() mapRanges: number[][] = [];
-  @Input() legendColors: string[] = ["green","yellow","orange","redorange","red"];
-  @Input() legendLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
+  @Input() mapSettings: any;
+  // @Input() mapMetrics: Metrics;
+  // @Input() mapRanges: number[][] = [];
+  // @Input() legendColors: string[] = ["green","yellow","orange","redorange","red"];
+  // @Input() legendLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
   markers: any;
 
   corridors: any;
@@ -42,11 +46,15 @@ export class BaseDashboardComponent implements OnInit {
         this._loadData();
       });
 
-      this._filterService.filters.subscribe(() => {
+      this._filterSubscription = this._filterService.filters.subscribe(() => {
         if(this.data !== undefined){
           this._loadData();
         }
       });
+    }
+
+    ngOnDestroy(): void {
+      this._filterSubscription.unsubscribe();
     }
 
     private _loadData(){
@@ -55,14 +63,13 @@ export class BaseDashboardComponent implements OnInit {
         this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
 
         let metricData = this._filterService.getZoneGroupData(this.filteredData);
-
         if(metricData !== undefined){
-          if(this.metricField === 'aog'){
-            this.metricValue = this._formatService.formatPercent(metricData[this.metricField],1);
+          if(this.graphMetrics.formatType === "percent"){
+            this.metricValue = this._formatService.formatPercent(metricData[this.metricField], this.graphMetrics.formatDecimals);
+          }else{
+            this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.graphMetrics.formatDecimals);
           }
-          else{
-            this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.metricDecimals);
-          }
+
           this.changeValue = this._formatService.formatPercent(metricData[this.changeField],2);
         }
       }
