@@ -58,13 +58,11 @@ export class ScatterMapComponent implements OnInit {
   ngOnChanges(changes: SimpleChanges){
     this._metricsService.getMetrics(this.mapSettings.metrics).subscribe(response => {
       this._metricData = response;
-
       this.createMarkers();
     });
 
     this._signalsService.getData().subscribe(data => {
       this._signals = data;
-
       this.createMarkers();
     });
 
@@ -89,14 +87,14 @@ export class ScatterMapComponent implements OnInit {
         }
         return newSignal;
       });
+      console.log(joinedData);
 
       joinedData = this._filterService.filterData(joinedData);
 
       let data = [];
-
+console.log(joinedData);
       for (let index = 0; index < this.mapSettings.ranges.length; index++) {
         const range = this.mapSettings.ranges[index];
-
         let markerSignals = joinedData.filter(signal => {
           if(signal[this.mapSettings.metrics.field] >= range[0] && signal[this.mapSettings.metrics.field] < range[1])
             return true;

@@ -163,7 +163,7 @@ namespace SigOpsMetrics.API
             try
             {
                 DataTable tbl = new DataTable();
-                tbl.Columns.Add("SignalID", typeof(int));
+                tbl.Columns.Add("SignalID", typeof(string));
                 tbl.Columns.Add("Zone_Group", typeof(string));
                 tbl.Columns.Add("Zone", typeof(string));
                 tbl.Columns.Add("Corridor", typeof(string));
@@ -171,10 +171,10 @@ namespace SigOpsMetrics.API
                 tbl.Columns.Add("Agency", typeof(string));
                 tbl.Columns.Add("Main_Street_Name", typeof(string));
                 tbl.Columns.Add("Side_Street_Name", typeof(string));
-                tbl.Columns.Add("Milepost", typeof(decimal));
+                tbl.Columns.Add("Milepost", typeof(string));
                 tbl.Columns.Add("Asof", typeof(DateTime));
-                tbl.Columns.Add("Duplicate", typeof(int));
-                tbl.Columns.Add("Include", typeof(int));
+                tbl.Columns.Add("Duplicate", typeof(string));
+                tbl.Columns.Add("Include", typeof(string));
                 tbl.Columns.Add("Modified", typeof(DateTime));
                 tbl.Columns.Add("Note", typeof(string));
                 tbl.Columns.Add("Latitude", typeof(decimal));
