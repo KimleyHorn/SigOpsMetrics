@@ -14,6 +14,7 @@ import { FilterService } from 'src/app/services/filter.service';
 export class BarLineGraphComponent implements OnInit, OnChanges {
   private _filterSubscription: Subscription;
   private _currentMonth = new Date().getMonth();
+  private _currentYear = new Date().getFullYear();
   private _color = new Colors();
 
   @Input() title: string = "";
@@ -81,7 +82,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
         this.lineData = this.data;
         //TODO: adjusted this filter to be based on the selected month
         //format the data for the bar graph
-        this.barData = this.data.filter(dataItem => new Date(dataItem['month']).getMonth() === this._currentMonth);
+        this.barData = this.data.filter(dataItem => new Date(dataItem['month']).getMonth() === this._currentMonth && new Date(dataItem['month']).getFullYear() === this._currentYear);
         let cors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
         this.corridors = Array.from(cors);
       }
