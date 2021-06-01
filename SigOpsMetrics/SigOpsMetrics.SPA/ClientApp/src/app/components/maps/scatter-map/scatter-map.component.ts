@@ -87,12 +87,10 @@ export class ScatterMapComponent implements OnInit {
         }
         return newSignal;
       });
-      console.log(joinedData);
 
       joinedData = this._filterService.filterData(joinedData);
 
       let data = [];
-console.log(joinedData);
       for (let index = 0; index < this.mapSettings.ranges.length; index++) {
         const range = this.mapSettings.ranges[index];
         let markerSignals = joinedData.filter(signal => {

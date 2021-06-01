@@ -57,8 +57,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
                     //var retVal = GetAllSignalData(await worksheet);
 
-                    var retVal = GetAllSignalData(SqlConnection);
-                    return retVal;
+                    return await GetAllSignalDataSQL();
                 });
                 return await cacheEntry;
             }
@@ -89,8 +88,8 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetSignalNames(await worksheet);
-                    var retVal = GetSignalNames(SqlConnection);
-                    return retVal;
+                    return await GetSignalNamesSQL();
+
                 });
                 return await cacheEntry;
             }
@@ -121,8 +120,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetZoneGroups(await worksheet);
-                    var retVal = GetZoneGroups(SqlConnection);
-                    return retVal;
+                    return await GetZoneGroupsSQL();
 
                 });
                 return await cacheEntry;
@@ -154,8 +152,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetZones(await worksheet);
-                    var retVal = GetZones(SqlConnection);
-                    return retVal;
+                    return await GetZonesSQL();
                 });
                 return await cacheEntry;
             }
@@ -181,9 +178,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetZonesByZoneGroup(await worksheet, zoneGroup);
-                    var retVal = GetZonesByZoneGroup(SqlConnection, zoneGroup);
-
-                    return retVal;
+                    return await GetZonesByZoneGroupSQL(zoneGroup);
                 });
                 return await cacheEntry;
             }
@@ -214,8 +209,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetCorridors(await worksheet);
-                    var retVal = GetCorridors(SqlConnection);
-                    return retVal;
+                    return await GetCorridorsSQL();
                 });
                 return await cacheEntry;
             }
@@ -247,8 +241,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetCorridorsByZone(await worksheet, zone);
-                    var retVal = GetCorridorsByZone(SqlConnection, zone);
-                    return retVal;
+                    return await GetCorridorsByZone(zone);
                 });
                 return await cacheEntry;
             }
@@ -274,8 +267,7 @@ namespace SigOpsMetrics.API.Controllers
 
                     //var worksheet = GetSpreadsheet();
                     //var retVal = GetCorridorsByZoneGroup(await worksheet, zoneGroup);
-                    var retVal = GetCorridorsByZoneGroup(SqlConnection, zoneGroup);
-                    return retVal;
+                    return await GetCorridorsByZoneGroupSQL(zoneGroup);
                 });
 
                 return await cacheEntry;
@@ -307,8 +299,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetSubCorridors(await worksheet);
-                    var retVal = GetSubCorridors(SqlConnection);
-                    return retVal;
+                    return await GetSubCorridorsSQL();
                 });
                 return await cacheEntry;
             }
@@ -339,8 +330,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetSubCorridorsByCorridor(await worksheet, corridor);
-                    var retVal = GetSubCorridorsByCorridor(SqlConnection, corridor);
-                    return retVal;
+                    return await GetSubCorridorsByCorridorSQL(corridor);
                 });
                 return await cacheEntry;
             }
@@ -366,8 +356,7 @@ namespace SigOpsMetrics.API.Controllers
 
                     //var worksheet = GetSpreadsheet();
                     //var retVal = GetAgencies(await worksheet);
-                    var retVal = GetAgencies(SqlConnection);
-                    return retVal;
+                    return await GetAgenciesSQL();
                 });
                 return await cacheEntry;
             }
@@ -393,7 +382,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     Task<ExcelWorksheet> worksheet = GetSpreadsheet();
                     var ws = await worksheet;
-                    await DataAccessLayer.WriteToCorridorsLatest(SqlConnection, ws);
+                    await DataAccessLayer.WriteToSignals(SqlConnection, ws);
                 }
             }
             catch (Exception ex)
@@ -429,18 +418,18 @@ namespace SigOpsMetrics.API.Controllers
             return package.Workbook.Worksheets[0];
         }
 
-        private IEnumerable<SignalDTO> GetAllSignalData(MySqlConnection sqlConnection)
+        private async Task<IEnumerable<SignalDTO>> GetAllSignalDataSQL()
         {
             List<SignalDTO> signals = new List<SignalDTO>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
 
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT * FROM mark1.corridors_latest WHERE SignalID <> -1";
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = "SELECT * FROM mark1.signals WHERE SignalID <> -1";
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         SignalDTO row = new SignalDTO
@@ -468,10 +457,11 @@ namespace SigOpsMetrics.API.Controllers
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetAllSignalDataSQL", ex);
             }
             finally
             {
@@ -529,28 +519,29 @@ namespace SigOpsMetrics.API.Controllers
         //    return new List<SignalDTO>();
         //}
 
-        private IEnumerable<string> GetSignalNames(MySqlConnection sqlConnection)
+        private async Task<IEnumerable<string>> GetSignalNamesSQL()
         {
             List<string> signals = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
 
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT CONCAT(TRIM(Main_Street_Name),' @ ', TRIM(Side_Street_Name)) FROM corridors_latest WHERE Main_Street_Name IS NOT NULL AND Side_Street_Name IS NOT NULL";
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = "SELECT CONCAT(TRIM(Main_Street_Name),' @ ', TRIM(Side_Street_Name)) FROM signals WHERE Main_Street_Name IS NOT NULL AND Side_Street_Name IS NOT NULL";
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         signals.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetSignalNamesSQL", ex);
             }
             finally
             {
@@ -588,28 +579,29 @@ namespace SigOpsMetrics.API.Controllers
         //    return new List<string>();
         //}
 
-        private IEnumerable<string> GetZoneGroups(MySqlConnection sqlConnection)
+        private async Task<IEnumerable<string>> GetZoneGroupsSQL()
         {
             List<string> zoneGroups = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
 
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone_Group) FROM corridors_latest WHERE Zone_Group IS NOT NULL ORDER BY Zone_Group ASC";
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = "SELECT DISTINCT(Zone_Group) FROM signals WHERE Zone_Group IS NOT NULL ORDER BY Zone_Group ASC";
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         zoneGroups.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetZoneGroupsSQL", ex);
             }
             finally
             {
@@ -626,28 +618,29 @@ namespace SigOpsMetrics.API.Controllers
         //    return retVal;
         //}
 
-        private IEnumerable<string> GetZones(MySqlConnection sqlConnection)
+        private async Task<IEnumerable<string>> GetZonesSQL()
         {
             List<string> zones = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
 
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM corridors_latest WHERE Zone IS NOT NULL ORDER BY Zone ASC";
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL ORDER BY Zone ASC";
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         zones.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetZonesSQL", ex);
             }
             finally
             {
@@ -657,16 +650,16 @@ namespace SigOpsMetrics.API.Controllers
         }
 
 
-        private IEnumerable<string> GetZonesByZoneGroup(MySqlConnection sqlConnection, string zoneGroupName)
+        private async Task<IEnumerable<string>> GetZonesByZoneGroupSQL(string zoneGroupName)
         {
             List<string> zones = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM corridors_latest WHERE Zone IS NOT NULL AND TRIM(UPPER(Zone_Group))";
+                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL AND TRIM(UPPER(Zone_Group))";
                     string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
@@ -683,17 +676,18 @@ namespace SigOpsMetrics.API.Controllers
                     }
                     cmd.CommandText += where;
 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         zones.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetZonesByZoneGroupSQL", ex);
             }
             finally
             {
@@ -745,16 +739,16 @@ namespace SigOpsMetrics.API.Controllers
         //    return new List<string>();
         //}
 
-        private IEnumerable<string> GetCorridorsByZoneGroup(MySqlConnection sqlConnection, string zoneGroupName)
+        private async Task<IEnumerable<string>> GetCorridorsByZoneGroupSQL(string zoneGroupName)
         {
             List<string> zones = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM corridors_latest WHERE Corridor IS NOT NULL AND TRIM(UPPER(Zone_Group))";
+                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL AND TRIM(UPPER(Zone_Group))";
                     string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
@@ -771,17 +765,18 @@ namespace SigOpsMetrics.API.Controllers
                     }
                     cmd.CommandText += where;
 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         zones.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetCorridorsByZoneGroupSQL", ex);
             }
             finally
             {
@@ -833,28 +828,29 @@ namespace SigOpsMetrics.API.Controllers
         //    return new List<string>();
         //}
 
-        private IEnumerable<string> GetCorridors(MySqlConnection sqlConnection)
+        private async Task<IEnumerable<string>> GetCorridorsSQL()
         {
             List<string> corridors = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM corridors_latest WHERE Corridor IS NOT NULL";
+                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL";
 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         corridors.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetCorridorsSQL", ex);
             }
             finally
             {
@@ -868,29 +864,30 @@ namespace SigOpsMetrics.API.Controllers
         //    return GetSingleColumnFromSpreadsheet(sheet, 4).Distinct().OrderBy(x => x);
         //}
 
-        private IEnumerable<string> GetCorridorsByZone(MySqlConnection sqlConnection, string zoneName)
+        private async Task<IEnumerable<string>> GetCorridorsByZoneSQL(string zoneName)
         {
             List<string> corridors = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM corridors_latest WHERE TRIM(Zone) = @zoneName";
+                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE TRIM(Zone) = @zoneName";
                     cmd.Parameters.AddWithValue("zoneName", zoneName.Trim());
 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         corridors.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetCorridorsByZoneSQL", ex);
             }
             finally
             {
@@ -927,28 +924,29 @@ namespace SigOpsMetrics.API.Controllers
         //    return new List<string>();
         //}
 
-        private IEnumerable<string> GetSubCorridors(MySqlConnection sqlConnection)
+        private async Task<IEnumerable<string>> GetSubCorridorsSQL()
         {
             List<string> subcorridors = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Subcorridor) FROM corridors_latest WHERE Subcorridor IS NOT NULL";
- 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = "SELECT DISTINCT(Subcorridor) FROM signals WHERE Subcorridor IS NOT NULL";
+                    
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         subcorridors.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetSubCorridorsSQL", ex);
             }
             finally
             {
@@ -962,29 +960,30 @@ namespace SigOpsMetrics.API.Controllers
         //    return GetSingleColumnFromSpreadsheet(sheet, 5).Distinct().OrderBy(x => x);
         //}
 
-        private IEnumerable<string> GetSubCorridorsByCorridor(MySqlConnection sqlConnection, string corridor)
+        private async Task<IEnumerable<string>> GetSubCorridorsByCorridorSQL(string corridor)
         {
             List<string> subCorridors = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(SubCorridor) FROM corridors_latest WHERE TRIM(Corridor) = @corridor AND Subcorridor IS NOT NULL";
+                    cmd.CommandText = "SELECT DISTINCT(SubCorridor) FROM signals WHERE TRIM(Corridor) = @corridor AND Subcorridor IS NOT NULL";
                     cmd.Parameters.AddWithValue("corridor", corridor.Trim());
 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         subCorridors.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetSubCorridorsByCorridorSQL", ex);
             }
             finally
             {
@@ -1021,28 +1020,29 @@ namespace SigOpsMetrics.API.Controllers
         //    return new List<string>();
         //}
 
-        private IEnumerable<string> GetAgencies(MySqlConnection sqlConnection)
+        private async Task<IEnumerable<string>> GetAgenciesSQL()
         {
             List<string> agencies = new List<string>();
             try
             {
-                SqlConnection.Open();
-                using (var cmd = new MySqlCommand())
+                await SqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Agency) FROM corridors_latest WHERE Agency IS NOT NULL";
+                    cmd.CommandText = "SELECT DISTINCT(Agency) FROM signals WHERE Agency IS NOT NULL";
 
-                    MySqlDataReader reader = cmd.ExecuteReader();
+                    await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
                         agencies.Add(reader.GetString(0).Trim());
                     }
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine(e);
-                throw;
+                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetAgenciesSQL", ex);
             }
             finally
             {

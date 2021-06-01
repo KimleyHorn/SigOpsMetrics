@@ -158,7 +158,7 @@ namespace SigOpsMetrics.API
             }
         }
 
-        public static async Task WriteToCorridorsLatest(MySqlConnection sqlConnection, ExcelWorksheet ws)
+        public static async Task WriteToSignals(MySqlConnection sqlConnection, ExcelWorksheet ws)
         {
             try
             {
@@ -214,11 +214,11 @@ namespace SigOpsMetrics.API
                 using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "TRUNCATE TABLE mark1.corridors_latest";
+                    cmd.CommandText = "TRUNCATE TABLE mark1.signals";
                     cmd.ExecuteNonQuery();
 
                     var bulkCopy = new MySqlBulkCopy(sqlConnection);
-                    bulkCopy.DestinationTableName = "mark1.corridors_latest";
+                    bulkCopy.DestinationTableName = "mark1.signals";
                     bulkCopy.WriteToServer(tbl);
                 }
             }
