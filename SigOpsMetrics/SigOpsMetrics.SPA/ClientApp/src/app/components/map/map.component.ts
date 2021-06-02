@@ -43,7 +43,7 @@ export class MapComponent implements OnInit {
       lat: environment.mapCenterLat,
       lng: environment.mapCenterLon,
     };
-
+    
     if(this.metrics !== undefined){
       this._metricsService.getMetrics(this.metrics).subscribe(response => {
         this.metricData = response;
@@ -54,7 +54,6 @@ export class MapComponent implements OnInit {
 
     this.signalsService.getData().subscribe((data) => {
       this.signals = data;
-      
       this.createMarkers();
     });
   }
