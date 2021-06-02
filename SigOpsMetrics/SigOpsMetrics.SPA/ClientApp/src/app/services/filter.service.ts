@@ -175,26 +175,37 @@ export class FilterService {
           break;
       }
     this.filter[key] = value;
-    //this._filters.next(this.filter);
   }
 
   public updateFilter(){
     this._filters.next(this.filter);
   }
 
-  public filterData(data: any){
+  public resetFilter(){
+    this.filter = new Filter();
+    this._loadData(this.filter);
+    this.updateFilter();
+  }
+
+  public filterData(data: any, corridors: [] = []){
     let filteredData = data;
     for (let key of Object.keys(this.filter)) {
       if(this.filter[key] && key !== 'month'){
         switch (key) {
           case 'zone_Group':
             filteredData = filteredData.filter(dataItem => {
-              let cor = this.corridorData.filter(cor => cor === dataItem['corridor'])[0];
+              let cor;
+
+              if(corridors.length === 0){
+                cor = this.corridorData.filter(cor => cor === dataItem['corridor'])[0];
+              } else {
+                cor = corridors.filter(cor => cor === dataItem['corridor'])[0];
+              }
+
               if(dataItem['corridor'] === cor || dataItem['corridor'] === this.filter[key]){
                 return dataItem;
               }
             });
-
             break;
           default:
             filteredData = filteredData.filter(dataItem => dataItem[key] === this.filter[key]);
