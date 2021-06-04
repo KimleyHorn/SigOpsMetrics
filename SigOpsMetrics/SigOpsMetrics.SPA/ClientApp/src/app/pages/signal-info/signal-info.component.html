@@ -4,6 +4,15 @@
   <!-- <input matInput type="text" (keyup)="doFilter($event.target.value)" placeholder="Search..."> -->
 </mat-form-field>
 
+<div>
+  <mat-form-field *ngFor="let filter of filterSelectList" class="{{filter.style}}">
+    <mat-label>{{filter.name}}</mat-label>
+    <input matInput (change)="filterChange(filter,$event)">
+  </mat-form-field>
+  &nbsp;
+  <button mat-flat-button color="warn" (click)="resetFilters()">Reset</button>
+</div>
+
 <table mat-table [dataSource]='dataSource' class="mat-elevation-z8" fill>
   <ng-container matColumnDef="signalID">
     <th mat-header-cell *matHeaderCellDef>Signal ID</th>

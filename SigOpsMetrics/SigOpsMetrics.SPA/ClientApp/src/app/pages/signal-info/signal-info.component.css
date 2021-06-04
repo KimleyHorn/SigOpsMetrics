@@ -23,6 +23,24 @@ th.mat-header-cell {
 }
 
 mat-form-field.mat-form-field {
-  font-size: 14px;
+  font-size: 13px;
 }
 
+.search-input-margin {
+  margin-left: 6px;
+}
+.search-input-wider {
+  width: 95px;
+}
+.search-input-wide {
+  width: 90px;
+}
+.search-input-mid-wide {
+  width: 80px;
+}
+.search-input-mid {
+  width: 60px;
+}
+.search-input-thin {
+  width: 50px;
+}
