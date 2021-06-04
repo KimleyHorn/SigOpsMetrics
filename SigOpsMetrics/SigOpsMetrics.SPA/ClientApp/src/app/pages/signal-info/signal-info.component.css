@@ -26,21 +26,54 @@ mat-form-field.mat-form-field {
   font-size: 13px;
 }
 
-.search-input-margin {
-  margin-left: 6px;
+.search-input {
+  text-align: center;
 }
-.search-input-wider {
-  width: 95px;
+.search-input-sid {
+  width: 57px;
 }
-.search-input-wide {
+.search-input-zg {
+  width: 56px;
+}
+.search-input-z {
+  width: 45px;
+}
+.search-input-cor {
+  width: 150px;
+}
+.search-input-scor {
+  width: 100px;
+}
+.search-input-a {
+  width: 75px;
+}
+.search-input-ms {
+  width: 110px;
+}
+.search-input-ss {
   width: 90px;
 }
-.search-input-mid-wide {
+.search-input-mp {
+  width: 40px;
+}
+.search-input-ao {
   width: 80px;
 }
-.search-input-mid {
-  width: 60px;
+.search-input-dup {
+  width: 40px;
 }
-.search-input-thin {
-  width: 50px;
+.search-input-inc {
+  width: 40px;
+}
+.search-input-mod {
+  width: 70px;
+}
+.search-input-n {
+  width: 40px;
+}
+.search-input-lat {
+  width: 65px;
+}
+.search-input-lng {
+  width: 80px;
 }

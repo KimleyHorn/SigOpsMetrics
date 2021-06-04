@@ -1,17 +1,17 @@
-<mat-form-field appearance="none">
+<!-- <mat-form-field appearance="none">
   <mat-label>Type here to search</mat-label>
   <input matInput placeholder="Search..." (keyup)="doFilter($event.target.value)"/>
-  <!-- <input matInput type="text" (keyup)="doFilter($event.target.value)" placeholder="Search..."> -->
-</mat-form-field>
+  <input matInput type="text" (keyup)="doFilter($event.target.value)" placeholder="Search...">
+</mat-form-field> -->
 
-<div>
-  <mat-form-field *ngFor="let filter of filterSelectList" class="{{filter.style}}">
+<form style="display: flex" [formGroup]="formControl">
+  <mat-form-field appearance="none" *ngFor="let filter of filterSelectList" class="{{filter.style}}">
     <mat-label>{{filter.name}}</mat-label>
-    <input matInput (change)="filterChange(filter,$event)">
+    <input matInput formControlName="{{filter.columnProp}}">
   </mat-form-field>
   &nbsp;
   <button mat-flat-button color="warn" (click)="resetFilters()">Reset</button>
-</div>
+</form>
 
 <table mat-table [dataSource]='dataSource' class="mat-elevation-z8" fill>
   <ng-container matColumnDef="signalID">
