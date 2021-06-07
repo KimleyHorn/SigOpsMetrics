@@ -98,14 +98,10 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.endTime.select(null);
     this.daysOfWeek.forEach(element => {
       element.selected = false;
-    })
-    this.updateFilter('timePeriod', {value: ""});
-    this.updateFilter('zone_Group', {value: 'All RTOP'});
-    this.updateFilter('zone', {value: ""});
-    this.updateFilter('agency', {value: ""});
-    this.updateFilter('county', {value: ""});
-    this.updateFilter('city', {value: ""});
-    this.updateFilter('corridor', {value: ""});
+    });
+
+    this.filterService.resetFilter();
+    this.toggleFilter.emit();
   }
 
   applyFilter(){

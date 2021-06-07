@@ -18,6 +18,7 @@ export class ScatterMapComponent implements OnInit {
   @Input() mapSettings;
   private _metricData;
   private _signals;
+  private _corridors;
 
   public mapGraph: any;
 
@@ -66,6 +67,11 @@ export class ScatterMapComponent implements OnInit {
       this.createMarkers();
     });
 
+    this._filterService.corridors.subscribe(data => {
+      this._corridors = data;
+      this.createMarkers();
+    });
+
     this._filterSubscription = this._filterService.filters.subscribe(() =>{
       this.createMarkers();
     });
@@ -76,7 +82,7 @@ export class ScatterMapComponent implements OnInit {
   }
 
   createMarkers(){
-    if(this._metricData !== undefined && this._signals !== undefined){
+    if(this._metricData !== undefined && this._signals !== undefined && this._corridors !== undefined){
       let joinedData = this._signals.map(signal =>{
         let newSignal = signal;
         let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID || md["corridor"] === signal.corridor)[0]
@@ -88,12 +94,12 @@ export class ScatterMapComponent implements OnInit {
         return newSignal;
       });
 
-      joinedData = this._filterService.filterData(joinedData);
+      let filteredData = this._filterService.filterData(joinedData, this._corridors);
 
       let data = [];
       for (let index = 0; index < this.mapSettings.ranges.length; index++) {
         const range = this.mapSettings.ranges[index];
-        let markerSignals = joinedData.filter(signal => {
+        let markerSignals = filteredData.filter(signal => {
           if(signal[this.mapSettings.metrics.field] >= range[0] && signal[this.mapSettings.metrics.field] < range[1])
             return true;
 
