@@ -135,9 +135,9 @@ export class MapSettings {
   //daily traffic volume
   dtvMapField: string = "vpd";
   dtvMapMetrics: Metrics = { measure: "vpd", field: "vpd", label: "Daily Traffic Volume", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
-  dtvMapRanges: number[][] = [[0,20000],[20000,40000],[40000,60000],[60000,80000],[80000,100000]];
-  dtvLegendLabels: string[] = ["0-20,000","20,000-40,000","40,000-60,000","60,000-80,000","80,000-100,000"];
-  dtvLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  dtvMapRanges: number[][] = [[0,50000],[50000,100000],[100000,150000]];
+  dtvLegendLabels: string[] = ["0-50,000","50,000-100,000","100,000-150,000"];
+  dtvLegendColors: string[] = [this.color.lightTeal, this.color.blue, this.color.purple];
   dtvMapSettings = {
     metrics: this.dtvMapMetrics,
     ranges: this.dtvMapRanges,
@@ -149,7 +149,7 @@ export class MapSettings {
   papdMapMetrics: Metrics = { measure: "papd", field: "papd", label: "Daily Pedestrian Pushbutton Activity", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
   papdMapRanges: number[][] = [[0,1000],[1000,2000],[2000,3000],[3000,4000],[4000,5000]];
   papdLegendLabels: string[] = ["0-1,000","1,000-2,000","2,000-3,000","3,000-4,000","4,000-5,000"];
-  papdLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  papdLegendColors: string[] = [this.color.lightTeal,this.color.teal,this.color.blue,this.color.darkBlue,this.color.purple];
   papdMapSettings = {
     metrics: this.papdMapMetrics,
     ranges: this.papdMapRanges,
@@ -161,7 +161,7 @@ export class MapSettings {
   duMapMetrics: Metrics = { measure: "du", field: "uptime", label: "Detector Uptime", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, start: this.mapStart, end: this.mapEnd };
   duMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   duLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  duLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  duLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.greenYellow];
   duMapSettings = {
     metrics: this.duMapMetrics,
     ranges: this.duMapRanges,
