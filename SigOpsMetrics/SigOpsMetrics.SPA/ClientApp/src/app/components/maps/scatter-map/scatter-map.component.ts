@@ -6,6 +6,7 @@ import { FormatService } from 'src/app/services/format.service';
 import { MetricsService } from 'src/app/services/metrics.service';
 import { SignalsService } from 'src/app/services/signals.service';
 import { environment } from 'src/environments/environment';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-scatter-map',
@@ -13,19 +14,24 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./scatter-map.component.css']
 })
 export class ScatterMapComponent implements OnInit {
+  private _metricSubscription: Subscription;
+  private _signalSubscription: Subscription;
+  private _serviceSubscription: Subscription;
   private _filterSubscription: Subscription;
 
   @Input() mapSettings;
   private _metricData;
   private _signals;
   private _corridors;
+  private _filter;
 
   public mapGraph: any;
 
   constructor(private _metricsService: MetricsService,
     private _signalsService: SignalsService,
     private _filterService: FilterService,
-    private _formatService: FormatService) {
+    private _formatService: FormatService,
+    private _datePipe: DatePipe) {
       this.mapGraph = {
         data: [],
         layout: {
@@ -52,37 +58,60 @@ export class ScatterMapComponent implements OnInit {
           }
         }
       }
-    }
+  }
 
-  ngOnInit(): void {}
+  private _generateDate(day: number){
+    let dt = new Date();
+    dt.setDate(day);
+
+    return this._datePipe.transform(dt, 'yyyy-MM-dd');
+  }
+
+  ngOnInit(): void {
+    this.mapSettings.metrics.start = this._generateDate(1);
+    this.mapSettings.metrics.end = this._generateDate(2);
+  }
 
   ngOnChanges(changes: SimpleChanges){
-    this._metricsService.getMetrics(this.mapSettings.metrics).subscribe(response => {
+    this._loadMapData();
+  }
+
+  private _loadMapData(){
+    this._metricSubscription = this._metricsService.getMetrics(this.mapSettings.metrics).subscribe(response => {
       this._metricData = response;
       this.createMarkers();
     });
 
-    this._signalsService.getData().subscribe(data => {
+    this._signalSubscription = this._signalsService.getData().subscribe(data => {
       this._signals = data;
       this.createMarkers();
     });
 
-    this._filterService.corridors.subscribe(data => {
+    this._serviceSubscription = this._filterService.corridors.subscribe(data => {
       this._corridors = data;
       this.createMarkers();
     });
 
-    this._filterSubscription = this._filterService.filters.subscribe(() =>{
+    this._filterSubscription = this._filterService.filters.subscribe(filter => {
+      this._filter = filter;
       this.createMarkers();
     });
   }
 
   ngOnDestroy(): void {
+    this._metricSubscription.unsubscribe();
+    this._signalSubscription.unsubscribe();
+    this._serviceSubscription.unsubscribe();
     this._filterSubscription.unsubscribe();
   }
 
   createMarkers(){
-    if(this._metricData !== undefined && this._signals !== undefined && this._corridors !== undefined){
+    if(this._metricData !== undefined
+      && this._signals !== undefined
+      && this._corridors !== undefined
+      && this._filter !== undefined)
+    {
+      //join the metric data with the signals
       let joinedData = this._signals.map(signal =>{
         let newSignal = signal;
         let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID || md["corridor"] === signal.corridor)[0]
@@ -94,9 +123,11 @@ export class ScatterMapComponent implements OnInit {
         return newSignal;
       });
 
+      //filter out the appropriate data
       let filteredData = this._filterService.filterData(joinedData, this._corridors);
 
       let data = [];
+      //create data ranges for markers
       for (let index = 0; index < this.mapSettings.ranges.length; index++) {
         const range = this.mapSettings.ranges[index];
         let markerSignals = filteredData.filter(signal => {

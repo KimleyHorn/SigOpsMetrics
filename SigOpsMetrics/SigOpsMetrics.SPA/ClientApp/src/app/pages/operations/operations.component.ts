@@ -12,8 +12,6 @@ import { Metrics } from 'src/app/models/metrics';
 })
 export class OperationsComponent implements OnInit {
   toggleValue: string;
-  mapStart = '2021-03-01';
-  mapEnd = '2021-03-02';
 
   tpGraphMetrics: Metrics = new Metrics({ measure: "tp" });
   tpTitle: string = 'Throughput (peak veh/hr)';
@@ -39,7 +37,7 @@ export class OperationsComponent implements OnInit {
   };
 
   aogdGraphMetrics: Metrics = new Metrics({ measure: "aogd", formatDecimals: 1, formatType: "percent" });
-  aoghGraphMetrics: Metrics = new Metrics({ measure: "aogh", formatDecimals: 1, formatType: "percent", start: this.mapStart, end: this.mapEnd });
+  aoghGraphMetrics: Metrics = new Metrics({ measure: "aogh", formatDecimals: 1, formatType: "percent" });
   aogTitle: string = 'Arrivals on Green [%]';
   aogBar: Graph = {
     title: 'Arrivals on Green',
