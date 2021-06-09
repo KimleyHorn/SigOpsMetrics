@@ -8,13 +8,13 @@
       {{option}}
     </mat-radio-button>
   </mat-radio-group>
-  <mat-form-field appearance="outline" style="max-width:45%;" *ngIf="this.selectedDateOption === 'Custom'">
+  <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%;" *ngIf="this.selectedDateOption === 'Custom'">
     <mat-label>Start Date</mat-label>
     <input matInput [matDatepicker]="startDate" (dateChange)="updateFilter('customStart',$event)">
     <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
     <mat-datepicker #startDate></mat-datepicker>
   </mat-form-field>
-  <mat-form-field appearance="outline" style="max-width:45%;margin-left:25px;" *ngIf="this.selectedDateOption === 'Custom'">
+  <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%;margin-left:25px;" *ngIf="this.selectedDateOption === 'Custom'">
     <mat-label>End Date</mat-label>
     <input matInput [matDatepicker]="endDate" (dateChange)="updateFilter('customEnd',$event)">
     <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
@@ -35,7 +35,7 @@
   <div class="filter-break"></div>
   <span class="header-label">Time Range</span>
 
-  <mat-form-field appearance="outline" style="max-width:45%" >
+  <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%" >
     <mat-label>Begin Time</mat-label>
     <input matInput [matDatepicker]="startTime" (dateChange)="updateFilter('startTime',$event)">
     <mat-datepicker-toggle matSuffix [for]="startTime"></mat-datepicker-toggle>
@@ -47,7 +47,7 @@
     </mat-datepicker>
   </mat-form-field>
 
-  <mat-form-field appearance="outline" style="max-width:45%; margin-left:25px;" >
+  <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%; margin-left:25px;" >
     <mat-label>End Time</mat-label>
     <input matInput [matDatepicker]="endTime" (dateChange)="updateFilter('endTime',$event)">
     <mat-datepicker-toggle matSuffix [for]="endTime"></mat-datepicker-toggle>
@@ -62,7 +62,7 @@
 
   <div class="filter-break"></div>
   <span class="header-label">Data Aggregation</span>
-  <mat-form-field appearance="outline" style="display: block;"  >
+  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;"  >
     <mat-label>Select Time Period?</mat-label>
     <mat-select (selectionChange)="updateFilter('timePeriod',$event)" [(ngModel)]="selectedDataAggregationOption">
       <mat-option *ngFor="let time of timeOptions" [value]="time">
@@ -72,7 +72,7 @@
   </mat-form-field>
   <div class="filter-break"></div>
   <span class="header-label">Signal Attributes</span>
-  <mat-form-field ngDefaultControl appearance="outline" style="display: block;">
+  <mat-form-field ngDefaultControl appearance="outline" class="filter-form-field" style="display: block;">
     <mat-label>Select Region</mat-label>
     <mat-select (selectionChange)="updateFilter('zone_Group',$event)" [(ngModel)]="selectedSignalGroup">
       <mat-option *ngFor="let signal of signalGroups" [value]="signal">
@@ -80,7 +80,7 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-form-field appearance="outline" style="display: block;">
+  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
     <mat-label>Select District</mat-label>
     <mat-select (selectionChange)="updateFilter('zone',$event)" [(ngModel)]="selectedDistrict">
       <mat-option *ngFor="let district of districts" [value]="district">
@@ -88,7 +88,7 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-form-field appearance="outline" style="display: block;">
+  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
     <mat-label>Select Managing Agency</mat-label>
     <mat-select (selectionChange)="updateFilter('agency',$event)" [(ngModel)]="selectedAgency">
       <mat-option *ngFor="let agency of agencies" [value]="agency">
@@ -96,7 +96,7 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-form-field appearance="outline" style="display: block;">
+  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
     <mat-label>Select County</mat-label>
     <mat-select (selectionChange)="updateFilter('county',$event)" [(ngModel)]="selectedCounty">
       <mat-option *ngFor="let agency of agencies" [value]="agency">
@@ -104,7 +104,7 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-form-field appearance="outline" style="display: block;">
+  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
     <mat-label>Select City</mat-label>
     <mat-select (selectionChange)="updateFilter('city',$event)" [(ngModel)]="selectedCity">
       <mat-option *ngFor="let agency of agencies" [value]="agency">
@@ -112,7 +112,7 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
-  <mat-form-field appearance="outline" style="display: block;">
+  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
     <mat-label>Select Corridor</mat-label>
     <mat-select (selectionChange)="updateFilter('corridor',$event)" [(ngModel)]="selectedCorridor">
       <mat-option *ngFor="let corridor of corridors" [value]="corridor">

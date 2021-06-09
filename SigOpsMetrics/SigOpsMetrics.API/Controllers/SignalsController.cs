@@ -453,6 +453,10 @@ namespace SigOpsMetrics.API.Controllers
                             County = reader.IsDBNull(16) ? "" : reader.GetString(16).Trim(),
                             City = reader.IsDBNull(17) ? "" : reader.GetString(17).Trim()
                         };
+                        if (row.AsOf == DateTime.Parse("1899-12-31T00:00:00"))
+                            row.AsOf = null;
+                        if (row.Modified == DateTime.Parse("1899-12-31T00:00:00"))
+                            row.Modified = null;
                         signals.Add(row);
                     }
                 }
