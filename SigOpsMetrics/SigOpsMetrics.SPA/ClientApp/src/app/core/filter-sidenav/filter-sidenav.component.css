@@ -1,5 +1,5 @@
 .mat-raised-button {
-    font-size:x-small; 
+    font-size:x-small;
     max-width: 70px;
     line-height: 15px;
     white-space: pre-wrap !important;
@@ -21,7 +21,7 @@
     flex-direction: column;
     margin: 15px 0;
   } */
-  
+
 .date-range-radio-button {
     display:inline-block !important;
     width:50% !important;
@@ -52,7 +52,7 @@
     color:gray;
 }
 
-.mat-form-field-wrapper {
+.filter-form-field .mat-form-field-wrapper {
     padding-bottom: 5px !important;
 }
 
