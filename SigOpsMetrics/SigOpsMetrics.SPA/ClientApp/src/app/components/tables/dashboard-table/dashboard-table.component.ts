@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { BehaviorSubject, Subscription } from 'rxjs';
+import { Filter } from 'src/app/models/filter';
 import { Metrics } from 'src/app/models/metrics';
 import { TableData } from 'src/app/models/table-data';
 import { FilterService } from 'src/app/services/filter.service';
@@ -16,7 +17,9 @@ export class DashboardTableComponent implements OnInit {
   @Input() tableData: TableData[] = [];
   tableColumns: string[] = ["name", "value"];
   tableDataSource = new BehaviorSubject([]);
+  public filter: Filter = new Filter();
   private _filterSubscription: Subscription;
+  private _metricSubscription: Subscription;
 
   constructor(private _formatService: FormatService,
     private _filterService: FilterService,
@@ -24,12 +27,14 @@ export class DashboardTableComponent implements OnInit {
 
   ngOnInit(): void {
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
+      this.filter = filter;
       this._loadData();
     });
   }
 
   ngOnDestroy(): void{
     this._filterSubscription.unsubscribe();
+    this._metricSubscription.unsubscribe();
   }
 
   private _loadData(){
@@ -41,15 +46,12 @@ export class DashboardTableComponent implements OnInit {
   }
 
   private _getValue(td: TableData){
-    let dt = new Date();
     let metrics = new Metrics();
     metrics.measure = td.measure;
-    // metrics.start = (dt.getMonth() + 1) + '/' + dt.getFullYear();
-    // metrics.end = (dt.getMonth() + 1) + '/' + dt.getFullYear();
-    metrics.start = '3/' + dt.getFullYear();
-    metrics.end = '3/' + dt.getFullYear();
+    metrics.start = this.filter.month;
+    metrics.end = this.filter.month;
 
-    this._metricsService.getMetrics(metrics).subscribe(data => {
+    this._metricSubscription = this._metricsService.getMetrics(metrics).subscribe(data => {
       let val = this._filterService.getZoneGroupData(data)[td.metric];
       let formattedVal = this._formatService.formatData(val, td.format, td.precision);
       this.tableData.filter(item => item.name === td.name)[0].value = formattedVal;

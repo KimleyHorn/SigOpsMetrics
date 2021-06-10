@@ -16,48 +16,52 @@ export class FilterChipListComponent implements OnInit {
   ngOnInit(): void {
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
       let mappedFilter = Object.keys(filter).map(key => {
-        let name;
-        switch (key) {
-          case 'zone_Group':
-            name = 'Region';
-            break;
-          case 'zone':
-            name = 'District';
-            break;
-          case 'agency':
-            name = 'Managing Agency';
-            break;
-          case 'county':
-            name = 'County';
-            break;
-          case 'city':
-            name = 'City';
-            break;
-          case 'corridor':
-            name = 'Corridor';
-            break;
-          case 'month':
-            name = 'Month';
-            break;
-          case 'customStart':
-            name = 'Custom Start';
-            break;
-          case 'customEnd':
-            name = 'Custom End';
-            break;
-          case 'startTime':
-            name = 'Start Time';
-            break;
-          case 'endTime':
-            name = 'End Time';
-            break;
-          default:
-            name = 'Custom';
-            break;
-        }
+        let value = filter[key];
+        if(value !== undefined && value !== null && value !== ""){
+          let name;
+          switch (key) {
+            case 'zone_Group':
+              name = 'Region';
+              break;
+            case 'zone':
+              name = 'District';
+              break;
+            case 'agency':
+              name = 'Managing Agency';
+              break;
+            case 'county':
+              name = 'County';
+              break;
+            case 'city':
+              name = 'City';
+              break;
+            case 'corridor':
+              name = 'Corridor';
+              break;
+            case 'month':
+              name = 'Month';
+              break;
+            case 'customStart':
+              name = 'Custom Start';
+              break;
+            case 'customEnd':
+              name = 'Custom End';
+              break;
+            case 'startTime':
+              name = 'Start Time';
+              break;
+            case 'endTime':
+              name = 'End Time';
+              break;
+            default:
+              name = 'Custom';
+              break;
+          }
 
-        return { name: name, value: filter[key] };
+          return { name: name, key: key, value: filter[key] };
+        }
       });
+
 
       this.filters = mappedFilter;
     });
@@ -68,6 +72,13 @@ export class FilterChipListComponent implements OnInit {
   }
 
   remove(filter){
+    const index = this.filters.indexOf(filter);
 
+    if(index >= 0){
+      this.filters.splice(index, 1);
+      console.log(this.filters);
+      this._filterService.setValue(filter.key, null);
+      this._filterService.updateFilter();
+    }
   }
 }
