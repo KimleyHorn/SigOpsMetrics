@@ -40,6 +40,7 @@ import { MetricSelectComponent } from './components/selects/metric-select/metric
 import { TicketsGraphComponent } from './components/graphs/tickets-graph/tickets-graph.component';
 import { DashboardTableComponent } from './components/tables/dashboard-table/dashboard-table.component';
 import { TicketsTableComponent } from './components/tables/tickets-table/tickets-table.component';
+import { FilterChipListComponent } from './components/chip-lists/filter-chip-list/filter-chip-list.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -79,7 +80,8 @@ const routes = [
     MetricSelectComponent,
     TicketsGraphComponent,
     DashboardTableComponent,
-    TicketsTableComponent
+    TicketsTableComponent,
+    FilterChipListComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

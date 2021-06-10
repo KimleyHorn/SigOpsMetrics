@@ -1,0 +1,13 @@
+<div class="container-fluid filter-chip-list">
+  <div class="row">
+    <div class="col-12">
+      <mat-chip-list aria-label="Filter selection">
+        <mat-chip *ngFor="let filter of filters" (removed)="remove(filter)">
+          <strong>{{ filter.name }}:</strong>
+          <span>{{ filter.value }}</span>
+          <mat-icon matChipRemove>cancel</mat-icon>
+        </mat-chip>
+      </mat-chip-list>
+    </div>
+  </div>
+</div>
