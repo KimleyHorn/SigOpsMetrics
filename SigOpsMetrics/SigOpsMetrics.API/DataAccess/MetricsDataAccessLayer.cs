@@ -4,11 +4,12 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
+
 #pragma warning disable 1591
 
-namespace SigOpsMetrics.API
+namespace SigOpsMetrics.API.DataAccess
 {
-    public static class DataAccessLayer
+    public class MetricsDataAccessLayer : BaseDataAccessLayer
     {
         private const string ApplicationName = "SigOpsMetrics.API";
 
@@ -131,102 +132,8 @@ namespace SigOpsMetrics.API
             return dateRangeClause + CreateCorridorAndClause(corridor);
         }
 
-        public static async Task WriteToErrorLog(MySqlConnection sqlConnection, string applicationName, string functionName, Exception ex)
-        {
-            await WriteToErrorLog(sqlConnection, applicationName, functionName, ex.Message, ex.InnerException?.ToString());
-        }
+        
 
-        public static async Task WriteToErrorLog(MySqlConnection sqlConnection, string applicationName,
-            string functionName, string exception, string innerException)
-        {
-            try
-            {
-                await sqlConnection.OpenAsync();
-                using (var cmd = new MySqlCommand())
-                {
 
-                    cmd.Connection = sqlConnection;
-                    cmd.CommandText =
-                        $"insert into mark1.errorlog (applicationname, functionname, exception, innerexception) values ('{applicationName}', '{functionName}', '{exception.Substring(0, exception.Length > 500 ? 500 : exception.Length)}', '{innerException}') ";
-                    await cmd.ExecuteNonQueryAsync();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-
-        public static async Task WriteToSignals(MySqlConnection sqlConnection, ExcelWorksheet ws)
-        {
-            try
-            {
-                DataTable tbl = new DataTable();
-                tbl.Columns.Add("SignalID", typeof(string));
-                tbl.Columns.Add("Zone_Group", typeof(string));
-                tbl.Columns.Add("Zone", typeof(string));
-                tbl.Columns.Add("Corridor", typeof(string));
-                tbl.Columns.Add("Subcorridor", typeof(string));
-                tbl.Columns.Add("Agency", typeof(string));
-                tbl.Columns.Add("Main_Street_Name", typeof(string));
-                tbl.Columns.Add("Side_Street_Name", typeof(string));
-                tbl.Columns.Add("Milepost", typeof(string));
-                tbl.Columns.Add("Asof", typeof(DateTime));
-                tbl.Columns.Add("Duplicate", typeof(string));
-                tbl.Columns.Add("Include", typeof(string));
-                tbl.Columns.Add("Modified", typeof(DateTime));
-                tbl.Columns.Add("Note", typeof(string));
-                tbl.Columns.Add("Latitude", typeof(decimal));
-                tbl.Columns.Add("Longitude", typeof(decimal));
-                tbl.Columns.Add("County", typeof(string));
-                tbl.Columns.Add("City", typeof(string));
-
-                var startRow = 2;
-                for (int rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
-                {
-                    var wsRow = ws.Cells[rowNum, 1, rowNum, ws.Dimension.End.Column];
-                    DataRow row = tbl.Rows.Add();
-                    foreach (var cell in wsRow)
-                    {
-                        if (!string.IsNullOrEmpty(cell.Text))
-                        {
-                            if (cell.Text == "#REF!")
-                            {
-                                continue;
-                            }
-                            switch (cell.Start.Column)
-                            {
-                                case 10:
-                                case 13:
-                                    row[cell.Start.Column - 1] = DateTime.Parse(cell.Text).ToString("MM/dd/yyyy");
-                                    break;
-                                default:
-                                    row[cell.Start.Column - 1] = cell.Text;
-                                    break;
-                            }
-                        }
-                    }
-                }
-
-                sqlConnection.ConnectionString += ";AllowLoadLocalInfile=True";
-                await sqlConnection.OpenAsync();
-                using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = sqlConnection;
-                    cmd.CommandText = "TRUNCATE TABLE mark1.signals";
-                    cmd.ExecuteNonQuery();
-
-                    var bulkCopy = new MySqlBulkCopy(sqlConnection);
-                    bulkCopy.DestinationTableName = "mark1.signals";
-                    bulkCopy.WriteToServer(tbl);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
     }
 }

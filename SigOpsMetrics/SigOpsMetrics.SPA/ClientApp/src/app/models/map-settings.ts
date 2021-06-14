@@ -33,7 +33,7 @@ export class MapSettings {
 
   //throughput
   tpMapField: string = "vph";
-  tpMapMetrics: Metrics = new Metrics({ measure: "tp", field: "vph", label: "Throughput", source: this.mapSource, interval: this.mapInterval, level: this.mapLevel });
+  tpMapMetrics: Metrics = new Metrics({ measure: "tp", field: "vph", label: "Throughput", source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   tpMapRanges: number[][] = [[0, 5000],[5000,10000],[10000,15000],[15000,20000],[20000,25000]];
   tpLegendLabels: string[] = ["0-5,000","5,000-10,000","10,000-15,000","15,000-20,000","20,000-25,000"];
   tpLegendColors: string[] = [this.color.lightTeal,this.color.teal,this.color.blue,this.color.darkBlue,this.color.purple];
@@ -46,7 +46,7 @@ export class MapSettings {
 
   //arrivals on green
   aogdMapField: string = "aog";
-  aogdMapMetrics: Metrics = { measure: "aogd", field: "aog", label: "Arrivals on Green", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  aogdMapMetrics: Metrics = new Metrics({ measure: "aogd", field: "aog", label: "Arrivals on Green", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   aogdMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   aogdLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   aogdLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
@@ -59,7 +59,7 @@ export class MapSettings {
 
   //progression ratio
   prdMapField: string = "pr";
-  prdMapMetrics: Metrics = { measure: "prd", field: "pr", label: "Progression Ration", formatDecimals: 1, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  prdMapMetrics: Metrics = new Metrics({ measure: "prd", field: "pr", label: "Progression Ration", formatDecimals: 1, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   prdMapRanges: number[][] = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]];
   prdLegendLabels: string[] = ["0-1","1-2","2-3","3-4","4-5","5-6","6-7"];
   prdLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.orange,this.color.yellow,this.color.yellowGreen,this.color.greenYellow,this.color.green];
@@ -72,7 +72,7 @@ export class MapSettings {
 
   //queue spillback
   qsdMapField: string = "qs_freq";
-  qsdMapMetrics: Metrics = { measure: "qsd", field: "qs_freq", label: "Queue Spillback", formatType: "percent", formatDecimals: 1, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  qsdMapMetrics: Metrics = new Metrics({ measure: "qsd", field: "qs_freq", label: "Queue Spillback", formatType: "percent", formatDecimals: 1, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   qsdMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   qsdLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   qsdLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
@@ -85,7 +85,7 @@ export class MapSettings {
 
   //peak split failures
   psfMapField: string = "sf_freq";
-  psfMapMetrics: Metrics = { measure: "sfd", field: "sf_freq", label: "Peak Split Failures", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  psfMapMetrics: Metrics = new Metrics({ measure: "sfd", field: "sf_freq", label: "Peak Split Failures", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   psfMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   psfLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   psfLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
@@ -98,7 +98,7 @@ export class MapSettings {
 
   //off-peak split failures
   osfMapField: string = "sf_freq";
-  osfMapMetrics: Metrics = { measure: "sfo", field: "sf_freq", label: "Off-Peak Split Failures", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  osfMapMetrics: Metrics = new Metrics({ measure: "sfo", field: "sf_freq", label: "Off-Peak Split Failures", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   osfMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   osfLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   osfLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
@@ -132,7 +132,7 @@ export class MapSettings {
 
   //daily traffic volume
   dtvMapField: string = "vpd";
-  dtvMapMetrics: Metrics = { measure: "vpd", field: "vpd", label: "Daily Traffic Volume", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  dtvMapMetrics: Metrics = new Metrics({ measure: "vpd", field: "vpd", label: "Daily Traffic Volume", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   dtvMapRanges: number[][] = [[0,50000],[50000,100000],[100000,150000]];
   dtvLegendLabels: string[] = ["0-50,000","50,000-100,000","100,000-150,000"];
   dtvLegendColors: string[] = [this.color.lightTeal, this.color.blue, this.color.purple];
@@ -144,7 +144,7 @@ export class MapSettings {
   };
   //daily pedestrian pushbutton activity
   papdMapField: string = "papd";
-  papdMapMetrics: Metrics = { measure: "papd", field: "papd", label: "Daily Pedestrian Pushbutton Activity", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  papdMapMetrics: Metrics = new Metrics({ measure: "papd", field: "papd", label: "Daily Pedestrian Pushbutton Activity", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   papdMapRanges: number[][] = [[0,1000],[1000,2000],[2000,3000],[3000,4000],[4000,5000]];
   papdLegendLabels: string[] = ["0-1,000","1,000-2,000","2,000-3,000","3,000-4,000","4,000-5,000"];
   papdLegendColors: string[] = [this.color.lightTeal,this.color.teal,this.color.blue,this.color.darkBlue,this.color.purple];
@@ -156,7 +156,7 @@ export class MapSettings {
   };
   //detector uptime
   duMapField: string = "uptime";
-  duMapMetrics: Metrics = { measure: "du", field: "uptime", label: "Detector Uptime", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  duMapMetrics: Metrics = new Metrics({ measure: "du", field: "uptime", label: "Detector Uptime", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   duMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   duLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   duLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.greenYellow];
@@ -168,7 +168,7 @@ export class MapSettings {
   };
   //pedestrian pushbutton uptime
   pauMapField: string = "uptime";
-  pauMapMetrics: Metrics = { measure: "pau", field: "uptime", label: "Pedestrian Pushbutton Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  pauMapMetrics: Metrics = new Metrics({ measure: "pau", field: "uptime", label: "Pedestrian Pushbutton Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   pauMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   pauLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   pauLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
@@ -180,7 +180,7 @@ export class MapSettings {
   };
   //cctv uptime
   cctvMapField: string = "uptime";
-  cctvMapMetrics: Metrics = { measure: "cctv", field: "uptime", label: "CCTV Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  cctvMapMetrics: Metrics = new Metrics({ measure: "cctv", field: "uptime", label: "CCTV Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   cctvMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   cctvLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   cctvLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
@@ -192,7 +192,7 @@ export class MapSettings {
   };
   //communication uptime
   cuMapField: string = "uptime";
-  cuMapMetrics: Metrics = { measure: "cu", field: "uptime", label: "Communication Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel };
+  cuMapMetrics: Metrics = new Metrics({ measure: "cu", field: "uptime", label: "Communication Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   cuMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
   cuLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
   cuLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];

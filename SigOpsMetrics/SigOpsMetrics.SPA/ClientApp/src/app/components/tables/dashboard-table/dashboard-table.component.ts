@@ -44,10 +44,10 @@ export class DashboardTableComponent implements OnInit {
     let dt = new Date();
     let metrics = new Metrics();
     metrics.measure = td.measure;
-    // metrics.start = (dt.getMonth() + 1) + '/' + dt.getFullYear();
-    // metrics.end = (dt.getMonth() + 1) + '/' + dt.getFullYear();
-    metrics.start = '3/' + dt.getFullYear();
-    metrics.end = '3/' + dt.getFullYear();
+    metrics.start = (dt.getMonth() + 1) + '/' + dt.getFullYear();
+    metrics.end = (dt.getMonth() + 1) + '/' + dt.getFullYear();
+    // metrics.start = '3/' + dt.getFullYear();
+    // metrics.end = '3/' + dt.getFullYear();
 
     this._metricsService.getMetrics(metrics).subscribe(data => {
       let val = this._filterService.getZoneGroupData(data)[td.metric];
