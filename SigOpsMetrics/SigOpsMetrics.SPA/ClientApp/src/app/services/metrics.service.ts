@@ -15,7 +15,7 @@ export class MetricsService {
 
   constructor(private http: HttpClient, private _filterService: FilterService) { }
 
-  getMetrics(metrics: Metrics){
+  private _setDefaultMetric(metrics){
     if(metrics.source === undefined){
       metrics.source = "main";
     }
@@ -38,11 +38,29 @@ export class MetricsService {
       metrics.end = this._filter.month;
     }
 
+    return metrics;
+  }
+
+  getMetrics(metrics: Metrics){
+    metrics = this._setDefaultMetric(metrics);
+
     return this.http.get<any[]>(this._baseUrl + 'metrics?source=' + metrics.source
                                                     + '&level=' + metrics.level
                                                     + "&interval=" + metrics.interval
                                                     + "&measure=" + metrics.measure
                                                     + "&start="+ metrics.start
                                                     + "&end="+ metrics.end);
+  }
+
+  getSignalMetrics(metrics: Metrics){
+    metrics = this._setDefaultMetric(metrics);
+
+    return this.http.get<any[]>(this._baseUrl + 'metrics/signals?source=' + metrics.source
+                                                    + '&level=' + metrics.level
+                                                    + "&interval=" + metrics.interval
+                                                    + "&measure=" + metrics.measure
+                                                    + "&start="+ metrics.start
+                                                    + "&end="+ metrics.end
+                                                    + "&metric=" + metrics.field);
   }
 }

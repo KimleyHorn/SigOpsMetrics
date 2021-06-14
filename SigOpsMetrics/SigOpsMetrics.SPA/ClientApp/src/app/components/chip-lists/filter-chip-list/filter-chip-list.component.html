@@ -2,11 +2,16 @@
   <div class="row">
     <div class="col-12">
       <mat-chip-list aria-label="Filter selection">
-        <mat-chip *ngFor="let filter of filters" (removed)="remove(filter)" [removable]="true" >
-          <strong>{{ filter.name }}:</strong>
-          <span>{{ filter.value }}</span>
-          <mat-icon matChipRemove>cancel</mat-icon>
-        </mat-chip>
+        <span *ngFor="let filter of filters">
+          <mat-chip
+            *ngIf='filter'
+            (removed)="remove(filter)"
+            [removable]="true" >
+              <strong>{{ filter.name }}:</strong>
+              <span>{{ filter.value }}</span>
+              <mat-icon matChipRemove>cancel</mat-icon>
+          </mat-chip>
+        </span>
       </mat-chip-list>
     </div>
   </div>

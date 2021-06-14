@@ -57,7 +57,9 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
                     //var retVal = GetAllSignalData(await worksheet);
 
-                    return await GetAllSignalDataSQL();
+                    return await DataAccessLayer.GetAllSignalDataSQL(SqlConnection);
+
+                    //return await GetAllSignalDataSQL();
                 });
                 return await cacheEntry;
             }
@@ -418,62 +420,6 @@ namespace SigOpsMetrics.API.Controllers
 
             var package = new ExcelPackage(ms);
             return package.Workbook.Worksheets[0];
-        }
-
-        private async Task<IEnumerable<SignalDTO>> GetAllSignalDataSQL()
-        {
-            List<SignalDTO> signals = new List<SignalDTO>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT * FROM mark1.signals WHERE SignalID <> -1";
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        SignalDTO row = new SignalDTO
-                        {
-                            SignalID = reader.IsDBNull(0) ? "" : reader.GetString(0).Trim(),
-                            ZoneGroup = reader.IsDBNull(1) ? "" : reader.GetString(1).Trim(),
-                            Zone = reader.IsDBNull(2) ? "" : reader.GetString(2).Trim(),
-                            Corridor = reader.IsDBNull(3) ? "" : reader.GetString(3).Trim(),
-                            Subcorridor = reader.IsDBNull(4) ? "" : reader.GetString(4).Trim(),
-                            Agency = reader.IsDBNull(5) ? "" : reader.GetString(5).Trim(),
-                            MainStreetName = reader.IsDBNull(6) ? "" : reader.GetString(6).Trim(),
-                            SideStreetName = reader.IsDBNull(7) ? "" : reader.GetString(7).Trim(),
-                            Milepost = reader.IsDBNull(8) ? "" : reader.GetString(8).Trim(),
-                            AsOf = reader.IsDBNull(9) ? (DateTime?)null : reader.GetDateTime(9),
-                            Duplicate = reader.IsDBNull(10) ? "" : reader.GetString(10).Trim(),
-                            Include = reader.IsDBNull(11) ? "" : reader.GetString(11).Trim(),
-                            Modified = reader.IsDBNull(12) ? (DateTime?)null : reader.GetDateTime(12),
-                            Note = reader.IsDBNull(13) ? "" : reader.GetString(13).Trim(),
-                            Latitude = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
-                            Longitude = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
-                            County = reader.IsDBNull(16) ? "" : reader.GetString(16).Trim(),
-                            City = reader.IsDBNull(17) ? "" : reader.GetString(17).Trim()
-                        };
-                        if (row.AsOf == DateTime.Parse("1899-12-31T00:00:00"))
-                            row.AsOf = null;
-                        if (row.Modified == DateTime.Parse("1899-12-31T00:00:00"))
-                            row.Modified = null;
-                        signals.Add(row);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetAllSignalDataSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return signals;
         }
 
         //private IEnumerable<SignalDTO> GetAllSignalData(ExcelWorksheet sheet)

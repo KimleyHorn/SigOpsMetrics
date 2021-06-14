@@ -197,7 +197,7 @@ export class FilterService {
   public filterData(data: any, corridors: [] = []){
     let filteredData = data;
     for (let key of Object.keys(this.filter)) {
-      if(this.filter[key] && key !== 'month'){
+      if(this.filter[key] && this.filter[key] !== null && key !== 'month'){
         switch (key) {
           case 'zone_Group':
             filteredData = filteredData.filter(dataItem => {
