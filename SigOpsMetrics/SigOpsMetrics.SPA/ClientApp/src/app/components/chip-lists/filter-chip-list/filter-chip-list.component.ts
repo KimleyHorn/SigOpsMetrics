@@ -72,12 +72,10 @@ export class FilterChipListComponent implements OnInit {
   }
 
   remove(filter){
-    console.log(this.filters);
     const index = this.filters.indexOf(filter);
 
     if(index >= 0){
       this.filters.splice(index, 1);
-      console.log(this.filters);
       this._filterService.setValue(filter.key, null);
       this._filterService.updateFilter();
     }

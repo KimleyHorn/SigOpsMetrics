@@ -84,10 +84,6 @@ export class ScatterMapComponent implements OnInit {
       this.createMarkers();
     });
 
-    this._metricsService.getSignalMetrics(this.mapSettings.metrics).subscribe(response => {
-      console.log(response);
-    });
-
     this._signalSubscription = this._signalsService.getData().subscribe(data => {
       this._signals = data;
       this.createMarkers();

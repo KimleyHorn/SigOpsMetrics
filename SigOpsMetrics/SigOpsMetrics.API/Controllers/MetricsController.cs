@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
+using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
@@ -130,6 +132,42 @@ namespace SigOpsMetrics.API.Controllers
 
                     var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
                         start, end, corridor);
+                    return dt;
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// API method for returning high-level metric data from SigOpsMetrics.com
+        /// </summary>
+        /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
+        /// <param name="interval">One of {qu, mo, wk, dy} for Quarterly, Monthly, Weekly or Daily data. Note that not all measures are aggregated at all levels.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="start">Start date for data pull</param>
+        /// <param name="end">End date for data pull</param>
+        /// <param name="metric"></param>
+        /// <returns></returns>
+        [HttpGet("signals")]
+        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<IEnumerable<SignalDTO>> GetSignalMetrics(string source, string level, string interval, string measure, DateTime start, DateTime end, string metric)
+        {
+            var cacheName = $"Metrics/Signals/{source}/{level}/{interval}/{measure}/{start}/{end}";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
+
+                    var dt = await MetricsDataAccessLayer.GetSignalMetricDataSQL(SqlConnection, source, level, interval, measure, start, end, metric);
                     return dt;
                 });
                 return await cacheEntry;

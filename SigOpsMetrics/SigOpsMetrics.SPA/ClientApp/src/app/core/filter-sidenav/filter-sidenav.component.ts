@@ -1,6 +1,7 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild, ViewEncapsulation } from "@angular/core";
 import { MatDatepicker } from "@angular/material/datepicker";
 import { MatSelectionList } from "@angular/material/list";
+import { Subscription } from "rxjs";
 import { FilterService } from "../../services/filter.service";
 
 @Component({
@@ -49,7 +50,14 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     {day:'Th',selected: false},
     {day:'Fr',selected: false},
     {day:'Sa',selected: false},
-]
+  ];
+
+  zoneGroupsSubscription: Subscription;
+  zonesSubscription: Subscription;
+  corridorsSubscription: Subscription;
+  agenciesSubscription: Subscription;
+  filterSubscription: Subscription;
+
   constructor(private filterService: FilterService) {}
 
   ngOnInit(): void {
@@ -57,21 +65,60 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.filterService.zoneGroups.subscribe(data =>{
+    this.zoneGroupsSubscription = this.filterService.zoneGroups.subscribe(data =>{
       this.signalGroups = data;
     });
 
-    this.filterService.zones.subscribe(data => {
+    this.zonesSubscription = this.filterService.zones.subscribe(data => {
       this.districts = data;
     });
 
-    this.filterService.corridors.subscribe(data => {
+    this.corridorsSubscription = this.filterService.corridors.subscribe(data => {
       this.corridors = data;
     });
 
-    this.filterService.agencies.subscribe(data =>{
+    this.agenciesSubscription = this.filterService.agencies.subscribe(data =>{
       this.agencies = data;
     });
+
+    this.filterSubscription = this.filterService.filters.subscribe(filter => {
+      console.log(filter);
+      Object.keys(filter).forEach(item => {
+        let value = filter[item];
+        if(value === null){
+          switch (item) {
+            case 'zone_Group':
+              this.selectedSignalGroup = '';
+              break;
+            case 'zone':
+              this.selectedDistrict = '';
+              break;
+            case 'agency':
+              this.selectedAgency = '';
+              break;
+            case 'county':
+              this.selectedCounty = '';
+              break;
+            case 'city':
+              this.selectedCity = '';
+              break;
+            case 'corridor':
+              this.selectedCorridor = '';
+              break;
+            default:
+              break;
+          }
+        }
+      });
+    });
+  }
+
+  ngOnDestroy(): void{
+    this.zoneGroupsSubscription.unsubscribe();
+    this.zonesSubscription.unsubscribe();
+    this.corridorsSubscription.unsubscribe();
+    this.agenciesSubscription.unsubscribe();
+    this.filterSubscription.unsubscribe();
   }
 
   updateFilter(type, e){

@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
+using SigOpsMetrics.API.Classes.DTOs;
 
 #pragma warning disable 1591
 
@@ -65,6 +67,66 @@ namespace SigOpsMetrics.API.DataAccess
                 return new DataTable();
             }
 
+        }
+
+        public static async Task<IEnumerable<SignalDTO>> GetSignalMetricDataSQL(MySqlConnection sqlConnection, string source, string level, string interval, string measure, DateTime start, DateTime end, string metric)
+        {
+            List<SignalDTO> signals = new List<SignalDTO>();
+            try
+            {
+                await sqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
+                {
+                    cmd.Connection = sqlConnection;
+                    var whereClause = CreateDateRangeClause(interval, measure, start, end);
+                    cmd.CommandText = $"SELECT S.* " +
+                        $", M.{metric} " +
+                        $"FROM mark1.signals S " +
+                        $"LEFT JOIN (SELECT Corridor, {metric} FROM mark1.{level}_{interval}_{measure} {whereClause}) M ON S.SignalID = M.Corridor OR S.Corridor = M.Corridor " +
+                        $"WHERE S.SignalID <> -1 AND S.Include = 1";
+                    await using var reader = await cmd.ExecuteReaderAsync();
+                    while (reader.Read())
+                    {
+                        SignalDTO row = new SignalDTO
+                        {
+                            SignalID = reader.IsDBNull(0) ? "" : reader.GetString(0).Trim(),
+                            ZoneGroup = reader.IsDBNull(1) ? "" : reader.GetString(1).Trim(),
+                            Zone = reader.IsDBNull(2) ? "" : reader.GetString(2).Trim(),
+                            Corridor = reader.IsDBNull(3) ? "" : reader.GetString(3).Trim(),
+                            Subcorridor = reader.IsDBNull(4) ? "" : reader.GetString(4).Trim(),
+                            Agency = reader.IsDBNull(5) ? "" : reader.GetString(5).Trim(),
+                            MainStreetName = reader.IsDBNull(6) ? "" : reader.GetString(6).Trim(),
+                            SideStreetName = reader.IsDBNull(7) ? "" : reader.GetString(7).Trim(),
+                            Milepost = reader.IsDBNull(8) ? "" : reader.GetString(8).Trim(),
+                            AsOf = reader.IsDBNull(9) ? (DateTime?)null : reader.GetDateTime(9),
+                            Duplicate = reader.IsDBNull(10) ? "" : reader.GetString(10).Trim(),
+                            Include = reader.IsDBNull(11) ? "" : reader.GetString(11).Trim(),
+                            Modified = reader.IsDBNull(12) ? (DateTime?)null : reader.GetDateTime(12),
+                            Note = reader.IsDBNull(13) ? "" : reader.GetString(13).Trim(),
+                            Latitude = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
+                            Longitude = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
+                            County = reader.IsDBNull(16) ? "" : reader.GetString(16).Trim(),
+                            City = reader.IsDBNull(17) ? "" : reader.GetString(17).Trim()
+                        };
+                        if (row.AsOf == DateTime.Parse("1899-12-31T00:00:00"))
+                            row.AsOf = null;
+                        if (row.Modified == DateTime.Parse("1899-12-31T00:00:00"))
+                            row.Modified = null;
+                        signals.Add(row);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await WriteToErrorLog(sqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "GetAllSignalDataSQL", ex);
+            }
+            finally
+            {
+                sqlConnection.Close();
+            }
+            return signals;
         }
 
         private static string CreateDateRangeClause(string interval, string measure, DateTime start, DateTime end)
