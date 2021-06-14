@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
-using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -53,7 +52,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
+                    var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
                         end);
                     return dt;
                 });
@@ -61,44 +60,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// API method for returning high-level metric data from SigOpsMetrics.com
-        /// </summary>
-        /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
-        /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
-        /// <param name="interval">One of {qu, mo, wk, dy} for Quarterly, Monthly, Weekly or Daily data. Note that not all measures are aggregated at all levels.</param>
-        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
-        /// <param name="start">Start date for data pull</param>
-        /// <param name="end">End date for data pull</param>
-        /// <param name="metric">The data metric field</param>
-        /// <returns></returns>
-        [HttpGet("signals")]
-        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
-        public async Task<System.Collections.Generic.IEnumerable<SignalDTO>> GetSignalData(string source, string level, string interval, string measure, DateTime start, DateTime end, string metric)
-        {
-            var cacheName = $"Metrics/Signals/{source}/{level}/{interval}/{measure}/{start}/{end}";
-            try
-            {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
-                    var dt = await DataAccessLayer.GetSignalMetricDataSQL(SqlConnection, source, level, interval, measure, start, end, metric);
-
-                    return dt;
-                });
-                return await cacheEntry;
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -128,7 +90,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
+                    var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
                         start, end, zoneGroup);
                     return dt;
                 });
@@ -136,7 +98,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -166,7 +128,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
+                    var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
                         start, end, corridor);
                     return dt;
                 });
@@ -174,14 +136,43 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
+        /// <param name="interval">>One of {qu, mo, wk, dy} for Quarterly, Monthly, Weekly or Daily data. Note that not all measures are aggregated at all levels.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="dateStart">Start date for data pull</param>
+        /// <param name="dateEnd">End date for data pull</param>
+        /// <param name="timeStart">Start time for data pull</param>
+        /// <param name="timeEnd">End time for data pull</param>
+        /// <param name="aggregationLevel">Level of aggregation to perform</param>
+        /// <param name="region">Region filter</param>
+        /// <param name="district">District filter</param>
+        /// <param name="managingAgency">Agency filter</param>
+        /// <param name="county">County filter</param>
+        /// <param name="city">City filter</param>
+        /// <param name="corridor">Corridor filter</param>
+        /// <returns></returns>
+        [HttpGet("filter")]
+        public async Task<DataTable> GetWithFilter(string source, string level, string interval, string measure,
+            DateTime dateStart, DateTime dateEnd, DateTime timeStart, DateTime timeEnd, string aggregationLevel,
+            string region, string district, string managingAgency, string county, string city, string corridor)
+        {
+            //var signals = await MetricsDataAccessLayer.GetSignalsByFilter(SqlConnection, region, district, managingAgency, county, city, corridor);
+            return null;
+        }
         #endregion
+
+        
 
     }
 }
