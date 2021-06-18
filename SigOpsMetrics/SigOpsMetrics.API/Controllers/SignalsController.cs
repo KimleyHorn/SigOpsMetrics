@@ -242,7 +242,7 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetCorridorsByZone(await worksheet, zone);
-                    return await GetCorridorsByZone(zone);
+                    return await SignalsDataAccessLayer.GetCorridorsByZoneSQL(SqlConnection, zone);
                 });
                 return await cacheEntry;
             }
