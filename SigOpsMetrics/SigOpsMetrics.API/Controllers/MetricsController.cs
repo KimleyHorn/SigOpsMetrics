@@ -6,6 +6,8 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
+using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -51,7 +53,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
+                    var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
                         end);
                     return dt;
                 });
@@ -59,7 +61,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -89,7 +91,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
+                    var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
                         start, end, zoneGroup);
                     return dt;
                 });
@@ -97,7 +99,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -127,7 +129,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
+                    var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
                         start, end, corridor);
                     return dt;
                 });
@@ -135,14 +137,40 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
             }
         }
 
+        /// <returns></returns>
+        //[HttpGet("filter")]
+        //public async Task<DataTable> GetWithFilter(string source, string level, string interval, string measure,
+        //    DateTime dateStart, DateTime dateEnd, DateTime timeStart, DateTime timeEnd, string aggregationLevel,
+        //    string region, string district, string managingAgency, string county, string city, string corridor)
+        //{
+        //    //var signals = await MetricsDataAccessLayer.GetSignalsByFilter(SqlConnection, region, district, managingAgency, county, city, corridor);
+        //    return null;
+        //}
+
+        [HttpPost("filter")]
+        public async Task<DataTable> GetWithFilter(string source, string measure, FilterDTO filter)
+        {
+            var signals = await SignalsDataAccessLayer.GetSignalsByFilter(SqlConnection, filter.zone_Group, filter.zone,
+                filter.agency, filter.county, filter.city, filter.corridor);
+
+            var fullStart = filter.customStart.Date + filter.startTime.TimeOfDay;
+            var fullEnd = filter.customEnd.Date + filter.endTime.TimeOfDay;
+
+            var retVal =
+                MetricsDataAccessLayer.GetMetricBySignals(SqlConnection, source, measure, fullStart, fullEnd, signals);
+            return await retVal;
+        }
+
         #endregion
+
+        
 
     }
 }
