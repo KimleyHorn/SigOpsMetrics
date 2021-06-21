@@ -1,87 +1,96 @@
-<mat-form-field appearance="none">
+<!-- <mat-form-field appearance="none">
   <mat-label>Type here to search</mat-label>
   <input matInput placeholder="Search..." (keyup)="doFilter($event.target.value)"/>
-  <!-- <input matInput type="text" (keyup)="doFilter($event.target.value)" placeholder="Search..."> -->
-</mat-form-field>
+  <input matInput type="text" (keyup)="doFilter($event.target.value)" placeholder="Search...">
+</mat-form-field> -->
 
-<table mat-table [dataSource]='dataSource' class="mat-elevation-z8" fill>
+<form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
+  <mat-form-field *ngFor="let filter of filterSelectList" class="{{filter.style}}">
+    <mat-label>{{filter.name}}</mat-label>
+    <input matInput formControlName="{{filter.columnProp}}">
+  </mat-form-field>
+  &nbsp;
+  <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
+</form>
+
+<table matSort mat-table [dataSource]='dataSource' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
   <ng-container matColumnDef="signalID">
-    <th mat-header-cell *matHeaderCellDef>Signal ID</th>
+    <th mat-sort-header="signalID" mat-header-cell *matHeaderCellDef>Signal ID</th>
     <td mat-cell *matCellDef="let element"> {{element.signalID}}</td>
   </ng-container>
 
   <ng-container matColumnDef="zoneGroup">
-    <th mat-header-cell *matHeaderCellDef>Zone Group</th>
+    <th mat-sort-header="zoneGroup" mat-header-cell *matHeaderCellDef>Zone Group</th>
     <td mat-cell *matCellDef="let element"> {{element.zoneGroup}}</td>
   </ng-container>
 
   <ng-container matColumnDef="zone">
-    <th mat-header-cell *matHeaderCellDef>Zone</th>
+    <th mat-sort-header="zone" mat-header-cell *matHeaderCellDef>Zone</th>
     <td mat-cell *matCellDef="let element"> {{element.zone}}</td>
   </ng-container>
 
   <ng-container matColumnDef="corridor">
-    <th mat-header-cell *matHeaderCellDef>Corridor</th>
+    <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>Corridor</th>
     <td mat-cell *matCellDef="let element"> {{element.corridor}}</td>
   </ng-container>
 
   <ng-container matColumnDef="subcorridor">
-    <th mat-header-cell *matHeaderCellDef>Subcorridor</th>
+    <th mat-sort-header="subcorridor" mat-header-cell *matHeaderCellDef>Subcorridor</th>
     <td mat-cell *matCellDef="let element"> {{element.subcorridor}}</td>
   </ng-container>
 
   <ng-container matColumnDef="agency">
-    <th mat-header-cell *matHeaderCellDef>Agency</th>
+    <th mat-sort-header="agency" mat-header-cell *matHeaderCellDef>Agency</th>
     <td mat-cell *matCellDef="let element"> {{element.agency}}</td>
   </ng-container>
 
   <ng-container matColumnDef="mainStreetName">
-    <th mat-header-cell *matHeaderCellDef>Main Street Name</th>
+    <th mat-sort-header="mainStreetName" mat-header-cell *matHeaderCellDef>Main Street Name</th>
     <td mat-cell *matCellDef="let element"> {{element.mainStreetName}}</td>
   </ng-container>
 
   <ng-container matColumnDef="sideStreetName">
-    <th mat-header-cell *matHeaderCellDef>Side Street Name</th>
+    <th mat-sort-header="sideStreetName" mat-header-cell *matHeaderCellDef>Side Street Name</th>
     <td mat-cell *matCellDef="let element"> {{element.sideStreetName}}</td>
   </ng-container>
 
   <ng-container matColumnDef="milepost">
-    <th mat-header-cell *matHeaderCellDef>Milepost</th>
+    <th mat-sort-header="milepost" mat-header-cell *matHeaderCellDef>Milepost</th>
     <td mat-cell *matCellDef="let element"> {{element.milepost}}</td>
   </ng-container>
 
   <ng-container matColumnDef="asOf">
-    <th mat-header-cell *matHeaderCellDef>As Of</th>
+    <th mat-sort-header="asOf" mat-header-cell *matHeaderCellDef>As Of</th>
     <td mat-cell *matCellDef="let element"> {{element.asOf}}</td>
   </ng-container>
 
   <ng-container matColumnDef="duplicate">
-    <th mat-header-cell *matHeaderCellDef>Duplicate</th>
+    <th mat-sort-header="duplicate" mat-header-cell *matHeaderCellDef>Duplicate</th>
     <td mat-cell *matCellDef="let element"> {{element.duplicate}}</td>
   </ng-container>
 
   <ng-container matColumnDef="include">
-    <th mat-header-cell *matHeaderCellDef>Include</th>
+    <th mat-sort-header="include" mat-header-cell *matHeaderCellDef>Include</th>
     <td mat-cell *matCellDef="let element"> {{element.include}}</td>
   </ng-container>
 
   <ng-container matColumnDef="modified">
-    <th mat-header-cell *matHeaderCellDef>Modified</th>
+    <th mat-sort-header="modified" mat-header-cell *matHeaderCellDef>Modified</th>
     <td mat-cell *matCellDef="let element"> {{element.modified}}</td>
   </ng-container>
 
   <ng-container matColumnDef="note">
-    <th mat-header-cell *matHeaderCellDef>Note</th>
+    <th mat-sort-header="note" mat-header-cell *matHeaderCellDef>Note</th>
     <td mat-cell *matCellDef="let element"> {{element.note}}</td>
   </ng-container>
 
   <ng-container matColumnDef="latitude">
-    <th mat-header-cell *matHeaderCellDef>Latitude</th>
+    <th mat-sort-header="latitude" mat-header-cell *matHeaderCellDef>Latitude</th>
     <td mat-cell *matCellDef="let element"> {{element.latitude}}</td>
   </ng-container>
 
   <ng-container matColumnDef="longitude">
-    <th mat-header-cell *matHeaderCellDef>Longitude</th>
+    <th mat-sort-header="longitude" mat-header-cell *matHeaderCellDef>Longitude</th>
     <td mat-cell *matCellDef="let element"> {{element.longitude}}</td>
   </ng-container>
 

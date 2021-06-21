@@ -23,6 +23,63 @@ th.mat-header-cell {
 }
 
 mat-form-field.mat-form-field {
-  font-size: 14px;
+  font-size: 13px;
 }
 
+.search-input {
+  text-align: center;
+}
+.search-input-sid {
+  width: 4.2%;
+}
+.search-input-zg {
+  width: 3.8%;
+}
+.search-input-z {
+  width: 3.5%;
+}
+.search-input-cor {
+  width: 14%;
+}
+.search-input-scor {
+  width: 10%;
+}
+.search-input-a {
+  width: 5.5%;
+}
+.search-input-ms {
+  width: 10.6%;
+}
+.search-input-ss {
+  width: 10.2%;
+}
+.search-input-mp {
+  width: 2.5%;
+}
+.search-input-ao {
+  width: 6.4%;
+}
+.search-input-dup {
+  width: 2.4%;
+}
+.search-input-inc {
+  width: 2.4%;
+}
+.search-input-mod {
+  width: 6.4%;
+}
+.search-input-n {
+  width: 2.5%;
+}
+.search-input-lat {
+  width: 4.4%;
+}
+.search-input-lng {
+  width: 5.4%;
+}
+.btn-reset {
+  padding: 0 4px;
+  min-width: 4%;
+  margin-right: 1.8%;
+  margin-bottom: 16px;
+}

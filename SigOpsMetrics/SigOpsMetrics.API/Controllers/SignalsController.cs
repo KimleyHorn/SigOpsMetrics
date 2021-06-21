@@ -419,8 +419,6 @@ namespace SigOpsMetrics.API.Controllers
             return package.Workbook.Worksheets[0];
         }
 
-        
-
         //private IEnumerable<string> GetAgencies(ExcelWorksheet sheet)
         //{
         //    return GetSingleColumnFromSpreadsheet(sheet, 6).Distinct().OrderBy(x => x);
