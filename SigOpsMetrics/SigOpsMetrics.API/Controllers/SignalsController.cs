@@ -13,6 +13,7 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using System.Data;
+using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -57,13 +58,13 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
                     //var retVal = GetAllSignalData(await worksheet);
 
-                    return await GetAllSignalDataSQL();
+                    return await SignalsDataAccessLayer.GetAllSignalDataSQL(SqlConnection);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -88,14 +89,14 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetSignalNames(await worksheet);
-                    return await GetSignalNamesSQL();
+                    return await SignalsDataAccessLayer.GetSignalNamesSQL(SqlConnection);
 
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -120,14 +121,14 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetZoneGroups(await worksheet);
-                    return await GetZoneGroupsSQL();
+                    return await SignalsDataAccessLayer.GetZoneGroupsSQL(SqlConnection);
 
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -152,13 +153,13 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetZones(await worksheet);
-                    return await GetZonesSQL();
+                    return await SignalsDataAccessLayer.GetZonesSQL(SqlConnection);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -178,13 +179,13 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetZonesByZoneGroup(await worksheet, zoneGroup);
-                    return await GetZonesByZoneGroupSQL(zoneGroup);
+                    return await SignalsDataAccessLayer.GetZonesByZoneGroupSQL(SqlConnection, zoneGroup);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -209,13 +210,13 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetCorridors(await worksheet);
-                    return await GetCorridorsSQL();
+                    return await SignalsDataAccessLayer.GetCorridorsSQL(SqlConnection);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -241,13 +242,13 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetCorridorsByZone(await worksheet, zone);
-                    return await GetCorridorsByZone(zone);
+                    return await SignalsDataAccessLayer.GetCorridorsByZoneSQL(SqlConnection, zone);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -267,14 +268,14 @@ namespace SigOpsMetrics.API.Controllers
 
                     //var worksheet = GetSpreadsheet();
                     //var retVal = GetCorridorsByZoneGroup(await worksheet, zoneGroup);
-                    return await GetCorridorsByZoneGroupSQL(zoneGroup);
+                    return await SignalsDataAccessLayer.GetCorridorsByZoneGroupSQL(SqlConnection, zoneGroup);
                 });
 
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -299,13 +300,13 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetSubCorridors(await worksheet);
-                    return await GetSubCorridorsSQL();
+                    return await SignalsDataAccessLayer.GetSubCorridorsSQL(SqlConnection);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -330,13 +331,13 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetSubCorridorsByCorridor(await worksheet, corridor);
-                    return await GetSubCorridorsByCorridorSQL(corridor);
+                    return await SignalsDataAccessLayer.GetSubCorridorsByCorridorSQL(SqlConnection, corridor);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -356,13 +357,13 @@ namespace SigOpsMetrics.API.Controllers
 
                     //var worksheet = GetSpreadsheet();
                     //var retVal = GetAgencies(await worksheet);
-                    return await GetAgenciesSQL();
+                    return await SignalsDataAccessLayer.GetAgenciesSQL(SqlConnection);
                 });
                 return await cacheEntry;
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -382,12 +383,12 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     Task<ExcelWorksheet> worksheet = GetSpreadsheet();
                     var ws = await worksheet;
-                    await DataAccessLayer.WriteToSignals(SqlConnection, ws);
+                    await SignalsDataAccessLayer.WriteToSignals(SqlConnection, ws);
                 }
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                 "DataPull", ex);
             }
@@ -418,643 +419,6 @@ namespace SigOpsMetrics.API.Controllers
             return package.Workbook.Worksheets[0];
         }
 
-        private async Task<IEnumerable<SignalDTO>> GetAllSignalDataSQL()
-        {
-            List<SignalDTO> signals = new List<SignalDTO>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT * FROM mark1.signals WHERE SignalID <> -1";
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        SignalDTO row = new SignalDTO
-                        {
-                            SignalID = reader.IsDBNull(0) ? "" : reader.GetString(0).Trim(),
-                            ZoneGroup = reader.IsDBNull(1) ? "" : reader.GetString(1).Trim(),
-                            Zone = reader.IsDBNull(2) ? "" : reader.GetString(2).Trim(),
-                            Corridor = reader.IsDBNull(3) ? "" : reader.GetString(3).Trim(),
-                            Subcorridor = reader.IsDBNull(4) ? "" : reader.GetString(4).Trim(),
-                            Agency = reader.IsDBNull(5) ? "" : reader.GetString(5).Trim(),
-                            MainStreetName = reader.IsDBNull(6) ? "" : reader.GetString(6).Trim(),
-                            SideStreetName = reader.IsDBNull(7) ? "" : reader.GetString(7).Trim(),
-                            Milepost = reader.IsDBNull(8) ? "" : reader.GetString(8).Trim(),
-                            AsOf = reader.IsDBNull(9) ? (DateTime?)null : reader.GetDateTime(9),
-                            Duplicate = reader.IsDBNull(10) ? "" : reader.GetString(10).Trim(),
-                            Include = reader.IsDBNull(11) ? "" : reader.GetString(11).Trim(),
-                            Modified = reader.IsDBNull(12) ? (DateTime?)null : reader.GetDateTime(12),
-                            Note = reader.IsDBNull(13) ? "" : reader.GetString(13).Trim(),
-                            Latitude = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
-                            Longitude = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
-                            County = reader.IsDBNull(16) ? "" : reader.GetString(16).Trim(),
-                            City = reader.IsDBNull(17) ? "" : reader.GetString(17).Trim()
-                        };
-                        if (row.AsOf == DateTime.Parse("1899-12-31T00:00:00"))
-                            row.AsOf = null;
-                        if (row.Modified == DateTime.Parse("1899-12-31T00:00:00"))
-                            row.Modified = null;
-                        signals.Add(row);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetAllSignalDataSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return signals;
-        }
-
-        //private IEnumerable<SignalDTO> GetAllSignalData(ExcelWorksheet sheet)
-        //{
-        //    try
-        //    {
-        //        var start = sheet.Dimension.Start;
-        //        var end = sheet.Dimension.End;
-
-        //        var retVal = new List<SignalDTO>();
-
-        //        //todo error handling
-        //        //Headers in row 1, data starts in row 2
-        //        for (var row = start.Row + 1; row <= end.Row; row++)
-        //        {
-        //            //Excel is 1-based
-        //            var col = 1;
-        //            var newSignal = new SignalDTO
-        //            {
-        //                SignalID = sheet.Cells[row, col].Text,
-        //                ZoneGroup = sheet.Cells[row, ++col].Text,
-        //                Zone = sheet.Cells[row, ++col].Text,
-        //                Corridor = sheet.Cells[row, ++col].Text,
-        //                Subcorridor = sheet.Cells[row, ++col].Text,
-        //                Agency = sheet.Cells[row, ++col].Text,
-        //                MainStreetName = sheet.Cells[row, ++col].Text,
-        //                SideStreetName = sheet.Cells[row, ++col].Text,
-        //                Milepost = sheet.Cells[row, ++col].Text,
-        //                AsOf = sheet.Cells[row, ++col].Text.ToNullableDateTime(),
-        //                Duplicate = sheet.Cells[row, ++col].Text,
-        //                Include = sheet.Cells[row, ++col].Text,
-        //                Modified = sheet.Cells[row, ++col].Text.ToNullableDateTime(),
-        //                Note = sheet.Cells[row, ++col].Text,
-        //                Latitude = sheet.Cells[row, ++col].Text.ToDouble(),
-        //                Longitude = sheet.Cells[row, ++col].Text.ToDouble()
-        //            };
-        //            retVal.Add(newSignal);
-        //        }
-
-        //        return retVal.Where(x => x.SignalID != "-1");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DataAccessLayer.WriteToErrorLog(SqlConnection,
-        //            System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-        //            "signals/getallsignaldata", ex).GetAwaiter();
-        //    }
-
-        //    return new List<SignalDTO>();
-        //}
-
-        private async Task<IEnumerable<string>> GetSignalNamesSQL()
-        {
-            List<string> signals = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT CONCAT(TRIM(Main_Street_Name),' @ ', TRIM(Side_Street_Name)) FROM signals WHERE Main_Street_Name IS NOT NULL AND Side_Street_Name IS NOT NULL";
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        signals.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetSignalNamesSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return signals;
-        }
-
-        //private IEnumerable<string> GetSignalNames(ExcelWorksheet sheet)
-        //{
-        //    try
-        //    {
-        //        var start = sheet.Dimension.Start;
-        //        var end = sheet.Dimension.End;
-
-        //        var retVal = new List<string>();
-
-        //        for (var row = start.Row + 1; row <= end.Row; row++)
-        //        {
-        //            var priCol = 7;
-        //            var secCol = 8;
-
-        //            retVal.Add(sheet.Cells[row, priCol].Text.Trim() + " @ " + sheet.Cells[row, secCol].Text.Trim());
-        //        }
-
-        //        return retVal;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DataAccessLayer.WriteToErrorLog(SqlConnection,
-        //            System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-        //            "signals/getsignalnames", ex).GetAwaiter();
-        //    }
-
-        //    return new List<string>();
-        //}
-
-        private async Task<IEnumerable<string>> GetZoneGroupsSQL()
-        {
-            List<string> zoneGroups = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone_Group) FROM signals WHERE Zone_Group IS NOT NULL ORDER BY Zone_Group ASC";
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        zoneGroups.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetZoneGroupsSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return zoneGroups;
-        }
-
-        //private IEnumerable<string> GetZoneGroups(ExcelWorksheet sheet)
-        //{
-        //    var retVal = GetSingleColumnFromSpreadsheet(sheet, 2).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()
-        //        .OrderBy(x => x).ToList();
-        //    //retVal.Insert(0, "All RTOP"); //Hardcode in an 'all' option - will have to check for special case in Metrics controller
-        //    return retVal;
-        //}
-
-        private async Task<IEnumerable<string>> GetZonesSQL()
-        {
-            List<string> zones = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL ORDER BY Zone ASC";
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        zones.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetZonesSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return zones;
-        }
-
-
-        private async Task<IEnumerable<string>> GetZonesByZoneGroupSQL(string zoneGroupName)
-        {
-            List<string> zones = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL AND TRIM(UPPER(Zone_Group))";
-                    string where = "";
-                    switch (zoneGroupName.Trim().ToUpper())
-                    {
-                        case "ALL RTOP":
-                            where += " IN ('RTOP1','RTOP2')";
-                            break;
-                        case "Zone 7":
-                            where += " IN ('ZONE 7M', 'ZONE 7D')";
-                            break;
-                        default:
-                            where += " = @zoneGroupName";
-                            cmd.Parameters.AddWithValue("zoneGroupName", zoneGroupName.Trim().ToUpper());
-                            break;
-                    }
-                    cmd.CommandText += where;
-
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        zones.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetZonesByZoneGroupSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return zones;
-        }
-
-        //private IEnumerable<string> GetZonesByZoneGroup(ExcelWorksheet sheet, string zoneGroupName)
-        //{
-        //    try
-        //    {
-        //        var start = sheet.Dimension.Start;
-        //        var end = sheet.Dimension.End;
-
-        //        var retVal = new List<string>();
-
-        //        for (var row = start.Row + 1; row <= end.Row; row++)
-        //        {
-        //            if(zoneGroupName == "All RTOP")
-        //            {
-        //                if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP1", StringComparison.CurrentCultureIgnoreCase) 
-        //                    || string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP2", StringComparison.CurrentCultureIgnoreCase))
-        //                    retVal.Add(sheet.Cells[row, 3].Text.Trim());
-        //            }
-        //            else if (zoneGroupName == "Zone 7")
-        //            {
-        //                if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7m", StringComparison.CurrentCultureIgnoreCase) 
-        //                    || string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7d", StringComparison.CurrentCultureIgnoreCase))
-        //                    retVal.Add(sheet.Cells[row, 3].Text.Trim());
-        //            }
-        //            else
-        //            {
-        //                if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
-        //                StringComparison.CurrentCultureIgnoreCase))
-        //                    retVal.Add(sheet.Cells[row, 3].Text.Trim());
-        //            }
-        //        }
-
-        //        return retVal.Distinct();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DataAccessLayer.WriteToErrorLog(SqlConnection,
-        //            System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-        //            "signals/getzonesbyzonegroup", ex).GetAwaiter();
-        //    }
-
-        //    return new List<string>();
-        //}
-
-        private async Task<IEnumerable<string>> GetCorridorsByZoneGroupSQL(string zoneGroupName)
-        {
-            List<string> zones = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL AND TRIM(UPPER(Zone_Group))";
-                    string where = "";
-                    switch (zoneGroupName.Trim().ToUpper())
-                    {
-                        case "ALL RTOP":
-                            where += " IN ('RTOP1','RTOP2')";
-                            break;
-                        case "Zone 7":
-                            where += " IN ('ZONE 7M', 'ZONE 7D')";
-                            break;
-                        default:
-                            where += " = @zoneGroupName";
-                            cmd.Parameters.AddWithValue("zoneGroupName", zoneGroupName.Trim().ToUpper());
-                            break;
-                    }
-                    cmd.CommandText += where;
-
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        zones.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetCorridorsByZoneGroupSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return zones;
-        }
-
-        //private IEnumerable<string> GetCorridorsByZoneGroup(ExcelWorksheet sheet, string zoneGroupName)
-        //{
-        //    try
-        //    {
-        //        var start = sheet.Dimension.Start;
-        //        var end = sheet.Dimension.End;
-
-        //        var retVal = new List<string>();
-
-        //        for (var row = start.Row + 1; row <= end.Row; row++)
-        //        {
-        //            if (zoneGroupName == "All RTOP")
-        //            {
-        //                if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP1", StringComparison.CurrentCultureIgnoreCase)
-        //                    || string.Equals(sheet.Cells[row, 2].Text.Trim(), "RTOP2", StringComparison.CurrentCultureIgnoreCase))
-        //                    retVal.Add(sheet.Cells[row, 4].Text.Trim());
-        //            }
-        //            else if (zoneGroupName == "Zone 7")
-        //            {
-        //                if (string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7m", StringComparison.CurrentCultureIgnoreCase)
-        //                    || string.Equals(sheet.Cells[row, 2].Text.Trim(), "Zone 7d", StringComparison.CurrentCultureIgnoreCase))
-        //                    retVal.Add(sheet.Cells[row, 4].Text.Trim());
-        //            }
-        //            else
-        //            {
-        //                if (string.Equals(sheet.Cells[row, 2].Text.Trim(), zoneGroupName,
-        //                StringComparison.CurrentCultureIgnoreCase))
-        //                    retVal.Add(sheet.Cells[row, 4].Text.Trim());
-        //            }
-        //        }
-
-        //        return retVal.Distinct();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DataAccessLayer.WriteToErrorLog(SqlConnection,
-        //            System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-        //            "signals/getcorridorsbyzonegroup", ex).GetAwaiter();
-        //    }
-
-        //    return new List<string>();
-        //}
-
-        private async Task<IEnumerable<string>> GetCorridorsSQL()
-        {
-            List<string> corridors = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL";
-
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        corridors.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetCorridorsSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return corridors;
-        }
-
-        //private IEnumerable<string> GetCorridors(ExcelWorksheet sheet)
-        //{
-        //    return GetSingleColumnFromSpreadsheet(sheet, 4).Distinct().OrderBy(x => x);
-        //}
-
-        private async Task<IEnumerable<string>> GetCorridorsByZoneSQL(string zoneName)
-        {
-            List<string> corridors = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE TRIM(Zone) = @zoneName";
-                    cmd.Parameters.AddWithValue("zoneName", zoneName.Trim());
-
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        corridors.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetCorridorsByZoneSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return corridors;
-        }
-
-        //private IEnumerable<string> GetCorridorsByZone(ExcelWorksheet sheet, string zoneName)
-        //{
-        //    try
-        //    {
-        //        var start = sheet.Dimension.Start;
-        //        var end = sheet.Dimension.End;
-
-        //        var retVal = new List<string>();
-
-        //        for (var row = start.Row + 1; row <= end.Row; row++)
-        //        {
-        //            if (string.Equals(sheet.Cells[row, 3].Text.Trim(), zoneName,
-        //                StringComparison.CurrentCultureIgnoreCase))
-        //                retVal.Add(sheet.Cells[row, 4].Text.Trim());
-        //        }
-
-        //        return retVal.Distinct();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DataAccessLayer.WriteToErrorLog(SqlConnection,
-        //            System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-        //            "signals/getcorridorsbyzone", ex).GetAwaiter();
-        //    }
-
-        //    return new List<string>();
-        //}
-
-        private async Task<IEnumerable<string>> GetSubCorridorsSQL()
-        {
-            List<string> subcorridors = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Subcorridor) FROM signals WHERE Subcorridor IS NOT NULL";
-                    
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        subcorridors.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetSubCorridorsSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return subcorridors;
-        }
-
-        //private IEnumerable<string> GetSubCorridors(ExcelWorksheet sheet)
-        //{
-        //    return GetSingleColumnFromSpreadsheet(sheet, 5).Distinct().OrderBy(x => x);
-        //}
-
-        private async Task<IEnumerable<string>> GetSubCorridorsByCorridorSQL(string corridor)
-        {
-            List<string> subCorridors = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(SubCorridor) FROM signals WHERE TRIM(Corridor) = @corridor AND Subcorridor IS NOT NULL";
-                    cmd.Parameters.AddWithValue("corridor", corridor.Trim());
-
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        subCorridors.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetSubCorridorsByCorridorSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return subCorridors;
-        }
-
-        //private IEnumerable<string> GetSubCorridorsByCorridor(ExcelWorksheet sheet, string corridor)
-        //{
-        //    try
-        //    {
-        //        var start = sheet.Dimension.Start;
-        //        var end = sheet.Dimension.End;
-
-        //        var retVal = new List<string>();
-
-        //        for (var row = start.Row + 1; row <= end.Row; row++)
-        //        {
-        //            if (string.Equals(sheet.Cells[row, 4].Text.Trim(), corridor,
-        //                StringComparison.CurrentCultureIgnoreCase))
-        //                retVal.Add(sheet.Cells[row, 5].Text.Trim());
-        //        }
-
-        //        return retVal.Distinct();
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        DataAccessLayer.WriteToErrorLog(SqlConnection,
-        //            System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-        //            "signals/getsubcorridorsbycorridor", ex).GetAwaiter();
-        //    }
-
-        //    return new List<string>();
-        //}
-
-        private async Task<IEnumerable<string>> GetAgenciesSQL()
-        {
-            List<string> agencies = new List<string>();
-            try
-            {
-                await SqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = SqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Agency) FROM signals WHERE Agency IS NOT NULL";
-
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        agencies.Add(reader.GetString(0).Trim());
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetAgenciesSQL", ex);
-            }
-            finally
-            {
-                SqlConnection.Close();
-            }
-            return agencies;
-        }
-
         //private IEnumerable<string> GetAgencies(ExcelWorksheet sheet)
         //{
         //    return GetSingleColumnFromSpreadsheet(sheet, 6).Distinct().OrderBy(x => x);
@@ -1080,7 +444,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                DataAccessLayer.WriteToErrorLog(SqlConnection,
+                MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     $"signals/getsinglecolumnfromspreadsheet/{col}", ex).GetAwaiter();
             }

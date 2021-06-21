@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.Extensions;
+using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -42,7 +43,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
+                    var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
                         end);
                     return dt;
                 });
@@ -51,7 +52,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -81,7 +82,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
+                    var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
                         start, end, zoneGroup);
                     return dt;
                 });
@@ -89,7 +90,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;
@@ -119,7 +120,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     entry.AbsoluteExpirationRelativeToNow = OneHourCache;
 
-                    var dt = await DataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
+                    var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
                         start, end, corridor);
                     return dt;
                 });
@@ -127,7 +128,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await DataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     cacheName, ex);
                 return null;

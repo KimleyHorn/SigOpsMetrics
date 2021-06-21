@@ -17,15 +17,18 @@ export class Filter {
     endTime: Date;
 
     constructor(){
-        let _dt = new Date();
-        let newMonth = _dt.getMonth() - 1;
-        if(newMonth < 0){
-            newMonth += 12;
-            _dt.setFullYear(_dt.getFullYear() - 1);
-        }
-        _dt.setMonth(newMonth);
+      let _dt = new Date();
+      this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
 
-        this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
+        // let _dt = new Date();
+        // let newMonth = _dt.getMonth() - 1;
+        // if(newMonth < 0){
+        //     newMonth += 12;
+        //     _dt.setFullYear(_dt.getFullYear() - 1);
+        // }
+        // _dt.setMonth(newMonth);
+
+        // this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
     }
 
 }
