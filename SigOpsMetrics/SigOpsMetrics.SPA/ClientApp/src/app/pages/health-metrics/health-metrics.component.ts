@@ -16,7 +16,7 @@ import { Metrics } from 'src/app/models/metrics';
 export class HealthMetricsComponent implements OnInit {
   toggleValue: string;
 
-  mtGraphMetrics: Metrics = new Metrics({ measure: "maint_plot" });
+  mtGraphMetrics: Metrics = new Metrics({ measure: "maint_plot", formatDecimals: 1  });
   mtTitle: string = 'Percent Health';
   mtBar: Graph = {
     title: 'Selected Month',
@@ -40,7 +40,7 @@ export class HealthMetricsComponent implements OnInit {
   };
 
   
-  otGraphMetrics: Metrics = new Metrics({ measure: "prd", formatDecimals: 2 });
+  otGraphMetrics: Metrics = new Metrics({ measure: "ops_plot", formatDecimals: 1, formatType: "percent"  });
   otTitle: string = 'Percent Health';
   otBar: Graph = {
     title: 'Selected Month',
@@ -63,7 +63,7 @@ export class HealthMetricsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  stGraphMetrics: Metrics = new Metrics({ measure: "prd", formatDecimals: 2 });
+  stGraphMetrics: Metrics = new Metrics({ measure: "safety_plot", formatDecimals: 1, formatType: "percent" });
   stTitle: string = 'Percent Health';
   stBar: Graph = {
     title: 'Selected Month',
