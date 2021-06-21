@@ -35,7 +35,7 @@ export class HealthMetricsComponent implements OnInit {
     hoverTemplate:
       '<b>%{text}</b>' +
       '<br>Week of: <b>%{x}</b>' +
-      '<br>Percent Health: <b>%{y}</b>' +
+      '<br>Percent Health: <b>%{y} * 100</b>' +
       '<extra></extra>'
   };
 
@@ -44,22 +44,22 @@ export class HealthMetricsComponent implements OnInit {
   otTitle: string = 'Percent Health';
   otBar: Graph = {
     title: 'Selected Month',
-    x: 'pr',
+    x: 'percent Health',
     y: 'corridor',
     hoverTemplate:
       '<b>%{y}</b>' +
-      '<br>Progression Ratio: <b>%{x}</b>' +
+      '<br>Percent Health: <b>%{x}</b>' +
       '<extra></extra>',
   };
   otLine: Graph = {
     title: 'Weekly Trend',
     x: 'month',
-    y: 'pr',
+    y: 'percent Health',
     text: 'corridor',
     hoverTemplate:
       '<b>%{text}</b>' +
       '<br>Week of: <b>%{x}</b>' +
-      '<br>Progression Ratio: <b>%{x}</b>' +
+      '<br>Percent Health: <b>%{y}</b>' +
       '<extra></extra>'
   };
 
@@ -67,22 +67,22 @@ export class HealthMetricsComponent implements OnInit {
   stTitle: string = 'Percent Health';
   stBar: Graph = {
     title: 'Selected Month',
-    x: 'pr',
+    x: 'percent Health',
     y: 'corridor',
     hoverTemplate:
       '<b>%{y}</b>' +
-      '<br>Progression Ratio: <b>%{x}</b>' +
+      '<br>Percent Health: <b>%{x}</b>' +
       '<extra></extra>',
   };
   stLine: Graph = {
     title: 'Weekly Trend',
     x: 'month',
-    y: 'pr',
+    y: 'percent Health',
     text: 'corridor',
     hoverTemplate:
       '<b>%{text}</b>' +
       '<br>Week of: <b>%{x}</b>' +
-      '<br>Progression Ratio: <b>%{x}</b>' +
+      '<br>Percent Health: <b>%{y}</b>' +
       '<extra></extra>'
   };
 

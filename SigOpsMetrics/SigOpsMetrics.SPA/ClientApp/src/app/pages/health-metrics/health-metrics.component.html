@@ -37,7 +37,7 @@
     <mat-tab label="Operation Trend">
         <ng-template matTabContent>
             <div class="container-fluid">
-                <app-map-dashboard
+                <app-graph-dashboard
                     [graphMetrics]='otGraphMetrics'
                     [mapSettings]='mapSettings.otMapSettings'
                     [metricField]='mapSettings.otMapField'
@@ -51,7 +51,7 @@
                             [bar]='otBar'>
                         </app-bar-line-graph>
                     </ng-template>
-                </app-map-dashboard>
+                </app-graph-dashboard>
             </div>
         </ng-template>
     </mat-tab>
@@ -65,7 +65,7 @@
     <mat-tab label="Safety Trend">
         <ng-template matTabContent>
             <div class="container-fluid">
-                <app-map-dashboard
+                <app-graph-dashboard
                     [graphMetrics]='stGraphMetrics'
                     [metricLabel]='"Communications Uptime"'
                     [changeLabel]='"Changes from prior month"'>
@@ -77,7 +77,7 @@
                             [bar]='stBar'>
                         </app-bar-line-graph>
                     </ng-template>
-                </app-map-dashboard>
+                </app-graph-dashboard>
             </div>
         </ng-template>
     </mat-tab>
