@@ -1,1 +1,86 @@
-<p>health-metrics works!</p>
+<mat-tab-group>
+    <mat-tab label="Maintenance">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Maintenance Trend">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <app-graph-dashboard
+                    [graphMetrics]='mtGraphMetrics'
+                    [mapSettings]='mapSettings.mtMapSettings'
+                    [metricField]='mapSettings.mtMapField'
+                    [metricLabel]='"Pedestrian Activations [pa/day]"'
+                    [changeLabel]='"Changes from prior month"'>
+                    <ng-template let-filteredData #mtTemplate>
+                        <app-bar-line-graph
+                            [data]='filteredData'
+                            [title]='mtTitle'
+                            [line]='mtLine'
+                            [bar]='mtBar'>
+                        </app-bar-line-graph>
+                    </ng-template>
+                </app-graph-dashboard>
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Operations">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Operation Trend">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <app-map-dashboard
+                    [graphMetrics]='otGraphMetrics'
+                    [mapSettings]='mapSettings.otMapSettings'
+                    [metricField]='mapSettings.otMapField'
+                    [metricLabel]='"Pedestrian Pushbutton Availability"'
+                    [changeLabel]='"Changes from prior month"'>
+                    <ng-template let-filteredData #otTemplate>
+                        <app-bar-line-graph
+                            [data]='filteredData'
+                            [title]='otTitle'
+                            [line]='otLine'
+                            [bar]='otBar'>
+                        </app-bar-line-graph>
+                    </ng-template>
+                </app-map-dashboard>
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Safety">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Safety Trend">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <app-map-dashboard
+                    [graphMetrics]='stGraphMetrics'
+                    [metricLabel]='"Communications Uptime"'
+                    [changeLabel]='"Changes from prior month"'>
+                    <ng-template let-filteredData #stTemplate>
+                        <app-bar-line-graph
+                            [data]='filteredData'
+                            [title]='stTitle'
+                            [line]='stLine'
+                            [bar]='stBar'>
+                        </app-bar-line-graph>
+                    </ng-template>
+                </app-map-dashboard>
+            </div>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>
+
+
