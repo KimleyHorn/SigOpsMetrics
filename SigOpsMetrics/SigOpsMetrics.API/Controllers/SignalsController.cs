@@ -242,7 +242,6 @@ namespace SigOpsMetrics.API.Controllers
                     //var worksheet = GetSpreadsheet();
 
                     //var retVal = GetCorridorsByZone(await worksheet, zone);
-                    //return await GetCorridorsByZone(zone);
                     return await SignalsDataAccessLayer.GetCorridorsByZoneSQL(SqlConnection, zone);
                 });
                 return await cacheEntry;
@@ -419,8 +418,6 @@ namespace SigOpsMetrics.API.Controllers
             var package = new ExcelPackage(ms);
             return package.Workbook.Worksheets[0];
         }
-
-        
 
         //private IEnumerable<string> GetAgencies(ExcelWorksheet sheet)
         //{

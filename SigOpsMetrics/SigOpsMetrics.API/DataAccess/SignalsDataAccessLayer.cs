@@ -23,7 +23,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
 
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT * FROM mark1.signals WHERE SignalID <> -1";
+                    cmd.CommandText = "SELECT * FROM mark1.signals WHERE SignalID <> -1 and include = 1";
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
@@ -38,10 +38,10 @@ namespace SigOpsMetrics.API.DataAccess
                             MainStreetName = reader.IsDBNull(6) ? "" : reader.GetString(6).Trim(),
                             SideStreetName = reader.IsDBNull(7) ? "" : reader.GetString(7).Trim(),
                             Milepost = reader.IsDBNull(8) ? "" : reader.GetString(8).Trim(),
-                            AsOf = reader.IsDBNull(9) ? (DateTime?)null : reader.GetDateTime(9),
+                            AsOf = reader.IsDBNull(9) ? (DateTime?) null : reader.GetDateTime(9),
                             Duplicate = reader.IsDBNull(10) ? "" : reader.GetString(10).Trim(),
                             Include = reader.IsDBNull(11) ? "" : reader.GetString(11).Trim(),
-                            Modified = reader.IsDBNull(12) ? (DateTime?)null : reader.GetDateTime(12),
+                            Modified = reader.IsDBNull(12) ? (DateTime?) null : reader.GetDateTime(12),
                             Note = reader.IsDBNull(13) ? "" : reader.GetString(13).Trim(),
                             Latitude = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
                             Longitude = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
@@ -55,16 +55,17 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetAllSignalDataSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetAllSignalDataSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return signals;
         }
-        
+
         public static async Task<IEnumerable<string>> GetSignalNamesSQL(MySqlConnection sqlConnection)
         {
             List<string> signals = new List<string>();
@@ -75,7 +76,8 @@ namespace SigOpsMetrics.API.DataAccess
                 {
 
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT CONCAT(TRIM(Main_Street_Name),' @ ', TRIM(Side_Street_Name)) FROM signals WHERE Main_Street_Name IS NOT NULL AND Side_Street_Name IS NOT NULL";
+                    cmd.CommandText =
+                        "SELECT CONCAT(TRIM(Main_Street_Name),' @ ', TRIM(Side_Street_Name)) FROM signals WHERE Main_Street_Name IS NOT NULL AND Side_Street_Name IS NOT NULL and signalid <> -1 and include = 1";
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
@@ -86,13 +88,14 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetSignalNamesSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetSignalNamesSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return signals;
         }
 
@@ -106,7 +109,8 @@ namespace SigOpsMetrics.API.DataAccess
                 {
 
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone_Group) FROM signals WHERE Zone_Group IS NOT NULL ORDER BY Zone_Group ASC";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Zone_Group) FROM signals WHERE Zone_Group IS NOT NULL and signalid <> -1 and include = 1 ORDER BY Zone_Group ASC";
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
@@ -117,13 +121,14 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetZoneGroupsSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetZoneGroupsSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return zoneGroups;
         }
 
@@ -148,18 +153,20 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetZonesSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetZonesSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return zones;
         }
 
 
-        public static async Task<IEnumerable<string>> GetZonesByZoneGroupSQL(MySqlConnection sqlConnection, string zoneGroupName)
+        public static async Task<IEnumerable<string>> GetZonesByZoneGroupSQL(MySqlConnection sqlConnection,
+            string zoneGroupName)
         {
             List<string> zones = new List<string>();
             try
@@ -168,7 +175,8 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL AND TRIM(UPPER(Zone_Group))";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL AND TRIM(UPPER(Zone_Group))";
                     string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
@@ -183,6 +191,7 @@ namespace SigOpsMetrics.API.DataAccess
                             cmd.Parameters.AddWithValue("zoneGroupName", zoneGroupName.Trim().ToUpper());
                             break;
                     }
+
                     cmd.CommandText += where;
 
                     await using var reader = await cmd.ExecuteReaderAsync();
@@ -195,17 +204,19 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetZonesByZoneGroupSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetZonesByZoneGroupSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return zones;
         }
 
-        public static async Task<IEnumerable<string>> GetCorridorsByZoneGroupSQL(MySqlConnection sqlConnection, string zoneGroupName)
+        public static async Task<IEnumerable<string>> GetCorridorsByZoneGroupSQL(MySqlConnection sqlConnection,
+            string zoneGroupName)
         {
             List<string> zones = new List<string>();
             try
@@ -214,7 +225,8 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL AND TRIM(UPPER(Zone_Group))";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL AND TRIM(UPPER(Zone_Group))";
                     string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
@@ -229,6 +241,7 @@ namespace SigOpsMetrics.API.DataAccess
                             cmd.Parameters.AddWithValue("zoneGroupName", zoneGroupName.Trim().ToUpper());
                             break;
                     }
+
                     cmd.CommandText += where;
 
                     await using var reader = await cmd.ExecuteReaderAsync();
@@ -241,13 +254,14 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetCorridorsByZoneGroupSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetCorridorsByZoneGroupSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return zones;
         }
 
@@ -260,7 +274,8 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL order by Corridor ASC";
 
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
@@ -272,17 +287,19 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetCorridorsSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetCorridorsSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return corridors;
         }
 
-        public static async Task<IEnumerable<string>> GetCorridorsByZoneSQL(MySqlConnection sqlConnection, string zoneName)
+        public static async Task<IEnumerable<string>> GetCorridorsByZoneSQL(MySqlConnection sqlConnection,
+            string zoneName)
         {
             List<string> corridors = new List<string>();
             try
@@ -291,7 +308,8 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Corridor) FROM signals WHERE TRIM(Zone) = @zoneName";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Corridor) FROM signals WHERE TRIM(Zone) = @zoneName order by Corridor ASC";
                     cmd.Parameters.AddWithValue("zoneName", zoneName.Trim());
 
                     await using var reader = await cmd.ExecuteReaderAsync();
@@ -304,13 +322,14 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetCorridorsByZoneSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetCorridorsByZoneSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return corridors;
         }
 
@@ -323,8 +342,9 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Subcorridor) FROM signals WHERE Subcorridor IS NOT NULL";
-                    
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Subcorridor) FROM signals WHERE Subcorridor IS NOT NULL order by Subcorridor ASC";
+
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
@@ -335,17 +355,19 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetSubCorridorsSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetSubCorridorsSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return subcorridors;
         }
 
-        public static async Task<IEnumerable<string>> GetSubCorridorsByCorridorSQL(MySqlConnection sqlConnection, string corridor)
+        public static async Task<IEnumerable<string>> GetSubCorridorsByCorridorSQL(MySqlConnection sqlConnection,
+            string corridor)
         {
             List<string> subCorridors = new List<string>();
             try
@@ -354,7 +376,8 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(SubCorridor) FROM signals WHERE TRIM(Corridor) = @corridor AND Subcorridor IS NOT NULL";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(SubCorridor) FROM signals WHERE TRIM(Corridor) = @corridor AND Subcorridor IS NOT NULL and signalid <> -1 and include = 1 order by Subcorridor ASC";
                     cmd.Parameters.AddWithValue("corridor", corridor.Trim());
 
                     await using var reader = await cmd.ExecuteReaderAsync();
@@ -367,13 +390,14 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetSubCorridorsByCorridorSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetSubCorridorsByCorridorSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return subCorridors;
         }
 
@@ -386,7 +410,8 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Agency) FROM signals WHERE Agency IS NOT NULL";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Agency) FROM signals WHERE Agency IS NOT NULL and signalid <> -1 and include = 1 order by Agency ASC";
 
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
@@ -398,13 +423,14 @@ namespace SigOpsMetrics.API.DataAccess
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetAgenciesSQL", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetAgenciesSQL", ex);
             }
             finally
             {
                 sqlConnection.Close();
             }
+
             return agencies;
         }
 
@@ -445,6 +471,7 @@ namespace SigOpsMetrics.API.DataAccess
                             {
                                 continue;
                             }
+
                             switch (cell.Start.Column)
                             {
                                 case 10:
@@ -479,32 +506,47 @@ namespace SigOpsMetrics.API.DataAccess
             }
         }
 
-        public static async Task GetSignalsByFilter(MySqlConnection sqlConnection, string region, string district, string managingAgency, string county, string city, string corridor)
+        public static async Task<List<string>> GetSignalsByFilter(MySqlConnection sqlConnection, string zoneGroup,
+            string zone, string agency, string county, string city, string corridor)
         {
-            var where = CreateSignalsWhereClause(region, district, managingAgency, county, city, corridor);
-            throw new NotImplementedException();
+            var where = CreateSignalsWhereClause(zoneGroup, zone, agency, county, city, corridor);
+            var signalIDs = new List<string>();
+            await sqlConnection.OpenAsync();
+            await using (var cmd = new MySqlCommand())
+            {
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = "select distinct(signalid) from mark1.signals " + where + " and include = 1";
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    signalIDs.Add(reader.GetString(0).Trim());
+                }
+            }
+
+            await sqlConnection.CloseAsync();
+            return signalIDs;
         }
 
-        private static string CreateSignalsWhereClause(string region, string district, string managingAgency,
+        private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,
             string county, string city, string corridor)
         {
-            if (IsStringNullOrBlank(region) && IsStringNullOrBlank(district) && IsStringNullOrBlank(managingAgency) &&
+            if (IsStringNullOrBlank(zoneGroup) && IsStringNullOrBlank(zone) && IsStringNullOrBlank(agency) &&
                 IsStringNullOrBlank(county) && IsStringNullOrBlank(city) && IsStringNullOrBlank(corridor))
                 return string.Empty;
             var where = "where ";
 
-            if (!IsStringNullOrBlank(region))
-                where += $"region = {region} and ";
-            if (!IsStringNullOrBlank(district))
-                where += $"district = {district} and ";
-            if (!IsStringNullOrBlank(managingAgency))
-                where += $"managingAgency = {managingAgency} and ";
+            if (!IsStringNullOrBlank(zoneGroup))
+                where += $"Zone_Group = '{zoneGroup}' and ";
+            if (!IsStringNullOrBlank(zone))
+                where += $"zone = '{zone}' and ";
+            if (!IsStringNullOrBlank(agency))
+                where += $"agency = '{agency}' and ";
             if (!IsStringNullOrBlank(county))
-                where += $"county = {county} and ";
+                where += $"county = '{county}' and ";
             if (!IsStringNullOrBlank(city))
-                where += $"city = {city} and ";
+                where += $"city = '{city}' and ";
             if (!IsStringNullOrBlank(corridor))
-                where += $"corridor = {corridor} and ";
+                where += $"corridor = '{corridor}' and ";
 
             //chop off the last 'and'
             where = where.Substring(0, where.Length - 4);

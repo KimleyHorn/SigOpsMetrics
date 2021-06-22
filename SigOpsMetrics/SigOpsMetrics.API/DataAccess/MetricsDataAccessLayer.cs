@@ -45,6 +45,17 @@ namespace SigOpsMetrics.API.DataAccess
             return await GetFromDatabase(sqlConnection, level, interval, measure, whereClause);
         }
 
+        public static async Task<DataTable> GetMetricBySignals(MySqlConnection sqlConnection, string source,
+            string measure, DateTime start, DateTime end, List<string> signals)
+        {
+            var interval = GetIntervalFromStartAndEnd(start, end);
+            var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
+            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, signals);
+
+            return await GetFromDatabase(sqlConnection, "sig", interval, measure, fullWhereClause);
+
+        }
+        
         private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level, string interval, string measure,
             string whereClause)
         {
@@ -194,8 +205,30 @@ namespace SigOpsMetrics.API.DataAccess
             return dateRangeClause + CreateCorridorAndClause(corridor);
         }
 
-        
+        private static string GetIntervalFromStartAndEnd(DateTime start, DateTime end)
+        {
+            var totalDays = (end - start).TotalDays;
+            if (totalDays > 30)
+                return "mo";
+            if (totalDays > 14)
+                return "wk";
+            return "dy";
+        }
 
+        private static string AddSignalsToWhereClause(string whereClause, List<string> signalIDs)
+        {
+            var newWhere = whereClause;
 
+            newWhere += " and Corridor in (";
+            foreach (var row in signalIDs)
+            {
+                newWhere += $"'{row}',";
+            }
+
+            newWhere = newWhere.Substring(0, newWhere.Length - 1); //chop off last comma
+            newWhere += ")";
+
+            return newWhere;
+        }
     }
 }
