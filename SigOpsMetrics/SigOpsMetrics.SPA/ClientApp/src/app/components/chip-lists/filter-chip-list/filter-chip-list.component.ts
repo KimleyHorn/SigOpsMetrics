@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FilterService } from 'src/app/services/filter.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-filter-chip-list',
@@ -11,7 +12,7 @@ export class FilterChipListComponent implements OnInit {
   private _filterSubscription: Subscription;
   public filters = [];
 
-  constructor(private _filterService: FilterService) { }
+  constructor(private _filterService: FilterService, private _datePipe: DatePipe) { }
 
   ngOnInit(): void {
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
@@ -19,7 +20,36 @@ export class FilterChipListComponent implements OnInit {
         let value = filter[key];
         if(value !== undefined && value !== null && value !== ""){
           let name;
+          //set the labels for the chips and format any necessary data
           switch (key) {
+            case 'month':
+              name = 'Month';
+              break;
+            case 'dateRange':
+              name = "Date Range";
+              break;
+            case 'customStart':
+              name = 'Start Date';
+              value = this._datePipe.transform(value, 'MM/dd/yyyy');
+              break;
+            case 'customEnd':
+              name = 'End Date';
+              value = this._datePipe.transform(value, 'MM/dd/yyyy');
+              break;
+            case 'daysOfWeek':
+              name = 'Day(s) of Week';
+              break;
+            case 'startTime':
+              name = 'Start Time';
+              value = this._datePipe.transform(value, 'hh:mm a');
+              break;
+            case 'endTime':
+              name = 'End Time';
+              value = this._datePipe.transform(value, 'hh:mm a');
+              break;
+            case 'dataAggregation':
+              name = 'Data Aggregation';
+              break;
             case 'zone_Group':
               name = 'Region';
               break;
@@ -38,45 +68,38 @@ export class FilterChipListComponent implements OnInit {
             case 'corridor':
               name = 'Corridor';
               break;
-            case 'month':
-              name = 'Month';
-              break;
-            case 'customStart':
-              name = 'Custom Start';
-              break;
-            case 'customEnd':
-              name = 'Custom End';
-              break;
-            case 'startTime':
-              name = 'Start Time';
-              break;
-            case 'endTime':
-              name = 'End Time';
-              break;
             default:
               name = 'Custom';
               break;
           }
 
-          return { name: name, key: key, value: filter[key] };
+          return { name: name, key: key, value: value };
         }
       });
-
 
       this.filters = mappedFilter;
     });
   }
 
+  //unsubscribe from services
   ngOnDestroy(): void {
     this._filterSubscription.unsubscribe();
   }
 
+  //remove a chip and re-adjust the filter
   remove(filter){
     const index = this.filters.indexOf(filter);
 
     if(index >= 0){
       this.filters.splice(index, 1);
       this._filterService.setValue(filter.key, null);
+
+      if(filter.key === 'dataRange'){
+        this._filterService.setValue('customStart', null);
+        this._filterService.setValue('customEnd', null);
+        this._filterService.setValue('daysOfWeek', null);
+      }
+
       this._filterService.updateFilter();
     }
   }
