@@ -5,7 +5,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
-using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.Classes;
+using SigOpsMetrics.API.Classes.Internal;
 
 #pragma warning disable 1591
 
@@ -45,17 +46,17 @@ namespace SigOpsMetrics.API.DataAccess
             return await GetFromDatabase(sqlConnection, level, interval, measure, whereClause);
         }
 
-        public static async Task<DataTable> GetMetricBySignals(MySqlConnection sqlConnection, string source,
-            string measure, DateTime start, DateTime end, List<string> signals)
+        public static async Task<DataTable> GetMetricByFilter(MySqlConnection sqlConnection, string source, string measure,
+            string interval, DateTime start, DateTime end, FilteredItems filteredItems)
         {
-            var interval = GetIntervalFromStartAndEnd(start, end);
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
-            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, signals);
+            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, filteredItems.Items);
 
-            return await GetFromDatabase(sqlConnection, "sig", interval, measure, fullWhereClause);
-
+            return await GetFromDatabase(sqlConnection,
+                filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig", interval, measure,
+                fullWhereClause);
         }
-        
+
         private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level, string interval, string measure,
             string whereClause)
         {
@@ -80,66 +81,6 @@ namespace SigOpsMetrics.API.DataAccess
 
         }
 
-        public static async Task<IEnumerable<SignalDTO>> GetSignalMetricDataSQL(MySqlConnection sqlConnection, string source, string level, string interval, string measure, DateTime start, DateTime end, string metric)
-        {
-            List<SignalDTO> signals = new List<SignalDTO>();
-            try
-            {
-                await sqlConnection.OpenAsync();
-                await using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = sqlConnection;
-                    var whereClause = CreateDateRangeClause(interval, measure, start, end);
-                    cmd.CommandText = $"SELECT S.* " +
-                        $", M.{metric} " +
-                        $"FROM mark1.signals S " +
-                        $"LEFT JOIN (SELECT Corridor, {metric} FROM mark1.{level}_{interval}_{measure} {whereClause}) M ON S.SignalID = M.Corridor OR S.Corridor = M.Corridor " +
-                        $"WHERE S.SignalID <> -1 AND S.Include = 1";
-                    await using var reader = await cmd.ExecuteReaderAsync();
-                    while (reader.Read())
-                    {
-                        SignalDTO row = new SignalDTO
-                        {
-                            SignalID = reader.IsDBNull(0) ? "" : reader.GetString(0).Trim(),
-                            ZoneGroup = reader.IsDBNull(1) ? "" : reader.GetString(1).Trim(),
-                            Zone = reader.IsDBNull(2) ? "" : reader.GetString(2).Trim(),
-                            Corridor = reader.IsDBNull(3) ? "" : reader.GetString(3).Trim(),
-                            Subcorridor = reader.IsDBNull(4) ? "" : reader.GetString(4).Trim(),
-                            Agency = reader.IsDBNull(5) ? "" : reader.GetString(5).Trim(),
-                            MainStreetName = reader.IsDBNull(6) ? "" : reader.GetString(6).Trim(),
-                            SideStreetName = reader.IsDBNull(7) ? "" : reader.GetString(7).Trim(),
-                            Milepost = reader.IsDBNull(8) ? "" : reader.GetString(8).Trim(),
-                            AsOf = reader.IsDBNull(9) ? (DateTime?)null : reader.GetDateTime(9),
-                            Duplicate = reader.IsDBNull(10) ? "" : reader.GetString(10).Trim(),
-                            Include = reader.IsDBNull(11) ? "" : reader.GetString(11).Trim(),
-                            Modified = reader.IsDBNull(12) ? (DateTime?)null : reader.GetDateTime(12),
-                            Note = reader.IsDBNull(13) ? "" : reader.GetString(13).Trim(),
-                            Latitude = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
-                            Longitude = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
-                            County = reader.IsDBNull(16) ? "" : reader.GetString(16).Trim(),
-                            City = reader.IsDBNull(17) ? "" : reader.GetString(17).Trim()
-                        };
-                        if (row.AsOf == DateTime.Parse("1899-12-31T00:00:00"))
-                            row.AsOf = null;
-                        if (row.Modified == DateTime.Parse("1899-12-31T00:00:00"))
-                            row.Modified = null;
-                        signals.Add(row);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                await WriteToErrorLog(sqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "GetAllSignalDataSQL", ex);
-            }
-            finally
-            {
-                sqlConnection.Close();
-            }
-            return signals;
-        }
-
         private static string CreateDateRangeClause(string interval, string measure, DateTime start, DateTime end)
         {
             string period;
@@ -149,8 +90,12 @@ namespace SigOpsMetrics.API.DataAccess
             switch (interval)
             {
                 case "dy":
+                    period = "date";
+                    break;
                 case "wk":
                     period = "date";
+                    startFormat = start.ToString("yyyy-MM-dd");
+                    endFormat = end.ToString("yyyy-MM-dd");
                     break;
                 case "mo":
                     if (measure == "aogh") //todo more hourly measures?
@@ -168,6 +113,7 @@ namespace SigOpsMetrics.API.DataAccess
                     break;
                 case "qu":
                     period = "quarter";
+                    //todo: these are formatted differently
                     break;
                 default:
                     return string.Empty;
@@ -205,22 +151,12 @@ namespace SigOpsMetrics.API.DataAccess
             return dateRangeClause + CreateCorridorAndClause(corridor);
         }
 
-        private static string GetIntervalFromStartAndEnd(DateTime start, DateTime end)
-        {
-            var totalDays = (end - start).TotalDays;
-            if (totalDays > 30)
-                return "mo";
-            if (totalDays > 14)
-                return "wk";
-            return "dy";
-        }
-
-        private static string AddSignalsToWhereClause(string whereClause, List<string> signalIDs)
+        private static string AddSignalsToWhereClause(string whereClause, List<string> itemIDs)
         {
             var newWhere = whereClause;
 
             newWhere += " and Corridor in (";
-            foreach (var row in signalIDs)
+            foreach (var row in itemIDs)
             {
                 newWhere += $"'{row}',";
             }
