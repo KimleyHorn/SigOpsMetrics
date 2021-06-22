@@ -5,6 +5,8 @@ using System.Diagnostics;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
+using SigOpsMetrics.API.Classes;
+using SigOpsMetrics.API.Classes.Internal;
 
 #pragma warning disable 1591
 
@@ -44,17 +46,17 @@ namespace SigOpsMetrics.API.DataAccess
             return await GetFromDatabase(sqlConnection, level, interval, measure, whereClause);
         }
 
-        public static async Task<DataTable> GetMetricBySignals(MySqlConnection sqlConnection, string source,
-            string measure, DateTime start, DateTime end, List<string> signals)
+        public static async Task<DataTable> GetMetricByFilter(MySqlConnection sqlConnection, string source, string measure,
+            string interval, DateTime start, DateTime end, FilteredItems filteredItems)
         {
-            var interval = GetIntervalFromStartAndEnd(start, end);
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
-            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, signals);
+            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, filteredItems.Items);
 
-            return await GetFromDatabase(sqlConnection, "sig", interval, measure, fullWhereClause);
-
+            return await GetFromDatabase(sqlConnection,
+                filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig", interval, measure,
+                fullWhereClause);
         }
-        
+
         private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level, string interval, string measure,
             string whereClause)
         {
@@ -88,8 +90,12 @@ namespace SigOpsMetrics.API.DataAccess
             switch (interval)
             {
                 case "dy":
+                    period = "date";
+                    break;
                 case "wk":
                     period = "date";
+                    startFormat = start.ToString("yyyy-MM-dd");
+                    endFormat = end.ToString("yyyy-MM-dd");
                     break;
                 case "mo":
                     if (measure == "aogh") //todo more hourly measures?
@@ -107,6 +113,7 @@ namespace SigOpsMetrics.API.DataAccess
                     break;
                 case "qu":
                     period = "quarter";
+                    //todo: these are formatted differently
                     break;
                 default:
                     return string.Empty;
@@ -144,22 +151,12 @@ namespace SigOpsMetrics.API.DataAccess
             return dateRangeClause + CreateCorridorAndClause(corridor);
         }
 
-        private static string GetIntervalFromStartAndEnd(DateTime start, DateTime end)
-        {
-            var totalDays = (end - start).TotalDays;
-            if (totalDays > 30)
-                return "mo";
-            if (totalDays > 14)
-                return "wk";
-            return "dy";
-        }
-
-        private static string AddSignalsToWhereClause(string whereClause, List<string> signalIDs)
+        private static string AddSignalsToWhereClause(string whereClause, List<string> itemIDs)
         {
             var newWhere = whereClause;
 
             newWhere += " and Corridor in (";
-            foreach (var row in signalIDs)
+            foreach (var row in itemIDs)
             {
                 newWhere += $"'{row}',";
             }
