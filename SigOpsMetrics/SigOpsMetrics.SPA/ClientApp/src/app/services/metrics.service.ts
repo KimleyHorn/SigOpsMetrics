@@ -1,7 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { Filter } from '../models/filter';
 import { Metrics } from '../models/metrics';
+import { FilterService } from './filter.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,10 +11,11 @@ import { Metrics } from '../models/metrics';
 export class MetricsService {
   private _baseUrl: string = environment.API_PATH;
   private _dt: Date = new Date();
+  private _filter: Filter = new Filter();
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private _filterService: FilterService) { }
 
-  getMetrics(metrics: Metrics){
+  private _setDefaultMetric(metrics){
     if(metrics.source === undefined){
       metrics.source = "main";
     }
@@ -26,12 +29,20 @@ export class MetricsService {
     }
 
     if(metrics.start === undefined){
-      metrics.start = (this._dt.getMonth() + 1) + '/' + (this._dt.getFullYear() - 1);
+      let splitMonth = this._filterService.splitMonth();
+
+      metrics.start = (splitMonth[0] + 1) + '/' + splitMonth[1];
     }
 
     if(metrics.end === undefined){
-      metrics.end = (this._dt.getMonth() + 1) + '/' + this._dt.getFullYear();
+      metrics.end = this._filter.month;
     }
+
+    return metrics;
+  }
+
+  getMetrics(metrics: Metrics){
+    metrics = this._setDefaultMetric(metrics);
 
     return this.http.get<any[]>(this._baseUrl + 'metrics?source=' + metrics.source
                                                     + '&level=' + metrics.level
@@ -39,5 +50,17 @@ export class MetricsService {
                                                     + "&measure=" + metrics.measure
                                                     + "&start="+ metrics.start
                                                     + "&end="+ metrics.end);
+  }
+
+  getSignalMetrics(metrics: Metrics){
+    metrics = this._setDefaultMetric(metrics);
+
+    return this.http.get<any[]>(this._baseUrl + 'metrics/signals?source=' + metrics.source
+                                                    + '&level=' + metrics.level
+                                                    + "&interval=" + metrics.interval
+                                                    + "&measure=" + metrics.measure
+                                                    + "&start="+ metrics.start
+                                                    + "&end="+ metrics.end
+                                                    + "&metric=" + metrics.field);
   }
 }
