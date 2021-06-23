@@ -5,23 +5,30 @@ table {
   
   td.mat-cell {
    padding: 16px 4px 16px 4px;
-   border-bottom: 1px solid black;
-   border-right: 1px solid black;
-   border-top: 1px solid black;
+   border-bottom: 1px solid #bababa;
+   border-right: 1px solid #bababa;
+   border-top: 1px solid #bababa;
   }
   
   td.mat-cell:first-child {
-    border-left: 1px solid black;
+    border-left: 1px solid #bababa;
   }
   
   td.mat-cell:last-child {
-    border-right: 1px solid black;
+    border-right: 1px solid #bababa;
   }
   
   th.mat-header-cell {
     text-align: center !important;
+    color: white;
+    background-color: #338FF2;
+    border: 1px solid #bababa;
   }
-  
+  ::ng-deep .mat-sort-header-container {
+    display:flex;
+    justify-content:center;
+  }
+
   mat-form-field.mat-form-field {
     font-size: 13px;
   }
@@ -43,11 +50,25 @@ table {
   .search-input-md {
     width: 6.3%;
   }
-  .search-input-score {
+  .search-input-score-m {
       width: 6.3%;
   }
-  .search-input-metric {
+  .search-input-metric-m {
     width: 6.3%;
+  }
+
+  .search-input-score-ops {
+    width: 6.3%;
+  }
+  .search-input-metric-ops {
+    width: 6.3%;
+  }
+
+  .search-input-score-s {
+      width: 7.56%;
+  }
+  .search-input-metric-s {
+    width: 7.56%;
   }
 
   .btn-reset {
@@ -58,7 +79,7 @@ table {
   }
   
   .mat-row:nth-child(even){
-    background-color: #f9f9f9;
+    background-color: #ececec;
 }
 
 .mat-row:nth-child(odd){

@@ -140,52 +140,52 @@ export class HealthMetricsComponent implements OnInit {
         name: 'Detection Uptime Score',
         columnProp: 'detectionUptimeScore',
         options: [],
-				style: 'search-input search-input-dus search-input-score'
+				style: 'search-input search-input-dus search-input-score-m'
       }, {
         name: 'Ped Actuation Uptime Score',
         columnProp: 'pedActuationUptimeScore',
         options: [],
-				style: 'search-input search-input-paus search-input-score'
+				style: 'search-input search-input-paus search-input-score-m'
       }, {
         name: 'Comm Uptime Score',
         columnProp: 'commUptimeScore',
         options: [],
-				style: 'search-input search-input-cus search-input-score'
+				style: 'search-input search-input-cus search-input-score-m'
       }, {
         name: 'CCTV Uptime Score',
         columnProp: 'cctvUptimeScore',
         options: [],
-				style: 'search-input search-input-ccus search-input-score'
+				style: 'search-input search-input-ccus search-input-score-m'
       }, {
         name: 'Flash Events Score',
         columnProp: 'flashEventsScore',
         options: [],
-				style: 'search-input search-input-fes search-input-score'
+				style: 'search-input search-input-fes search-input-score-m'
       }, {
         name: 'Detection Uptime',
         columnProp: 'detectionUptime',
         options: [],
-				style: 'search-input search-input-du search-input-metric'
+				style: 'search-input search-input-du search-input-metric-m'
       }, {
         name: 'Ped Actuation Uptime',
         columnProp: 'pedDelay',
         options: [],
-				style: 'search-input search-input-pau search-input-metric'
+				style: 'search-input search-input-pau search-input-metric-m'
       }, {
         name: 'Comm Uptime',
         columnProp: 'commUptime',
         options: [],
-				style: 'search-input search-input-cu search-input-metric'
+				style: 'search-input search-input-cu search-input-metric-m'
       }, {
         name: 'CCTV Uptime',
         columnProp: 'cctvUptime',
         options: [],
-				style: 'search-input search-input-ccu search-input-metric'
+				style: 'search-input search-input-ccu search-input-metric-m'
       }, {
         name: 'Flash Events',
         columnProp: 'flashEvents',
         options: [],
-				style: 'search-input search-input-fe search-input-metric'
+				style: 'search-input search-input-fe search-input-metric-m'
       }
     ];
 
@@ -283,37 +283,37 @@ export class HealthMetricsComponent implements OnInit {
         name: 'Travel Time Index Score',
         columnProp: 'travelTimeIndexScore',
         options: [],
-				style: 'search-input search-input-ttis search-input-score'
+				style: 'search-input search-input-ttis search-input-score-ops'
       }, {
         name: 'Buffer Index Score',
         columnProp: 'bufferIndexScore',
         options: [],
-				style: 'search-input search-input-bis search-input-score'
+				style: 'search-input search-input-bis search-input-score-ops'
       }, {
         name: 'Platoon Ratio',
         columnProp: 'platoonRatio',
         options: [],
-				style: 'search-input search-input-pr search-input-metric'
+				style: 'search-input search-input-pr search-input-metric-ops'
       }, {
         name: 'Ped Delay',
         columnProp: 'pedDelay',
         options: [],
-				style: 'search-input search-input-pd search-input-metric'
+				style: 'search-input search-input-pd search-input-metric-ops'
       }, {
         name: 'Split Failures',
         columnProp: 'splitFailures',
         options: [],
-				style: 'search-input search-input-sf search-input-metric'
+				style: 'search-input search-input-sf search-input-metric-ops'
       }, {
         name: 'Travel Time Index',
         columnProp: 'travelTimeIndex',
         options: [],
-				style: 'search-input search-input-tti search-input-metric'
+				style: 'search-input search-input-tti search-input-metric-ops'
       }, {
         name: 'Buffer Index',
         columnProp: 'bufferIndex',
         options: [],
-				style: 'search-input search-input-bi search-input-metric'
+				style: 'search-input search-input-bi search-input-metric-ops'
       }
     ];
     this.dataSourceOperations.filterPredicate = ((data, filter) => {
@@ -395,42 +395,42 @@ export class HealthMetricsComponent implements OnInit {
         name: 'Crash Rate Index Score',
         columnProp: 'crashRateIndexScore',
         options: [],
-				style: 'search-input search-input-cris search-input-score'
+				style: 'search-input search-input-cris search-input-score-s'
       }, {
         name: 'Kabco Crash Severity Index Score',
         columnProp: 'kabcoCrashSeverityIndexScore',
         options: [],
-				style: 'search-input search-input-kcsis search-input-score'
+				style: 'search-input search-input-kcsis search-input-score-s'
       }, {
         name: 'High Speed Index Score',
         columnProp: 'highSpeedIndexScore',
         options: [],
-				style: 'search-input search-input-hsis search-input-score'
+				style: 'search-input search-input-hsis search-input-score-s'
       }, {
         name: 'Ped Injury Exposure Index Score',
         columnProp: 'pedInjuryExposureIndexScore',
         options: [],
-				style: 'search-input search-input-pieis search-input-score'
+				style: 'search-input search-input-pieis search-input-score-s'
       }, {
         name: 'Crash Rate Index',
         columnProp: 'crashRateIndex',
         options: [],
-				style: 'search-input search-input-cri search-input-score'
+				style: 'search-input search-input-cri search-input-metric-s'
       }, {
         name: 'Kabco Crash Severity Index',
         columnProp: 'kabcoCrashSeverityIndex',
         options: [],
-				style: 'search-input search-input-kcsi search-input-metric'
+				style: 'search-input search-input-kcsi search-input-metric-s'
       }, {
         name: 'High Speed Index',
         columnProp: 'highSpeedIndex',
         options: [],
-				style: 'search-input search-input-hsi search-input-metric'
+				style: 'search-input search-input-hsi search-input-metric-s'
       }, {
         name: 'Ped Injury Exposure Index',
         columnProp: 'pedInjuryExposureIndex',
         options: [],
-				style: 'search-input search-input-piei search-input-metric'
+				style: 'search-input search-input-piei search-input-metric-s'
       }
     ];
 

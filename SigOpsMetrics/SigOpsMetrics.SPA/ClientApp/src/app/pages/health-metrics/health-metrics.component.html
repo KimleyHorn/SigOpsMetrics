@@ -226,6 +226,14 @@
     <mat-tab label="Safety">
         <ng-template matTabContent>
             <div class="container-fluid">
+                <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                    <mat-form-field *ngFor="let filter of filterSelectListSafety" class="{{filter.style}}">
+                      <mat-label>{{filter.name}}</mat-label>
+                      <input matInput formControlName="{{filter.columnProp}}">
+                    </mat-form-field>
+                    &nbsp;
+                    <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
+                </form>
                 <table matSort mat-table [dataSource]='dataSourceSafety' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
                     
                     <ng-container matColumnDef="zone_Group">
