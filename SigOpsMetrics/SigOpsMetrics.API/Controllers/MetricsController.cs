@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.Classes.Internal;
 using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
@@ -144,33 +146,45 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="filter">Filter object from the SPA</param>
         /// <returns></returns>
-        //[HttpGet("filter")]
-        //public async Task<DataTable> GetWithFilter(string source, string level, string interval, string measure,
-        //    DateTime dateStart, DateTime dateEnd, DateTime timeStart, DateTime timeEnd, string aggregationLevel,
-        //    string region, string district, string managingAgency, string county, string city, string corridor)
-        //{
-        //    //var signals = await MetricsDataAccessLayer.GetSignalsByFilter(SqlConnection, region, district, managingAgency, county, city, corridor);
-        //    return null;
-        //}
-
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, FilterDTO filter)
         {
-            var signals = await SignalsDataAccessLayer.GetSignalsByFilter(SqlConnection, filter.zone_Group, filter.zone,
-                filter.agency, filter.county, filter.city, filter.corridor);
+            //Check for an invalid filter
+            //todo more checks as we start using the filter
+            if (filter.timePeriod < 0) return null;
 
             var fullStart = filter.customStart.Date + filter.startTime.TimeOfDay;
             var fullEnd = filter.customEnd.Date + filter.endTime.TimeOfDay;
 
-            var retVal =
-                MetricsDataAccessLayer.GetMetricBySignals(SqlConnection, source, measure, fullStart, fullEnd, signals);
-            return await retVal;
+            var filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
+            
+            //If we got no corridors/signals, bail
+            if (filteredItems.Items.Any())
+            {
+                var interval = GetIntervalFromFilter(filter);
+                var retVal =
+                    MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, fullStart, fullEnd, filteredItems);
+                return await retVal;
+            }
+
+            return null;
+
+        }
+
+        private string GetIntervalFromFilter(FilterDTO filter)
+        {
+            var aggregationType = (GenericEnums.DataAggregationType) filter.timePeriod;
+            return EnumDescriptions.GetDescriptionFromEnumValue(aggregationType);
         }
 
         #endregion
-
         
-
     }
 }
