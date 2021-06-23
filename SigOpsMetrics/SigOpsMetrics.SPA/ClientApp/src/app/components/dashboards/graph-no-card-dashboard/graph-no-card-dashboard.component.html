@@ -1,0 +1,10 @@
+<div class="container-fluid graph-no-card-dashboard">
+  
+  <div class='row margin-bottom'>
+      <div class='col-12'>
+          <mat-card>
+              <ng-container [ngTemplateOutlet]="template" [ngTemplateOutletContext]="{$implicit: filteredData }"></ng-container>
+          </mat-card>
+      </div>
+  </div>
+</div>
