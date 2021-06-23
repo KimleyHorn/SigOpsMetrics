@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,7 @@ namespace SigOpsMetrics.API.Controllers
     /// <summary>
     /// Controller for SigOps Metrics ATSPM data
     /// </summary>
+    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("metrics")]
     public class MetricsController : _BaseController
@@ -154,14 +156,57 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="filter">Filter object from the SPA</param>
         /// <returns></returns>
         [HttpPost("filter")]
-        public async Task<DataTable> GetWithFilter(string source, string measure, FilterDTO filter)
+        public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
             //Check for an invalid filter
             //todo more checks as we start using the filter
             if (filter.timePeriod < 0) return null;
 
-            var fullStart = filter.customStart.Date + filter.startTime.TimeOfDay;
-            var fullEnd = filter.customEnd.Date + filter.endTime.TimeOfDay;
+            //var fullStart = filter.customStart.Date + filter.startTime.TimeOfDay;
+            //var fullEnd = filter.customEnd.Date + filter.endTime.TimeOfDay;
+
+            var dt = DateTime.Now;
+
+            var fullStart = new DateTime(dt.Year, dt.Month - 1, 1);
+            var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
+
+            if (filter.dateRange != null)
+            {
+                switch ((GenericEnums.DateRangeType)filter.dateRange)
+                {
+                    case GenericEnums.DateRangeType.PriorDay:
+                        fullStart = dt.AddDays(-1);
+                        fullEnd = dt.AddDays(-1); 
+                        break;
+                    case GenericEnums.DateRangeType.PriorWeek:
+                        while (dt.DayOfWeek != DayOfWeek.Sunday)
+                            dt = dt.AddDays(-1);
+
+                        fullStart = dt.AddDays(-7);
+                        fullEnd = dt.AddDays(-1);
+                        break;
+                    case GenericEnums.DateRangeType.PriorQuarter:
+                        var month = (int)Math.Ceiling((double)dt.AddMonths(-3).Month / 3);
+                        fullStart = new DateTime(dt.Year, month, 1);
+                        fullEnd = new DateTime(dt.Year, month + 2, DateTime.DaysInMonth(dt.Year, dt.Month));
+                        break;
+                    case GenericEnums.DateRangeType.PriorYear:
+                        var priorYear = dt.Year - 1;
+                        fullStart = new DateTime(priorYear, 1, 1);
+                        fullEnd = new DateTime(priorYear, 12, 31);
+                        break;
+                    case GenericEnums.DateRangeType.Custom:
+                        fullStart = Convert.ToDateTime(filter.customStart);
+                        fullEnd = Convert.ToDateTime(filter.customEnd);
+                        break;
+                    case GenericEnums.DateRangeType.PriorMonth:
+                    default:
+                        var priorMonth = dt.Month - 1;
+                        fullStart = new DateTime(dt.Year, priorMonth, 1);
+                        fullEnd = new DateTime(dt.Year, priorMonth, DateTime.DaysInMonth(dt.Year, priorMonth));
+                        break;
+                }
+            }
 
             var filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
             
@@ -170,6 +215,7 @@ namespace SigOpsMetrics.API.Controllers
             {
                 var interval = GetIntervalFromFilter(filter);
                 var retVal =
+                    //MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, fullStart, fullEnd, filteredItems);
                     MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, fullStart, fullEnd, filteredItems);
                 return await retVal;
             }

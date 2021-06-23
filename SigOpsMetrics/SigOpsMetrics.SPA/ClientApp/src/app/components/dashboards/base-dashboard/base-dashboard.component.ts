@@ -14,6 +14,7 @@ export class BaseDashboardComponent implements OnInit {
   @ContentChild(TemplateRef) template: TemplateRef<any>;
 
   private _filterSubscription: Subscription;
+  private _metricsSubscription: Subscription;
 
   @Input() graphMetrics: Metrics;
   @Input() metricLabel: string = '';
@@ -41,28 +42,38 @@ export class BaseDashboardComponent implements OnInit {
     private _formatService: FormatService) { }
 
     ngOnInit(): void {
-      this._metricsService.getMetrics(this.graphMetrics).subscribe(response => {
-        this.data = response;
-        this._loadData();
-      });
+      // this._metricsService.getMetrics(this.graphMetrics).subscribe(response => {
+      //   this.data = response;
+      //   this._loadData();
+      // });
 
-      this._filterSubscription = this._filterService.filters.subscribe(() => {
-        if(this.data !== undefined){
+      this._filterSubscription = this._filterService.filters.subscribe(filter => {
+        // if(this.data !== undefined){
+        //   this._loadData();
+        // }
+
+        this._metricsSubscription = this._metricsService.filterMetrics(this.graphMetrics, filter).subscribe(response => {
+          this.data = response;
           this._loadData();
-        }
+          this._metricsSubscription.unsubscribe();
+        });
       });
     }
 
     ngOnDestroy(): void {
+      this._metricsSubscription.unsubscribe();
       this._filterSubscription.unsubscribe();
     }
 
     private _loadData(){
       if(this.data !== undefined){
-        this.filteredData = this._filterService.filterData(this.data);
+        //this.filteredData = this._filterService.filterData(this.data);
+        this.filteredData = this.data;
+        //get a list of distinct corridors
         this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
 
         let metricData = this._filterService.getZoneGroupData(this.filteredData);
+
         if(metricData !== undefined){
           if(this.graphMetrics.formatType === "percent"){
             this.metricValue = this._formatService.formatPercent(metricData[this.metricField], this.graphMetrics.formatDecimals);

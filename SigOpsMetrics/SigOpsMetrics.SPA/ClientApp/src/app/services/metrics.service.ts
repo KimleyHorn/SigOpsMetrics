@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Filter } from '../models/filter';
@@ -63,4 +63,20 @@ export class MetricsService {
                                                     + "&end="+ metrics.end
                                                     + "&metric=" + metrics.field);
   }
+
+  filterMetrics(metrics: Metrics, filter: Filter){
+
+    let options = { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) };
+
+    return this.http.post<any[]>(this._baseUrl + 'metrics/filter?source=' + metrics.source
+                                                + "&measure=" + metrics.measure,
+                                              filter,
+                                              options);
+  }
+
+  // filterMetrics(metrics: Metrics, filter: Filter){
+  //   return this.http.post<any[]>(this._baseUrl + 'metrics/filter/' + metrics.source
+  //                                               + "/" + metrics.measure,
+  //                                             JSON.stringify(filter));
+  // }
 }
