@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { SignalsService } from '../../services/signals.service';
 import { SignalInfo } from '../../models/signal-info';
 import { MatPaginator } from '@angular/material/paginator';
@@ -9,7 +9,8 @@ import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
 @Component({
   selector: 'app-signal-info',
   templateUrl: './signal-info.component.html',
-  styleUrls: ['./signal-info.component.css']
+  styleUrls: ['./signal-info.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 
 export class SignalInfoComponent implements OnInit, AfterViewInit {
