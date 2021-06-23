@@ -32,6 +32,7 @@ import { MetricCardComponent } from './components/cards/metric-card/metric-card.
 import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
 import { BarLineLineGraphComponent } from './components/graphs/bar-line-line-graph/bar-line-line-graph.component';
 import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/graph-dashboard.component';
+import { GraphNoCardDashboardComponent} from './components/dashboards/graph-no-card-dashboard/graph-no-card-dashboard.component';
 import { DatePipe } from '@angular/common';
 import { ScatterMapComponent } from './components/maps/scatter-map/scatter-map.component';
 import { BaseDashboardComponent } from './components/dashboards/base-dashboard/base-dashboard.component';
@@ -73,6 +74,7 @@ const routes = [
     BarLineLineGraphComponent,
     GraphDashboardComponent,
     // GraphsDashboardComponent,
+    GraphNoCardDashboardComponent,
     ScatterMapComponent,
     BaseDashboardComponent,
     MapDashboardComponent,

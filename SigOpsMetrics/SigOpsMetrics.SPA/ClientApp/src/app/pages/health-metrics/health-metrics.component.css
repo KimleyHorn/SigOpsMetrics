@@ -1,0 +1,67 @@
+table {
+    width: 100%;
+    border-spacing: 0 8px !important;
+  }
+  
+  td.mat-cell {
+   padding: 16px 4px 16px 4px;
+   border-bottom: 1px solid black;
+   border-right: 1px solid black;
+   border-top: 1px solid black;
+  }
+  
+  td.mat-cell:first-child {
+    border-left: 1px solid black;
+  }
+  
+  td.mat-cell:last-child {
+    border-right: 1px solid black;
+  }
+  
+  th.mat-header-cell {
+    text-align: center !important;
+  }
+  
+  mat-form-field.mat-form-field {
+    font-size: 13px;
+  }
+
+  .search-input {
+    text-align: center;
+  }
+  
+  .search-input-zg {
+    width: 4.6%;
+  }
+  
+  .search-input-cor {
+    width: 14%;
+  }
+  .search-input-ph {
+    width: 6.3%;
+  }
+  .search-input-md {
+    width: 6.3%;
+  }
+  .search-input-score {
+      width: 6.3%;
+  }
+  .search-input-metric {
+    width: 6.3%;
+  }
+
+  .btn-reset {
+    padding: 0 4px;
+    min-width: 4%;
+    margin-right: 1.8%;
+    margin-bottom: 16px;
+  }
+  
+  .mat-row:nth-child(even){
+    background-color: #f9f9f9;
+}
+
+.mat-row:nth-child(odd){
+    background-color:#ffffff;
+}
+
