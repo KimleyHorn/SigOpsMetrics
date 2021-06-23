@@ -2,10 +2,14 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
+using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.Classes.Extensions;
+using SigOpsMetrics.API.Classes.Internal;
 
 #pragma warning disable 1591
 
@@ -527,25 +531,58 @@ namespace SigOpsMetrics.API.DataAccess
             return signalIDs;
         }
 
+        public static async Task<FilteredItems> GetCorridorsOrSignalsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
+        {
+            //Based on the filter, we want to return a list of either corridors or signals
+            string sqlText;
+            var filterType = GenericEnums.FilteredItemType.Corridor;
+            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county, filter.city, filter.corridor);
+            if (filter.corridor.IsStringNullOrBlank())
+            {
+                sqlText = "select distinct(corridor) from mark1.signals " + where + " and include = 1";
+            }
+            else
+            {
+                sqlText = "select distinct(signalid) from mark1.signals " + where + " and include = 1";
+                filterType = GenericEnums.FilteredItemType.Signal;
+            }
+
+            var retVal = new List<string>();
+            await sqlConnection.OpenAsync();
+            await using (var cmd = new MySqlCommand())
+            {
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = sqlText;
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    retVal.Add(reader.GetString(0).Trim());
+                }
+            }
+
+            await sqlConnection.CloseAsync();
+            return new FilteredItems {FilterType = filterType, Items = retVal};
+        }
+
         private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,
             string county, string city, string corridor)
         {
-            if (IsStringNullOrBlank(zoneGroup) && IsStringNullOrBlank(zone) && IsStringNullOrBlank(agency) &&
-                IsStringNullOrBlank(county) && IsStringNullOrBlank(city) && IsStringNullOrBlank(corridor))
+            if (zoneGroup.IsStringNullOrBlank() && zone.IsStringNullOrBlank() && agency.IsStringNullOrBlank() &&
+                county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank())
                 return string.Empty;
             var where = "where ";
 
-            if (!IsStringNullOrBlank(zoneGroup))
+            if (!zoneGroup.IsStringNullOrBlank())
                 where += $"Zone_Group = '{zoneGroup}' and ";
-            if (!IsStringNullOrBlank(zone))
+            if (!zone.IsStringNullOrBlank())
                 where += $"zone = '{zone}' and ";
-            if (!IsStringNullOrBlank(agency))
+            if (!agency.IsStringNullOrBlank())
                 where += $"agency = '{agency}' and ";
-            if (!IsStringNullOrBlank(county))
+            if (!county.IsStringNullOrBlank())
                 where += $"county = '{county}' and ";
-            if (!IsStringNullOrBlank(city))
+            if (!city.IsStringNullOrBlank())
                 where += $"city = '{city}' and ";
-            if (!IsStringNullOrBlank(corridor))
+            if (!corridor.IsStringNullOrBlank())
                 where += $"corridor = '{corridor}' and ";
 
             //chop off the last 'and'
@@ -556,11 +593,6 @@ namespace SigOpsMetrics.API.DataAccess
 
         }
 
-        private static bool IsStringNullOrBlank(string val)
-        {
-            if (string.IsNullOrWhiteSpace(val) || val.ToLower() == "null")
-                return true;
-            return false;
-        }
+
     }
 }
