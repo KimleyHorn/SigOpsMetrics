@@ -11,6 +11,7 @@ export class Metrics {
     formatType?: string = "number";
     formatDecimals?: number = 0;
     isMapMetrics?: boolean = false;
+    dashboard?: boolean = false;
 
     public constructor(fields?){
       if (this.isMapMetrics) {

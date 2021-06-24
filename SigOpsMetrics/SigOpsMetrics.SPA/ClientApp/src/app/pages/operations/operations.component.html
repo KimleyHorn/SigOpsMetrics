@@ -10,9 +10,10 @@
               [metricField]='mapSettings.tpMapField'
               [metricLabel]='"Average monthly vehicles per hour"'
               [changeLabel]='"Changes from prior month"'>
-              <ng-template let-filteredData #tpTemplate>
+              <ng-template let-data #tpTemplate>
                   <app-bar-line-graph
-                      [data]='filteredData'
+                      [data]='data.filteredData'
+                      [averageData]='data.averageData'
                       [title]='tpTitle'
                       [line]='tpLine'
                       [bar]='tpBar'>
@@ -32,9 +33,10 @@
               [metricField]='mapSettings.aogdMapField'
               [metricLabel]='"Arrivals on Green"'
               [changeLabel]='"Changes from prior month"'>
-              <ng-template let-filteredData #aogTemplate>
+              <ng-template let-data #aogTemplate>
                 <app-bar-line-graph
-                  [data]='filteredData'
+                  [data]='data.filteredData'
+                  [averageData]='data.averageData'
                   [title]='aogTitle'
                   [line]='aogdLine'
                   [bar]='aogBar'>
@@ -63,12 +65,13 @@
             [metricDecimals]='2'
             [metricLabel]='"Progression Ratio"'
             [changeLabel]='"Changes from prior month"'>
-            <ng-template let-filteredData #prTemplate>
+            <ng-template let-data #prTemplate>
               <app-bar-line-graph
-                  [data]='filteredData'
-                  [title]='prdTitle'
-                  [line]='prdLine'
-                  [bar]='prdBar'>
+                [data]='data.filteredData'
+                [averageData]='data.averageData'
+                [title]='prdTitle'
+                [line]='prdLine'
+                [bar]='prdBar'>
               </app-bar-line-graph>
             </ng-template>
           </app-map-dashboard>
@@ -87,12 +90,13 @@
               [metricLabel]='"Spillback rate"'
               [metricDecimals]='2'
               [changeLabel]='"Changes from prior month"'>
-              <ng-template let-filteredData #qsdTemplate>
+              <ng-template let-data #qsdTemplate>
                   <app-bar-line-graph
-                      [data]='filteredData'
-                      [title]='qsdTitle'
-                      [line]='qsdLine'
-                      [bar]='qsdBar'>
+                    [data]='data.filteredData'
+                    [averageData]='data.averageData'
+                    [title]='qsdTitle'
+                    [line]='qsdLine'
+                    [bar]='qsdBar'>
                   </app-bar-line-graph>
               </ng-template>
             </app-map-dashboard>
@@ -110,12 +114,13 @@
             [metricLabel]='"Peak Period Split Failures"'
             [metricDecimals]='2'
             [changeLabel]='"Changes from prior month"'>
-            <ng-template let-filteredData #sfTemplate>
+            <ng-template let-data #sfTemplate>
                 <app-bar-line-graph
-                    [data]='filteredData'
-                    [title]='sfTitle'
-                    [line]='sfLine'
-                    [bar]='sfBar'>
+                  [data]='data.filteredData'
+                  [averageData]='data.averageData'
+                  [title]='sfTitle'
+                  [line]='sfLine'
+                  [bar]='sfBar'>
                 </app-bar-line-graph>
             </ng-template>
           </app-map-dashboard>
@@ -133,12 +138,13 @@
             [metricLabel]='"Off-Peak Split Failures"'
             [metricDecimals]='2'
             [changeLabel]='"Changes from prior month"'>
-            <ng-template let-filteredData #sfTemplate>
+            <ng-template let-data #sfTemplate>
                 <app-bar-line-graph
-                    [data]='filteredData'
-                    [title]='sfTitle'
-                    [line]='sfLine'
-                    [bar]='sfBar'>
+                  [data]='data.filteredData'
+                  [averageData]='data.averageData'
+                  [title]='sfTitle'
+                  [line]='sfLine'
+                  [bar]='sfBar'>
                 </app-bar-line-graph>
             </ng-template>
           </app-map-dashboard>
@@ -155,12 +161,13 @@
             [metricLabel]='"Travel Time Index"'
             [metricDecimals]='2'
             [changeLabel]='"Changes from prior month"'>
-            <ng-template let-filteredData #ttiTemplate>
+            <ng-template let-data #ttiTemplate>
               <app-bar-line-graph
-                  [data]='filteredData'
-                  [title]='ttiTitle'
-                  [line]='ttiLine'
-                  [bar]='ttiBar'>
+                [data]='data.filteredData'
+                [averageData]='data.averageData'
+                [title]='ttiTitle'
+                [line]='ttiLine'
+                [bar]='ttiBar'>
               </app-bar-line-graph>
             </ng-template>
           </app-graph-dashboard>
@@ -177,12 +184,13 @@
             [metricLabel]='"Planning Time Index"'
             [metricDecimals]='2'
             [changeLabel]='"Changes from prior month"'>
-            <ng-template let-filteredData #ptiTemplate>
+            <ng-template let-data #ptiTemplate>
               <app-bar-line-graph
-                  [data]='filteredData'
-                  [title]='ptiTitle'
-                  [line]='ptiLine'
-                  [bar]='ptiBar'>
+                [data]='data.filteredData'
+                [averageData]='data.averageData'
+                [title]='ptiTitle'
+                [line]='ptiLine'
+                [bar]='ptiBar'>
               </app-bar-line-graph>
             </ng-template>
           </app-graph-dashboard>

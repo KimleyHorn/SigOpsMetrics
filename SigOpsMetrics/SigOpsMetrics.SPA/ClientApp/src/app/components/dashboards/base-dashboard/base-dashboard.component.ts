@@ -15,6 +15,7 @@ export class BaseDashboardComponent implements OnInit {
 
   private _filterSubscription: Subscription;
   private _metricsSubscription: Subscription;
+  private _averageSubscription: Subscription;
 
   @Input() graphMetrics: Metrics;
   @Input() metricLabel: string = '';
@@ -27,14 +28,11 @@ export class BaseDashboardComponent implements OnInit {
   changeValue: string = '';
 
   @Input() mapSettings: any;
-  // @Input() mapMetrics: Metrics;
-  // @Input() mapRanges: number[][] = [];
-  // @Input() legendColors: string[] = ["green","yellow","orange","redorange","red"];
-  // @Input() legendLabels: string[] = ["trace 1","trace 2","trace 3","trace 4","trace 5"];
   markers: any;
 
   corridors: any;
   data: any;
+  averageData: any;
   filteredData: any;
 
   constructor(private _filterService: FilterService,
@@ -42,46 +40,44 @@ export class BaseDashboardComponent implements OnInit {
     private _formatService: FormatService) { }
 
     ngOnInit(): void {
-      // this._metricsService.getMetrics(this.graphMetrics).subscribe(response => {
-      //   this.data = response;
-      //   this._loadData();
-      // });
-
       this._filterSubscription = this._filterService.filters.subscribe(filter => {
-        // if(this.data !== undefined){
-        //   this._loadData();
-        // }
-
         this._metricsSubscription = this._metricsService.filterMetrics(this.graphMetrics, filter).subscribe(response => {
           this.data = response;
           this._loadData();
           this._metricsSubscription.unsubscribe();
         });
+
+        this._averageSubscription = this._metricsService.averageMetrics(this.graphMetrics, filter).subscribe(response => {
+          this.averageData = response;
+          this._loadData();
+          this._averageSubscription.unsubscribe();
+        })
       });
     }
 
     ngOnDestroy(): void {
-      this._metricsSubscription.unsubscribe();
       this._filterSubscription.unsubscribe();
+      this._metricsSubscription.unsubscribe();
+      this._averageSubscription.unsubscribe();
     }
 
     private _loadData(){
-      if(this.data !== undefined){
-        //this.filteredData = this._filterService.filterData(this.data);
+      if(this.data !== undefined && this.averageData !== undefined){
         this.filteredData = this.data;
+
         //get a list of distinct corridors
         this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
 
-        let metricData = this._filterService.getZoneGroupData(this.filteredData);
+        let metricData = this._filterService.getAverageData(this.averageData);
 
         if(metricData !== undefined){
           if(this.graphMetrics.formatType === "percent"){
-            this.metricValue = this._formatService.formatPercent(metricData[this.metricField], this.graphMetrics.formatDecimals);
+            this.metricValue = this._formatService.formatPercent(metricData.avg, this.graphMetrics.formatDecimals);
           }else{
-            this.metricValue = this._formatService.formatNumber(metricData[this.metricField], this.graphMetrics.formatDecimals);
+            this.metricValue = this._formatService.formatNumber(metricData.avg, this.graphMetrics.formatDecimals);
           }
 
-          this.changeValue = this._formatService.formatPercent(metricData[this.changeField],2);
+          this.changeValue = this._formatService.formatPercent(metricData.delta,2);
         }
       }
     }

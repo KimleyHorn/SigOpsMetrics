@@ -19,7 +19,7 @@ export class DashboardTableComponent implements OnInit {
   tableDataSource = new BehaviorSubject([]);
   public filter: Filter = new Filter();
   private _filterSubscription: Subscription;
-  private _metricSubscription: Subscription;
+  private _metricsSubscription: Subscription;
 
   constructor(private _formatService: FormatService,
     private _filterService: FilterService,
@@ -34,7 +34,7 @@ export class DashboardTableComponent implements OnInit {
 
   ngOnDestroy(): void{
     this._filterSubscription.unsubscribe();
-    this._metricSubscription.unsubscribe();
+    this._metricsSubscription.unsubscribe();
   }
 
   private _loadData(){
@@ -48,13 +48,14 @@ export class DashboardTableComponent implements OnInit {
   private _getValue(td: TableData){
     let metrics = new Metrics();
     metrics.measure = td.measure;
-    metrics.start = this.filter.month;
-    metrics.end = this.filter.month;
+    metrics.dashboard = true;
 
-    this._metricSubscription = this._metricsService.getMetrics(metrics).subscribe(data => {
-      let val = this._filterService.getZoneGroupData(data)[td.metric];
-      let formattedVal = this._formatService.formatData(val, td.format, td.precision);
-      this.tableData.filter(item => item.name === td.name)[0].value = formattedVal;
+    this._metricsSubscription = this._metricsService.averageMetrics(metrics, this.filter).subscribe(response => {
+      if(response.length > 0){
+        let formattedVal = this._formatService.formatData(response[0].avg, td.format, td.precision);
+
+        this.tableData.filter(item => item.name === td.name)[0].value = formattedVal;
+      }
     });
   }
 }

@@ -68,7 +68,7 @@ export class MaintenanceComponent implements OnInit {
     y: 'corridor',
     hoverTemplate:
       '<b>%{y}</b>' +
-      '<brUptime: <b>%{x}</b>' +
+      '<br>Uptime: <b>%{x}</b>' +
       '<extra></extra>',
   };
   duLine: Graph = {

@@ -12,6 +12,7 @@ export class MetricsService {
   private _baseUrl: string = environment.API_PATH;
   private _dt: Date = new Date();
   private _filter: Filter = new Filter();
+  private _options = { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) };
 
   constructor(private http: HttpClient, private _filterService: FilterService) { }
 
@@ -26,16 +27,6 @@ export class MetricsService {
 
     if(metrics.interval === undefined){
       metrics.interval = "mo";
-    }
-
-    if(metrics.start === undefined){
-      let splitMonth = this._filterService.splitMonth();
-
-      metrics.start = (splitMonth[0] + 1) + '/' + splitMonth[1];
-    }
-
-    if(metrics.end === undefined){
-      metrics.end = this._filter.month;
     }
 
     return metrics;
@@ -65,13 +56,18 @@ export class MetricsService {
   }
 
   filterMetrics(metrics: Metrics, filter: Filter){
-
-    let options = { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) };
-
     return this.http.post<any[]>(this._baseUrl + 'metrics/filter?source=' + metrics.source
                                                 + "&measure=" + metrics.measure,
                                               filter,
-                                              options);
+                                              this._options);
+  }
+
+  averageMetrics(metrics: Metrics, filter: Filter){
+    return this.http.post<any[]>(this._baseUrl + 'metrics/average?source=' + metrics.source
+    + "&measure=" + metrics.measure
+    + "&dashboard=" + metrics.dashboard,
+    filter,
+    this._options);
   }
 
   // filterMetrics(metrics: Metrics, filter: Filter){

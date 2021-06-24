@@ -1,6 +1,6 @@
 export class Filter {
-  month: string;
-  dateRange: number = 2;
+  //month: string;
+  dateRange: number = 4;
   customStart: Date = null;
   customEnd: Date = null;
   daysOfWeek: string[] = null;
@@ -17,21 +17,8 @@ export class Filter {
   timePeriod: number = 4;
 
   constructor() {
-    let _dt = new Date();
-    this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
-
-    // this.customStart = new Date(_dt.getFullYear() - 1, _dt.getMonth(), _dt.getDate());
-    // this.customEnd = _dt;
-
-      // let _dt = new Date();
-      // let newMonth = _dt.getMonth() - 1;
-      // if(newMonth < 0){
-      //     newMonth += 12;
-      //     _dt.setFullYear(_dt.getFullYear() - 1);
-      // }
-      // _dt.setMonth(newMonth);
-
-      // this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
+    // let _dt = new Date();
+    // this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
   }
 
 }

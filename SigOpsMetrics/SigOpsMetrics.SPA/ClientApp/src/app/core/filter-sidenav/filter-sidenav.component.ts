@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild, ViewEncapsulation, ChangeDetectorRef } from "@angular/core";
 import { MatDatepicker } from "@angular/material/datepicker";
 import { MatSelectionList } from "@angular/material/list";
 import { Subscription } from "rxjs";
@@ -11,35 +11,42 @@ import { FilterService } from "../../services/filter.service";
   encapsulation: ViewEncapsulation.None
 })
 export class FilterSidenavComponent implements OnInit, AfterViewInit {
-  @ViewChild("startDate") startDate: MatDatepicker<Date>;
-  @ViewChild("endDate") endDate: MatDatepicker<Date>;
-  @ViewChild("startTime") startTime: MatDatepicker<Date>;
-  @ViewChild("endTime") endTime: MatDatepicker<Date>;
+  // private startDate: MatDatepicker<Date>;
+  // @ViewChild('startDate', {static: false}) set content(content: MatDatepicker<Date>){
+  //   if(content){
+  //     this.startDate = content;
+  //   }
+  // }
+  @ViewChild("startDate", { static: false }) startDate: MatDatepicker<Date>;
+  @ViewChild("endDate", { static: false }) endDate: MatDatepicker<Date>;
+  @ViewChild("startTime", { static: false }) startTime: MatDatepicker<Date>;
+  @ViewChild("endTime", { static: false }) endTime: MatDatepicker<Date>;
+
   @Output("toggleFilter") toggleFilter: EventEmitter<any> = new EventEmitter();
 
   //Region | ZONE GROUP
   signalGroups: Array<string> = [];
-  selectedSignalGroup: string;
+  selectedSignalGroup: string = '';
   //District | ZONE
   districts: Array<string> = [];
-  selectedDistrict: string;
+  selectedDistrict: string = '';
   //Managing Agency | AGENCY
   agencies: Array<string> = [];
-  selectedAgency: string;
+  selectedAgency: string = '';
   //County
   counties: Array<string> = [];
-  selectedCounty: string;
+  selectedCounty: string = '';
   //City
   cities: Array<string> = [];
-  selectedCity: string;
+  selectedCity: string = '';
   //Corridor | CORRIDOR
   corridors: Array<string> = [];
-  selectedCorridor: string;
+  selectedCorridor: string = '';
   // Data Aggregation
   timeOptions: number[] = [15,30,60];
   selectedDataAggregationOption: number;
   // Date Range
-  selectedDateOption: number = 2;
+  selectedDateOption: number = 4;
   options: any[] = [
     { value: 0, label: 'Prior Day'},
     { value: 3, label: 'Prior Quarter'},
@@ -76,7 +83,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   agenciesSubscription: Subscription;
   filterSubscription: Subscription;
 
-  constructor(private filterService: FilterService) {}
+  constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
 
@@ -187,8 +194,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //clear the selected aggregate option
   private _clearAggregateOption(value){
-    if(this.selectedAggregationOption === value){
-      this.selectedAggregationOption = 4;
+    if(this.selectedAggregationOption > value + 1){
+      this.selectedAggregationOption = null;
     }
   }
 
@@ -199,24 +206,25 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this._resetAggregateField('disabled', false);
 
     switch (value) {
-      case "Custom":
+      case 5:
         let dt = new Date();
+        this.changeDetectorRef.detectChanges();
         this.startDate.select(dt);
         this.endDate.select(dt);
         this.startTime.select(dt);
         this.endTime.select(dt);
         break;
-      case "Prior Day":
-        this._clearAggregateOption('Daily');
+      case 0:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Daily', 'disabled', true);
-      case "Prior Week":
-        this._clearAggregateOption('Weekly');
+      case 1:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Weekly', 'disabled', true);
-      case "Prior Month":
-        this._clearAggregateOption('Monthly');
+      case 2:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Monthly', 'disabled', true);
-      case "Prior Quarter":
-        this._clearAggregateOption('Quarterly');
+      case 3:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Quarterly', 'disabled', true);
       default:
         //clear if not custom

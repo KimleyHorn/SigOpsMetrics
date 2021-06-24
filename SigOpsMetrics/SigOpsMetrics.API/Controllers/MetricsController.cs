@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -158,14 +159,71 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
-            //Check for an invalid filter
+            return await GetFilteredDataTable(source, measure, filter);
+        }
+
+        [HttpPost("average")]
+        public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
+        {
+            var retVal = await GetFilteredDataTable(source, measure, filter);
+            List<AverageDTO> groupedData = new List<AverageDTO>();
+
+            if (dashboard)
+            {
+                var avg = (from row in retVal.AsEnumerable()
+                           select row.Field<double>(3)).Average();
+                var delta = (from row in retVal.AsEnumerable()
+                           select row.Field<double>(5)).Average();
+
+                var data = new AverageDTO
+                {
+                    label = "Dashboard",
+                    avg = avg,
+                    delta = delta
+                };
+                groupedData.Add(data);
+            }
+            else
+            {
+                groupedData = (from row in retVal.AsEnumerable()
+                                  group row by new { label = row[0].ToString() } into g
+                                  select new AverageDTO
+                                  {
+                                      label = g.Key.label,
+                                      avg = g.Average(x => x.Field<double>(3)),
+                                      delta = g.Average(x => x.Field<double>(5))
+                                  }).ToList();
+            }
+
+
+            return groupedData.ToList();
+        }
+
+        private async Task<DataTable> GetFilteredDataTable(string source, string measure, [FromBody] FilterDTO filter)
+        {
+            // Check for an invalid filter
             //todo more checks as we start using the filter
             if (filter.timePeriod < 0) return null;
 
-            //var fullStart = filter.customStart.Date + filter.startTime.TimeOfDay;
-            //var fullEnd = filter.customEnd.Date + filter.endTime.TimeOfDay;
+            var dates = GenerateDateFilter(filter);
 
-            var dt = DateTime.Now;
+            var filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
+
+            //If we got no corridors/signals, bail
+            if (filteredItems.Items.Any())
+            {
+                var interval = GetIntervalFromFilter(filter);
+                var retVal =
+                    MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1, dates.Item2, filteredItems);
+                return await retVal;
+            }
+
+            return null;
+        }
+
+        private (DateTime, DateTime) GenerateDateFilter(FilterDTO filter)
+        {
+            var dt = DateTime.Today;
 
             var fullStart = new DateTime(dt.Year, dt.Month - 1, 1);
             var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
@@ -176,7 +234,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     case GenericEnums.DateRangeType.PriorDay:
                         fullStart = dt.AddDays(-1);
-                        fullEnd = dt.AddDays(-1); 
+                        fullEnd = dt;
                         break;
                     case GenericEnums.DateRangeType.PriorWeek:
                         while (dt.DayOfWeek != DayOfWeek.Sunday)
@@ -188,14 +246,15 @@ namespace SigOpsMetrics.API.Controllers
                     case GenericEnums.DateRangeType.PriorQuarter:
                         var month = (int)Math.Ceiling((double)dt.AddMonths(-3).Month / 3);
                         fullStart = new DateTime(dt.Year, month, 1);
-                        fullEnd = new DateTime(dt.Year, month + 2, DateTime.DaysInMonth(dt.Year, dt.Month));
+                        fullEnd = new DateTime(dt.Year, month + 2, DateTime.DaysInMonth(dt.Year, month + 2));
                         break;
                     case GenericEnums.DateRangeType.PriorYear:
                         var priorYear = dt.Year - 1;
-                        fullStart = new DateTime(priorYear, 1, 1);
-                        fullEnd = new DateTime(priorYear, 12, 31);
+                        fullStart = new DateTime(priorYear, dt.Month, dt.Day);
+                        fullEnd = dt;
                         break;
                     case GenericEnums.DateRangeType.Custom:
+                        //TODO: add time range filter
                         fullStart = Convert.ToDateTime(filter.customStart);
                         fullEnd = Convert.ToDateTime(filter.customEnd);
                         break;
@@ -208,20 +267,7 @@ namespace SigOpsMetrics.API.Controllers
                 }
             }
 
-            var filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
-            
-            //If we got no corridors/signals, bail
-            if (filteredItems.Items.Any())
-            {
-                var interval = GetIntervalFromFilter(filter);
-                var retVal =
-                    //MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, fullStart, fullEnd, filteredItems);
-                    MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, fullStart, fullEnd, filteredItems);
-                return await retVal;
-            }
-
-            return null;
-
+            return (fullStart, fullEnd);
         }
 
         private string GetIntervalFromFilter(FilterDTO filter)
