@@ -40,6 +40,8 @@ import { MetricSelectComponent } from './components/selects/metric-select/metric
 import { TicketsGraphComponent } from './components/graphs/tickets-graph/tickets-graph.component';
 import { DashboardTableComponent } from './components/tables/dashboard-table/dashboard-table.component';
 import { TicketsTableComponent } from './components/tables/tickets-table/tickets-table.component';
+import { ContactComponent } from './core/contact-form/contact-form';
+import { NgxMaskModule } from 'ngx-mask';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -79,7 +81,8 @@ const routes = [
     MetricSelectComponent,
     TicketsGraphComponent,
     DashboardTableComponent,
-    TicketsTableComponent
+    TicketsTableComponent,
+    ContactComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
@@ -91,9 +94,10 @@ const routes = [
     BrowserAnimationsModule,
     MaterialModule,
     GoogleMapsModule,
-    PlotlyViaCDNModule
+    PlotlyViaCDNModule,
+    NgxMaskModule.forRoot()
   ],
-  providers: [DatePipe],
+  providers: [DatePipe,ContactComponent],
   bootstrap: [AppComponent]
 })
 //export class MaterialModule {}
