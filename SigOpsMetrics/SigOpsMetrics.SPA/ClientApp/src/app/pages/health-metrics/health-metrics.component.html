@@ -1,1 +1,330 @@
-<p>health-metrics works!</p>
+<mat-tab-group (selectedTabChange)="tabChanged($event)">
+    <mat-tab label="Maintenance">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                    <mat-form-field *ngFor="let filter of filterSelectListMaintenance" class="{{filter.style}}">
+                      <mat-label>{{filter.name}}</mat-label>
+                      <input matInput formControlName="{{filter.columnProp}}">
+                    </mat-form-field>
+                    &nbsp;
+                    <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
+                </form>
+                <table matSort mat-table [dataSource]='dataSourceMaintenance' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
+                    
+                    <ng-container matColumnDef="zone_Group">
+                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>Zone Group</th>
+                      <td mat-cell *matCellDef="let element"> {{element.zone_Group}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="corridor">
+                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>Corridor</th>
+                      <td mat-cell *matCellDef="let element"> {{element.corridor}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="percent Health">
+                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>Percent Health</th>
+                      <td mat-cell *matCellDef="let element"> {{element['percent Health'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="missingData">
+                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>Missing Data</th>
+                      <td mat-cell *matCellDef="let element"> {{element['missing Data'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="detection Uptime Score">
+                      <th mat-sort-header="detection Uptime Score" mat-header-cell *matHeaderCellDef>Detection Uptime Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['detection Uptime Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="ped Actuation Uptime Score">
+                      <th mat-sort-header="ped Actuation Uptime Score" mat-header-cell *matHeaderCellDef>Ped Actuation Uptime Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['ped Actuation Uptime Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="comm Uptime Score">
+                      <th mat-sort-header="comm Uptime Score" mat-header-cell *matHeaderCellDef>Comm Uptime Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['comm Uptime Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="cctv Uptime Score">
+                        <th mat-sort-header="cctv Uptime Score" mat-header-cell *matHeaderCellDef>CCTV Uptime Score</th>
+                        <td mat-cell *matCellDef="let element"> {{element['cctv Uptime Score'] | number: '1.0-0'}}</td>
+                      </ng-container>
+                  
+                    <ng-container matColumnDef="flash Events Score">
+                      <th mat-sort-header="flash Events Score" mat-header-cell *matHeaderCellDef>Flash Events Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['flash Events Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="detection Uptime">
+                      <th mat-sort-header="detection Uptime" mat-header-cell *matHeaderCellDef>Detection Uptime</th>
+                      <td mat-cell *matCellDef="let element"> {{element['detection Uptime'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="ped Actuation Uptime">
+                      <th mat-sort-header="ped Actuation Uptime" mat-header-cell *matHeaderCellDef>Ped Actuation Uptime</th>
+                      <td mat-cell *matCellDef="let element"> {{element['ped Actuation Uptime'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="comm Uptime">
+                      <th mat-sort-header="comm Uptime" mat-header-cell *matHeaderCellDef>Comm Uptime</th>
+                      <td mat-cell *matCellDef="let element"> {{element['comm Uptime'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="cctv Uptime">
+                      <th mat-sort-header="cctv Uptime" mat-header-cell *matHeaderCellDef>CCTV Uptime</th>
+                      <td mat-cell *matCellDef="let element"> {{element['cctv Uptime'] | percent: '1.0'}}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="flash Events">
+                        <th mat-sort-header="flash Events" mat-header-cell *matHeaderCellDef>Flash Events</th>
+                        <td mat-cell *matCellDef="let element"> {{element['flash Events'] | number: '1.0'}}</td>
+                      </ng-container>
+                  
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsMaintenance"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsMaintenance;"></tr>
+                </table>
+                <mat-paginator #maintenancePaginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+                  
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Maintenance Trend">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <app-graph-no-card-dashboard
+                    [graphMetrics]='mtGraphMetrics'
+                    [mapSettings]='mapSettings.mtMapSettings'
+                    [metricField]='mapSettings.mtMapField'
+                    [metricLabel]='"Pedestrian Activations [pa/day]"'
+                    [changeLabel]='"Changes from prior month"'>
+                    <ng-template let-filteredData #mtTemplate>
+                        <app-bar-line-graph
+                            [data]='filteredData'
+                            [title]='mtTitle'
+                            [line]='mtLine'
+                            [bar]='mtBar'>
+                        </app-bar-line-graph>
+                    </ng-template>
+                </app-graph-no-card-dashboard>
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Operations">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                    <mat-form-field *ngFor="let filter of filterSelectListOperations" class="{{filter.style}}">
+                      <mat-label>{{filter.name}}</mat-label>
+                      <input matInput formControlName="{{filter.columnProp}}">
+                    </mat-form-field>
+                    &nbsp;
+                    <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
+                </form>
+                <table matSort mat-table [dataSource]='dataSourceOperations' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
+                    
+                    <ng-container matColumnDef="zone_Group">
+                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>Zone Group</th>
+                      <td mat-cell *matCellDef="let element"> {{element.zone_Group}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="corridor">
+                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>Corridor</th>
+                      <td mat-cell *matCellDef="let element"> {{element.corridor}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="percent Health">
+                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>Percent Health</th>
+                      <td mat-cell *matCellDef="let element"> {{element['percent Health'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="missingData">
+                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>Missing Data</th>
+                      <td mat-cell *matCellDef="let element"> {{element['missing Data'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="platoon Ratio Score">
+                      <th mat-sort-header="platoon Ratio Score" mat-header-cell *matHeaderCellDef>Platoon Ratio Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['platoon Ratio Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="ped Delay Score">
+                      <th mat-sort-header="ped Delay Score" mat-header-cell *matHeaderCellDef>Ped Delay Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['ped Delay Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="split Failures Score">
+                      <th mat-sort-header="split Failures Score" mat-header-cell *matHeaderCellDef>Split Failures Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['split Failures Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="travel Time Index Score">
+                        <th mat-sort-header="travel Time Index Score" mat-header-cell *matHeaderCellDef>Travel Time Index Score</th>
+                        <td mat-cell *matCellDef="let element"> {{element['travel Time Index Score'] | number: '1.0-0'}}</td>
+                      </ng-container>
+                  
+                    <ng-container matColumnDef="buffer Index Score">
+                      <th mat-sort-header="buffer Index Score" mat-header-cell *matHeaderCellDef>Buffer Index Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['buffer Index Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="platoon Ratio">
+                      <th mat-sort-header="platoon Ratio" mat-header-cell *matHeaderCellDef>Platoon Ratio</th>
+                      <td mat-cell *matCellDef="let element"> {{element['platoon Ratio'] | number: '1.0-2'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="ped Delay">
+                      <th mat-sort-header="ped Delay" mat-header-cell *matHeaderCellDef>Ped Delay</th>
+                      <td mat-cell *matCellDef="let element"> {{element['ped Delay'] | number: '1.0-1'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="split Failures">
+                      <th mat-sort-header="split Failures" mat-header-cell *matHeaderCellDef>Split Failures</th>
+                      <td mat-cell *matCellDef="let element"> {{element['split Failures'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="travel Time Index">
+                      <th mat-sort-header="travel Time Index" mat-header-cell *matHeaderCellDef>Travel Time Index</th>
+                      <td mat-cell *matCellDef="let element"> {{element['travel Time Index'] | number: '1.0-2'}}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="buffer Index">
+                        <th mat-sort-header="buffer Index" mat-header-cell *matHeaderCellDef>Buffer Index</th>
+                        <td mat-cell *matCellDef="let element"> {{element['buffer Index'] | number: '1.0-2'}}</td>
+                      </ng-container>
+                  
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsOperations"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsOperations;"></tr>
+                </table>
+                <mat-paginator #operationsPaginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+                  
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Operation Trend">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <app-graph-no-card-dashboard
+                    [graphMetrics]='otGraphMetrics'
+                    [mapSettings]='mapSettings.otMapSettings'
+                    [metricField]='mapSettings.otMapField'
+                    [metricLabel]='"Pedestrian Pushbutton Availability"'
+                    [changeLabel]='"Changes from prior month"'>
+                    <ng-template let-filteredData #otTemplate>
+                        <app-bar-line-graph
+                            [data]='filteredData'
+                            [title]='otTitle'
+                            [line]='otLine'
+                            [bar]='otBar'>
+                        </app-bar-line-graph>
+                    </ng-template>
+                </app-graph-no-card-dashboard>
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Safety">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                    <mat-form-field *ngFor="let filter of filterSelectListSafety" class="{{filter.style}}">
+                      <mat-label>{{filter.name}}</mat-label>
+                      <input matInput formControlName="{{filter.columnProp}}">
+                    </mat-form-field>
+                    &nbsp;
+                    <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
+                </form>
+                <table matSort mat-table [dataSource]='dataSourceSafety' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
+                    
+                    <ng-container matColumnDef="zone_Group">
+                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>Zone Group</th>
+                      <td mat-cell *matCellDef="let element"> {{element.zone_Group}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="corridor">
+                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>Corridor</th>
+                      <td mat-cell *matCellDef="let element"> {{element.corridor}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="percent Health">
+                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>Percent Health</th>
+                      <td mat-cell *matCellDef="let element"> {{element['percent Health'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="missingData">
+                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>Missing Data</th>
+                      <td mat-cell *matCellDef="let element"> {{element['missing Data'] | percent: '1.0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="crash Rate Index Score">
+                      <th mat-sort-header="crash Rate Index Score" mat-header-cell *matHeaderCellDef>Crash Rate Index Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['crash Rate Index Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="kabco Crash Severity Index Score">
+                      <th mat-sort-header="kabco Crash Severity Index Score" mat-header-cell *matHeaderCellDef>KABCO Crash Severity Index Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['kabco Crash Severity Index Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="high Speed Index Score">
+                      <th mat-sort-header="high Speed Index Score" mat-header-cell *matHeaderCellDef>High Speed Index Score</th>
+                      <td mat-cell *matCellDef="let element"> {{element['high Speed Index Score'] | number: '1.0-0'}}</td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="ped Injury Exposure Index Score">
+                        <th mat-sort-header="ped Injury Exposure Index Score" mat-header-cell *matHeaderCellDef>Ped Injury Exposure Index Score</th>
+                        <td mat-cell *matCellDef="let element"> {{element['ped Injury Exposure Index Score'] | number: '1.0-0'}}</td>
+                      </ng-container>
+                  
+                    <ng-container matColumnDef="crash Rate Index">
+                      <th mat-sort-header="crash Rate Index" mat-header-cell *matHeaderCellDef>Crash Rate Index</th>
+                      <td mat-cell *matCellDef="let element"> {{element['crash Rate Index'] | number: '1.0-2'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="kabco Crash Severity Index">
+                      <th mat-sort-header="kabco Crash Severity Index" mat-header-cell *matHeaderCellDef>KABCO Crash Severity Index</th>
+                      <td mat-cell *matCellDef="let element"> {{element['kabco Crash Severity Index'] | number: '1.0-2'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="high Speed Index">
+                      <th mat-sort-header="high Speed Index" mat-header-cell *matHeaderCellDef>High Speed Index</th>
+                      <td mat-cell *matCellDef="let element"> {{element['high Speed Index'] | number: '1.0-2'}}</td>
+                    </ng-container>
+                  
+                    <ng-container matColumnDef="ped Injury Exposure Index">
+                      <th mat-sort-header="ped Injury Exposure Index" mat-header-cell *matHeaderCellDef>Ped Injury Exposure Index</th>
+                      <td mat-cell *matCellDef="let element"> {{element['ped Injury Exposure Index'] | number: '1.0-2'}}</td>
+                    </ng-container>
+                  
+                   
+                  
+                    <tr mat-header-row *matHeaderRowDef="displayedColumnsSafety"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumnsSafety;"></tr>
+                </table>
+                <mat-paginator #safetyPaginator [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+                  
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab label="Safety Trend">
+        <ng-template matTabContent>
+            <div class="container-fluid">
+                <app-graph-no-card-dashboard
+                    [graphMetrics]='stGraphMetrics'
+                    [metricLabel]='"Communications Uptime"'
+                    [changeLabel]='"Changes from prior month"'>
+                    <ng-template let-filteredData #stTemplate>
+                        <app-bar-line-graph
+                            [data]='filteredData'
+                            [title]='stTitle'
+                            [line]='stLine'
+                            [bar]='stBar'>
+                        </app-bar-line-graph>
+                    </ng-template>
+                </app-graph-no-card-dashboard>
+            </div>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>
+
+

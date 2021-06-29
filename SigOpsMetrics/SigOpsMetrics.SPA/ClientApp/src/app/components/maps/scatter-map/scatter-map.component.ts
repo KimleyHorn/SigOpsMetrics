@@ -16,14 +16,16 @@ import { DatePipe } from '@angular/common';
 export class ScatterMapComponent implements OnInit {
   private _metricSubscription: Subscription;
   private _signalSubscription: Subscription;
-  private _serviceSubscription: Subscription;
+  private _corridorSubscription: Subscription;
   private _filterSubscription: Subscription;
+  private _serviceSubscription: Subscription;
 
   @Input() mapSettings;
   private _metricData;
   private _signals;
   private _corridors;
   private _filter;
+  private isFiltering: boolean = true;
 
   public mapGraph: any;
 
@@ -87,7 +89,7 @@ export class ScatterMapComponent implements OnInit {
       this.createMarkers();
     });
 
-    this._serviceSubscription = this._filterService.corridors.subscribe(data => {
+    this._corridorSubscription = this._filterService.corridors.subscribe(data => {
       this._corridors = data;
       this.createMarkers();
     });
@@ -96,20 +98,27 @@ export class ScatterMapComponent implements OnInit {
       this._filter = filter;
       this.createMarkers();
     });
+
+    this._serviceSubscription = this._filterService.isFiltering.subscribe(filtering => {
+      this.isFiltering = filtering;
+      this.createMarkers();
+    });
   }
 
   ngOnDestroy(): void {
     this._metricSubscription.unsubscribe();
     this._signalSubscription.unsubscribe();
-    this._serviceSubscription.unsubscribe();
+    this._corridorSubscription.unsubscribe();
     this._filterSubscription.unsubscribe();
+    this._serviceSubscription.unsubscribe();
   }
 
   createMarkers(){
     if(this._metricData !== undefined
       && this._signals !== undefined
       && this._corridors !== undefined
-      && this._filter !== undefined)
+      && this._filter !== undefined
+      && !this.isFiltering)
     {
       //join the metric data with the signals
       let joinedData = this._signals.map(signal =>{

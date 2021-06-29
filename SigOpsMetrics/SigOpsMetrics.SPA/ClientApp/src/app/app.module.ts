@@ -32,6 +32,7 @@ import { MetricCardComponent } from './components/cards/metric-card/metric-card.
 import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
 import { BarLineLineGraphComponent } from './components/graphs/bar-line-line-graph/bar-line-line-graph.component';
 import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/graph-dashboard.component';
+import { GraphNoCardDashboardComponent} from './components/dashboards/graph-no-card-dashboard/graph-no-card-dashboard.component';
 import { DatePipe } from '@angular/common';
 import { ScatterMapComponent } from './components/maps/scatter-map/scatter-map.component';
 import { BaseDashboardComponent } from './components/dashboards/base-dashboard/base-dashboard.component';
@@ -42,6 +43,7 @@ import { DashboardTableComponent } from './components/tables/dashboard-table/das
 import { TicketsTableComponent } from './components/tables/tickets-table/tickets-table.component';
 import { ContactComponent } from './core/contact-form/contact-form';
 import { NgxMaskModule } from 'ngx-mask';
+import { FilterChipListComponent } from './components/chip-lists/filter-chip-list/filter-chip-list.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -75,6 +77,7 @@ const routes = [
     BarLineLineGraphComponent,
     GraphDashboardComponent,
     // GraphsDashboardComponent,
+    GraphNoCardDashboardComponent,
     ScatterMapComponent,
     BaseDashboardComponent,
     MapDashboardComponent,

@@ -13,6 +13,7 @@ export class FilterService {
   private filter: Filter = new Filter();
   private _filters = new BehaviorSubject<Filter>(null);
   public filters = this._filters.asObservable();
+  public isFiltering: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
   baseUrl: string;
   public signalGroups: Array<any> = [];
@@ -162,35 +163,42 @@ export class FilterService {
   }
 
   public setValue(key: string, value: any){
-      switch (key) {
-        case "zone_Group":
-          this.getZonesByZoneGroup(value);
-          this.getCorridorsByZoneGroup(value);
-          break;
-        case "zone":
-          this.getCorridorsByZone(value);
-        case "corridor":
-          this.getSubcorridorsByCorridor(value);
-        default:
-          break;
-      }
+    switch (key) {
+      case "zone_Group":
+        this.getZonesByZoneGroup(value);
+        this.getCorridorsByZoneGroup(value);
+        break;
+      case "zone":
+        this.getCorridorsByZone(value);
+        break;
+      case "corridor":
+        this.getSubcorridorsByCorridor(value);
+        break;
+      default:
+        break;
+    }
+
     this.filter[key] = value;
+    this.isFiltering.next(true);
   }
 
   public updateFilter(){
     this._filters.next(this.filter);
+    this.isFiltering.next(false);
   }
 
   public resetFilter(){
     this.filter = new Filter();
     this._loadData(this.filter);
     this.updateFilter();
+    this.isFiltering.next(false);
   }
 
   public filterData(data: any, corridors: [] = []){
     let filteredData = data;
+
     for (let key of Object.keys(this.filter)) {
-      if(this.filter[key] && key !== 'month'){
+      if(this.filter[key] && this.filter[key] !== null && key !== 'month'){
         switch (key) {
           case 'zone_Group':
             filteredData = filteredData.filter(dataItem => {
@@ -213,6 +221,7 @@ export class FilterService {
         }
       }
     }
+
     return filteredData;
   }
 
@@ -225,5 +234,14 @@ export class FilterService {
     });
 
     return groupData[0];
+  }
+
+  public splitMonth(){
+    let splitMonth = this.filter.month.split('/');
+
+    let month = parseInt(splitMonth[0]) - 1;
+    let year = parseInt(splitMonth[1]);
+
+    return [month, year];
   }
 }

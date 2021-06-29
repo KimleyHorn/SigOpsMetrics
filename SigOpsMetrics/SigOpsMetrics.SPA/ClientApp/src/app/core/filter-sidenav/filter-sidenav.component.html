@@ -1,19 +1,23 @@
 <div class="col">
   <span class="header-label" style="font-size:12px; margin-top:10px;">Filters</span>
+
   <div class="filter-break"></div>
 
   <span class="header-label">Date Range</span>
-  <mat-radio-group class="date-range-radio-group" [(ngModel)]="selectedDateOption">
+
+  <mat-radio-group class="date-range-radio-group" (change)="updateDateRange($event)" [(ngModel)]="selectedDateOption">
     <mat-radio-button class="date-range-radio-button" *ngFor="let option of options" [value]="option">
       {{option}}
     </mat-radio-button>
   </mat-radio-group>
+
   <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%;" *ngIf="this.selectedDateOption === 'Custom'">
     <mat-label>Start Date</mat-label>
     <input matInput [matDatepicker]="startDate" (dateChange)="updateFilter('customStart',$event)">
     <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
     <mat-datepicker #startDate></mat-datepicker>
   </mat-form-field>
+
   <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%;margin-left:25px;" *ngIf="this.selectedDateOption === 'Custom'">
     <mat-label>End Date</mat-label>
     <input matInput [matDatepicker]="endDate" (dateChange)="updateFilter('customEnd',$event)">
@@ -33,8 +37,8 @@
   </div>
 
   <div class="filter-break"></div>
-  <span class="header-label">Time Range</span>
 
+  <span class="header-label">Time Range</span>
   <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%" >
     <mat-label>Begin Time</mat-label>
     <input matInput [matDatepicker]="startTime" (dateChange)="updateFilter('startTime',$event)">
@@ -59,18 +63,27 @@
     </mat-datepicker>
   </mat-form-field>
 
-
   <div class="filter-break"></div>
+
   <span class="header-label">Data Aggregation</span>
-  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;"  >
+
+  <mat-radio-group class="date-range-radio-group" (change)="updateFilter('dataAggregation',$event)" [(ngModel)]="selectedAggregationOption">
+    <mat-radio-button class="date-range-radio-button" *ngFor="let option of aggregationOptions" [checked]="option.checked" [disabled]="option.disabled" [value]="option.aggregate">
+      {{option.aggregate}}
+    </mat-radio-button>
+  </mat-radio-group>
+
+  <!-- <mat-form-field appearance="outline" class="filter-form-field" style="display: block;"  >
     <mat-label>Select Time Period?</mat-label>
     <mat-select (selectionChange)="updateFilter('timePeriod',$event)" [(ngModel)]="selectedDataAggregationOption">
       <mat-option *ngFor="let time of timeOptions" [value]="time">
         {{time}} Minutes
       </mat-option>
     </mat-select>
-  </mat-form-field>
+  </mat-form-field> -->
+
   <div class="filter-break"></div>
+
   <span class="header-label">Signal Attributes</span>
   <mat-form-field ngDefaultControl appearance="outline" class="filter-form-field" style="display: block;">
     <mat-label>Select Region</mat-label>

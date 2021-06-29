@@ -16,7 +16,7 @@
 <table matSort mat-table [dataSource]='dataSource' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
   <ng-container matColumnDef="signalID">
     <th mat-sort-header="signalID" mat-header-cell *matHeaderCellDef>Signal ID</th>
-    <td mat-cell *matCellDef="let element"> {{element.signalID}}</td>
+    <td mat-cell *matCellDef="let element" style="text-align: center;"> {{element.signalID}}</td>
   </ng-container>
 
   <ng-container matColumnDef="zoneGroup">
