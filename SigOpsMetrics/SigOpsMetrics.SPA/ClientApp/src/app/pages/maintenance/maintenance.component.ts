@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { MatTabChangeEvent } from '@angular/material/tabs';
+import { Title } from '@angular/platform-browser';
 import { ChartToggleService } from 'src/app/components/toggles/chart-toggle/chart-toggle.service';
 import { Graph } from 'src/app/models/graph';
 import { MapSettings } from 'src/app/models/map-settings';
@@ -12,6 +14,7 @@ import { Metrics } from 'src/app/models/metrics';
 })
 export class MaintenanceComponent implements OnInit {
   toggleValue: string;
+  currentTab: string;
   mapStart = '2021-03-01';
   mapEnd = '2021-03-02';
 
@@ -149,12 +152,17 @@ export class MaintenanceComponent implements OnInit {
       '<extra></extra>'
   };
 
-  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings) { }
+  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title) { }
 
   ngOnInit(): void {
     this.toggleService.toggleValue.subscribe(value => {
       this.toggleValue = value;
     });
-  }
+    this.titleService.setTitle("SigOpsMetrics - Maintenance - Daily Traffic Volumes");
 
+  }
+  tabChanged(tabChangeEvent: MatTabChangeEvent): void {
+    this.currentTab = tabChangeEvent.tab.textLabel;
+    this.titleService.setTitle("SigOpsMetrics - Operations - " + this.currentTab);
+  }
 }

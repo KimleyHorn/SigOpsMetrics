@@ -1,5 +1,6 @@
 import { core } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs/operators';
 import { Colors } from 'src/app/models/colors';
 import { Filter } from 'src/app/models/filter';
@@ -87,7 +88,8 @@ export class TeamsTasksComponent implements OnInit {
   constructor(
     private _metricsService: MetricsService,
     private _filterSerivce: FilterService,
-    private _formatService: FormatService) {
+    private _formatService: FormatService, 
+    private titleService:Title) {
 
     //get the current month
     let metricDate = (this._dt.getMonth() + 1) + '/' + this._dt.getFullYear();
@@ -113,6 +115,8 @@ export class TeamsTasksComponent implements OnInit {
    }
 
   ngOnInit(): void {
+    this.titleService.setTitle("SigOpsMetrics - TEAMSTasks")
+
     //create the layout for the big graph
     this.bigGraphConfig = {
       data: [],

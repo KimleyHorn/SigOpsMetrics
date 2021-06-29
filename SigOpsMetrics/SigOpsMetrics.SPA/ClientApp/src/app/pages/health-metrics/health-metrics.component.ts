@@ -13,6 +13,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import {Sort} from '@angular/material/sort';
 import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-health-metrics',
@@ -113,7 +114,7 @@ export class HealthMetricsComponent implements OnInit {
   sortedDataSafety: HealthSafety[];
   readonly formControlSafety: AbstractControl;
 
-  constructor(private metricsService: MetricsService, formBuilder: FormBuilder, private toggleService: ChartToggleService, public mapSettings: MapSettings) {
+  constructor(private metricsService: MetricsService, formBuilder: FormBuilder, private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title) {
     // Object to create Filter for
     this.filterSelectListMaintenance = [
       {
@@ -492,6 +493,8 @@ export class HealthMetricsComponent implements OnInit {
       this.toggleValue = value;
     });
     this.currentTab = "Maintenance";
+    this.titleService.setTitle("SigOpsMetrics - HealthMetrics - Maintenance");
+
   }
 
   
@@ -685,6 +688,7 @@ export class HealthMetricsComponent implements OnInit {
 
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.currentTab = tabChangeEvent.tab.textLabel;
+    this.titleService.setTitle("SigOpsMetrics - HealthMetrics - " + this.currentTab);
     setTimeout(()=>{
     switch(this.currentTab){
       case "Maintenance":

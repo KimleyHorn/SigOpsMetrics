@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
+import { setUncaughtExceptionCaptureCallback } from 'process';
 import { MetricSelectService } from 'src/app/components/selects/metric-select/metric-select.service';
 import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';
+import { BrowserModule, Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-dashboard',
@@ -9,6 +11,8 @@ import { Metrics } from 'src/app/models/metrics';
   styleUrls: ['./dashboard.component.css'],
   providers:[MapSettings]
 })
+
+
 export class DashboardComponent  implements OnInit {
   selectedSettings;
 
@@ -34,9 +38,10 @@ export class DashboardComponent  implements OnInit {
     { name: "Communications Uptime", measure: "cu", metric: "uptime", format:"percent", precision: 1 },
   ];
 
-  constructor(public mapSettings: MapSettings, private _metricSelectService: MetricSelectService) { }
+  constructor(public mapSettings: MapSettings, private _metricSelectService: MetricSelectService, private titleService:Title) { }
 
   ngOnInit(){
+    this.titleService.setTitle("SigOpsMetrics - Dashboard")
     this.selectedSettings = this.mapSettings.tpMapSettings;
 
     this._metricSelectService.selectedMetric.subscribe(value => {
