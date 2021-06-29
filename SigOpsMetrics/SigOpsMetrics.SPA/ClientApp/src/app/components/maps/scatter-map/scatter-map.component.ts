@@ -79,21 +79,25 @@ export class ScatterMapComponent implements OnInit {
   }
 
   private _loadMapData(){
+    //TODO: create new method to return signals and not corridors
     this._metricSubscription = this._metricsService.getMetrics(this.mapSettings.metrics).subscribe(response => {
       this._metricData = response;
       this.createMarkers();
     });
 
+    //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
     this._signalSubscription = this._signalsService.getData().subscribe(data => {
       this._signals = data;
       this.createMarkers();
     });
 
+    //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
     this._corridorSubscription = this._filterService.corridors.subscribe(data => {
       this._corridors = data;
       this.createMarkers();
     });
 
+    //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
       this._filter = filter;
       this.createMarkers();
@@ -107,20 +111,27 @@ export class ScatterMapComponent implements OnInit {
 
   ngOnDestroy(): void {
     this._metricSubscription.unsubscribe();
+    //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
     this._signalSubscription.unsubscribe();
+    //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
     this._corridorSubscription.unsubscribe();
+    //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
     this._filterSubscription.unsubscribe();
     this._serviceSubscription.unsubscribe();
   }
 
   createMarkers(){
     if(this._metricData !== undefined
+      //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
       && this._signals !== undefined
+      //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
       && this._corridors !== undefined
+      //TODO: REMOVE THIS!!! Will not be needed when there is filtered signal metric data
       && this._filter !== undefined
       && !this.isFiltering)
     {
-      //join the metric data with the signals
+      //TODO: REMOVE THIS!!! To be replaced with filtered signal metric data
+      //join the corridor metric data with the signals
       let joinedData = this._signals.map(signal =>{
         let newSignal = signal;
         let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID || md["corridor"] === signal.corridor)[0]
@@ -132,6 +143,7 @@ export class ScatterMapComponent implements OnInit {
         return newSignal;
       });
 
+      //TODO: REMOVE THIS!!! To be replaced with filtered signal metric data
       //filter out the appropriate data
       let filteredData = this._filterService.filterData(joinedData, this._corridors);
 

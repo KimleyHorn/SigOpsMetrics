@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.Classes.Internal;
 using SigOpsMetrics.API.DataAccess;
 
@@ -168,12 +169,21 @@ namespace SigOpsMetrics.API.Controllers
             var retVal = await GetFilteredDataTable(source, measure, filter);
             List<AverageDTO> groupedData = new List<AverageDTO>();
 
+            var avgColIndex = 3;
+            var deltaColIndex = 5;
+
+            if (measure == "vphpa" || measure == "vphpp")
+            {
+                avgColIndex = 3;
+                deltaColIndex = 4;
+            }
+
             if (dashboard)
             {
                 var avg = (from row in retVal.AsEnumerable()
-                           select row.Field<double>(3)).Average();
+                           select row[avgColIndex].ToDouble()).Average();
                 var delta = (from row in retVal.AsEnumerable()
-                           select row.Field<double>(5)).Average();
+                             select row[deltaColIndex].ToDouble()).Average();
 
                 var data = new AverageDTO
                 {
@@ -190,11 +200,10 @@ namespace SigOpsMetrics.API.Controllers
                                   select new AverageDTO
                                   {
                                       label = g.Key.label,
-                                      avg = g.Average(x => x.Field<double>(3)),
-                                      delta = g.Average(x => x.Field<double>(5))
+                                      avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                      delta = g.Average(x => x[deltaColIndex].ToDouble())
                                   }).ToList();
             }
-
 
             return groupedData.ToList();
         }
