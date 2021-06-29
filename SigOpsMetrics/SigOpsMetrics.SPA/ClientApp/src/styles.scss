@@ -78,3 +78,17 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 .mat-table{
   width:100%;
 }
+
+.mat-dialog-container {
+  padding: 0px !important;
+}
+
+.contact-mat-bar-success {
+  background-color: #C1E1C1;
+  color:black;
+}
+
+.contact-mat-bar-fail {
+  background-color:red;
+  color:black;
+}

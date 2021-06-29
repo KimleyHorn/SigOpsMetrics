@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-watchdog',
@@ -7,9 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class WatchdogComponent implements OnInit {
 
-  constructor() { }
+  constructor(private titleService:Title) { }
 
   ngOnInit(): void {
+    this.titleService.setTitle("SigOpsMetrics - Watchdog")
+
   }
 
 }
