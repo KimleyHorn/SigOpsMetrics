@@ -40,12 +40,12 @@ namespace SigOpsMetrics.API
             });
             services.AddCors(options =>
             {
-                options.AddPolicy("AnyOrigin", builder => { builder.AllowAnyOrigin().AllowAnyMethod(); });
+                //options.AddPolicy("AnyOrigin", builder => { builder.AllowAnyOrigin().AllowAnyMethod(); });
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                     builder =>
                     {
                         //Add future domains here
-                        builder.WithOrigins("http://localhost:4200", "http://sigops-test.s3-website-us-east-1.amazonaws.com");
+                        builder.WithOrigins("http://localhost:4200", "http://sigops-test.s3-website-us-east-1.amazonaws.com").AllowAnyMethod().AllowAnyHeader();
                     });
             });
             //services.AddResponseCaching();

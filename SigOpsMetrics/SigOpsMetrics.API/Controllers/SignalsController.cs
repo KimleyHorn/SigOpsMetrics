@@ -394,6 +394,27 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Endpoint for performing submitting contact requests.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("contact-us")]
+        public async Task<IActionResult> ContactUs(ContactInfo data)
+        {
+            int result = 0;
+            try
+            {
+                result = await SignalsDataAccessLayer.WriteToContactUs(SqlConnection, data);
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                "ContactUs", ex);
+            }
+            return Ok(result);
+        }
+
         #endregion
 
         #region Private Methods

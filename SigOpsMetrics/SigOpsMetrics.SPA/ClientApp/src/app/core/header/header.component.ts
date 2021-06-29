@@ -1,15 +1,17 @@
 import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { ContactComponent } from '../contact-form/contact-form';
 import { SideNavService } from '../side-nav/side-nav.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
+  providers: [ContactComponent]
 })
 export class HeaderComponent implements OnInit {
   
-  constructor(private sideNav: SideNavService) { }
+  constructor(private sideNav: SideNavService, private contact: ContactComponent) { }
   links: any[] = [
     {url:"https://traffic.dot.ga.gov/atspm", name:"ATSPM", icon: "..\\assets\\images\\icon_atspm.png"},
     {url:"https://gdotcitrix.dot.ga.gov/vpn/index.html", name:"GDOT Citrix", icon: "..\\assets\\images\\icon_citrix.png"},
@@ -18,7 +20,7 @@ export class HeaderComponent implements OnInit {
     {url:"https://navigator-atms.dot.ga.gov/", name:"Navigator", icon: "..\\assets\\images\\icon_navigator.jpg"},
     {url:"https://ritis.org/", name:"RITIS", icon: "..\\assets\\images\\icon_ritis.jpg"},
     {url:"https://designitapps.com/GDOT/", name:"TEAMS", icon: "..\\assets\\images\\icon_teams.png"}
-]
+  ]
 
   ngOnInit(): void {
   }
@@ -26,4 +28,9 @@ export class HeaderComponent implements OnInit {
   toggleSideNav(){
     this.sideNav.toggle();
   }
+
+  toggleContact(){
+    this.contact.toggle();
+  }
+
 }

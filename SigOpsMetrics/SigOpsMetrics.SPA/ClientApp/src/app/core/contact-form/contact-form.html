@@ -1,0 +1,90 @@
+<div style="background-color: #0070ed; max-width: 100%; height:35px; color:white;font-size:18px;text-align: center; padding:10px 5px 10px 5px;">Contact Us</div>
+<div style="padding: 10px 20px 10px 20px; background-color:#F0F8FE;">
+    <div style="margin-bottom:20px;">Contact us to provide user feedback or receive technical support.</div>
+    <form name="form" #f="ngForm" (ngSubmit)="f.form.valid && processForm()" novalidate>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="inputFirstName">First Name</label>
+                <input type="text" class="form-control" name="firstName" [(ngModel)]="model.firstName" #firstName="ngModel" [ngClass]="{ 'is-invalid': f.submitted && firstName.invalid }" required>
+                <div *ngIf="f.submitted && firstName.invalid" class="invalid-feedback">
+                    <div *ngIf="firstName.errors.required">First Name is required</div>
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputLastName">Last Name</label>
+                <input type="text" class="form-control" name="lastName" [(ngModel)]="model.lastName" #lastName="ngModel" [ngClass]="{ 'is-invalid': f.submitted && lastName.invalid }" required>
+                <div *ngIf="f.submitted && lastName.invalid" class="invalid-feedback">
+                    <div *ngIf="lastName.errors.required">Last Name is required</div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail">Email Address</label>
+            <input type="email" class="form-control" name="email" [(ngModel)]="model.emailAddress" #email="ngModel" [ngClass]="{ 'is-invalid': f.submitted && email.invalid }" email required>
+            <div *ngIf="f.submitted && email.invalid" class="invalid-feedback">
+                <div *ngIf="email.errors.required">Email Address is required</div>
+                <div *ngIf="email.errors?.email">Email address is not valid.</div> 
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputPhone">Phone Number</label>
+            <input mask="(000) 000-0000" class="form-control" id="inputPhone" name="phone" aria-describedby="emailHelp" [(ngModel)]="model.phoneNumber">
+        </div>
+        <div [ngClass]="{ 'is-invalid': f.submitted && reason.invalid }">Reason:</div>
+        <div *ngIf="f.submitted && reason.invalid" class="invalid-feedback">
+            <div *ngIf="reason.errors.required">Reason is required</div>
+        </div>
+        <fieldset class="form-group" style="margin-bottom:0px;" [ngClass]="{ 'is-invalid': f.submitted && reason.invalid }"> 
+            <div class="row">
+                <div class="form-group col-md-6" style="margin-bottom:0px;">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <div class="form-check">
+                            <input id="reason1" class="form-check-input" type="radio" name="reason" #reason="ngModel" value="Provide Site Feedback" [(ngModel)]="model.reason" [ngClass]="{ 'is-invalid': f.submitted && reason.invalid }" required>
+                            <label class="form-check-label" for="reason1">
+                            Provide Site Feedback
+                          </label>
+                      </div>
+                      <div class="form-check">
+                          <input id="reason2" class="form-check-input" type="radio" name="reason" #reason="ngModel" value="Report a Technical Issue" [(ngModel)]="model.reason" [ngClass]="{ 'is-invalid': f.submitted && reason.invalid }" required>
+                          <label class="form-check-label" for="reason2">
+                              Report a Technical Issue
+                          </label>
+                      </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-6" style="margin-top:0px;">
+                    <div class="col-sm-12" style="padding:0px;">
+                        <div class="form-check">
+                            <input id="reason3" class="form-check-input" type="radio" name="reason" #reason="ngModel" value="Report Inaccurate Data" [(ngModel)]="model.reason" [ngClass]="{ 'is-invalid': f.submitted && reason.invalid }" required>
+                            <label class="form-check-label" for="reason3">
+                                Report Inaccurate Data
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input id="reason4" class="form-check-input" type="radio" name="reason" #reason="ngModel" value="Request a Report" [(ngModel)]="model.reason" [ngClass]="{ 'is-invalid': f.submitted && reason.invalid }" required>
+                            <label class="form-check-label" for="reason4">
+                                Request a Report
+                            </label>
+                        </div>
+                        <div class="form-check">
+                          <input id="reason5" class="form-check-input" type="radio" name="reason" #reason="ngModel" value="Other" [(ngModel)]="model.reason" [ngClass]="{ 'is-invalid': f.submitted && reason.invalid }" required>
+                          <label class="form-check-label" for="reason5">
+                            Other
+                          </label>
+                        </div>            
+                    </div>
+                </div>
+              </div>
+            </fieldset>
+          <div class="form-group">
+            <label for="inputComments">Message</label>         
+            <textarea class="form-control" name="comments" [(ngModel)]="model.comments" #comments="ngModel" rows="5" placeholder="Enter your comments or questions here." [(ngModel)]="model.comments" [ngClass]="{ 'is-invalid': f.submitted && comments.invalid }" required></textarea>
+            <div *ngIf="f.submitted && comments.invalid" class="invalid-feedback">
+                <div *ngIf="comments.errors.required">Comments are required</div>
+            </div>
+        </div>
+        <div class="form-group" style="text-align:center;">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>  
+    </form>
+</div>
