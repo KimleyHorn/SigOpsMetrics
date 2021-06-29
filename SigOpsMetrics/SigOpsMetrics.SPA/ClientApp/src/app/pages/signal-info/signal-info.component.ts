@@ -5,6 +5,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import {Sort} from '@angular/material/sort';
 import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-signal-info',
@@ -21,7 +22,7 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
   sortedData: SignalInfo[];
   readonly formControl: AbstractControl;
 
-  constructor(private signalsService: SignalsService, formBuilder: FormBuilder) {
+  constructor(private signalsService: SignalsService, formBuilder: FormBuilder, private titleService:Title) {
     // Object to create Filter for
     this.filterSelectList = [
       {
@@ -169,7 +170,9 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.titleService.setTitle("SigOpsMetrics - SignalInfo")
   }
+  
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
