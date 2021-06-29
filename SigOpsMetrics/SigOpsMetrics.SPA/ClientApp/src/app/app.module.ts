@@ -85,7 +85,8 @@ const routes = [
     TicketsGraphComponent,
     DashboardTableComponent,
     TicketsTableComponent,
-    ContactComponent
+    ContactComponent,
+    FilterChipListComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

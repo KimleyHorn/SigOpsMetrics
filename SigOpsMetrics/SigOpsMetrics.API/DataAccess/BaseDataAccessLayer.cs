@@ -55,7 +55,7 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "INSERT INTO mark1.UserComments (FirstName, LastName, EmailAddress, PhoneNumber, Reason, Comments) VALUES (@firstName, @lastName, @emailAddress, @phoneNumber, @reason, @comments)";
+                    cmd.CommandText = "INSERT INTO mark1.UserComments (FirstName, LastName, EmailAddress, PhoneNumber, Reason, Comments, Timestamp) VALUES (@firstName, @lastName, @emailAddress, @phoneNumber, @reason, @comments, NOW())";
                     cmd.Parameters.AddWithValue("firstName", data.FirstName);
                     cmd.Parameters.AddWithValue("lastName", data.LastName);
                     cmd.Parameters.AddWithValue("emailAddress", data.EmailAddress);
