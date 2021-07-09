@@ -163,6 +163,43 @@ namespace SigOpsMetrics.API.Controllers
             return await GetFilteredDataTable(source, measure, filter);
         }
 
+        [HttpPost("signals/filter")]
+        public async Task<DataTable> GetSignalsByFilter(string source, string measure, [FromBody]
+            FilterDTO filter)
+        {
+            var retVal = await GetFilteredDataTable(source, measure, filter, true);
+            return retVal;
+        }
+
+        [HttpPost("signals/filter/average")]
+        public async Task<List<AverageDTO>> GetSignalsAverageByFilter(string source, string measure, [FromBody]
+            FilterDTO filter)
+        {
+            var retVal = await GetFilteredDataTable(source, measure, filter, true);
+            List<AverageDTO> groupedData = new List<AverageDTO>();
+
+            var avgColIndex = 2;
+            var deltaColIndex = 3;
+
+            //signals have different column orders than corridors - reconcile later
+            
+            if (measure == "vphpa" || measure == "vphpp")
+            {
+                avgColIndex = 3;
+                deltaColIndex = 4;
+            }
+            groupedData = (from row in retVal.AsEnumerable()
+                           group row by new { label = row[0].ToString() } into g
+                           select new AverageDTO
+                           {
+                               label = g.Key.label,
+                               avg = g.Average(x => x[avgColIndex].ToDouble()),
+                               delta = g.Average(x => x[deltaColIndex].ToDouble())
+                           }).ToList();
+
+            return groupedData;
+        }
+
         [HttpPost("average")]
         public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
         {
@@ -208,7 +245,7 @@ namespace SigOpsMetrics.API.Controllers
             return groupedData.ToList();
         }
 
-        private async Task<DataTable> GetFilteredDataTable(string source, string measure, [FromBody] FilterDTO filter)
+        private async Task<DataTable> GetFilteredDataTable(string source, string measure, [FromBody] FilterDTO filter, bool signalOnly = false)
         {
             // Check for an invalid filter
             //todo more checks as we start using the filter
@@ -216,7 +253,15 @@ namespace SigOpsMetrics.API.Controllers
 
             var dates = GenerateDateFilter(filter);
 
-            var filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
+            var filteredItems = new FilteredItems();
+            if (signalOnly)
+            {
+                filteredItems = await SignalsDataAccessLayer.GetSignalsByFilter(SqlConnection, filter);
+            }
+            else
+            {
+                filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
+            }
 
             //If we got no corridors/signals, bail
             if (filteredItems.Items.Any())

@@ -70,9 +70,10 @@ export class MetricsService {
     this._options);
   }
 
-  // filterMetrics(metrics: Metrics, filter: Filter){
-  //   return this.http.post<any[]>(this._baseUrl + 'metrics/filter/' + metrics.source
-  //                                               + "/" + metrics.measure,
-  //                                             JSON.stringify(filter));
-  // }
+  filterSignalMetrics(metrics: Metrics, filter: Filter) {
+    return this.http.post<any[]>(this._baseUrl + 'metrics/signals/filter/average?source=' + metrics.source
+                                                + "&measure=" + metrics.measure,
+                                              filter,
+                                              this._options);
+  }
 }
