@@ -1,4 +1,5 @@
 import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
+import { HelpService } from 'src/app/services/help.service';
 import { ContactComponent } from '../contact-form/contact-form';
 import { SideNavService } from '../side-nav/side-nav.service';
 
@@ -10,8 +11,8 @@ import { SideNavService } from '../side-nav/side-nav.service';
   providers: [ContactComponent]
 })
 export class HeaderComponent implements OnInit {
-  
-  constructor(private sideNav: SideNavService, private contact: ContactComponent) { }
+  helpData: any = "";
+  constructor(private sideNav: SideNavService, private contact: ContactComponent, private helpService: HelpService) { }
   links: any[] = [
     {url:"https://traffic.dot.ga.gov/atspm", name:"ATSPM", icon: "..\\assets\\images\\icon_atspm.png"},
     {url:"https://gdotcitrix.dot.ga.gov/vpn/index.html", name:"GDOT Citrix", icon: "..\\assets\\images\\icon_citrix.png"},
@@ -31,6 +32,10 @@ export class HeaderComponent implements OnInit {
 
   toggleContact(){
     this.contact.toggle();
+  }
+
+  getHelpContent(){
+    this.helpData = this.helpService.getHelpData();
   }
 
 }

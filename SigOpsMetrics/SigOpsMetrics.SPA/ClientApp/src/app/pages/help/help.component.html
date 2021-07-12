@@ -1,0 +1,9 @@
+<div class="container-fluid help-accordion">
+    <div class="row" style="height:98%;">
+        <ng-container *ngFor='let help of data; let i = index;'>
+            <div class='col'>
+                <app-help-panel [title]='help.title' [helpData]='help.data' (test)='log($event)'></app-help-panel>
+            </div>
+        </ng-container>
+    </div>
+</div>
