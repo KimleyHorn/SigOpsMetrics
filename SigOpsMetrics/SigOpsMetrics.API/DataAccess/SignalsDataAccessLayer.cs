@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
@@ -510,42 +508,26 @@ namespace SigOpsMetrics.API.DataAccess
             }
         }
 
-        public static async Task<List<string>> GetSignalsByFilter(MySqlConnection sqlConnection, string zoneGroup,
-            string zone, string agency, string county, string city, string corridor)
-        {
-            var where = CreateSignalsWhereClause(zoneGroup, zone, agency, county, city, corridor);
-            var signalIDs = new List<string>();
-            await sqlConnection.OpenAsync();
-            await using (var cmd = new MySqlCommand())
-            {
-                cmd.Connection = sqlConnection;
-                cmd.CommandText = "select distinct(signalid) from mark1.signals " + where + " and include = 1";
-                await using var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    signalIDs.Add(reader.GetString(0).Trim());
-                }
-            }
-
-            await sqlConnection.CloseAsync();
-            return signalIDs;
-        }
-
         public static async Task<FilteredItems> GetCorridorsOrSignalsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
         {
             //Based on the filter, we want to return a list of either corridors or signals
-            string sqlText;
-            var filterType = GenericEnums.FilteredItemType.Corridor;
-            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county, filter.city, filter.corridor);
             if (filter.corridor.IsStringNullOrBlank())
             {
-                sqlText = "select distinct(corridor) from mark1.signals " + where + " and include = 1";
+                return await GetCorridorsByFilter(sqlConnection, filter);
             }
             else
             {
-                sqlText = "select distinct(signalid) from mark1.signals " + where + " and include = 1";
-                filterType = GenericEnums.FilteredItemType.Signal;
+                return await GetSignalsByFilter(sqlConnection, filter);
             }
+
+        }
+
+        public static async Task<FilteredItems> GetSignalsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
+        {
+            var filterType = GenericEnums.FilteredItemType.Signal;
+            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
+                filter.city, filter.corridor);
+            var sqlText = "select distinct(signalid) from mark1.signals " + where + " and include = 1";
 
             var retVal = new List<string>();
             await sqlConnection.OpenAsync();
@@ -561,7 +543,31 @@ namespace SigOpsMetrics.API.DataAccess
             }
 
             await sqlConnection.CloseAsync();
-            return new FilteredItems {FilterType = filterType, Items = retVal};
+            return new FilteredItems { FilterType = filterType, Items = retVal };
+        }
+
+        public static async Task<FilteredItems> GetCorridorsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
+        {
+            var filterType = GenericEnums.FilteredItemType.Corridor;
+            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
+                filter.city, filter.corridor);
+            var sqlText = "select distinct(corridor) from mark1.signals " + where + " and include = 1";
+
+            var retVal = new List<string>();
+            await sqlConnection.OpenAsync();
+            await using (var cmd = new MySqlCommand())
+            {
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = sqlText;
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    retVal.Add(reader.GetString(0).Trim());
+                }
+            }
+
+            await sqlConnection.CloseAsync();
+            return new FilteredItems { FilterType = filterType, Items = retVal };
         }
 
         private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,

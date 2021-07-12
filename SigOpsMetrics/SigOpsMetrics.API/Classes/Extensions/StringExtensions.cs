@@ -18,5 +18,10 @@ namespace SigOpsMetrics.API.Classes.Extensions
         {
             return string.IsNullOrWhiteSpace(val) || val.ToLower() == "null";
         }
+        
+        public static double ToDouble(this object input)
+        {
+            return !double.TryParse(input?.ToString(), out double retVal) ? 0.0 : retVal;
+        }
     }
 }

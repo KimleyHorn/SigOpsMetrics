@@ -18,6 +18,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
   @Input() title: string = "";
   corridors: any;
   @Input() data: any;
+  @Input() averageData: any;
 
   @Input() line: Graph;
   lineGraph: any;
@@ -78,23 +79,16 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
       if(this.data !== undefined){
         this.lineData = this.data;
-        let splitMonth = filter.month.split('/');
-
-        let month = parseInt(splitMonth[0]) - 1;
-        let year = parseInt(splitMonth[1]);
-
-        this.barData = this.data.filter(dataItem => {
-          let dataMonth = new Date(dataItem['month']).getMonth();
-          let dataYear = new Date(dataItem['month']).getFullYear();
-          return dataMonth === month && dataYear === year
-        });
 
         let cors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
         this.corridors = Array.from(cors);
+
+        this.barData = this.averageData;
       }
 
       //set the local filter variable
       this.filter = filter;
+
       //set the color for the trace
       this._selectTrace(filter.zone_Group);
     });
@@ -108,13 +102,13 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     let graphData: any[] = [];
 
     if(this.corridors !== undefined){
-      let sortedData = this.barData.sort((n1, n2) => n1[this.bar.x] - n2[this.bar.x]);
+      let sortedData = this.barData.sort((n1, n2) => n1.avg - n2.avg);
 
       sortedData.forEach(sortItem => {
         let trace = {
-          name: sortItem['corridor'],
-          x: [sortItem[this.bar.x]],
-          y: [sortItem[this.bar.y]],
+          name: sortItem.label,
+          x: [sortItem.avg],
+          y: [sortItem.label],
           orientation: 'h',
           type: 'bar',
           hovertemplate: this.bar.hoverTemplate,

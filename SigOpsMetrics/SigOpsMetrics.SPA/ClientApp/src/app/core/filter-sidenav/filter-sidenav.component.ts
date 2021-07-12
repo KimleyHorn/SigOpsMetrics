@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild, ViewEncapsulation } from "@angular/core";
+import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild, ViewEncapsulation, ChangeDetectorRef } from "@angular/core";
 import { MatDatepicker } from "@angular/material/datepicker";
 import { MatSelectionList } from "@angular/material/list";
 import { Subscription } from "rxjs";
@@ -11,45 +11,59 @@ import { FilterService } from "../../services/filter.service";
   encapsulation: ViewEncapsulation.None
 })
 export class FilterSidenavComponent implements OnInit, AfterViewInit {
-  @ViewChild("startDate") startDate: MatDatepicker<Date>;
-  @ViewChild("endDate") endDate: MatDatepicker<Date>;
-  @ViewChild("startTime") startTime: MatDatepicker<Date>;
-  @ViewChild("endTime") endTime: MatDatepicker<Date>;
+  // private startDate: MatDatepicker<Date>;
+  // @ViewChild('startDate', {static: false}) set content(content: MatDatepicker<Date>){
+  //   if(content){
+  //     this.startDate = content;
+  //   }
+  // }
+  @ViewChild("startDate", { static: false }) startDate: MatDatepicker<Date>;
+  @ViewChild("endDate", { static: false }) endDate: MatDatepicker<Date>;
+  @ViewChild("startTime", { static: false }) startTime: MatDatepicker<Date>;
+  @ViewChild("endTime", { static: false }) endTime: MatDatepicker<Date>;
+
   @Output("toggleFilter") toggleFilter: EventEmitter<any> = new EventEmitter();
 
   //Region | ZONE GROUP
   signalGroups: Array<string> = [];
-  selectedSignalGroup: string;
+  selectedSignalGroup: string = '';
   //District | ZONE
   districts: Array<string> = [];
-  selectedDistrict: string;
+  selectedDistrict: string = '';
   //Managing Agency | AGENCY
   agencies: Array<string> = [];
-  selectedAgency: string;
+  selectedAgency: string = '';
   //County
   counties: Array<string> = [];
-  selectedCounty: string;
+  selectedCounty: string = '';
   //City
   cities: Array<string> = [];
-  selectedCity: string;
+  selectedCity: string = '';
   //Corridor | CORRIDOR
   corridors: Array<string> = [];
-  selectedCorridor: string;
+  selectedCorridor: string = '';
   // Data Aggregation
   timeOptions: number[] = [15,30,60];
   selectedDataAggregationOption: number;
   // Date Range
-  selectedDateOption: string;
-  options: string[] = ['Prior Day','Prior Quarter','Prior Week','Prior Year','Prior Month','Custom']
+  selectedDateOption: number = 4;
+  options: any[] = [
+    { value: 0, label: 'Prior Day'},
+    { value: 3, label: 'Prior Quarter'},
+    { value: 1, label: 'Prior Week'},
+    { value: 4, label: 'Prior Year'},
+    { value: 2, label: 'Prior Month'},
+    { value: 5, label: 'Custom' }
+  ]
 
-  selectedAggregationOption: string;
+  selectedAggregationOption: number = 4;
   aggregationOptions: any[] = [
-    { aggregate: 'Quarterly', disabled: false, checked: false },
-    { aggregate: 'Daily', disabled: false, checked: false },
-    { aggregate: 'Monthly', disabled: false, checked: false },
-    { aggregate: '1 hour', disabled: false, checked: false },
-    { aggregate: 'Weekly', disabled: false, checked: false },
-    { aggregate: '15 mins', disabled: false, checked: false },
+    { value: 5, aggregate: 'Quarterly', disabled: false, checked: false },
+    { value: 2, aggregate: 'Daily', disabled: false, checked: false },
+    { value: 4, aggregate: 'Monthly', disabled: false, checked: false },
+    { value: 1, aggregate: '1 hour', disabled: false, checked: false },
+    { value: 3, aggregate: 'Weekly', disabled: false, checked: false },
+    { value: 0, aggregate: '15 mins', disabled: false, checked: false },
   ]
 
   // Days of Week
@@ -69,7 +83,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   agenciesSubscription: Subscription;
   filterSubscription: Subscription;
 
-  constructor(private filterService: FilterService) {}
+  constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {}
 
   ngOnInit(): void {
 
@@ -106,7 +120,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
               this._resetStartDate();
               this._resetEndDate();
               this._resetDaysOfWeek();
-              this.selectedDateOption = '';
+              this.selectedDateOption = 2;
               break;
             case 'customStart':
               this._resetStartDate();
@@ -118,13 +132,13 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
               this._resetDaysOfWeek();
               break;
             case 'startTime':
-              this.startTime.select(null);
+              this._resetStartTime();
               break;
             case 'endTime':
-              this.endTime.select(null);
+              this._resetEndTime();
               break;
             case 'dataAggregation':
-              this.selectedAggregationOption = '';
+              this.selectedAggregationOption = 4;
               break;
             case 'zone_Group':
               this.selectedSignalGroup = '';
@@ -180,8 +194,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //clear the selected aggregate option
   private _clearAggregateOption(value){
-    if(this.selectedAggregationOption === value){
-      this.selectedAggregationOption = '';
+    if(this.selectedAggregationOption > value + 1){
+      this.selectedAggregationOption = null;
     }
   }
 
@@ -192,19 +206,32 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this._resetAggregateField('disabled', false);
 
     switch (value) {
-      case "Prior Day":
-        this._clearAggregateOption('Daily');
+      case 5:
+        let dt = new Date();
+        this.changeDetectorRef.detectChanges();
+        this.startDate.select(dt);
+        this.endDate.select(dt);
+        this.startTime.select(dt);
+        this.endTime.select(dt);
+        break;
+      case 0:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Daily', 'disabled', true);
-      case "Prior Week":
-        this._clearAggregateOption('Weekly');
+      case 1:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Weekly', 'disabled', true);
-      case "Prior Month":
-        this._clearAggregateOption('Monthly');
+      case 2:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Monthly', 'disabled', true);
-      case "Prior Quarter":
-        this._clearAggregateOption('Quarterly');
+      case 3:
+        this._clearAggregateOption(value);
         this._updateAggregateField('Quarterly', 'disabled', true);
       default:
+        //clear if not custom
+        this._resetStartDate();
+        this._resetEndDate();
+        this._resetStartTime();
+        this._resetEndTime();
         break;
     }
 
@@ -225,6 +252,20 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     }
   }
 
+  //clear the start time input
+  private _resetStartTime(){
+    if (this.startTime) {
+      this.startTime.select(null);
+    }
+  }
+
+  //clear the end time input
+  private _resetEndTime(){
+    if (this.endTime) {
+      this.endTime.select(null);
+    }
+  }
+
   //reset all days of the week to be not selected
   private _resetDaysOfWeek(){
     this.daysOfWeek.forEach(element => {
@@ -236,8 +277,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   resetSelections() {
     this.selectedSignalGroup = "";
     this.selectedAgency = "";
-    this.selectedDateOption = "";
-    this.selectedAggregationOption = "";
+    this.selectedDateOption = 2;
+    this.selectedAggregationOption = 4;
     this.selectedDistrict = "";
     this.selectedAgency = "";
     this.selectedCounty = "";
@@ -248,8 +289,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this._resetStartDate();
     this._resetEndDate();
     this._resetDaysOfWeek();
-    this.startTime.select(null);
-    this.endTime.select(null);
+    this._resetStartTime();
+    this._resetEndTime();
 
     this.filterService.resetFilter();
     this.toggleFilter.emit();

@@ -31,5 +31,16 @@ namespace SigOpsMetrics.API.Classes
             Quarterly
 
         }
+
+        public enum DateRangeType
+        {
+            PriorDay,
+            PriorWeek,
+            PriorMonth,
+            PriorQuarter,
+            PriorYear,
+            Custom
+            
+        }
     }
 }

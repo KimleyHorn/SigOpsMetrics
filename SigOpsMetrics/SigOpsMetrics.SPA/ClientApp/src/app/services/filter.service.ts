@@ -225,23 +225,12 @@ export class FilterService {
     return filteredData;
   }
 
-  public getZoneGroupData(data: any){
-    let groupData = data.filter(dataItem => {
-      let dt = this._formatService.formatDate(dataItem['month']);
-      if(dt === this.filter.month && dataItem['zone_Group'] === this.filter.zone_Group){
-        return dataItem;
-      }
-    });
+  public getAverageData(data: any[]){
+    let metric = {
+      avg: data.reduce((a, b) => a + b.avg, 0) / data.length,
+      delta: data.reduce((a, b) => a + b.delta, 0) / data.length,
+    }
 
-    return groupData[0];
-  }
-
-  public splitMonth(){
-    let splitMonth = this.filter.month.split('/');
-
-    let month = parseInt(splitMonth[0]) - 1;
-    let year = parseInt(splitMonth[1]);
-
-    return [month, year];
+    return metric;
   }
 }

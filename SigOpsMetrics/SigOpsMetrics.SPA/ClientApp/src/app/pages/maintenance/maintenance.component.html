@@ -10,12 +10,13 @@
                     [metricField]='mapSettings.dtvMapField'
                     [metricLabel]='"Traffic Volume [veh/day]"'
                     [changeLabel]='"Changes from prior month"'>
-                    <ng-template let-filteredData #dtvTemplate>
+                    <ng-template let-data #dtvTemplate>
                         <app-bar-line-graph
-                            [data]='filteredData'
-                            [title]='dtvTitle'
-                            [line]='dtvLine'
-                            [bar]='dtvBar'>
+                          [data]='data.filteredData'
+                          [averageData]='data.averageData'
+                          [title]='dtvTitle'
+                          [line]='dtvLine'
+                          [bar]='dtvBar'>
                         </app-bar-line-graph>
                     </ng-template>
                 </app-map-dashboard>
@@ -31,12 +32,13 @@
                     [metricField]='mapSettings.papdMapField'
                     [metricLabel]='"Pedestrian Activations [pa/day]"'
                     [changeLabel]='"Changes from prior month"'>
-                    <ng-template let-filteredData #papdTemplate>
+                    <ng-template let-data #papdTemplate>
                         <app-bar-line-graph
-                            [data]='filteredData'
-                            [title]='papdTitle'
-                            [line]='papdLine'
-                            [bar]='papdBar'>
+                          [data]='data.filteredData'
+                          [averageData]='data.averageData'
+                          [title]='papdTitle'
+                          [line]='papdLine'
+                          [bar]='papdBar'>
                         </app-bar-line-graph>
                     </ng-template>
                 </app-map-dashboard>
@@ -52,12 +54,13 @@
                     [metricField]='mapSettings.duMapField'
                     [metricLabel]='"Detector Uptime"'
                     [changeLabel]='"Changes from prior month"'>
-                    <ng-template let-filteredData #duTemplate>
+                    <ng-template let-data #duTemplate>
                         <app-bar-line-graph
-                            [data]='filteredData'
-                            [title]='duTitle'
-                            [line]='duLine'
-                            [bar]='duBar'>
+                          [data]='data.filteredData'
+                          [averageData]='data.averageData'
+                          [title]='duTitle'
+                          [line]='duLine'
+                          [bar]='duBar'>
                         </app-bar-line-graph>
                     </ng-template>
                 </app-map-dashboard>
@@ -73,12 +76,13 @@
                     [metricField]='mapSettings.pauMapField'
                     [metricLabel]='"Pedestrian Pushbutton Availability"'
                     [changeLabel]='"Changes from prior month"'>
-                    <ng-template let-filteredData #pauTemplate>
+                    <ng-template let-data #pauTemplate>
                         <app-bar-line-graph
-                            [data]='filteredData'
-                            [title]='pauTitle'
-                            [line]='pauLine'
-                            [bar]='pauBar'>
+                          [data]='data.filteredData'
+                          [averageData]='data.averageData'
+                          [title]='pauTitle'
+                          [line]='pauLine'
+                          [bar]='pauBar'>
                         </app-bar-line-graph>
                     </ng-template>
                 </app-map-dashboard>
@@ -94,12 +98,13 @@
                     [metricField]='mapSettings.cctvMapField'
                     [metricLabel]='"CCTV Availability"'
                     [changeLabel]='"Changes from prior month"'>
-                    <ng-template let-filteredData #cctvTemplate>
+                    <ng-template let-data #cctvTemplate>
                         <app-bar-line-graph
-                            [data]='filteredData'
-                            [title]='cctvTitle'
-                            [line]='cctvLine'
-                            [bar]='cctvBar'>
+                          [data]='data.filteredData'
+                          [averageData]='data.averageData'
+                          [title]='cctvTitle'
+                          [line]='cctvLine'
+                          [bar]='cctvBar'>
                         </app-bar-line-graph>
                     </ng-template>
                 </app-map-dashboard>
@@ -115,12 +120,13 @@
                     [metricField]='mapSettings.cuMapField'
                     [metricLabel]='"Communications Uptime"'
                     [changeLabel]='"Changes from prior month"'>
-                    <ng-template let-filteredData #cuTemplate>
+                    <ng-template let-data #cuTemplate>
                         <app-bar-line-graph
-                            [data]='filteredData'
-                            [title]='cuTitle'
-                            [line]='cuLine'
-                            [bar]='cuBar'>
+                          [data]='data.filteredData'
+                          [averageData]='data.averageData'
+                          [title]='cuTitle'
+                          [line]='cuLine'
+                          [bar]='cuBar'>
                         </app-bar-line-graph>
                     </ng-template>
                 </app-map-dashboard>

@@ -40,7 +40,7 @@ namespace SigOpsMetrics.API
             });
             services.AddCors(options =>
             {
-                //options.AddPolicy("AnyOrigin", builder => { builder.AllowAnyOrigin().AllowAnyMethod(); });
+                options.AddPolicy("AnyOrigin", builder => { builder.AllowAnyOrigin().AllowAnyMethod(); });
                 options.AddPolicy(name: MyAllowSpecificOrigins,
                     builder =>
                     {
