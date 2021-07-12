@@ -44,6 +44,8 @@ import { TicketsTableComponent } from './components/tables/tickets-table/tickets
 import { ContactComponent } from './core/contact-form/contact-form';
 import { NgxMaskModule } from 'ngx-mask';
 import { FilterChipListComponent } from './components/chip-lists/filter-chip-list/filter-chip-list.component';
+import { HelpComponent } from './pages/help/help.component';
+import { HelpPanelComponent } from './components/panels/help-panel/help-panel.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -53,7 +55,8 @@ const routes = [
   { text: 'TEAMS Tasks', icon: 'build', path: 'teams-tasks', component: TeamsTasksComponent},
   { text: 'Reports', icon: 'receipt', path: 'reports', component: ReportsComponent},
   { text: 'Health Metrics', icon: 'healing', path: 'health-metrics', component: HealthMetricsComponent},
-  { text: 'Signal Info', icon: 'info', path: 'signal-info', component: SignalInfoComponent}
+  { text: 'Signal Info', icon: 'info', path: 'signal-info', component: SignalInfoComponent},
+  { text: 'Help', icon: 'help', path: 'help', component: HelpComponent}
 ];
 
 @NgModule({
@@ -86,7 +89,9 @@ const routes = [
     DashboardTableComponent,
     TicketsTableComponent,
     ContactComponent,
-    FilterChipListComponent
+    FilterChipListComponent,
+    HelpComponent,
+    HelpPanelComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),

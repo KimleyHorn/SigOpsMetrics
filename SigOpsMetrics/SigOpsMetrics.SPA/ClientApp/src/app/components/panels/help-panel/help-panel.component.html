@@ -1,0 +1,12 @@
+<div class="help-columns">
+    <div style="padding-left:24px;font-size:18px;margin-top:5px;">{{ title }}</div>
+    <mat-accordion multi>
+        <mat-expansion-panel *ngFor="let help of helpData;let i = index;" #panel hideToggle [expanded]="i===0"> 
+        <mat-expansion-panel-header>
+            <mat-panel-title><span style="font-weight:bold;font-size:20px;margin-right:3px;">{{ panel.expanded ? '-' : '+' }}</span> {{ help.name }}</mat-panel-title>
+        </mat-expansion-panel-header>
+        <div [innerHTML]="help.htmlText"></div>
+        </mat-expansion-panel>
+    </mat-accordion>
+</div>
+

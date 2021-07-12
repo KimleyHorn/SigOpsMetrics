@@ -13,3 +13,7 @@
 .contact-div {
   min-width: 500px;
 }
+
+.mat-menu-panel {
+  max-width: 500px !important;
+}

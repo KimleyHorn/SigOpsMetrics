@@ -20,5 +20,4 @@ export class SideNavService {
   public toggle(): void{
     this._isExpanded.next(!this._isExpanded.value);
   }
-
 }
