@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.Classes.Internal;
 using SigOpsMetrics.API.DataAccess;
 
@@ -16,6 +19,7 @@ namespace SigOpsMetrics.API.Controllers
     /// <summary>
     /// Controller for SigOps Metrics ATSPM data
     /// </summary>
+    [EnableCors("_myAllowSpecificOrigins")]
     [ApiController]
     [Route("metrics")]
     public class MetricsController : _BaseController
@@ -154,28 +158,170 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="filter">Filter object from the SPA</param>
         /// <returns></returns>
         [HttpPost("filter")]
-        public async Task<DataTable> GetWithFilter(string source, string measure, FilterDTO filter)
+        public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
-            //Check for an invalid filter
+            return await GetFilteredDataTable(source, measure, filter);
+        }
+
+        [HttpPost("signals/filter")]
+        public async Task<DataTable> GetSignalsByFilter(string source, string measure, [FromBody]
+            FilterDTO filter)
+        {
+            var retVal = await GetFilteredDataTable(source, measure, filter, true);
+            return retVal;
+        }
+
+        [HttpPost("signals/filter/average")]
+        public async Task<List<AverageDTO>> GetSignalsAverageByFilter(string source, string measure, [FromBody]
+            FilterDTO filter)
+        {
+            var retVal = await GetFilteredDataTable(source, measure, filter, true);
+            List<AverageDTO> groupedData = new List<AverageDTO>();
+
+            var avgColIndex = 2;
+            var deltaColIndex = 3;
+
+            //signals have different column orders than corridors - reconcile later
+            
+            if (measure == "vphpa" || measure == "vphpp")
+            {
+                avgColIndex = 3;
+                deltaColIndex = 4;
+            }
+            groupedData = (from row in retVal.AsEnumerable()
+                           group row by new { label = row[0].ToString() } into g
+                           select new AverageDTO
+                           {
+                               label = g.Key.label,
+                               avg = g.Average(x => x[avgColIndex].ToDouble()),
+                               delta = g.Average(x => x[deltaColIndex].ToDouble())
+                           }).ToList();
+
+            return groupedData;
+        }
+
+        [HttpPost("average")]
+        public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
+        {
+            var retVal = await GetFilteredDataTable(source, measure, filter);
+            List<AverageDTO> groupedData = new List<AverageDTO>();
+
+            var avgColIndex = 3;
+            var deltaColIndex = 5;
+
+            if (measure == "vphpa" || measure == "vphpp")
+            {
+                avgColIndex = 3;
+                deltaColIndex = 4;
+            }
+
+            if (dashboard)
+            {
+                var avg = (from row in retVal.AsEnumerable()
+                           select row[avgColIndex].ToDouble()).Average();
+                var delta = (from row in retVal.AsEnumerable()
+                             select row[deltaColIndex].ToDouble()).Average();
+
+                var data = new AverageDTO
+                {
+                    label = "Dashboard",
+                    avg = avg,
+                    delta = delta
+                };
+                groupedData.Add(data);
+            }
+            else
+            {
+                groupedData = (from row in retVal.AsEnumerable()
+                                  group row by new { label = row[0].ToString() } into g
+                                  select new AverageDTO
+                                  {
+                                      label = g.Key.label,
+                                      avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                      delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                  }).ToList();
+            }
+
+            return groupedData.ToList();
+        }
+
+        private async Task<DataTable> GetFilteredDataTable(string source, string measure, [FromBody] FilterDTO filter, bool signalOnly = false)
+        {
+            // Check for an invalid filter
             //todo more checks as we start using the filter
             if (filter.timePeriod < 0) return null;
 
-            var fullStart = filter.customStart.Date + filter.startTime.TimeOfDay;
-            var fullEnd = filter.customEnd.Date + filter.endTime.TimeOfDay;
+            var dates = GenerateDateFilter(filter);
 
-            var filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
-            
+            var filteredItems = new FilteredItems();
+            if (signalOnly)
+            {
+                filteredItems = await SignalsDataAccessLayer.GetSignalsByFilter(SqlConnection, filter);
+            }
+            else
+            {
+                filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
+            }
+
             //If we got no corridors/signals, bail
             if (filteredItems.Items.Any())
             {
                 var interval = GetIntervalFromFilter(filter);
                 var retVal =
-                    MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, fullStart, fullEnd, filteredItems);
+                    MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1, dates.Item2, filteredItems);
                 return await retVal;
             }
 
             return null;
+        }
 
+        private (DateTime, DateTime) GenerateDateFilter(FilterDTO filter)
+        {
+            var dt = DateTime.Today;
+
+            var fullStart = new DateTime(dt.Year, dt.Month - 1, 1);
+            var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
+
+            if (filter.dateRange != null)
+            {
+                switch ((GenericEnums.DateRangeType)filter.dateRange)
+                {
+                    case GenericEnums.DateRangeType.PriorDay:
+                        fullStart = dt.AddDays(-1);
+                        fullEnd = dt;
+                        break;
+                    case GenericEnums.DateRangeType.PriorWeek:
+                        while (dt.DayOfWeek != DayOfWeek.Sunday)
+                            dt = dt.AddDays(-1);
+
+                        fullStart = dt.AddDays(-7);
+                        fullEnd = dt.AddDays(-1);
+                        break;
+                    case GenericEnums.DateRangeType.PriorQuarter:
+                        var month = (int)Math.Ceiling((double)dt.AddMonths(-3).Month / 3);
+                        fullStart = new DateTime(dt.Year, month, 1);
+                        fullEnd = new DateTime(dt.Year, month + 2, DateTime.DaysInMonth(dt.Year, month + 2));
+                        break;
+                    case GenericEnums.DateRangeType.PriorYear:
+                        var priorYear = dt.Year - 1;
+                        fullStart = new DateTime(priorYear, dt.Month, dt.Day);
+                        fullEnd = dt;
+                        break;
+                    case GenericEnums.DateRangeType.Custom:
+                        //TODO: add time range filter
+                        fullStart = Convert.ToDateTime(filter.customStart);
+                        fullEnd = Convert.ToDateTime(filter.customEnd);
+                        break;
+                    case GenericEnums.DateRangeType.PriorMonth:
+                    default:
+                        var priorMonth = dt.Month - 1;
+                        fullStart = new DateTime(dt.Year, priorMonth, 1);
+                        fullEnd = new DateTime(dt.Year, priorMonth, DateTime.DaysInMonth(dt.Year, priorMonth));
+                        break;
+                }
+            }
+
+            return (fullStart, fullEnd);
         }
 
         private string GetIntervalFromFilter(FilterDTO filter)

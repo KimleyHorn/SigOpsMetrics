@@ -16,14 +16,11 @@ import { DatePipe } from '@angular/common';
 export class ScatterMapComponent implements OnInit {
   private _metricSubscription: Subscription;
   private _signalSubscription: Subscription;
-  private _corridorSubscription: Subscription;
   private _filterSubscription: Subscription;
-  private _serviceSubscription: Subscription;
 
   @Input() mapSettings;
   private _metricData;
   private _signals;
-  private _corridors;
   private _filter;
   private isFiltering: boolean = true;
 
@@ -72,6 +69,21 @@ export class ScatterMapComponent implements OnInit {
   ngOnInit(): void {
     this.mapSettings.metrics.start = this._generateDate(1);
     this.mapSettings.metrics.end = this._generateDate(2);
+
+    this._signalSubscription = this._signalsService.getData().subscribe(data => {
+      this._signals = data;
+      this._loadMapData();
+      this._signalSubscription.unsubscribe();
+    });
+
+    this._filterSubscription = this._filterService.filters.subscribe(filter => {
+      this._filter = filter;
+      this._metricSubscription = this._metricsService.filterSignalMetrics(this.mapSettings.metrics, filter).subscribe(response => {
+        this._metricData = response;
+        this.createMarkers();
+        this._metricSubscription.unsubscribe();
+      })
+    })
   }
 
   ngOnChanges(changes: SimpleChanges){
@@ -79,70 +91,39 @@ export class ScatterMapComponent implements OnInit {
   }
 
   private _loadMapData(){
-    this._metricSubscription = this._metricsService.getMetrics(this.mapSettings.metrics).subscribe(response => {
+    this._metricSubscription = this._metricsService.filterSignalMetrics(this.mapSettings.metrics, this._filter).subscribe(response => {
       this._metricData = response;
       this.createMarkers();
-    });
-
-    this._signalSubscription = this._signalsService.getData().subscribe(data => {
-      this._signals = data;
-      this.createMarkers();
-    });
-
-    this._corridorSubscription = this._filterService.corridors.subscribe(data => {
-      this._corridors = data;
-      this.createMarkers();
-    });
-
-    this._filterSubscription = this._filterService.filters.subscribe(filter => {
-      this._filter = filter;
-      this.createMarkers();
-    });
-
-    this._serviceSubscription = this._filterService.isFiltering.subscribe(filtering => {
-      this.isFiltering = filtering;
-      this.createMarkers();
-    });
+      this._metricSubscription.unsubscribe();
+    })
   }
 
   ngOnDestroy(): void {
     this._metricSubscription.unsubscribe();
     this._signalSubscription.unsubscribe();
-    this._corridorSubscription.unsubscribe();
     this._filterSubscription.unsubscribe();
-    this._serviceSubscription.unsubscribe();
   }
 
   createMarkers(){
-    if(this._metricData !== undefined
-      && this._signals !== undefined
-      && this._corridors !== undefined
-      && this._filter !== undefined
-      && !this.isFiltering)
-    {
-      //join the metric data with the signals
-      let joinedData = this._signals.map(signal =>{
+    if (this._metricData !== undefined && this._signals !== undefined && this._filter !== undefined) {
+
+      let joinedData = this._signals.map(signal => {
         let newSignal = signal;
-        let dataItem = this._metricData.filter(md => md["corridor"] === signal.signalID || md["corridor"] === signal.corridor)[0]
-        if(dataItem !== undefined){
-          newSignal[this.mapSettings.metrics.field] = dataItem[this.mapSettings.metrics.field];
-        }else{
-          newSignal[this.mapSettings.metrics.field] = 0;
+        let dataItem = this._metricData.filter(md => md["label"] === signal.signalID)[0]
+        if (dataItem !== undefined) {
+          newSignal[this.mapSettings.metrics.field] = dataItem["avg"];
+          return newSignal;
         }
-        return newSignal;
-      });
 
-      //filter out the appropriate data
-      let filteredData = this._filterService.filterData(joinedData, this._corridors);
-
+      })
+      joinedData = joinedData.filter(item => item);
       let data = [];
-      //create data ranges for markers
+
       for (let index = 0; index < this.mapSettings.ranges.length; index++) {
         const range = this.mapSettings.ranges[index];
-        let markerSignals = filteredData.filter(signal => {
+        let markerSignals = joinedData.filter(signal => {
           if(signal[this.mapSettings.metrics.field] >= range[0] && signal[this.mapSettings.metrics.field] < range[1])
             return true;
-
           return false;
         });
 
@@ -150,17 +131,14 @@ export class ScatterMapComponent implements OnInit {
           type: "scattermapbox",
           lat: this._mapData(markerSignals.map(signal => signal.latitude)),
           lon: this._mapData(markerSignals.map(signal => signal.longitude)),
-          text: markerSignals.map(signal => {
-            return this._generateText(signal);
-          }),
-          marker: {
+          text: markerSignals.map(signal => {return this._generateText(signal)}),
+          marker : {
             color: this.mapSettings.legendColors[index],
             size: 6
           },
           name: this.mapSettings.legendLabels[index],
           showlegend: true,
-          hovertemplate: '%{text}' +
-            '<extra></extra>'
+          hovertemplate: '%{text}' + '<extra></extra>'
         });
       }
 

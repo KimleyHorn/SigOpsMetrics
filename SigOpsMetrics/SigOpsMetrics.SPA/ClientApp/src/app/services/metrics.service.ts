@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { Filter } from '../models/filter';
@@ -12,6 +12,7 @@ export class MetricsService {
   private _baseUrl: string = environment.API_PATH;
   private _dt: Date = new Date();
   private _filter: Filter = new Filter();
+  private _options = { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) };
 
   constructor(private http: HttpClient, private _filterService: FilterService) { }
 
@@ -26,16 +27,6 @@ export class MetricsService {
 
     if(metrics.interval === undefined){
       metrics.interval = "mo";
-    }
-
-    if(metrics.start === undefined){
-      let splitMonth = this._filterService.splitMonth();
-
-      metrics.start = (splitMonth[0] + 1) + '/' + splitMonth[1];
-    }
-
-    if(metrics.end === undefined){
-      metrics.end = this._filter.month;
     }
 
     return metrics;
@@ -62,5 +53,27 @@ export class MetricsService {
                                                     + "&start="+ metrics.start
                                                     + "&end="+ metrics.end
                                                     + "&metric=" + metrics.field);
+  }
+
+  filterMetrics(metrics: Metrics, filter: Filter){
+    return this.http.post<any[]>(this._baseUrl + 'metrics/filter?source=' + metrics.source
+                                                + "&measure=" + metrics.measure,
+                                              filter,
+                                              this._options);
+  }
+
+  averageMetrics(metrics: Metrics, filter: Filter){
+    return this.http.post<any[]>(this._baseUrl + 'metrics/average?source=' + metrics.source
+    + "&measure=" + metrics.measure
+    + "&dashboard=" + metrics.dashboard,
+    filter,
+    this._options);
+  }
+
+  filterSignalMetrics(metrics: Metrics, filter: Filter) {
+    return this.http.post<any[]>(this._baseUrl + 'metrics/signals/filter/average?source=' + metrics.source
+                                                + "&measure=" + metrics.measure,
+                                              filter,
+                                              this._options);
   }
 }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using MySqlConnector;
-using OfficeOpenXml;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.Internal;
 
