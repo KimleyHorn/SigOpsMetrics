@@ -86,3 +86,6 @@ table {
     background-color:#ffffff;
 }
 
+::placeholder {
+  color: white;
+}
