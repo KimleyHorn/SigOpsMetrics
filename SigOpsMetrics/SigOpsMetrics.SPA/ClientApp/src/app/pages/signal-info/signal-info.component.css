@@ -106,3 +106,7 @@ mat-form-field.mat-form-field {
 .mat-row:nth-child(odd){
   background-color :#ECECEC;
 }
+
+::placeholder {
+  color: white !important;
+}

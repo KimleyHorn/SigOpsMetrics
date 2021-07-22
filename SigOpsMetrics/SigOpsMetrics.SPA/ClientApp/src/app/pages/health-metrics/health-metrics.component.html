@@ -2,83 +2,166 @@
     <mat-tab label="Maintenance">
         <ng-template matTabContent>
             <div class="container-fluid">
-                <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                <!-- <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                     <mat-form-field *ngFor="let filter of filterSelectListMaintenance" class="{{filter.style}}">
                       <mat-label>{{filter.name}}</mat-label>
                       <input matInput formControlName="{{filter.columnProp}}">
                     </mat-form-field>
                     &nbsp;
                     <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
-                </form>
+                </form> -->
                 <table matSort mat-table [dataSource]='dataSourceMaintenance' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
-
                     <ng-container matColumnDef="zone_Group">
-                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>Zone Group</th>
+                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[0].style}}" appearance="outline" style="color: white; width: 150px">
+                            <input matInput formControlName="{{filterSelectListMaintenance[0].columnProp}}" placeholder="Zone Group">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element.zone_Group}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="corridor">
-                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>Corridor</th>
+                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[1].style}}" appearance="outline" style="color: white; width: 100%">
+                            <input matInput formControlName="{{filterSelectListMaintenance[1].columnProp}}" placeholder="Corridor">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element.corridor}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="percent Health">
-                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>Percent Health</th>
+                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[2].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[2].columnProp}}" placeholder="Percent Health">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['percent Health'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="missingData">
-                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>Missing Data</th>
+                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[3].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[3].columnProp}}" placeholder="Missing Data">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['missing Data'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="detection Uptime Score">
-                      <th mat-sort-header="detection Uptime Score" mat-header-cell *matHeaderCellDef>Detection Uptime Score</th>
+                      <th mat-sort-header="detection Uptime Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[4].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[4].columnProp}}" placeholder="Detection Uptime Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['detection Uptime Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="ped Actuation Uptime Score">
-                      <th mat-sort-header="ped Actuation Uptime Score" mat-header-cell *matHeaderCellDef>Ped Actuation Uptime Score</th>
+                      <th mat-sort-header="ped Actuation Uptime Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[5].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[5].columnProp}}" placeholder="Ped Actuation Uptime Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['ped Actuation Uptime Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="comm Uptime Score">
-                      <th mat-sort-header="comm Uptime Score" mat-header-cell *matHeaderCellDef>Comm Uptime Score</th>
+                      <th mat-sort-header="comm Uptime Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[6].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[6].columnProp}}" placeholder="Comm Uptime Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['comm Uptime Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="cctv Uptime Score">
-                        <th mat-sort-header="cctv Uptime Score" mat-header-cell *matHeaderCellDef>CCTV Uptime Score</th>
+                        <th mat-sort-header="cctv Uptime Score" mat-header-cell *matHeaderCellDef>
+                          <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                            <mat-form-field class="{{filterSelectListMaintenance[7].style}}" appearance="outline" style="color: white; width: 80px;">
+                              <input matInput formControlName="{{filterSelectListMaintenance[7].columnProp}}" placeholder="CCTV Uptime Score">
+                            </mat-form-field>
+                          </form>
+                        </th>
                         <td mat-cell *matCellDef="let element"> {{element['cctv Uptime Score'] | number: '1.0-0'}}</td>
                       </ng-container>
 
                     <ng-container matColumnDef="flash Events Score">
-                      <th mat-sort-header="flash Events Score" mat-header-cell *matHeaderCellDef>Flash Events Score</th>
+                      <th mat-sort-header="flash Events Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[8].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[8].columnProp}}" placeholder="Flash Events Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['flash Events Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="detection Uptime">
-                      <th mat-sort-header="detection Uptime" mat-header-cell *matHeaderCellDef>Detection Uptime</th>
+                      <th mat-sort-header="detection Uptime" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[9].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[9].columnProp}}" placeholder="Detection Uptime">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['detection Uptime'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="ped Actuation Uptime">
-                      <th mat-sort-header="ped Actuation Uptime" mat-header-cell *matHeaderCellDef>Ped Actuation Uptime</th>
+                      <th mat-sort-header="ped Actuation Uptime" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[10].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[10].columnProp}}" placeholder="Ped Actuation Uptime">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['ped Actuation Uptime'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="comm Uptime">
-                      <th mat-sort-header="comm Uptime" mat-header-cell *matHeaderCellDef>Comm Uptime</th>
+                      <th mat-sort-header="comm Uptime" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[11].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[11].columnProp}}" placeholder="Comm Uptime">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['comm Uptime'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="cctv Uptime">
-                      <th mat-sort-header="cctv Uptime" mat-header-cell *matHeaderCellDef>CCTV Uptime</th>
+                      <th mat-sort-header="cctv Uptime" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                          <mat-form-field class="{{filterSelectListMaintenance[12].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListMaintenance[12].columnProp}}" placeholder="CCTV Uptime">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['cctv Uptime'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="flash Events">
-                        <th mat-sort-header="flash Events" mat-header-cell *matHeaderCellDef>Flash Events</th>
+                        <th mat-sort-header="flash Events" mat-header-cell *matHeaderCellDef>
+                          <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
+                            <mat-form-field class="{{filterSelectListMaintenance[13].style}}" appearance="outline" style="color: white; width: 80px;">
+                              <input matInput formControlName="{{filterSelectListMaintenance[13].columnProp}}" placeholder="Flash Events">
+                            </mat-form-field>
+                          </form>
+                        </th>
                         <td mat-cell *matCellDef="let element"> {{element['flash Events'] | number: '1.0'}}</td>
                       </ng-container>
 
@@ -115,83 +198,167 @@
     <mat-tab label="Operations">
         <ng-template matTabContent>
             <div class="container-fluid">
-                <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                <!-- <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                     <mat-form-field *ngFor="let filter of filterSelectListOperations" class="{{filter.style}}">
                       <mat-label>{{filter.name}}</mat-label>
                       <input matInput formControlName="{{filter.columnProp}}">
                     </mat-form-field>
                     &nbsp;
                     <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
-                </form>
+                </form> -->
                 <table matSort mat-table [dataSource]='dataSourceOperations' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
 
                     <ng-container matColumnDef="zone_Group">
-                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>Zone Group</th>
+                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[0].style}}" appearance="outline" style="color: white; width: 150px;">
+                            <input matInput formControlName="{{filterSelectListOperations[0].columnProp}}" placeholder="Zone Group">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element.zone_Group}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="corridor">
-                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>Corridor</th>
+                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[1].style}}" appearance="outline" style="color: white; width: 100%;">
+                            <input matInput formControlName="{{filterSelectListOperations[1].columnProp}}" placeholder="Corridor">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element.corridor}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="percent Health">
-                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>Percent Health</th>
+                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[2].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[2].columnProp}}" placeholder="Percent Health">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['percent Health'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="missingData">
-                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>Missing Data</th>
+                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[3].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[3].columnProp}}" placeholder="Missing Data">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['missing Data'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="platoon Ratio Score">
-                      <th mat-sort-header="platoon Ratio Score" mat-header-cell *matHeaderCellDef>Platoon Ratio Score</th>
+                      <th mat-sort-header="platoon Ratio Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[4].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[4].columnProp}}" placeholder="Platoon Ratio Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['platoon Ratio Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="ped Delay Score">
-                      <th mat-sort-header="ped Delay Score" mat-header-cell *matHeaderCellDef>Ped Delay Score</th>
+                      <th mat-sort-header="ped Delay Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[5].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[5].columnProp}}" placeholder="Ped Delay Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['ped Delay Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="split Failures Score">
-                      <th mat-sort-header="split Failures Score" mat-header-cell *matHeaderCellDef>Split Failures Score</th>
+                      <th mat-sort-header="split Failures Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[6].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[6].columnProp}}" placeholder="Split Failures Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['split Failures Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="travel Time Index Score">
-                        <th mat-sort-header="travel Time Index Score" mat-header-cell *matHeaderCellDef>Travel Time Index Score</th>
+                        <th mat-sort-header="travel Time Index Score" mat-header-cell *matHeaderCellDef>
+                          <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                            <mat-form-field class="{{filterSelectListOperations[7].style}}" appearance="outline" style="color: white; width: 80px;">
+                              <input matInput formControlName="{{filterSelectListOperations[7].columnProp}}" placeholder="Travel Time Index Score">
+                            </mat-form-field>
+                          </form>
+                        </th>
                         <td mat-cell *matCellDef="let element"> {{element['travel Time Index Score'] | number: '1.0-0'}}</td>
                       </ng-container>
 
                     <ng-container matColumnDef="buffer Index Score">
-                      <th mat-sort-header="buffer Index Score" mat-header-cell *matHeaderCellDef>Buffer Index Score</th>
+                      <th mat-sort-header="buffer Index Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[8].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[8].columnProp}}" placeholder="Buffer Index Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['buffer Index Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="platoon Ratio">
-                      <th mat-sort-header="platoon Ratio" mat-header-cell *matHeaderCellDef>Platoon Ratio</th>
+                      <th mat-sort-header="platoon Ratio" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[9].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[9].columnProp}}" placeholder="Platoon Ratio">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['platoon Ratio'] | number: '1.0-2'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="ped Delay">
-                      <th mat-sort-header="ped Delay" mat-header-cell *matHeaderCellDef>Ped Delay</th>
+                      <th mat-sort-header="ped Delay" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[10].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[10].columnProp}}" placeholder="Ped Delay">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['ped Delay'] | number: '1.0-1'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="split Failures">
-                      <th mat-sort-header="split Failures" mat-header-cell *matHeaderCellDef>Split Failures</th>
+                      <th mat-sort-header="split Failures" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[11].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[11].columnProp}}" placeholder="Split Failures">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['split Failures'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="travel Time Index">
-                      <th mat-sort-header="travel Time Index" mat-header-cell *matHeaderCellDef>Travel Time Index</th>
+                      <th mat-sort-header="travel Time Index" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                          <mat-form-field class="{{filterSelectListOperations[12].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListOperations[12].columnProp}}" placeholder="Travel Time Index">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['travel Time Index'] | number: '1.0-2'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="buffer Index">
-                        <th mat-sort-header="buffer Index" mat-header-cell *matHeaderCellDef>Buffer Index</th>
+                        <th mat-sort-header="buffer Index" mat-header-cell *matHeaderCellDef>
+                          <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
+                            <mat-form-field class="{{filterSelectListOperations[13].style}}" appearance="outline" style="color: white; width: 80px;">
+                              <input matInput formControlName="{{filterSelectListOperations[13].columnProp}}" placeholder="Buffer Index">
+                            </mat-form-field>
+                          </form>
+                        </th>
                         <td mat-cell *matCellDef="let element"> {{element['buffer Index'] | number: '1.0-2'}}</td>
                       </ng-container>
 
@@ -228,73 +395,145 @@
     <mat-tab label="Safety">
         <ng-template matTabContent>
             <div class="container-fluid">
-                <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                <!-- <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                     <mat-form-field *ngFor="let filter of filterSelectListSafety" class="{{filter.style}}">
                       <mat-label>{{filter.name}}</mat-label>
                       <input matInput formControlName="{{filter.columnProp}}">
                     </mat-form-field>
                     &nbsp;
                     <button mat-flat-button color="warn" class="btn-reset" (click)="resetFilters()">Reset</button>
-                </form>
+                </form> -->
                 <table matSort mat-table [dataSource]='dataSourceSafety' (matSortChange)="sortData($event)" class="mat-elevation-z8" fill>
 
                     <ng-container matColumnDef="zone_Group">
-                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>Zone Group</th>
+                      <th mat-sort-header="zone_Group" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[0].style}}" appearance="outline" style="color: white; width: 150px;">
+                            <input matInput formControlName="{{filterSelectListSafety[0].columnProp}}" placeholder="Zone Group">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element.zone_Group}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="corridor">
-                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>Corridor</th>
+                      <th mat-sort-header="corridor" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[1].style}}" appearance="outline" style="color: white; width: 100%;">
+                            <input matInput formControlName="{{filterSelectListSafety[1].columnProp}}" placeholder="Corridor">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element.corridor}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="percent Health">
-                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>Percent Health</th>
+                      <th mat-sort-header="percent Health" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[2].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[2].columnProp}}" placeholder="Percent Health">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['percent Health'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="missingData">
-                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>Missing Data</th>
+                      <th mat-sort-header="missing Data" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[3].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[3].columnProp}}" placeholder="Missing Data">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['missing Data'] | percent: '1.0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="crash Rate Index Score">
-                      <th mat-sort-header="crash Rate Index Score" mat-header-cell *matHeaderCellDef>Crash Rate Index Score</th>
+                      <th mat-sort-header="crash Rate Index Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[4].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[4].columnProp}}" placeholder="Crash Rate Index Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['crash Rate Index Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="kabco Crash Severity Index Score">
-                      <th mat-sort-header="kabco Crash Severity Index Score" mat-header-cell *matHeaderCellDef>KABCO Crash Severity Index Score</th>
+                      <th mat-sort-header="kabco Crash Severity Index Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[5].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[5].columnProp}}" placeholder="KABCO Crash Severity Index Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['kabco Crash Severity Index Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="high Speed Index Score">
-                      <th mat-sort-header="high Speed Index Score" mat-header-cell *matHeaderCellDef>High Speed Index Score</th>
+                      <th mat-sort-header="high Speed Index Score" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[6].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[6].columnProp}}" placeholder="High Speed Index Score">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['high Speed Index Score'] | number: '1.0-0'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="ped Injury Exposure Index Score">
-                        <th mat-sort-header="ped Injury Exposure Index Score" mat-header-cell *matHeaderCellDef>Ped Injury Exposure Index Score</th>
+                        <th mat-sort-header="ped Injury Exposure Index Score" mat-header-cell *matHeaderCellDef>
+                          <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                            <mat-form-field class="{{filterSelectListSafety[7].style}}" appearance="outline" style="color: white; width: 80px;">
+                              <input matInput formControlName="{{filterSelectListSafety[7].columnProp}}" placeholder="Ped Injury Exposure Index Score">
+                            </mat-form-field>
+                          </form>
+                        </th>
                         <td mat-cell *matCellDef="let element"> {{element['ped Injury Exposure Index Score'] | number: '1.0-0'}}</td>
                       </ng-container>
 
                     <ng-container matColumnDef="crash Rate Index">
-                      <th mat-sort-header="crash Rate Index" mat-header-cell *matHeaderCellDef>Crash Rate Index</th>
+                      <th mat-sort-header="crash Rate Index" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[8].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[8].columnProp}}" placeholder="Crash Rate Index">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['crash Rate Index'] | number: '1.0-2'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="kabco Crash Severity Index">
-                      <th mat-sort-header="kabco Crash Severity Index" mat-header-cell *matHeaderCellDef>KABCO Crash Severity Index</th>
+                      <th mat-sort-header="kabco Crash Severity Index" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[9].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[9].columnProp}}" placeholder="KABCO Crash Severity Index">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['kabco Crash Severity Index'] | number: '1.0-2'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="high Speed Index">
-                      <th mat-sort-header="high Speed Index" mat-header-cell *matHeaderCellDef>High Speed Index</th>
+                      <th mat-sort-header="high Speed Index" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[10].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[10].columnProp}}" placeholder="High Speed Index">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['high Speed Index'] | number: '1.0-2'}}</td>
                     </ng-container>
 
                     <ng-container matColumnDef="ped Injury Exposure Index">
-                      <th mat-sort-header="ped Injury Exposure Index" mat-header-cell *matHeaderCellDef>Ped Injury Exposure Index</th>
+                      <th mat-sort-header="ped Injury Exposure Index" mat-header-cell *matHeaderCellDef>
+                        <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
+                          <mat-form-field class="{{filterSelectListSafety[11].style}}" appearance="outline" style="color: white; width: 80px;">
+                            <input matInput formControlName="{{filterSelectListSafety[11].columnProp}}" placeholder="Ped Injury Exposure Index">
+                          </mat-form-field>
+                        </form>
+                      </th>
                       <td mat-cell *matCellDef="let element"> {{element['ped Injury Exposure Index'] | number: '1.0-2'}}</td>
                     </ng-container>
 

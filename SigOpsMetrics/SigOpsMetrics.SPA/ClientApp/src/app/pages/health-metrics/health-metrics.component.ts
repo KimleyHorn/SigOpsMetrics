@@ -191,9 +191,10 @@ export class HealthMetricsComponent implements OnInit {
     ];
 
     this.dataSourceMaintenance.filterPredicate = ((data, filter) => {
+      console.log(data['percent Health']);
       const a = !filter.zone_Group || data.zone_Group.toLowerCase().includes(filter.zone_Group);
       const b = !filter.corridor || data.corridor.toLowerCase().includes(filter.corridor);
-      const c = !filter.percentHealth || data.percentHealth.toLowerCase().includes(filter.percentHealth);
+      const c = !filter.percentHealth || data['percent Health'].toLowerCase().includes(filter.percentHealth);
       const d = !filter.missingData || data.missingData.toLowerCase().includes(filter.missingData);
       const e = !filter.detectionUptimeScore || data.detectionUptimeScore.toLowerCase().includes(filter.detectionUptimeScore);
       const f = !filter.pedActuationUptimeScore || data.pedActuationUptimeScore.toLowerCase().includes(filter.pedActuationUptimeScore);
