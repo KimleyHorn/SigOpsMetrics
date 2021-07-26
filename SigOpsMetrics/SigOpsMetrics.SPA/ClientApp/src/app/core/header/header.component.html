@@ -8,13 +8,13 @@
   </div>
 
   <span class="span-spacer"></span>
-  <button mat-icon-button (click)="toggleContact()">
+  <button mat-icon-button matTooltip="Contact Us" (click)="toggleContact()">
     <mat-icon>chat</mat-icon>
   </button>
-  <button mat-icon-button [matMenuTriggerFor]="help" (click)="getHelpContent()">
+  <button mat-icon-button matTooltip="Help" [matMenuTriggerFor]="help" (click)="getHelpContent()">
     <mat-icon>help</mat-icon>
   </button>
-  <button mat-icon-button [matMenuTriggerFor]="menu">
+  <button mat-icon-button matTooltip="GDOT Applications" [matMenuTriggerFor]="menu">
     <mat-icon>apps</mat-icon>
   </button>
 </mat-toolbar>
