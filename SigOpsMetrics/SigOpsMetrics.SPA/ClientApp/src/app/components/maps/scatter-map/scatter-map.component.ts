@@ -7,6 +7,7 @@ import { MetricsService } from 'src/app/services/metrics.service';
 import { SignalsService } from 'src/app/services/signals.service';
 import { environment } from 'src/environments/environment';
 import { DatePipe } from '@angular/common';
+import { first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-scatter-map',
@@ -14,8 +15,6 @@ import { DatePipe } from '@angular/common';
   styleUrls: ['./scatter-map.component.css']
 })
 export class ScatterMapComponent implements OnInit {
-  private _metricSubscription: Subscription;
-  private _signalSubscription: Subscription;
   private _filterSubscription: Subscription;
 
   @Input() mapSettings;
@@ -59,6 +58,7 @@ export class ScatterMapComponent implements OnInit {
       }
   }
 
+  //format the date to 1900-12-31
   private _generateDate(day: number){
     let dt = new Date();
     dt.setDate(day);
@@ -70,19 +70,14 @@ export class ScatterMapComponent implements OnInit {
     this.mapSettings.metrics.start = this._generateDate(1);
     this.mapSettings.metrics.end = this._generateDate(2);
 
-    this._signalSubscription = this._signalsService.getData().subscribe(data => {
+    this._signalsService.getData().pipe(first()).subscribe(data => {
       this._signals = data;
       this._loadMapData();
-      this._signalSubscription.unsubscribe();
     });
 
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
       this._filter = filter;
-      this._metricSubscription = this._metricsService.filterSignalMetrics(this.mapSettings.metrics, filter).subscribe(response => {
-        this._metricData = response;
-        this.createMarkers();
-        this._metricSubscription.unsubscribe();
-      })
+      this._loadMapData();
     })
   }
 
@@ -90,20 +85,22 @@ export class ScatterMapComponent implements OnInit {
     this._loadMapData();
   }
 
+  //get the data for the map
   private _loadMapData(){
-    this._metricSubscription = this._metricsService.filterSignalMetrics(this.mapSettings.metrics, this._filter).subscribe(response => {
-      this._metricData = response;
-      this.createMarkers();
-      this._metricSubscription.unsubscribe();
-    })
+    if(this._filter !== undefined){
+      this._metricsService.filterSignalMetrics(this.mapSettings.metrics, this._filter).pipe(first()).subscribe(response =>{
+        this._metricData = response;
+        this.createMarkers();
+      })
+    }
   }
 
+  //clear subscribed events
   ngOnDestroy(): void {
-    this._metricSubscription.unsubscribe();
-    this._signalSubscription.unsubscribe();
     this._filterSubscription.unsubscribe();
   }
 
+  //create the marker points for the map
   createMarkers(){
     if (this._metricData !== undefined && this._signals !== undefined && this._filter !== undefined) {
 
@@ -146,6 +143,7 @@ export class ScatterMapComponent implements OnInit {
     }
   }
 
+  //return null if no data is available
   private _mapData(data){
     if(data.length <= 0){
       return [null];
@@ -154,6 +152,7 @@ export class ScatterMapComponent implements OnInit {
     return data;
   }
 
+  //create the text for the map plot tooltips
   private _generateText(signal){
     let sigText = "<b>Signal: " + signal.signalID + "</b> | " + signal.mainStreetName + " @ " + signal.sideStreetName;
     let value = "";
