@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, SimpleChanges } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { from, Subscription } from 'rxjs';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
 import { FormatService } from 'src/app/services/format.service';
@@ -7,7 +7,7 @@ import { MetricsService } from 'src/app/services/metrics.service';
 import { SignalsService } from 'src/app/services/signals.service';
 import { environment } from 'src/environments/environment';
 import { DatePipe } from '@angular/common';
-import { first } from 'rxjs/operators';
+import { first, max, min } from 'rxjs/operators';
 
 @Component({
   selector: 'app-scatter-map',
@@ -56,7 +56,7 @@ export class ScatterMapComponent implements OnInit {
     this.mapSettings.metrics.end = this._generateDate(2);
 
     this._signalsService.getData().pipe(first()).subscribe(data => {
-      this._signals = data;
+      this._signals = data.filter(signal => signal['latitude'] !== 0 && signal['longitude'] !== 0);
       this._loadMapData();
     });
 
@@ -87,11 +87,33 @@ export class ScatterMapComponent implements OnInit {
 
   //calculate average
   private _average(data, field){
-    let d = data.filter(dataItem => dataItem[field] !== 0).map(dataItem => dataItem[field]);
+    //dataitems
+    let d = data.map(dataItem => dataItem[field]);
+    //reduce to get the sum
     let r = d.reduce((a,b) => a + b);
+    //total number of items
     let t = d.length;
+    //the average
     let a = r / t;
     return a;
+  }
+
+  //caculate the zoom
+  private _zoom(data){
+    let latitudes = data.map(dataItem => dataItem['latitude']);
+    let longitudes = data.map(dataItem => dataItem['longitude']);
+    let minLat = Math.min(...latitudes);
+    let maxLat = Math.max(...latitudes);
+    let minLng = Math.min(...longitudes);
+    let maxLng = Math.max(...longitudes);
+
+    let widthY = maxLat - minLat;
+    let widthX = maxLng - minLng;
+
+    let zoomY = -1.446 * Math.log(widthY) + 8.2753; //7.2753
+    let zoomX = -1.415 * Math.log(widthX) + 9.7068; //8.7068
+
+    return Math.min(zoomY, zoomX);
   }
 
   //create the marker points for the map
@@ -136,6 +158,7 @@ export class ScatterMapComponent implements OnInit {
 
       let centerLat = this._average(joinedData, 'latitude');
       let centerLon = this._average(joinedData, 'longitude');
+      let zoom = this._zoom(joinedData);
       let layout = {
         dragmode: "zoom",
         mapbox: {
@@ -146,14 +169,14 @@ export class ScatterMapComponent implements OnInit {
             lat: centerLat,
             lon: centerLon
           },
-          zoom: 9
+          zoom: zoom
         },
         margin: { r: 0, t: 0, b: 0, l: 0 },
         xaxis: {
-          zeroline: false
+          zeroline: false,
         },
         yaxis: {
-          zeroline: false
+          zeroline: false,
         },
         legend: {
           x: 1,
