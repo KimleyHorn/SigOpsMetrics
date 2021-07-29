@@ -191,21 +191,20 @@ export class HealthMetricsComponent implements OnInit {
     ];
 
     this.dataSourceMaintenance.filterPredicate = ((data, filter) => {
-      console.log(data['percent Health']);
       const a = !filter.zone_Group || data.zone_Group.toLowerCase().includes(filter.zone_Group);
       const b = !filter.corridor || data.corridor.toLowerCase().includes(filter.corridor);
-      const c = !filter.percentHealth || data['percent Health'].toLowerCase().includes(filter.percentHealth);
-      const d = !filter.missingData || data.missingData.toLowerCase().includes(filter.missingData);
-      const e = !filter.detectionUptimeScore || data.detectionUptimeScore.toLowerCase().includes(filter.detectionUptimeScore);
-      const f = !filter.pedActuationUptimeScore || data.pedActuationUptimeScore.toLowerCase().includes(filter.pedActuationUptimeScore);
-      const g = !filter.commUptimeScore || data.commUptimeScore.toLowerCase().includes(filter.commUptimeScore);
-      const h = !filter.cctvUptimeScore || data.cctvUptimeScore.toLowerCase().includes(filter.cctvUptimeScore);
-      const i = !filter.flashEventsScore || data.flashEventsScore.toLowerCase().includes(filter.flashEventsScore);
-      const j = !filter.detectionUptime || !data.detectionUptime || data.modified.toLowerCase().includes(filter.detectionUptime);
-      const k = !filter.pedActuationUptime || data.pedActuationUptime.toLowerCase().includes(filter.pedActuationUptime);
-      const l = !filter.commUptime || data.commUptime.toLowerCase().includes(filter.commUptime);
-      const m = !filter.cctvUptime || data.cctvUptime.toLowerCase().includes(filter.cctvUptime);
-      const n = !filter.flashEvents || data.flashEvents.toLowerCase().includes(filter.flashEvents);
+      const c = !filter.percentHealth || this.evaluateFilter(data, 'percent Health', filter.percentHealth, true);
+      const d = !filter.missingData || this.evaluateFilter(data, 'missing Data', filter.missingData, true);
+      const e = !filter.detectionUptimeScore || this.evaluateFilter(data, 'detection Uptime Score', filter.detectionUptimeScore, false);      
+      const f = !filter.pedActuationUptimeScore || this.evaluateFilter(data, 'ped Actuation Uptime Score',filter.pedActuationUptimeScore, false);
+      const g = !filter.commUptimeScore || this.evaluateFilter(data, 'comm Uptime Score', filter.commUptimeScore, false);
+      const h = !filter.cctvUptimeScore || this.evaluateFilter(data, 'cctv Uptime Score', filter.cctvUptimeScore, false);
+      const i = !filter.flashEventsScore || this.evaluateFilter(data, 'flash Events Score', filter.flashEventsScore, false);
+      const j = !filter.detectionUptime || this.evaluateFilter(data, 'detection Uptime Score', filter.detectionUptime, true);
+      const k = !filter.pedActuationUptime || this.evaluateFilter(data, 'ped Actuation uptime', filter.pedActuationUptime, true);
+      const l = !filter.commUptime || this.evaluateFilter(data, 'comm Uptime', filter.commUptime, true);
+      const m = !filter.cctvUptime || this.evaluateFilter(data, 'cctv Uptime', filter.cctvUptime, true);
+      const n = !filter.flashEvents || this.evaluateFilter(data, 'flash Events', filter.flashEvents, false);
       return a && b && c && d && e && f && g && h && i && j && k && l && m && n;
     }) as (HealthMaintenance, string) => boolean;
 
@@ -321,18 +320,18 @@ export class HealthMetricsComponent implements OnInit {
     this.dataSourceOperations.filterPredicate = ((data, filter) => {
       const a = !filter.zone_Group || data.zone_Group.toLowerCase().includes(filter.zone_Group);
       const b = !filter.corridor || data.corridor.toLowerCase().includes(filter.corridor);
-      const c = !filter.percentHealth || data.percentHealth.toLowerCase().includes(filter.percentHealth);
-      const d = !filter.missingData || data.missingData.toLowerCase().includes(filter.missingData);
-      const e = !filter.platoonRatioScore || data.platoonRatioScore.toLowerCase().includes(filter.platoonRatioScore);
-      const f = !filter.pedDelayScore || data.pedDelayScore.toLowerCase().includes(filter.pedDelayScore);
-      const g = !filter.splitFailuresScore || data.splitFailuresScore.toLowerCase().includes(filter.splitFailuresScore);
-      const h = !filter.travelTimeIndexScore || data.travelTimeIndexScore.toLowerCase().includes(filter.travelTimeIndexScore);
-      const i = !filter.bufferIndexScore || data.bufferIndexScore.toLowerCase().includes(filter.bufferIndexScore);
-      const j = !filter.platoonRatio || !data.platoonRatio || data.modified.toLowerCase().includes(filter.platoonRatio);
-      const k = !filter.pedDelay || data.pedDelay.toLowerCase().includes(filter.pedDelay);
-      const l = !filter.splitFailures || data.splitFailures.toLowerCase().includes(filter.splitFailures);
-      const m = !filter.travelTimeIndex || data.travelTimeIndex.toLowerCase().includes(filter.travelTimeIndex);
-      const n = !filter.bufferIndex || data.bufferIndex.toLowerCase().includes(filter.bufferIndex);
+      const c = !filter.percentHealth || this.evaluateFilter(data, "percent Health", filter.percentHealth, true);
+      const d = !filter.missingData || this.evaluateFilter(data, "missing Data", filter.missingData, true);
+      const e = !filter.platoonRatioScore || this.evaluateFilter(data,"platoon Ratio Score", filter.platoonRatioScore, false);
+      const f = !filter.pedDelayScore || this.evaluateFilter(data, "ped Delay Score", filter.pedDelayScore, false);
+      const g = !filter.splitFailuresScore || this.evaluateFilter(data, "split Failures Score", filter.splitFailuresScore, false);
+      const h = !filter.travelTimeIndexScore || this.evaluateFilter(data, "travel Time Index Score", filter.travelTimeIndexScore, false);
+      const i = !filter.bufferIndexScore || this.evaluateFilter(data, "buffer Index Score", filter.bufferIndexScore, false);
+      const j = !filter.platoonRatio || this.evaluateFilter(data, "platoon Ratio", filter.platoonRatio, false);
+      const k = !filter.pedDelay || this.evaluateFilter(data, "ped Delay", filter.pedDelay, false);
+      const l = !filter.splitFailures || this.evaluateFilter(data, "split Failures", filter.splitFailures, true);
+      const m = !filter.travelTimeIndex || this.evaluateFilter(data, "travel time Index", filter.travelTimeIndex, false);
+      const n = !filter.bufferIndex || this.evaluateFilter(data, "buffer Index", filter.bufferIndex, false);
       return a && b && c && d && e && f && g && h && i && j && k && l && m && n;
     }) as (HealthOperations, string) => boolean;
 
@@ -702,5 +701,18 @@ export class HealthMetricsComponent implements OnInit {
         this.dataSourceSafety.paginator ? this.dataSourceSafety.paginator = this.safetyPaginator : null;
     }
     })
+  }
+
+  evaluateFilter(data, key, filter, percent: boolean): any {
+    var result = null;
+    if (data && data[key]) {
+      var number = Number.parseFloat(data[key]);
+      if (percent) {
+        result = (number * 100).toFixed(2).toString().includes(filter)
+      } else {
+        result = number.toFixed(2).toString().includes(filter)
+      }
+    }
+    return result;
   }
 }
