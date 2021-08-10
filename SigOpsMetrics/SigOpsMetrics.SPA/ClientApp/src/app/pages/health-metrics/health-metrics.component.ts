@@ -520,7 +520,7 @@ export class HealthMetricsComponent implements OnInit {
   }
   ngAfterViewInit() {
     var currentDate = new Date();
-    var startDate = (currentDate.getMonth() +1) + '-01-' + currentDate.getFullYear();
+    var startDate = (currentDate.getMonth() -1) + '-01-' + currentDate.getFullYear();
     var endDate = (currentDate.getMonth() +1) + '-02-' + currentDate.getFullYear();
     
     //Set the paginator before the data or performance really tanks

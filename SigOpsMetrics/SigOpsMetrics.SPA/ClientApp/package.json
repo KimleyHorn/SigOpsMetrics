@@ -32,14 +32,15 @@
     "bootstrap": "^4.3.1",
     "core-js": "^3.3.3",
     "jquery": "^3.6.0",
+    "mat-table-exporter": "^10.2.3",
+    "mat-table-filter": "1.2.1",
     "ngx-mask": "^12.0.0",
     "oidc-client": "^1.9.1",
     "plotly.js": "^1.58.4",
     "popper.js": "^1.16.0",
     "rxjs": "^6.5.3",
     "tslib": "^2.0.0",
-    "zone.js": "~0.10.2",
-    "mat-table-filter": "1.2.1"
+    "zone.js": "~0.10.2"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.1101.4",

@@ -19,7 +19,10 @@ namespace SigOpsMetrics.API.DataAccess
         {
             try
             {
-                await sqlConnection.OpenAsync();
+                if (sqlConnection.State == System.Data.ConnectionState.Closed)
+                {
+                    await sqlConnection.OpenAsync();
+                }
                 using (var cmd = new MySqlCommand())
                 {
 

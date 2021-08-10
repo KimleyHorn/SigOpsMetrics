@@ -46,6 +46,7 @@ import { NgxMaskModule } from 'ngx-mask';
 import { FilterChipListComponent } from './components/chip-lists/filter-chip-list/filter-chip-list.component';
 import { HelpComponent } from './pages/help/help.component';
 import { HelpPanelComponent } from './components/panels/help-panel/help-panel.component';
+import { MatTableExporterModule } from 'mat-table-exporter';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -104,7 +105,8 @@ const routes = [
     MaterialModule,
     GoogleMapsModule,
     PlotlyViaCDNModule,
-    NgxMaskModule.forRoot()
+    NgxMaskModule.forRoot(),
+    MatTableExporterModule
   ],
   providers: [DatePipe,ContactComponent],
   bootstrap: [AppComponent]
