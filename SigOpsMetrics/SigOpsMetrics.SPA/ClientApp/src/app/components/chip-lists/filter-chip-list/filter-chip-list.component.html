@@ -9,7 +9,7 @@
             [removable]="true" >
               <strong>{{ filter.name }}:</strong>
               <span>{{ filter.value }}</span>
-              <mat-icon matChipRemove>cancel</mat-icon>
+              <mat-icon *ngIf="filter.key !== 'dateRange' && filter.key !== 'timePeriod'" matChipRemove>cancel</mat-icon>
           </mat-chip>
         </span>
       </mat-chip-list>

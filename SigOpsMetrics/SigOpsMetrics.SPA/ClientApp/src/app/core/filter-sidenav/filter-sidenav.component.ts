@@ -26,7 +26,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //Region | ZONE GROUP
   signalGroups: Array<string> = [];
-  selectedSignalGroup: string = '';
+  selectedSignalGroup: string = 'RTOP2';
   //District | ZONE
   districts: Array<string> = [];
   selectedDistrict: string = '';
@@ -141,7 +141,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
               this.selectedAggregationOption = 4;
               break;
             case 'zone_Group':
-              this.selectedSignalGroup = '';
+              this.selectedSignalGroup = 'RTOP2';
               break;
             case 'zone':
               this.selectedDistrict = '';
