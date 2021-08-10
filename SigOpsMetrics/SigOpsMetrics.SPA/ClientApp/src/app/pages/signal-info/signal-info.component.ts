@@ -243,4 +243,8 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
   compareFloat(a: string, b: string, isAsc: boolean) {
     return (a.length == 0 ? -1 : parseFloat(a) < parseFloat(b) ? -1 : 1) * (isAsc ? 1 : -1);
   }
+
+  excelExport():void {
+
+  }
 }

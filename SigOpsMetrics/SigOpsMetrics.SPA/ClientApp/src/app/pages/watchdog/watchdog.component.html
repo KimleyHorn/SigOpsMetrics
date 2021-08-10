@@ -51,7 +51,7 @@
     <div id="plot"></div>
   </mat-tab>
   <mat-tab label="Table">
-    <table mat-table [dataSource]="tableData" matSort matTableExporter #exporter="matTableExporter" class="mat-elevation-z8">
+    <table mat-table [dataSource]="tableData" matSort class="mat-elevation-z8">
 
       <ng-container matColumnDef="zone">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Zone </th>
@@ -95,7 +95,7 @@
     showFirstLastButtons 
     aria-label="Select page of traffic signal data">
 </mat-paginator>
-<button mat-raised-button color="primary" style="min-width:150px;" (click)="exporter.exportTable('csv')">Export To Excel</button>
+<excel-export [data]=this.tableData.data></excel-export>
   </mat-tab>
 </mat-tab-group>
 <mat-progress-spinner style="position:fixed;top:50%;left:50%;z-index:2" color="primary" mode="indeterminate" *ngIf="isLoading"></mat-progress-spinner>
