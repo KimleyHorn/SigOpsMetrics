@@ -46,7 +46,7 @@ namespace SigOpsMetrics.API.Controllers
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "ContactUs", ex);
+                "GetWatchdogData", ex);
                 return null;
             }
         }
