@@ -1,0 +1,37 @@
+.mat-raised-button {
+    font-size:x-small;
+    max-width: 70px;
+    height:40px;
+    margin-left:5px;
+    line-height: 15px;
+    white-space: pre-wrap !important;
+}
+
+.mat-row:nth-child(even){
+    background-color: #ececec;
+}
+
+.mat-row:nth-child(odd){
+    background-color:#ffffff;
+}
+
+td.mat-cell {
+    padding: 16px 4px 16px 4px;
+    border-bottom: 1px solid #bababa;
+    border-right: 1px solid #bababa;
+    border-top: 1px solid #bababa;
+}
+   
+td.mat-cell:first-child {
+    border-left: 1px solid #bababa;
+}
+
+td.mat-cell:last-child {
+    border-right: 1px solid #bababa;
+} 
+th.mat-header-cell {
+text-align: center !important;
+color: white;
+background-color: #338FF2;
+border: 1px solid #bababa;
+}

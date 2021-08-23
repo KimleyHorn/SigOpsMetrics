@@ -1,0 +1,8 @@
+.mat-raised-button {
+    font-size:x-small;
+    max-width: 70px;
+    height:40px;
+    margin-left:5px;
+    line-height: 15px;
+    white-space: pre-wrap !important;
+}

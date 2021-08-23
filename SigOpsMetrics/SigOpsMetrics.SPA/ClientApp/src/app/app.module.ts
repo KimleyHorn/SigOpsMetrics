@@ -46,6 +46,7 @@ import { NgxMaskModule } from 'ngx-mask';
 import { FilterChipListComponent } from './components/chip-lists/filter-chip-list/filter-chip-list.component';
 import { HelpComponent } from './pages/help/help.component';
 import { HelpPanelComponent } from './components/panels/help-panel/help-panel.component';
+import { ExcelExportComponent } from './components/excel-export/excel-export.component';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -91,7 +92,8 @@ const routes = [
     ContactComponent,
     FilterChipListComponent,
     HelpComponent,
-    HelpPanelComponent
+    HelpPanelComponent,
+    ExcelExportComponent
   ],
   imports: [
     BrowserModule.withServerTransition({ appId: 'ng-cli-universal' }),
