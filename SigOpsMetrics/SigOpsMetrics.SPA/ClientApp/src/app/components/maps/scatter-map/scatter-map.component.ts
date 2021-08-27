@@ -134,7 +134,7 @@ export class ScatterMapComponent implements OnInit {
       for (let index = 0; index < this.mapSettings.ranges.length; index++) {
         const range = this.mapSettings.ranges[index];
         let markerSignals = joinedData.filter(signal => {
-          if(signal[this.mapSettings.metrics.field] >= range[0] && signal[this.mapSettings.metrics.field] < range[1])
+          if(signal[this.mapSettings.metrics.field] >= range[0] && signal[this.mapSettings.metrics.field] <= range[1])
             return true;
           return false;
         });

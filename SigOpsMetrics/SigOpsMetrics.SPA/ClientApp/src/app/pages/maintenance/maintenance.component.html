@@ -9,7 +9,7 @@
                     [mapSettings]='mapSettings.dtvMapSettings'
                     [metricField]='mapSettings.dtvMapField'
                     [metricLabel]='"Traffic Volume [veh/day]"'
-                    [changeLabel]='"Changes from prior month"'>
+                    [changeLabel]='"Change from prior period"'>
                     <ng-template let-data #dtvTemplate>
                         <app-bar-line-graph
                           [data]='data.filteredData'
@@ -31,7 +31,7 @@
                     [mapSettings]='mapSettings.papdMapSettings'
                     [metricField]='mapSettings.papdMapField'
                     [metricLabel]='"Pedestrian Activations [pa/day]"'
-                    [changeLabel]='"Changes from prior month"'>
+                    [changeLabel]='"Change from prior period"'>
                     <ng-template let-data #papdTemplate>
                         <app-bar-line-graph
                           [data]='data.filteredData'
@@ -53,7 +53,7 @@
                     [mapSettings]='mapSettings.duMapSettings'
                     [metricField]='mapSettings.duMapField'
                     [metricLabel]='"Detector Uptime"'
-                    [changeLabel]='"Changes from prior month"'>
+                    [changeLabel]='"Change from prior period"'>
                     <ng-template let-data #duTemplate>
                         <app-bar-line-graph
                           [data]='data.filteredData'
@@ -75,7 +75,7 @@
                     [mapSettings]='mapSettings.pauMapSettings'
                     [metricField]='mapSettings.pauMapField'
                     [metricLabel]='"Pedestrian Pushbutton Availability"'
-                    [changeLabel]='"Changes from prior month"'>
+                    [changeLabel]='"Change from prior period"'>
                     <ng-template let-data #pauTemplate>
                         <app-bar-line-graph
                           [data]='data.filteredData'
@@ -97,7 +97,7 @@
                     [mapSettings]='mapSettings.cctvMapSettings'
                     [metricField]='mapSettings.cctvMapField'
                     [metricLabel]='"CCTV Availability"'
-                    [changeLabel]='"Changes from prior month"'>
+                    [changeLabel]='"Change from prior period"'>
                     <ng-template let-data #cctvTemplate>
                         <app-bar-line-graph
                           [data]='data.filteredData'
@@ -119,7 +119,7 @@
                     [mapSettings]='mapSettings.cuMapSettings'
                     [metricField]='mapSettings.cuMapField'
                     [metricLabel]='"Communications Uptime"'
-                    [changeLabel]='"Changes from prior month"'>
+                    [changeLabel]='"Change from prior period"'>
                     <ng-template let-data #cuTemplate>
                         <app-bar-line-graph
                           [data]='data.filteredData'

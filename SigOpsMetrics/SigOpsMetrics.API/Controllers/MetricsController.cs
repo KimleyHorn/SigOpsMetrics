@@ -180,16 +180,35 @@ namespace SigOpsMetrics.API.Controllers
 
             var avgColIndex = 2;
             var deltaColIndex = 3;
+            var idCol = 0;
 
-            //signals have different column orders than corridors - reconcile later
-            
-            if (measure == "vphpa" || measure == "vphpp")
+            //todo:some signals have different column orders than corridors - add here as we find them
+            switch (measure)
             {
-                avgColIndex = 3;
-                deltaColIndex = 4;
+                case "vphpa":
+                case "vphpp":
+                    avgColIndex = 3;
+                    deltaColIndex = 4;
+                    break;
+                case "pau":
+                case "cu":
+                    idCol = 1;
+                    avgColIndex = 3;
+                    deltaColIndex = 4;
+                    break;
+                case "du":
+                    idCol = 1;
+                    avgColIndex = 3;
+                    deltaColIndex = 6;
+                    break;
+                case "cctv":
+                    avgColIndex = 4;
+                    deltaColIndex = 5;
+                    break;
             }
+
             groupedData = (from row in retVal.AsEnumerable()
-                           group row by new { label = row[0].ToString() } into g
+                           group row by new { label = row[idCol].ToString() } into g
                            select new AverageDTO
                            {
                                label = g.Key.label,
