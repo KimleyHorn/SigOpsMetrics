@@ -122,7 +122,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         private static string CreateZoneGroupAndClause(string zoneGroup)
         {
-            return $" and Zone_Group = '{zoneGroup}'";
+            return zoneGroup == "All" ? "" : $" and Zone_Group = '{zoneGroup}'";
         }
 
         private static string CreateCorridorAndClause(string corridor)
@@ -151,9 +151,9 @@ namespace SigOpsMetrics.API.DataAccess
 
         private static string AddSignalsToWhereClause(string whereClause, List<string> itemIDs)
         {
-            var newWhere = whereClause;
+            var newWhere = string.IsNullOrEmpty(whereClause) ? " where " : whereClause;
 
-            newWhere += " and Corridor in (";
+            newWhere += string.IsNullOrEmpty(whereClause) ? " Corridor in (" : " and Corridor in (";
             foreach (var row in itemIDs)
             {
                 newWhere += $"'{row}',";

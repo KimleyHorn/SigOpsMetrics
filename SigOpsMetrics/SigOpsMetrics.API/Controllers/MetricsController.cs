@@ -178,6 +178,11 @@ namespace SigOpsMetrics.API.Controllers
             var retVal = await GetFilteredDataTable(source, measure, filter, true);
             List<AverageDTO> groupedData = new List<AverageDTO>();
 
+            if (retVal == null || retVal.Rows.Count == 0)
+            {
+                return groupedData.ToList();
+            }
+
             var avgColIndex = 2;
             var deltaColIndex = 3;
 
@@ -215,6 +220,11 @@ namespace SigOpsMetrics.API.Controllers
                 deltaColIndex = 4;
             }
 
+            if (retVal == null || retVal.Rows.Count == 0)
+            {
+                return groupedData.ToList();
+            }
+
             if (dashboard)
             {
                 var avg = (from row in retVal.AsEnumerable()
@@ -229,6 +239,17 @@ namespace SigOpsMetrics.API.Controllers
                     delta = delta
                 };
                 groupedData.Add(data);
+            }
+            if (filter.zone_Group == "All")
+            {
+                groupedData = (from row in retVal.AsEnumerable()
+                               group row by new { label = row[1].ToString() } into g
+                               select new AverageDTO
+                               {
+                                   label = g.Key.label,
+                                   avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                   delta = g.Average(x => x[deltaColIndex].ToDouble())
+                               }).ToList();
             }
             else
             {
@@ -267,9 +288,8 @@ namespace SigOpsMetrics.API.Controllers
             if (filteredItems.Items.Any())
             {
                 var interval = GetIntervalFromFilter(filter);
-                var retVal =
-                    MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1, dates.Item2, filteredItems);
-                return await retVal;
+                var retVal = await MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1, dates.Item2, filteredItems);
+                return retVal;
             }
 
             return null;

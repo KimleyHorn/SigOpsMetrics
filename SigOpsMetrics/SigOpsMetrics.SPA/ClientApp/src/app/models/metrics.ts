@@ -12,6 +12,7 @@ export class Metrics {
     formatDecimals?: number = 0;
     isMapMetrics?: boolean = false;
     dashboard?: boolean = false;
+    signalId: string = "";
 
     public constructor(fields?){
       if (this.isMapMetrics) {
@@ -37,6 +38,7 @@ export class Metrics {
         this.label = fields.label || this.label;
         this.formatType = fields.formatType || this.formatType;
         this.formatDecimals = fields.formatDecimals || this.formatDecimals;
+        this.signalId = fields.signalId;
       }
     }
 }

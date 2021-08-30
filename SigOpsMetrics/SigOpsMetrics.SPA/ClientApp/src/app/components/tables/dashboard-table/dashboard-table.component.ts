@@ -55,6 +55,8 @@ export class DashboardTableComponent implements OnInit {
         let formattedVal = this._formatService.formatData(response[0].avg, td.format, td.precision);
 
         this.tableData.filter(item => item.name === td.name)[0].value = formattedVal;
+      } else {
+        this.tableData.filter(item => item.name === td.name)[0].value = "N/A";
       }
     });
   }

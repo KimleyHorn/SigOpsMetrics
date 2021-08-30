@@ -68,9 +68,11 @@ export class TicketsGraphComponent implements OnInit {
     //load the data to the graph if the filter and metric data have been returned
     if(this.graphFilter !== undefined && this.graphData !== undefined){
       let data: any[] = [];
-
+      
       //filter the data based on the set filter
-      let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group);
+      //let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group);
+      let allRegions = ['Cobb County','District 1','District 2','District 3','District 4','District 5','District 6','District 7','Ramp Meters','RTOP1','RTOP2']
+      let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group || (this.graphFilter.zone_Group === 'All' && allRegions.includes(dataItem.zone_Group)));
 
       //sort the data
       let sortedData = filteredData.sort((n1, n2) => n1[this.graph.x] - n2[this.graph.x]);

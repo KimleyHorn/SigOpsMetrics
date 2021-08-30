@@ -1,3 +1,5 @@
+import { min } from "rxjs/operators";
+
 export class Filter {
   //month: string;
   dateRange: number = 4;
@@ -7,7 +9,7 @@ export class Filter {
   daysOfWeek: string[] = null;
   startTime: Date = null;
   endTime: Date = null;
-  zone_Group: string = 'RTOP2';
+  zone_Group: string = 'All';
   //zone_Group: string = 'All RTOP';
   zone: string = null; //aka district
   agency: string = null;
@@ -15,7 +17,7 @@ export class Filter {
   county: string = null;
   city: string = null;
   corridor: string = null;
-
+  signalId: string = "";
   constructor() {
     // let _dt = new Date();
     // this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();

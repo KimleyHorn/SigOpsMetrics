@@ -177,7 +177,6 @@ export class FilterService {
       default:
         break;
     }
-
     this.filter[key] = value;
     this.isFiltering.next(true);
   }

@@ -26,7 +26,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //Region | ZONE GROUP
   signalGroups: Array<string> = [];
-  selectedSignalGroup: string = 'RTOP2';
+  selectedSignalGroup: string = 'All';
   //District | ZONE
   districts: Array<string> = [];
   selectedDistrict: string = '';
@@ -42,11 +42,16 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   //Corridor | CORRIDOR
   corridors: Array<string> = [];
   selectedCorridor: string = '';
+  //SubCorridor | SUBCORRIDOR
+  subcorridors: Array<string> = [];
+  selectedSubcorridor: string = '';
   // Data Aggregation
   timeOptions: number[] = [15,30,60];
   selectedDataAggregationOption: number;
   // Date Range
   selectedDateOption: number = 4;
+  // Signal Id
+  selectedSignalId: string = "";
   options: any[] = [
     { value: 0, label: 'Prior Day'},
     { value: 3, label: 'Prior Quarter'},
@@ -80,6 +85,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   zoneGroupsSubscription: Subscription;
   zonesSubscription: Subscription;
   corridorsSubscription: Subscription;
+  subcorridorsSubscription: Subscription;
   agenciesSubscription: Subscription;
   filterSubscription: Subscription;
 
@@ -104,6 +110,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.corridorsSubscription = this.filterService.corridors.subscribe(data => {
       this.corridors = data;
     });
+
+      //load the corridors for the dropdown
+      this.subcorridorsSubscription = this.filterService.subcorridors.subscribe(data => {
+        this.subcorridors = data;
+      });
 
     //load the agencies for the dropdown
     this.agenciesSubscription = this.filterService.agencies.subscribe(data =>{
@@ -141,7 +152,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
               this.selectedAggregationOption = 4;
               break;
             case 'zone_Group':
-              this.selectedSignalGroup = 'RTOP2';
+              this.selectedSignalGroup = 'All';
               break;
             case 'zone':
               this.selectedDistrict = '';
@@ -158,6 +169,12 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
             case 'corridor':
               this.selectedCorridor = '';
               break;
+            case 'subcorridor':
+              this.selectedSubcorridor = '';
+              break;
+            case 'signalId':
+              this.selectedSignalId = '';
+              break;
             default:
               break;
           }
@@ -171,6 +188,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.zoneGroupsSubscription.unsubscribe();
     this.zonesSubscription.unsubscribe();
     this.corridorsSubscription.unsubscribe();
+    this.subcorridorsSubscription.unsubscribe();
     this.agenciesSubscription.unsubscribe();
     this.filterSubscription.unsubscribe();
   }
@@ -284,7 +302,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.selectedCounty = "";
     this.selectedCity = "";
     this.selectedCorridor = "";
+    this.selectedSubcorridor = "";
     this.selectedDataAggregationOption = null;
+    this.selectedSignalId = null;
     this._resetAggregateField('disabled', false);
     this._resetStartDate();
     this._resetEndDate();
