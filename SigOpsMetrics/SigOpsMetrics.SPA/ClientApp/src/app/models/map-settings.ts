@@ -34,9 +34,9 @@ export class MapSettings {
   //throughput
   tpMapField: string = "vph";
   tpMapMetrics: Metrics = new Metrics({ measure: "tp", field: "vph", label: "Throughput", source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  tpMapRanges: number[][] = [[0, 5000],[5000,10000],[10000,15000],[15000,20000],[20000,25000]];
-  tpLegendLabels: string[] = ["0-5,000","5,000-10,000","10,000-15,000","15,000-20,000","20,000-25,000"];
-  tpLegendColors: string[] = [this.color.lightTeal,this.color.teal,this.color.blue,this.color.darkBlue,this.color.purple];
+  tpMapRanges: number[][] = [[0,0],[1, 2000],[2001,4000],[4001,6000],[6001,8000],[8001,100000]];
+  tpLegendLabels: string[] = ["Unavailable","0 - 2000","2,001 - 4,000","4,001 - 6,000","6,001 - 8,000","8,001+"];
+  tpLegendColors: string[] = [this.color.gray, this.color.lightTeal,this.color.teal,this.color.blue,this.color.darkBlue,this.color.purple];
   tpMapSettings = {
     metrics: this.tpMapMetrics,
     ranges: this.tpMapRanges,
@@ -47,9 +47,9 @@ export class MapSettings {
   //arrivals on green
   aogdMapField: string = "aog";
   aogdMapMetrics: Metrics = new Metrics({ measure: "aogd", field: "aog", label: "Arrivals on Green", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  aogdMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  aogdLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  aogdLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
+  aogdMapRanges: number[][] = [[0,0],[0.01,0.2],[0.21,0.4],[0.41,0.6],[0.61,0.8],[0.8,1]];
+  aogdLegendLabels: string[] = ["Unavailable","0.1% - 20%","21% - 40%","41% - 60%","61% - 80%","81% - 100%"];
+  aogdLegendColors: string[] = [this.color.gray,this.color.purple,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
   aogdMapSettings = {
     metrics: this.aogdMapMetrics,
     ranges: this.aogdMapRanges,
@@ -59,10 +59,10 @@ export class MapSettings {
 
   //progression ratio
   prdMapField: string = "pr";
-  prdMapMetrics: Metrics = new Metrics({ measure: "prd", field: "pr", label: "Progression Ration", formatDecimals: 1, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  prdMapRanges: number[][] = [[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]];
-  prdLegendLabels: string[] = ["0-1","1-2","2-3","3-4","4-5","5-6","6-7"];
-  prdLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.orange,this.color.yellow,this.color.yellowGreen,this.color.greenYellow,this.color.green];
+  prdMapMetrics: Metrics = new Metrics({ measure: "prd", field: "pr", label: "Progression Ration", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
+  prdMapRanges: number[][] = [[0,0],[0.01,0.4],[0.41,0.8],[0.81,1],[1.01,1.2],[1.2,10]];
+  prdLegendLabels: string[] = ["Unavailable","0.01 - 0.4","0.41 - 0.8","0.81 - 1","1.01 - 1.2","1.2+"];
+  prdLegendColors: string[] = [this.color.gray,this.color.red,this.color.redOrange,this.color.orange,this.color.yellow,this.color.yellowGreen];
   prdMapSettings = {
     metrics: this.prdMapMetrics,
     ranges: this.prdMapRanges,
@@ -73,9 +73,9 @@ export class MapSettings {
   //queue spillback
   qsdMapField: string = "qs_freq";
   qsdMapMetrics: Metrics = new Metrics({ measure: "qsd", field: "qs_freq", label: "Queue Spillback", formatType: "percent", formatDecimals: 1, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  qsdMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  qsdLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  qsdLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  qsdMapRanges: number[][] = [[0,0],[0.01,0.2],[0.21,0.4],[0.41,0.6],[0.61,0.8],[0.81,1]];
+  qsdLegendLabels: string[] = ["Unavailable","0.01% - 20%","20.01% - 40%","40.01% - 60%","60.01% - 80%","80.01% - 100%"];
+  qsdLegendColors: string[] = [this.color.gray,this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
   qsdMapSettings = {
     metrics: this.qsdMapMetrics,
     ranges: this.qsdMapRanges,
@@ -85,10 +85,10 @@ export class MapSettings {
 
   //peak split failures
   psfMapField: string = "sf_freq";
-  psfMapMetrics: Metrics = new Metrics({ measure: "sfd", field: "sf_freq", label: "Peak Split Failures", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  psfMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  psfLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  psfLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  psfMapMetrics: Metrics = new Metrics({ measure: "sfd", field: "sf_freq", label: "Peak Split Failures", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
+  psfMapRanges: number[][] = [[0,0],[0.001,0.05],[0.051,0.1],[0.101,0.15],[0.151,0.2],[0.201,1]];
+  psfLegendLabels: string[] = ["Unavailable","0.01% - 5%","5.1% - 10%","10.1% - 15%","15.1% - 20%","20.1%+"];
+  psfLegendColors: string[] = [this.color.gray,this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
   psfMapSettings = {
     metrics: this.psfMapMetrics,
     ranges: this.psfMapRanges,
@@ -98,10 +98,10 @@ export class MapSettings {
 
   //off-peak split failures
   osfMapField: string = "sf_freq";
-  osfMapMetrics: Metrics = new Metrics({ measure: "sfo", field: "sf_freq", label: "Off-Peak Split Failures", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  osfMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  osfLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  osfLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  osfMapMetrics: Metrics = new Metrics({ measure: "sfo", field: "sf_freq", label: "Off-Peak Split Failures", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
+  osfMapRanges: number[][] = [[0,0],[0.001,0.05],[0.051,0.1],[0.101,0.15],[0.151,0.2],[0.201,1]];
+  osfLegendLabels: string[] = ["Unavailable","0.01% - 5%","5.1% - 10%","10.1% - 15%","15.1% - 20%","20.1%+"];
+  osfLegendColors: string[] = [this.color.gray,this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
   osfMapSettings = {
     metrics: this.osfMapMetrics,
     ranges: this.osfMapRanges,

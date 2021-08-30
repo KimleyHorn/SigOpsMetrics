@@ -15,7 +15,7 @@ import { MetricsService } from 'src/app/services/metrics.service';
 export class DashboardTableComponent implements OnInit {
   @Input() tableTitle: string = "";
   @Input() tableData: TableData[] = [];
-  tableColumns: string[] = ["name", "value"];
+  tableColumns: string[] = ["name", "value", "unit"];
   tableDataSource = new BehaviorSubject([]);
   public filter: Filter = new Filter();
   private _filterSubscription: Subscription;
