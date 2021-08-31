@@ -526,7 +526,7 @@ namespace SigOpsMetrics.API.DataAccess
         {
             var filterType = GenericEnums.FilteredItemType.Signal;
             var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                filter.city, filter.corridor);
+                filter.city, filter.corridor, filter.subcorridor);
             var sqlText = "select distinct(signalid) from mark1.signals " + where + " and include = 1";
 
             var retVal = new List<string>();
@@ -550,7 +550,7 @@ namespace SigOpsMetrics.API.DataAccess
         {
             var filterType = GenericEnums.FilteredItemType.Corridor;
             var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                filter.city, filter.corridor);
+                filter.city, filter.corridor, filter.subcorridor);
             var sqlText = "select distinct(corridor) from mark1.signals " + where + " and include = 1";
 
             var retVal = new List<string>();
@@ -571,10 +571,10 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
         private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,
-            string county, string city, string corridor)
+            string county, string city, string corridor, string subcorridor)
         {
             if (zoneGroup.IsStringNullOrBlank() && zone.IsStringNullOrBlank() && agency.IsStringNullOrBlank() &&
-                county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank())
+                county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() && subcorridor.IsStringNullOrBlank())
                 return string.Empty;
             var where = "where ";
 
@@ -590,6 +590,8 @@ namespace SigOpsMetrics.API.DataAccess
                 where += $"city = '{city}' and ";
             if (!corridor.IsStringNullOrBlank())
                 where += $"corridor = '{corridor}' and ";
+            if (!subcorridor.IsStringNullOrBlank())
+                where += $"subcorridor = '{subcorridor}' and ";
 
             //chop off the last 'and'
             where = where.Substring(0, where.Length - 4);

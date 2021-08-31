@@ -6,6 +6,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import {Sort} from '@angular/material/sort';
 import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
 import { Title } from '@angular/platform-browser';
+import { formatDate } from '@angular/common';
 
 @Component({
   selector: 'app-signal-info',
@@ -118,13 +119,13 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
       const g = !filter.mainStreetName || data.mainStreetName.toLowerCase().includes(filter.mainStreetName);
       const h = !filter.sideStreetName || data.sideStreetName.toLowerCase().includes(filter.sideStreetName);
       const i = !filter.milepost || data.milepost.toLowerCase().includes(filter.milepost);
-      const j = !filter.asOf || !data.asOf || data.asOf.toLowerCase().includes(filter.asOf);
+      const j = !filter.asOf || !data.asOf || formatDate(data.asOf, 'MM/dd/yyyy', 'en-US').toLowerCase().includes(filter.asOf);
       const k = !filter.duplicate || data.duplicate.toLowerCase().includes(filter.duplicate);
       const l = !filter.include || data.include.toLowerCase().includes(filter.include);
-      const m = !filter.modified || !data.modified || data.modified.toLowerCase().includes(filter.modified);
+      const m = !filter.modified || !data.modified || formatDate(data.modified, 'MM/dd/yyyy', 'en-US').toLowerCase().includes(filter.modified);
       const n = !filter.note || data.note.toLowerCase().includes(filter.note);
-      const o = !filter.latitude || data.latitude.toLowerCase().includes(filter.latitude);
-      const p = !filter.longitude || data.longitude.toLowerCase().includes(filter.longitude);
+      const o = !filter.latitude || data.latitude.toString().toLowerCase().includes(filter.latitude);
+      const p = !filter.longitude || data.longitude.toString().toLowerCase().includes(filter.longitude);
       return a && b && c && d && e && f && g && h && i && j && k && l && m && n && o && p;
     }) as (SignalInfo, string) => boolean;
 

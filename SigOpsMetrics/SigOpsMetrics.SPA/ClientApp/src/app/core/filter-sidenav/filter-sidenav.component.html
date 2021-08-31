@@ -133,6 +133,14 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
+  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;" *ngIf="this.selectedCorridor && subcorridors.length > 0">
+    <mat-label>Select Subcorridor</mat-label>
+    <mat-select (selectionChange)="updateFilter('subcorridor',$event)" [(ngModel)]="selectedSubcorridor">
+      <mat-option *ngFor="let subcorridor of subcorridors" [value]="subcorridor">
+        {{subcorridor}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
 </div>
 <div class="container" style="display: flex; justify-content: space-evenly; margin-top:10px;">
     <button mat-raised-button color="basic">Set As Defaults</button>
