@@ -42,6 +42,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   //Corridor | CORRIDOR
   corridors: Array<string> = [];
   selectedCorridor: string = '';
+  //SubCorridor | SUBCORRIDOR
+  subcorridors: Array<string> = [];
+  selectedSubcorridor: string = '';
   // Data Aggregation
   timeOptions: number[] = [15,30,60];
   selectedDataAggregationOption: number;
@@ -82,6 +85,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   corridorsSubscription: Subscription;
   agenciesSubscription: Subscription;
   filterSubscription: Subscription;
+  subcorridorsSubscription: Subscription;
 
   constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {}
 
@@ -108,6 +112,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     //load the agencies for the dropdown
     this.agenciesSubscription = this.filterService.agencies.subscribe(data =>{
       this.agencies = data;
+    });
+
+   //load the subcorridors for the dropdown
+    this.subcorridorsSubscription = this.filterService.subcorridors.subscribe(data => {
+      this.subcorridors = data;
     });
 
     //clear removed items
@@ -158,6 +167,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
             case 'corridor':
               this.selectedCorridor = '';
               break;
+            case 'subcorridor':
+              this.selectedSubcorridor = '';
+              break;
             default:
               break;
           }
@@ -173,6 +185,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.corridorsSubscription.unsubscribe();
     this.agenciesSubscription.unsubscribe();
     this.filterSubscription.unsubscribe();
+    this.subcorridorsSubscription.unsubscribe();
   }
 
   //update the filter on the filter service

@@ -39,8 +39,8 @@
   <ng-container matColumnDef="zone">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[1].style}}" appearance="outline" style="color: white; width: 100px;">
-          <input matInput formControlName="{{filterSelectList[1].columnProp}}" placeholder="Zone">
+        <mat-form-field class="{{filterSelectList[2].style}}" appearance="outline" style="color: white; width: 100px;">
+          <input matInput formControlName="{{filterSelectList[2].columnProp}}" placeholder="Zone">
         </mat-form-field>
       </form>
     </th>
@@ -50,8 +50,8 @@
   <ng-container matColumnDef="corridor">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[2].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[2].columnProp}}" placeholder="Corridor">
+        <mat-form-field class="{{filterSelectList[3].style}}" appearance="outline" style="color: white; width: 150px;">
+          <input matInput formControlName="{{filterSelectList[3].columnProp}}" placeholder="Corridor">
         </mat-form-field>
       </form>
     </th>
@@ -61,8 +61,8 @@
   <ng-container matColumnDef="subcorridor">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[3].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[3].columnProp}}" placeholder="Subcorridor">
+        <mat-form-field class="{{filterSelectList[4].style}}" appearance="outline" style="color: white; width: 150px;">
+          <input matInput formControlName="{{filterSelectList[4].columnProp}}" placeholder="Subcorridor">
         </mat-form-field>
       </form>
     </th>
@@ -72,8 +72,8 @@
   <ng-container matColumnDef="agency">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[4].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[4].columnProp}}" placeholder="Agency">
+        <mat-form-field class="{{filterSelectList[5].style}}" appearance="outline" style="color: white; width: 150px;">
+          <input matInput formControlName="{{filterSelectList[5].columnProp}}" placeholder="Agency">
         </mat-form-field>
       </form>
     </th>
@@ -83,8 +83,8 @@
   <ng-container matColumnDef="mainStreetName">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[5].style}}" appearance="outline" style="color: white; width: 100%;">
-          <input matInput formControlName="{{filterSelectList[5].columnProp}}" placeholder="Main Street Name">
+        <mat-form-field class="{{filterSelectList[6].style}}" appearance="outline" style="color: white; width: 100%;">
+          <input matInput formControlName="{{filterSelectList[6].columnProp}}" placeholder="Main Street Name">
         </mat-form-field>
       </form>
     </th>
@@ -94,8 +94,8 @@
   <ng-container matColumnDef="sideStreetName">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[6].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[6].columnProp}}" placeholder="Side Street Name">
+        <mat-form-field class="{{filterSelectList[7].style}}" appearance="outline" style="color: white; width: 150px;">
+          <input matInput formControlName="{{filterSelectList[7].columnProp}}" placeholder="Side Street Name">
         </mat-form-field>
       </form>
     </th>
@@ -105,8 +105,8 @@
   <ng-container matColumnDef="milepost">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[7].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[7].columnProp}}" placeholder="Milepost">
+        <mat-form-field class="{{filterSelectList[8].style}}" appearance="outline" style="color: white; width: 80px;">
+          <input matInput formControlName="{{filterSelectList[8].columnProp}}" placeholder="Milepost">
         </mat-form-field>
       </form>
     </th>
@@ -116,19 +116,19 @@
   <ng-container matColumnDef="asOf">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[8].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[8].columnProp}}" placeholder="As Of">
+        <mat-form-field class="{{filterSelectList[9].style}}" appearance="outline" style="color: white; width: 80px;">
+          <input matInput formControlName="{{filterSelectList[9].columnProp}}" placeholder="As Of">
         </mat-form-field>
       </form>
     </th>
-    <td mat-cell *matCellDef="let element"> {{element.asOf}}</td>
+    <td mat-cell *matCellDef="let element"> {{element.asOf | date:'MM/dd/yyyy'}}</td>
   </ng-container>
 
   <ng-container matColumnDef="duplicate">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[9].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[9].columnProp}}" placeholder="Duplicate">
+        <mat-form-field class="{{filterSelectList[10].style}}" appearance="outline" style="color: white; width: 80px;">
+          <input matInput formControlName="{{filterSelectList[10].columnProp}}" placeholder="Duplicate">
         </mat-form-field>
       </form>
     </th>
@@ -138,8 +138,8 @@
   <ng-container matColumnDef="include">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[10].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[10].columnProp}}" placeholder="Include">
+        <mat-form-field class="{{filterSelectList[11].style}}" appearance="outline" style="color: white; width: 80px;">
+          <input matInput formControlName="{{filterSelectList[11].columnProp}}" placeholder="Include">
         </mat-form-field>
       </form>
     </th>
@@ -149,19 +149,19 @@
   <ng-container matColumnDef="modified">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[11].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[11].columnProp}}" placeholder="Modified">
+        <mat-form-field class="{{filterSelectList[12].style}}" appearance="outline" style="color: white; width: 80px;">
+          <input matInput formControlName="{{filterSelectList[12].columnProp}}" placeholder="Modified">
         </mat-form-field>
       </form>
     </th>
-    <td mat-cell *matCellDef="let element"> {{element.modified}}</td>
+    <td mat-cell *matCellDef="let element"> {{element.modified | date:'MM/dd/yyyy'}}</td>
   </ng-container>
 
   <ng-container matColumnDef="note">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[12].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[12].columnProp}}" placeholder="Note">
+        <mat-form-field class="{{filterSelectList[13].style}}" appearance="outline" style="color: white; width: 150px;">
+          <input matInput formControlName="{{filterSelectList[13].columnProp}}" placeholder="Note">
         </mat-form-field>
       </form>
     </th>
@@ -171,8 +171,8 @@
   <ng-container matColumnDef="latitude">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[13].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[13].columnProp}}" placeholder="Latitude">
+        <mat-form-field class="{{filterSelectList[14].style}}" appearance="outline" style="color: white; width: 80px;">
+          <input matInput formControlName="{{filterSelectList[14].columnProp}}" placeholder="Latitude">
         </mat-form-field>
       </form>
     </th>
@@ -182,8 +182,8 @@
   <ng-container matColumnDef="longitude">
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
-        <mat-form-field class="{{filterSelectList[14].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[14].columnProp}}" placeholder="Longitude">
+        <mat-form-field class="{{filterSelectList[15].style}}" appearance="outline" style="color: white; width: 80px;">
+          <input matInput formControlName="{{filterSelectList[15].columnProp}}" placeholder="Longitude">
         </mat-form-field>
       </form>
     </th>
