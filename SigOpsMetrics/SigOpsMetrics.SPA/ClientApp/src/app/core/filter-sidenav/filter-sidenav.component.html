@@ -83,64 +83,70 @@
   </mat-form-field> -->
 
   <div class="filter-break"></div>
-
-  <span class="header-label">Signal Attributes</span>
+  <span class="header-label">Signal Id</span>
   <mat-form-field ngDefaultControl appearance="outline" class="filter-form-field" style="display: block;">
-    <mat-label>Select Region</mat-label>
-    <mat-select (selectionChange)="updateFilter('zone_Group',$event)" [(ngModel)]="selectedSignalGroup">
-      <mat-option *ngFor="let signal of signalGroups" [value]="signal">
-        {{signal}}
-      </mat-option>
-    </mat-select>
+    <mat-label>Enter Id</mat-label>
+    <input matInput type="number" [(ngModel)]="selectedSignalId" (ngModelChange)="updateFilter('signalId',{ value: $event })">
   </mat-form-field>
-  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
-    <mat-label>Select District</mat-label>
-    <mat-select (selectionChange)="updateFilter('zone',$event)" [(ngModel)]="selectedDistrict">
-      <mat-option *ngFor="let district of districts" [value]="district">
-        {{district}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
-    <mat-label>Select Managing Agency</mat-label>
-    <mat-select (selectionChange)="updateFilter('agency',$event)" [(ngModel)]="selectedAgency">
-      <mat-option *ngFor="let agency of agencies" [value]="agency">
-        {{agency}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
-    <mat-label>Select County</mat-label>
-    <mat-select (selectionChange)="updateFilter('county',$event)" [(ngModel)]="selectedCounty">
-      <mat-option *ngFor="let agency of agencies" [value]="agency">
-        {{agency}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
-    <mat-label>Select City</mat-label>
-    <mat-select (selectionChange)="updateFilter('city',$event)" [(ngModel)]="selectedCity">
-      <mat-option *ngFor="let agency of agencies" [value]="agency">
-        {{agency}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
-    <mat-label>Select Corridor</mat-label>
-    <mat-select (selectionChange)="updateFilter('corridor',$event)" [(ngModel)]="selectedCorridor">
-      <mat-option *ngFor="let corridor of corridors" [value]="corridor">
-        {{corridor}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
-  <mat-form-field appearance="outline" class="filter-form-field" style="display: block;" *ngIf="this.selectedCorridor && subcorridors.length > 0">
-    <mat-label>Select Subcorridor</mat-label>
-    <mat-select (selectionChange)="updateFilter('subcorridor',$event)" [(ngModel)]="selectedSubcorridor">
-      <mat-option *ngFor="let subcorridor of subcorridors" [value]="subcorridor">
-        {{subcorridor}}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <div *ngIf="!this.selectedSignalId">
+    <span class="header-label">Signal Attributes</span>
+    <mat-form-field ngDefaultControl appearance="outline" class="filter-form-field" style="display: block;">
+      <mat-label>Select Region</mat-label>
+      <mat-select (selectionChange)="updateFilter('zone_Group',$event)" [(ngModel)]="selectedSignalGroup">
+        <mat-option *ngFor="let signal of signalGroups" [value]="signal">
+          {{signal}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+      <mat-label>Select District</mat-label>
+      <mat-select (selectionChange)="updateFilter('zone',$event)" [(ngModel)]="selectedDistrict">
+        <mat-option *ngFor="let district of districts" [value]="district">
+          {{district}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+      <mat-label>Select Managing Agency</mat-label>
+      <mat-select (selectionChange)="updateFilter('agency',$event)" [(ngModel)]="selectedAgency">
+        <mat-option *ngFor="let agency of agencies" [value]="agency">
+          {{agency}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+      <mat-label>Select County</mat-label>
+      <mat-select (selectionChange)="updateFilter('county',$event)" [(ngModel)]="selectedCounty">
+        <mat-option *ngFor="let agency of agencies" [value]="agency">
+          {{agency}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+      <mat-label>Select City</mat-label>
+      <mat-select (selectionChange)="updateFilter('city',$event)" [(ngModel)]="selectedCity">
+        <mat-option *ngFor="let agency of agencies" [value]="agency">
+          {{agency}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+      <mat-label>Select Corridor</mat-label>
+      <mat-select (selectionChange)="updateFilter('corridor',$event)" [(ngModel)]="selectedCorridor">
+        <mat-option *ngFor="let corridor of corridors" [value]="corridor">
+          {{corridor}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;" *ngIf="this.selectedCorridor && subcorridors.length > 0">
+      <mat-label>Select Subcorridor</mat-label>
+      <mat-select (selectionChange)="updateFilter('subcorridor',$event)" [(ngModel)]="selectedSubcorridor">
+        <mat-option *ngFor="let subcorridor of subcorridors" [value]="subcorridor">
+          {{subcorridor}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
 </div>
 <div class="container" style="display: flex; justify-content: space-evenly; margin-top:10px;">
     <button mat-raised-button color="basic">Set As Defaults</button>

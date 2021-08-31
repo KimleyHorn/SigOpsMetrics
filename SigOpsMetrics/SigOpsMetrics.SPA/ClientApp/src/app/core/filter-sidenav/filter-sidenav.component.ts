@@ -45,6 +45,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   //SubCorridor | SUBCORRIDOR
   subcorridors: Array<string> = [];
   selectedSubcorridor: string = '';
+  // Signal Id
+  selectedSignalId: string = "";
   // Data Aggregation
   timeOptions: number[] = [15,30,60];
   selectedDataAggregationOption: number;
@@ -170,6 +172,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
             case 'subcorridor':
               this.selectedSubcorridor = '';
               break;
+            case 'signalId':
+              this.selectedSignalId = '';
+              break;
             default:
               break;
           }
@@ -190,6 +195,23 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //update the filter on the filter service
   updateFilter(type, e){
+    if (type == "signalId" && e.value) {
+      // clear non-date filters automatically because we're going to hide them and only filter on id
+      this.selectedSignalGroup = "";
+      this.filterService.setValue("subcorridor","");
+      this.selectedAgency = "";
+      this.filterService.setValue("corridor","");
+      this.selectedDistrict = "";
+      this.filterService.setValue("city","");
+      this.selectedCounty = "";
+      this.filterService.setValue("county","");
+      this.selectedCity = "";
+      this.filterService.setValue("agency","");
+      this.selectedCorridor = "";
+      this.filterService.setValue("zone","");
+      this.selectedSubcorridor = "";
+      this.filterService.setValue("zone_Group","");
+    }
     this.filterService.setValue(type, e.value);
   }
 
@@ -298,6 +320,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.selectedCity = "";
     this.selectedCorridor = "";
     this.selectedDataAggregationOption = null;
+    this.selectedSignalId = null;
     this._resetAggregateField('disabled', false);
     this._resetStartDate();
     this._resetEndDate();

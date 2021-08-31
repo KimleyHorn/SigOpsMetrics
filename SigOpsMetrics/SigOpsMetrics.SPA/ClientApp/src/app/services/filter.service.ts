@@ -163,19 +163,21 @@ export class FilterService {
   }
 
   public setValue(key: string, value: any){
-    switch (key) {
-      case "zone_Group":
-        this.getZonesByZoneGroup(value);
-        this.getCorridorsByZoneGroup(value);
-        break;
-      case "zone":
-        this.getCorridorsByZone(value);
-        break;
-      case "corridor":
-        this.getSubcorridorsByCorridor(value);
-        break;
-      default:
-        break;
+    if (value) {
+      switch (key) {
+        case "zone_Group":
+          this.getZonesByZoneGroup(value);
+          this.getCorridorsByZoneGroup(value);
+          break;
+        case "zone":
+          this.getCorridorsByZone(value);
+          break;
+        case "corridor":
+          this.getSubcorridorsByCorridor(value);
+          break;
+        default:
+          break;
+      }
     }
 
     this.filter[key] = value;
