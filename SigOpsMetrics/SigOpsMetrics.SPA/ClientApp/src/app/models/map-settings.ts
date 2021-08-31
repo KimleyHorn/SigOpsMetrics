@@ -133,9 +133,9 @@ export class MapSettings {
   //daily traffic volume
   dtvMapField: string = "vpd";
   dtvMapMetrics: Metrics = new Metrics({ measure: "vpd", field: "vpd", label: "Daily Traffic Volume", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  dtvMapRanges: number[][] = [[0,50000],[50000,100000],[100000,150000]];
-  dtvLegendLabels: string[] = ["0-50,000","50,000-100,000","100,000-150,000"];
-  dtvLegendColors: string[] = [this.color.lightTeal, this.color.blue, this.color.purple];
+  dtvMapRanges: number[][] = [[0,0],[1,10000],[10001,20000],[20001,30000],[30001,40000],[40001,10000000]];
+  dtvLegendLabels: string[] = ["Unavailable","1 - 10,000","10,001 - 20,000","20,001 - 30,000", "30,001 - 40,000", "40,001+"];
+  dtvLegendColors: string[] = [this.color.gray,this.color.lightTeal, this.color.teal, this.color.blue, this.color.darkBlue, this.color.purple];
   dtvMapSettings = {
     metrics: this.dtvMapMetrics,
     ranges: this.dtvMapRanges,
@@ -145,9 +145,9 @@ export class MapSettings {
   //daily pedestrian pushbutton activity
   papdMapField: string = "papd";
   papdMapMetrics: Metrics = new Metrics({ measure: "papd", field: "papd", label: "Daily Pedestrian Pushbutton Activity", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  papdMapRanges: number[][] = [[0,1000],[1000,2000],[2000,3000],[3000,4000],[4000,5000]];
-  papdLegendLabels: string[] = ["0-1,000","1,000-2,000","2,000-3,000","3,000-4,000","4,000-5,000"];
-  papdLegendColors: string[] = [this.color.lightTeal,this.color.teal,this.color.blue,this.color.darkBlue,this.color.purple];
+  papdMapRanges: number[][] = [[0,0],[1,100],[101,200],[201,300],[301,400],[400,5000]];
+  papdLegendLabels: string[] = ["Unavailable","1 - 100","101 - 200","201 - 300","301 - 400","400+"];
+  papdLegendColors: string[] = [this.color.gray,this.color.lightTeal,this.color.teal,this.color.blue,this.color.darkBlue,this.color.purple];
   papdMapSettings = {
     metrics: this.papdMapMetrics,
     ranges: this.papdMapRanges,
@@ -157,9 +157,9 @@ export class MapSettings {
   //detector uptime
   duMapField: string = "uptime";
   duMapMetrics: Metrics = new Metrics({ measure: "du", field: "uptime", label: "Detector Uptime", formatType: "percent", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  duMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  duLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  duLegendColors: string[] = [this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.greenYellow];
+  duMapRanges: number[][] = [[0,0],[0.01,0.6],[0.61,0.8],[0.81,0.9],[0.91,0.95],[0.95,1]];
+  duLegendLabels: string[] = ["Unavailable",".01% - 60%","60.01% - 80%","80.01% - 90%","90.1% - 95%","95.1%+"];
+  duLegendColors: string[] = [this.color.gray,this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
   duMapSettings = {
     metrics: this.duMapMetrics,
     ranges: this.duMapRanges,
@@ -169,9 +169,9 @@ export class MapSettings {
   //pedestrian pushbutton uptime
   pauMapField: string = "uptime";
   pauMapMetrics: Metrics = new Metrics({ measure: "pau", field: "uptime", label: "Pedestrian Pushbutton Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  pauMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  pauLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  pauLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  pauMapRanges: number[][] = [[0,0],[0.01,0.6],[0.61,0.8],[0.81,0.9],[0.91,0.95],[0.95,1]];
+  pauLegendLabels: string[] = ["Unavailable",".01% - 60%","60.01% - 80%","80.01% - 90%","90.1% - 95%","95.1%+"];
+  pauLegendColors: string[] = [this.color.gray,this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
   pauMapSettings = {
     metrics: this.pauMapMetrics,
     ranges: this.pauMapRanges,
@@ -181,9 +181,9 @@ export class MapSettings {
   //cctv uptime
   cctvMapField: string = "uptime";
   cctvMapMetrics: Metrics = new Metrics({ measure: "cctv", field: "uptime", label: "CCTV Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  cctvMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  cctvLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  cctvLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  cctvMapRanges: number[][] = [[0,0],[0.01,0.6],[0.61,0.8],[0.81,0.9],[0.91,0.95],[0.95,1]];
+  cctvLegendLabels: string[] = ["Unavailable",".01% - 60%","60.01% - 80%","80.01% - 90%","90.1% - 95%","95.1%+"];
+  cctvLegendColors: string[] = [this.color.gray,this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
   cctvMapSettings = {
     metrics: this.cctvMapMetrics,
     ranges: this.cctvMapRanges,
@@ -193,9 +193,9 @@ export class MapSettings {
   //communication uptime
   cuMapField: string = "uptime";
   cuMapMetrics: Metrics = new Metrics({ measure: "cu", field: "uptime", label: "Communication Uptime", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
-  cuMapRanges: number[][] = [[0.0,0.2],[0.2,0.4],[0.4,0.6],[0.6,0.8],[0.8,1]];
-  cuLegendLabels: string[] = ["0.0-0.2","0.2-0.4","0.4-0.6","0.6-0.8","0.8-1.0"];
-  cuLegendColors: string[] = [this.color.green,this.color.greenYellow,this.color.yellow,this.color.redOrange,this.color.red];
+  cuMapRanges: number[][] = [[0,0],[0.01,0.6],[0.61,0.8],[0.81,0.9],[0.91,0.95],[0.95,1]];
+  cuLegendLabels: string[] = ["Unavailable",".01% - 60%","60.01% - 80%","80.01% - 90%","90.1% - 95%","95.1%+"];
+  cuLegendColors: string[] = [this.color.gray,this.color.red,this.color.redOrange,this.color.yellow,this.color.greenYellow,this.color.green];
   cuMapSettings = {
     metrics: this.cuMapMetrics,
     ranges: this.cuMapRanges,
