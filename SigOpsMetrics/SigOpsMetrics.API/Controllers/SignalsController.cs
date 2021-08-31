@@ -24,7 +24,7 @@ namespace SigOpsMetrics.API.Controllers
     [Route("signals")]
     public class SignalsController : _BaseController
     {
-        private const string KeyName = "Corridors_Latest.xlsx";
+        private const string KeyName = "Corridors_v3_Latest.xlsx";
         
         /// <summary>
         /// Constructor
