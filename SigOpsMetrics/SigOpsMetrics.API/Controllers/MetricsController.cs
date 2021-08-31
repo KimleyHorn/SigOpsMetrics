@@ -242,6 +242,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             if (filter.zone_Group == "All")
             {
+                // group on zone_group instead of corridor
                 groupedData = (from row in retVal.AsEnumerable()
                                group row by new { label = row[1].ToString() } into g
                                select new AverageDTO
@@ -251,7 +252,7 @@ namespace SigOpsMetrics.API.Controllers
                                    delta = g.Average(x => x[deltaColIndex].ToDouble())
                                }).ToList();
             }
-            else
+            else if (!string.IsNullOrEmpty(filter.corridor))
             {
                 groupedData = (from row in retVal.AsEnumerable()
                                   group row by new { label = row[0].ToString() } into g

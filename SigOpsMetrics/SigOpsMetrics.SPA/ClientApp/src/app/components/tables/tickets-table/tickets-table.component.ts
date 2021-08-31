@@ -52,8 +52,6 @@ export class TicketsTableComponent implements OnInit {
   }
 
   private _loadData(){
-    console.log(this._data);
-    console.log(this._filter);
     if(this._filter !== undefined && this._data !== undefined){
 
       let filteredData = this._data.filter(value => value['corridor'] === this._filter.zone_Group || this._filter.zone_Group === 'All')
