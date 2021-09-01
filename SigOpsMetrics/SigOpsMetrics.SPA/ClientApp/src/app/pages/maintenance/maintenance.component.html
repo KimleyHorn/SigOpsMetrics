@@ -92,7 +92,7 @@
     <mat-tab label="CCTV Uptime">
         <ng-template matTabContent>
             <div class="container-fluid">
-                <app-map-dashboard
+                <app-graph-dashboard
                     [graphMetrics]='cctvGraphMetrics'
                     [mapSettings]='mapSettings.cctvMapSettings'
                     [metricField]='mapSettings.cctvMapField'
@@ -107,7 +107,7 @@
                           [bar]='cctvBar'>
                         </app-bar-line-graph>
                     </ng-template>
-                </app-map-dashboard>
+                </app-graph-dashboard>
             </div>
         </ng-template>
     </mat-tab>

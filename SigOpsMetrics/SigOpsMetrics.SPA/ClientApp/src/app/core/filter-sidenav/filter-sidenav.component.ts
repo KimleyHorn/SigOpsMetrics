@@ -26,7 +26,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //Region | ZONE GROUP
   signalGroups: Array<string> = [];
-  selectedSignalGroup: string = 'RTOP2';
+  selectedSignalGroup: string = 'Central Metro';
   //District | ZONE
   districts: Array<string> = [];
   selectedDistrict: string = '';
