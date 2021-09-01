@@ -144,7 +144,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
 
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL ORDER BY Zone ASC";
+                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL and Zone <> '' and signalid <> -1 and include = 1 ORDER BY Zone ASC";
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
@@ -178,7 +178,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL AND TRIM(UPPER(Zone_Group))";
+                        "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL and Zone <> '' and signalid <> -1 and include = 1 AND TRIM(UPPER(Zone_Group))";
                     string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
@@ -228,7 +228,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL AND TRIM(UPPER(Zone_Group))";
+                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL and corridor <> '' and signalid <> -1 and include = 1 AND TRIM(UPPER(Zone_Group))";
                     string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
@@ -277,7 +277,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL order by Corridor ASC";
+                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL and corridor <> '' and signalid <> -1 and include = 1 order by Corridor ASC";
 
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
@@ -311,7 +311,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Corridor) FROM signals WHERE TRIM(Zone) = @zoneName order by Corridor ASC";
+                        "SELECT DISTINCT(Corridor) FROM signals WHERE TRIM(Zone) = @zoneName and Corridor is not null and corridor <> '' and signalid <> -1 and include = 1 order by Corridor ASC";
                     cmd.Parameters.AddWithValue("zoneName", zoneName.Trim());
 
                     await using var reader = await cmd.ExecuteReaderAsync();
@@ -345,7 +345,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Subcorridor) FROM signals WHERE Subcorridor IS NOT NULL order by Subcorridor ASC";
+                        "SELECT DISTINCT(Subcorridor) FROM signals WHERE Subcorridor IS NOT NULL and Corridor is not null and subcorridor <> '' and signalid <> -1 and include = 1 order by Subcorridor ASC";
 
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
@@ -413,7 +413,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Agency) FROM signals WHERE Agency IS NOT NULL and signalid <> -1 and include = 1 order by Agency ASC";
+                        "SELECT DISTINCT(Agency) FROM signals WHERE Agency IS NOT NULL and Agency <> '' and signalid <> -1 and include = 1 order by Agency ASC";
 
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
@@ -476,8 +476,12 @@ namespace SigOpsMetrics.API.DataAccess
 
                             switch (cell.Start.Column)
                             {
-                                case 10:
-                                case 13:
+                                case 12: //Include
+                                    row[cell.Start.Column - 1] =
+                                        cell.Text.ToUpper() == "TRUE" || cell.Text == "1" ? 1 : 0;
+                                    break;
+                                case 10: //Asof
+                                case 13: //Modified
                                     row[cell.Start.Column - 1] = DateTime.Parse(cell.Text).ToString("MM/dd/yyyy");
                                     break;
                                 default:
