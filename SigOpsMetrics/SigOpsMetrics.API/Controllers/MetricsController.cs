@@ -270,7 +270,15 @@ namespace SigOpsMetrics.API.Controllers
             //todo more checks as we start using the filter
             if (filter.timePeriod < 0) return null;
 
+            //Quarterly data is formatted differently
+            var interval = GetIntervalFromFilter(filter);
             var dates = GenerateDateFilter(filter);
+            string startQuarter = null, endQuarter = null;
+            if (interval == "qu")
+            {
+                startQuarter = dates.Item1.NearestQuarterEnd();
+                endQuarter = dates.Item2.NearestQuarterEnd();
+            }
 
             var filteredItems = new FilteredItems();
             if (signalOnly)
@@ -285,10 +293,33 @@ namespace SigOpsMetrics.API.Controllers
             //If we got no corridors/signals, bail
             if (filteredItems.Items.Any())
             {
-                var interval = GetIntervalFromFilter(filter);
-                var retVal =
-                    MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1, dates.Item2, filteredItems);
-                return await retVal;
+                if (interval == "qu" && startQuarter != null && endQuarter != null)
+                {
+                    var retVal = await MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval,
+                        startQuarter, endQuarter, filteredItems);
+
+                    //var quarterCol = retVal.Columns["quarter"];
+                    retVal.Columns["quarter"].MaxLength = 30;
+
+                    foreach (DataRow row in retVal.Rows)
+                    {
+                        string cellData = row["quarter"].ToString();
+                        var year = cellData.Substring(0, 4);
+                        var quarter = cellData.Substring(5, 1);
+                        var newDate = new DateTime(year.ToInt(), quarter.ToInt() * 3, 30);
+                        row["quarter"] = newDate;
+                    }
+
+                    return retVal;
+                }
+                else
+                {
+                    var retVal =
+                        MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1.ToString(),
+                            dates.Item2.ToString(), filteredItems);
+                    return await retVal;
+                }
+
             }
 
             return null;
