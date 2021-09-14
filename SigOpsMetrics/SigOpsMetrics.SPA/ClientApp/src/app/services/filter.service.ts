@@ -136,7 +136,7 @@ export class FilterService {
   }
 
   getSubcorridorsByCorridor(corridor: string){
-    return this.http.get<string[]>(this.baseUrl + 'signals/subcorridorsbycorridor/' + corridor).pipe(
+    return this.http.get<string[]>(this.baseUrl + 'signals/subcorridorsbycorridor/' + encodeURIComponent(corridor)).pipe(
       map(response => {
         this.subcorridorData = response;
         return response;
