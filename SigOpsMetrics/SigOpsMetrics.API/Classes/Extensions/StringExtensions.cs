@@ -23,5 +23,10 @@ namespace SigOpsMetrics.API.Classes.Extensions
         {
             return !double.TryParse(input?.ToString(), out double retVal) ? 0.0 : retVal;
         }
+
+        public static int ToInt(this string input)
+        {
+            return !int.TryParse(input, out int retVal) ? 0 : retVal;
+        }
     }
 }
