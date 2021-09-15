@@ -8,8 +8,8 @@
               [graphMetrics]='tpGraphMetrics'
               [mapSettings]='mapSettings.tpMapSettings'
               [metricField]='mapSettings.tpMapField'
-              [metricLabel]='"Average monthly vehicles per hour"'
-              [changeLabel]='"Changes from prior month"'>
+              [metricLabel]='"Average vehicles per hour"'
+              [changeLabel]='"Change from prior period"'>
               <ng-template let-data #tpTemplate>
                   <app-bar-line-graph
                       [data]='data.filteredData'
@@ -32,7 +32,7 @@
               [mapSettings]='mapSettings.aogdMapSettings'
               [metricField]='mapSettings.aogdMapField'
               [metricLabel]='"Arrivals on Green"'
-              [changeLabel]='"Changes from prior month"'>
+              [changeLabel]='"Change from prior period"'>
               <ng-template let-data #aogTemplate>
                 <app-bar-line-graph
                   [data]='data.filteredData'
@@ -64,7 +64,7 @@
             [metricField]='mapSettings.prdMapField'
             [metricDecimals]='2'
             [metricLabel]='"Progression Ratio"'
-            [changeLabel]='"Changes from prior month"'>
+            [changeLabel]='"Change from prior period"'>
             <ng-template let-data #prTemplate>
               <app-bar-line-graph
                 [data]='data.filteredData'
@@ -89,7 +89,7 @@
               [metricField]='mapSettings.qsdMapField'
               [metricLabel]='"Spillback rate"'
               [metricDecimals]='2'
-              [changeLabel]='"Changes from prior month"'>
+              [changeLabel]='"Change from prior period"'>
               <ng-template let-data #qsdTemplate>
                   <app-bar-line-graph
                     [data]='data.filteredData'
@@ -113,7 +113,7 @@
             [metricField]='mapSettings.psfMapField'
             [metricLabel]='"Peak Period Split Failures"'
             [metricDecimals]='2'
-            [changeLabel]='"Changes from prior month"'>
+            [changeLabel]='"Change from prior period"'>
             <ng-template let-data #sfTemplate>
                 <app-bar-line-graph
                   [data]='data.filteredData'
@@ -137,7 +137,7 @@
             [metricField]='mapSettings.osfMapField'
             [metricLabel]='"Off-Peak Split Failures"'
             [metricDecimals]='2'
-            [changeLabel]='"Changes from prior month"'>
+            [changeLabel]='"Change from prior period"'>
             <ng-template let-data #sfTemplate>
                 <app-bar-line-graph
                   [data]='data.filteredData'
@@ -160,7 +160,7 @@
             [metricField]='ttiMetricField'
             [metricLabel]='"Travel Time Index"'
             [metricDecimals]='2'
-            [changeLabel]='"Changes from prior month"'>
+            [changeLabel]='"Change from prior period"'>
             <ng-template let-data #ttiTemplate>
               <app-bar-line-graph
                 [data]='data.filteredData'
@@ -183,7 +183,7 @@
             [metricField]='ptiMetricField'
             [metricLabel]='"Planning Time Index"'
             [metricDecimals]='2'
-            [changeLabel]='"Changes from prior month"'>
+            [changeLabel]='"Change from prior period"'>
             <ng-template let-data #ptiTemplate>
               <app-bar-line-graph
                 [data]='data.filteredData'

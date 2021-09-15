@@ -14,6 +14,10 @@
         <td mat-cell *matCellDef="let data" class="dashboard-value">{{ data.value }}</td>
       </ng-container>
 
+      <ng-container matColumnDef="unit">
+        <td mat-cell *matCellDef="let data" class="dashboard-unit">{{ data.unit }}</td>
+      </ng-container>
+
       <tr mat-row *matRowDef="let row; columns: tableColumns"></tr>
     </table>
   </mat-card-content>

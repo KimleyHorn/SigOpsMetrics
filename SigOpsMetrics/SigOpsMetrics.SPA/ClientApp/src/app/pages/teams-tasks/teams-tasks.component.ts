@@ -88,13 +88,12 @@ export class TeamsTasksComponent implements OnInit {
   constructor(
     private _metricsService: MetricsService,
     private _filterSerivce: FilterService,
-    private _formatService: FormatService, 
+    private _formatService: FormatService,
     private titleService:Title) {
 
     //get the current month
     let metricDate = (this._dt.getMonth() + 1) + '/' + this._dt.getFullYear();
     metricDate = '2/' + this._dt.getFullYear(); //temporary date
-
     this.metricsSource.measure = "tsou";
     this.metricsSource.start = metricDate;
     this.metricsSource.end = metricDate;

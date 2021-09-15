@@ -11,8 +11,7 @@ import { formatDate } from '@angular/common';
 @Component({
   selector: 'app-signal-info',
   templateUrl: './signal-info.component.html',
-  styleUrls: ['./signal-info.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./signal-info.component.css']
 })
 
 export class SignalInfoComponent implements OnInit, AfterViewInit {

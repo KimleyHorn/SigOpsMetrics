@@ -9,7 +9,7 @@ export class Filter {
   daysOfWeek: string[] = null;
   startTime: Date = null;
   endTime: Date = null;
-  zone_Group: string = 'All';
+  zone_Group: string = 'Central Metro';
   //zone_Group: string = 'All RTOP';
   zone: string = null; //aka district
   agency: string = null;

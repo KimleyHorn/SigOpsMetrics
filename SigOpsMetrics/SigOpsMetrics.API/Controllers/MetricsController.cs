@@ -185,16 +185,35 @@ namespace SigOpsMetrics.API.Controllers
 
             var avgColIndex = 2;
             var deltaColIndex = 3;
+            var idCol = 0;
 
-            //signals have different column orders than corridors - reconcile later
-            
-            if (measure == "vphpa" || measure == "vphpp")
+            //todo:some signals have different column orders than corridors - add here as we find them
+            switch (measure)
             {
-                avgColIndex = 3;
-                deltaColIndex = 4;
+                case "vphpa":
+                case "vphpp":
+                    avgColIndex = 3;
+                    deltaColIndex = 4;
+                    break;
+                case "pau":
+                case "cu":
+                    idCol = 1;
+                    avgColIndex = 3;
+                    deltaColIndex = 4;
+                    break;
+                case "du":
+                    idCol = 1;
+                    avgColIndex = 3;
+                    deltaColIndex = 6;
+                    break;
+                case "cctv":
+                    avgColIndex = 4;
+                    deltaColIndex = 5;
+                    break;
             }
+
             groupedData = (from row in retVal.AsEnumerable()
-                           group row by new { label = row[0].ToString() } into g
+                           group row by new { label = row[idCol].ToString() } into g
                            select new AverageDTO
                            {
                                label = g.Key.label,
@@ -273,7 +292,15 @@ namespace SigOpsMetrics.API.Controllers
             //todo more checks as we start using the filter
             if (filter.timePeriod < 0) return null;
 
+            //Quarterly data is formatted differently
+            var interval = GetIntervalFromFilter(filter);
             var dates = GenerateDateFilter(filter);
+            string startQuarter = null, endQuarter = null;
+            if (interval == "qu")
+            {
+                startQuarter = dates.Item1.NearestQuarterEnd();
+                endQuarter = dates.Item2.NearestQuarterEnd();
+            }
 
             var filteredItems = new FilteredItems();
             if (signalOnly)
@@ -288,9 +315,33 @@ namespace SigOpsMetrics.API.Controllers
             //If we got no corridors/signals, bail
             if (filteredItems.Items.Any())
             {
-                var interval = GetIntervalFromFilter(filter);
-                var retVal = await MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1, dates.Item2, filteredItems);
-                return retVal;
+                if (interval == "qu" && startQuarter != null && endQuarter != null)
+                {
+                    var retVal = await MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval,
+                        startQuarter, endQuarter, filteredItems);
+
+                    //var quarterCol = retVal.Columns["quarter"];
+                    retVal.Columns["quarter"].MaxLength = 30;
+
+                    foreach (DataRow row in retVal.Rows)
+                    {
+                        string cellData = row["quarter"].ToString();
+                        var year = cellData.Substring(0, 4);
+                        var quarter = cellData.Substring(5, 1);
+                        var newDate = new DateTime(year.ToInt(), quarter.ToInt() * 3, 30);
+                        row["quarter"] = newDate;
+                    }
+
+                    return retVal;
+                }
+                else
+                {
+                    var retVal =
+                        MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1.ToString(),
+                            dates.Item2.ToString(), filteredItems);
+                    return await retVal;
+                }
+
             }
 
             return null;
