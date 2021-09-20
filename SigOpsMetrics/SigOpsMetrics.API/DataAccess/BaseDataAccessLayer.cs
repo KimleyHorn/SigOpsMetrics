@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes.DTOs;
@@ -23,6 +21,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     await sqlConnection.OpenAsync();
                 }
+
                 using (var cmd = new MySqlCommand())
                 {
 
@@ -36,6 +35,10 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 Console.WriteLine(e);
                 throw;
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
             }
         }
         public static async Task<int> WriteToContactUs(MySqlConnection sqlConnection, ContactInfo data)
@@ -78,7 +81,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
             return success;
         }
