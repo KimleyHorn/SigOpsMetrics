@@ -150,7 +150,7 @@
   </div>
 </div>
 <div class="container" style="display: flex; justify-content: space-evenly; margin-top:10px;">
-    <button mat-raised-button color="basic">Set As Defaults</button>
+    <button mat-raised-button color="basic" (click)="this.saveFilter();">Set As Defaults</button>
     <button mat-raised-button color="basic" (click)="this.resetSelections();">Clear</button>
     <button mat-raised-button color="primary" (click)="applyFilter()">Apply</button>
 </div>

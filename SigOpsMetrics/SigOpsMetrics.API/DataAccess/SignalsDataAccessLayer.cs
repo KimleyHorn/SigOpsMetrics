@@ -538,7 +538,6 @@ namespace SigOpsMetrics.API.DataAccess
             var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
                 filter.city, filter.corridor, filter.subcorridor, filter.signalId);
             var sqlText = "select distinct(signalid) from mark1.signals where include = 1" + where;
-
             var retVal = new List<string>();
             await sqlConnection.OpenAsync();
             await using (var cmd = new MySqlCommand())
@@ -562,7 +561,14 @@ namespace SigOpsMetrics.API.DataAccess
             var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
                 filter.city, filter.corridor, filter.subcorridor, filter.signalId);
             var sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
-
+            if (filter.zone_Group == "All")
+            {
+                sqlText = "SELECT DISTINCT(Zone_Group) FROM mark1.signals WHERE Zone_Group IS NOT NULL";
+            }
+            else
+            {
+                sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
+            }
             var retVal = new List<string>();
             await sqlConnection.OpenAsync();
             await using (var cmd = new MySqlCommand())

@@ -154,15 +154,9 @@ export class TeamsTasksComponent implements OnInit {
       let metric = new Metrics();
       metric.measure = item.measure;
       this._metricsService.getMetrics(metric).subscribe(data => {
-
-        // let metricData = data.filter(di =>
-        //   di["corridor"] === this._filter.zone_Group || di["corridor"] === this._filter.corridor
-        // );
-        let allRegions = ['Cobb County','District 1','District 2','District 3','District 4','District 5','District 6','District 7','Ramp Meters','RTOP1','RTOP2']
         let metricData = [];
         if (this._filter.zone_Group == 'All') {
           data.forEach(element => {
-            if (allRegions.includes(element["corridor"])) {
               element.corridor = 'All';
               let found = false;
               for (let i=0; i<metricData.length;i++) {
@@ -171,7 +165,7 @@ export class TeamsTasksComponent implements OnInit {
                   metricData[i].over45 += element.over45;
                   metricData[i].resolved += element.resolved;
                   metricData[i].outstanding += element.outstanding;
-                  metricData[i].delta += element.delta; //is this an average?
+                  metricData[i].delta += element.delta;
                   found = true;
                   break;
                 } 
@@ -179,15 +173,16 @@ export class TeamsTasksComponent implements OnInit {
               if (!found) {
                 metricData.push(element);
               }               
-            }
           })
-      
+          metricData.forEach(x => {
+            // delta is an average so we fix it here? Not sure this is correct.
+            x.delta /= metricData.length;
+          })
         } else {
           metricData = data.filter(di =>
             di["corridor"] === this._filter.zone_Group || di["corridor"] === this._filter.corridor
           );
         }
-
         let metricItem = metricData[0];
         item.metricValue = metricItem[item.measure];
         item.metricChange = "(" + this._formatService.formatPercent(metricItem["delta"],2) + ")";

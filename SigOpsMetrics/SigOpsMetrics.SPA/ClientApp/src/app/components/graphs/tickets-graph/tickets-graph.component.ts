@@ -70,14 +70,13 @@ export class TicketsGraphComponent implements OnInit {
       let data: any[] = [];
       
       //filter the data based on the set filter
-      //let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group);
-      let allRegions = ['Cobb County','District 1','District 2','District 3','District 4','District 5','District 6','District 7','Ramp Meters','RTOP1','RTOP2']
-      let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group || (this.graphFilter.zone_Group === 'All' && allRegions.includes(dataItem.zone_Group)));
-
+      let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group || this.graphFilter.zone_Group === 'All');
       //sort the data
       let sortedData = filteredData.sort((n1, n2) => n1[this.graph.x] - n2[this.graph.x]);
 
+      console.log(this.graph);
       //create the traces for the graph
+      console.log(sortedData);
       sortedData.forEach(sortItem => {
         let trace = {
           name: sortItem[this.graph.y],

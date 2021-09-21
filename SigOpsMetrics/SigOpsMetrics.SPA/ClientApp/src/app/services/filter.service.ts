@@ -43,6 +43,7 @@ export class FilterService {
   public agencyData: string[];
 
   constructor(private http: HttpClient, @Inject('BASE_URL') baseUrlInject: string, private _formatService: FormatService) {
+    this.checkExistingFilter();
     this.baseUrl = baseUrlInject;
     this._filters.next(this.filter);
     this.getSignalGroupsFromDb().subscribe(data => this.signalGroups = data);
@@ -233,5 +234,16 @@ export class FilterService {
     }
 
     return metric;
+  }
+
+  public saveCurrentFilter() {
+    localStorage.setItem("filter", JSON.stringify(this.filter));
+  }
+
+  private checkExistingFilter() {
+    let localStorageFilter = localStorage.getItem('filter');
+    if (localStorageFilter) {
+      this.filter = JSON.parse(localStorageFilter);
+    }
   }
 }

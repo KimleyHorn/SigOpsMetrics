@@ -79,8 +79,12 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
       if(this.data !== undefined){
         this.lineData = this.data;
-
-        let cors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
+        let cors;
+        if (this.filter.zone_Group === 'All') {
+          cors = new Set(this.data.filter(value => value['actualZoneGroup'] !== null).map(data => data['actualZoneGroup']));
+        } else {
+          cors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
+        }
         this.corridors = Array.from(cors);
 
         this.barData = this.averageData;

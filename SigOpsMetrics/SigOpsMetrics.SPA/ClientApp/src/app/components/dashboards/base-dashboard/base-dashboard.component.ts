@@ -44,33 +44,7 @@ export class BaseDashboardComponent implements OnInit {
       this._filterSubscription = this._filterService.filters.subscribe(filter => {
         this.filterState = filter;
         this._metricsSubscription = this._metricsService.filterMetrics(this.graphMetrics, filter).subscribe(response => {
-          if (this.filterState.zone_Group === 'All') {
-            let allRegions = ['Cobb County','District 1','District 2','District 3','District 4','District 5','District 6','District 7','Ramp Meters','RTOP1','RTOP2']
-            let _data = [];
-            console.log(response);
-            response.forEach(x => {
-              if (allRegions.includes(x.zone_Group)) {
-                let found = false;
-                for (let i=0; i<_data.length;i++) {
-                  if (_data[i].month == x.month && _data[i].zone_Group == x.zone_Group) {
-                    _data[i].vph += x.vph;
-                    _data[i].delta += x.delta; //is this an avg?
-                    found = true;
-                    break;
-                  }
-                }
-                if (!found) {
-                  x.corridor = x.zone_Group;
-                  x.description = x.zone_Group;
-                  _data.push(x);
-                }
-              }
-            })
-            this.data = _data;
-            console.log(this.data);
-          } else {
-            this.data = response;
-          }
+          this.data = response;
           this._loadData();
           this._metricsSubscription.unsubscribe();
         });

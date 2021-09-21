@@ -88,14 +88,15 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   subcorridorsSubscription: Subscription;
   agenciesSubscription: Subscription;
   filterSubscription: Subscription;
-  subcorridorsSubscription: Subscription;
 
-  constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {}
-
-  ngOnInit(): void {
-
+  initialLoad: boolean = true;
+  constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {
   }
-
+  
+  ngOnInit(): void {
+    
+  }
+  
   ngAfterViewInit(): void {
     //load the zone groups for the dropdown
     this.zoneGroupsSubscription = this.filterService.zoneGroups.subscribe(data =>{
@@ -129,64 +130,70 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
     //clear removed items
     this.filterSubscription = this.filterService.filters.subscribe(filter => {
-      Object.keys(filter).forEach(item => {
-        let value = filter[item];
-        if(value === null){
-          switch (item) {
-            case 'dateRange':
-              this._resetStartDate();
-              this._resetEndDate();
-              this._resetDaysOfWeek();
-              this.selectedDateOption = 2;
-              break;
-            case 'customStart':
-              this._resetStartDate();
-              break;
-            case 'customEnd':
-              this._resetEndDate();
-              break;
-            case 'daysOfWeek':
-              this._resetDaysOfWeek();
-              break;
-            case 'startTime':
-              this._resetStartTime();
-              break;
-            case 'endTime':
-              this._resetEndTime();
-              break;
-            case 'dataAggregation':
-              this.selectedAggregationOption = 4;
-              break;
-            case 'zone_Group':
-              this.selectedSignalGroup = 'All';
-              break;
-            case 'zone':
-              this.selectedDistrict = '';
-              break;
-            case 'agency':
-              this.selectedAgency = '';
-              break;
-            case 'county':
-              this.selectedCounty = '';
-              break;
-            case 'city':
-              this.selectedCity = '';
-              break;
-            case 'corridor':
-              this.selectedCorridor = '';
-              break;
-            case 'subcorridor':
-              this.selectedSubcorridor = '';
-              break;
-            case 'signalId':
-              this.selectedSignalId = '';
-              break;
-            default:
-              break;
-          }
-        }
-      });
-    });
+      if (this.initialLoad) {
+        this.initialLoad = false;
+        this.syncSavedFilterOnLoad(filter);
+      } else {
+        Object.keys(filter).forEach(item => {
+          let value = filter[item];
+          if(value === null){
+            switch (item) {
+              case 'dateRange':
+                this._resetStartDate();
+                this._resetEndDate();
+                this._resetDaysOfWeek();
+                this.selectedDateOption = 2;
+                break;
+              case 'customStart':
+                this._resetStartDate();
+                break;
+              case 'customEnd':
+                this._resetEndDate();
+                break;
+              case 'daysOfWeek':
+                this._resetDaysOfWeek();
+                break;
+              case 'startTime':
+                this._resetStartTime();
+                break;
+              case 'endTime':
+                this._resetEndTime();
+                break;
+              case 'dataAggregation':
+                this.selectedAggregationOption = 4;
+                break;
+              case 'zone_Group':
+                this.selectedSignalGroup = 'Central Metro';
+                break;
+              case 'zone':
+                this.selectedDistrict = '';
+                break;
+              case 'agency':
+                this.selectedAgency = '';
+                break;
+              case 'county':
+                this.selectedCounty = '';
+                break;
+              case 'city':
+                this.selectedCity = '';
+                break;
+              case 'corridor':
+                this.selectedCorridor = '';
+                break;
+              case 'subcorridor':
+                this.selectedSubcorridor = '';
+                break;
+              case 'signalId':
+                this.selectedSignalId = '';
+                break;
+              default:
+                break;
+            }
+          } 
+        });
+
+      }
+    });  
   }
 
   //unsubscribe to services
@@ -359,6 +366,31 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     });
 
     this.filterService.setValue('daysOfWeek', days);
+  }
+
+  saveFilter() {
+    this.applyFilter();
+    this.filterService.saveCurrentFilter();
+  }
+
+  // private checkExistingFilter() {
+  //   let localStorageFilter = localStorage.getItem('filter');
+  //   if (localStorageFilter) {
+  //     this.syncSavedFilterOnLoad(JSON.parse(localStorageFilter));
+  //   }
+  // }
+
+  syncSavedFilterOnLoad(filterData) {
+    this.selectedSignalGroup = filterData.zone_Group;
+    this.selectedAgency = filterData.agency;
+    this.selectedDateOption = filterData.dateRange;
+    this.selectedAggregationOption = filterData.timePeriod;
+    this.selectedDistrict = filterData.zone;
+    this.selectedCounty = filterData.county;
+    this.selectedCity = filterData.city;
+    this.selectedCorridor = filterData.corridor;
+    this.selectedSubcorridor = filterData.subcorridor;
+    this.selectedSignalId = filterData.signalId;
   }
 }
 
