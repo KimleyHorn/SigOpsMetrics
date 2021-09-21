@@ -60,6 +60,7 @@ namespace SigOpsMetrics.API.DataAccess
         private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level, string interval, string measure,
             string whereClause, bool all = false)
         {
+            var tb = new DataTable();
             try
             {
                 var tb = new DataTable();
@@ -86,8 +87,6 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 await WriteToErrorLog(sqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     nameof(GetFromDatabase), ex);
-                //Invalid configuration
-                return new DataTable();
             }
             finally
             {
@@ -99,8 +98,8 @@ namespace SigOpsMetrics.API.DataAccess
         private static string CreateDateRangeClause(string interval, string measure, string start, string end)
         {
             string period;
-            string startFormat = start.ToString();
-            string endFormat = end.ToString();
+            var startFormat = start;
+            var endFormat = end;
 
             switch (interval)
             {

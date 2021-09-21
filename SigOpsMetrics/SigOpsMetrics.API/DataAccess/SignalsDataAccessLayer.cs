@@ -17,7 +17,7 @@ namespace SigOpsMetrics.API.DataAccess
     {
         public static async Task<IEnumerable<SignalDTO>> GetAllSignalDataSQL(MySqlConnection sqlConnection)
         {
-            List<SignalDTO> signals = new List<SignalDTO>();
+            var signals = new List<SignalDTO>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -29,7 +29,7 @@ namespace SigOpsMetrics.API.DataAccess
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
-                        SignalDTO row = new SignalDTO
+                        var row = new SignalDTO
                         {
                             SignalID = reader.IsDBNull(0) ? "" : reader.GetString(0).Trim(),
                             ZoneGroup = reader.IsDBNull(1) ? "" : reader.GetString(1).Trim(),
@@ -62,7 +62,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return signals;
@@ -70,7 +70,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<IEnumerable<string>> GetSignalNamesSQL(MySqlConnection sqlConnection)
         {
-            List<string> signals = new List<string>();
+            var signals = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -95,7 +95,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return signals;
@@ -103,7 +103,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<IEnumerable<string>> GetZoneGroupsSQL(MySqlConnection sqlConnection)
         {
-            List<string> zoneGroups = new List<string>();
+            var zoneGroups = new List<string>();
             zoneGroups.Add("All");
             try
             {
@@ -129,7 +129,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return zoneGroups;
@@ -137,7 +137,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<IEnumerable<string>> GetZonesSQL(MySqlConnection sqlConnection)
         {
-            List<string> zones = new List<string>();
+            var zones = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -161,7 +161,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return zones;
@@ -171,7 +171,7 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<IEnumerable<string>> GetZonesByZoneGroupSQL(MySqlConnection sqlConnection,
             string zoneGroupName)
         {
-            List<string> zones = new List<string>();
+            var zones = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -215,7 +215,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return zones;
@@ -224,7 +224,7 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<IEnumerable<string>> GetCorridorsByZoneGroupSQL(MySqlConnection sqlConnection,
             string zoneGroupName)
         {
-            List<string> zones = new List<string>();
+            var zones = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -267,7 +267,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return zones;
@@ -275,7 +275,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<IEnumerable<string>> GetCorridorsSQL(MySqlConnection sqlConnection)
         {
-            List<string> corridors = new List<string>();
+            var corridors = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -300,7 +300,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return corridors;
@@ -309,7 +309,7 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<IEnumerable<string>> GetCorridorsByZoneSQL(MySqlConnection sqlConnection,
             string zoneName)
         {
-            List<string> corridors = new List<string>();
+            var corridors = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -335,7 +335,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return corridors;
@@ -343,7 +343,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<IEnumerable<string>> GetSubCorridorsSQL(MySqlConnection sqlConnection)
         {
-            List<string> subcorridors = new List<string>();
+            var subcorridors = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -368,7 +368,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return subcorridors;
@@ -377,7 +377,7 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<IEnumerable<string>> GetSubCorridorsByCorridorSQL(MySqlConnection sqlConnection,
             string corridor)
         {
-            List<string> subCorridors = new List<string>();
+            var subCorridors = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -403,7 +403,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return subCorridors;
@@ -411,7 +411,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<IEnumerable<string>> GetAgenciesSQL(MySqlConnection sqlConnection)
         {
-            List<string> agencies = new List<string>();
+            var agencies = new List<string>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -436,7 +436,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
             finally
             {
-                sqlConnection.Close();
+                await sqlConnection.CloseAsync();
             }
 
             return agencies;
@@ -446,7 +446,7 @@ namespace SigOpsMetrics.API.DataAccess
         {
             try
             {
-                DataTable tbl = new DataTable();
+                var tbl = new DataTable();
                 tbl.Columns.Add("SignalID", typeof(string));
                 tbl.Columns.Add("Zone_Group", typeof(string));
                 tbl.Columns.Add("Zone", typeof(string));
@@ -467,10 +467,10 @@ namespace SigOpsMetrics.API.DataAccess
                 tbl.Columns.Add("City", typeof(string));
 
                 var startRow = 2;
-                for (int rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
+                for (var rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
                 {
                     var wsRow = ws.Cells[rowNum, 1, rowNum, ws.Dimension.End.Column];
-                    DataRow row = tbl.Rows.Add();
+                    var row = tbl.Rows.Add();
                     foreach (var cell in wsRow)
                     {
                         if (!string.IsNullOrEmpty(cell.Text))
