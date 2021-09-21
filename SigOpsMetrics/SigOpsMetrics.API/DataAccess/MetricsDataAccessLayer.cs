@@ -63,7 +63,6 @@ namespace SigOpsMetrics.API.DataAccess
             var tb = new DataTable();
             try
             {
-                var tb = new DataTable();
                 if (all)
                 {
                     string type = level == "sig" ? "SignalId" : "Corridor";
@@ -81,7 +80,6 @@ namespace SigOpsMetrics.API.DataAccess
                     await using var reader = await command.ExecuteReaderAsync();
                     tb.Load(reader);
                 }
-                return tb;
             }
             catch (Exception ex)
             {
@@ -92,7 +90,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 await sqlConnection.CloseAsync();
             }
-
+                return tb;
         }
 
         private static string CreateDateRangeClause(string interval, string measure, string start, string end)

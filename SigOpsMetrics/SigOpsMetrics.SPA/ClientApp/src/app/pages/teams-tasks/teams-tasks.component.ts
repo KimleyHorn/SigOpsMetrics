@@ -158,9 +158,11 @@ export class TeamsTasksComponent implements OnInit {
         if (this._filter.zone_Group == 'All') {
           data.forEach(element => {
               element.corridor = 'All';
+              element.counter = 1;
               let found = false;
               for (let i=0; i<metricData.length;i++) {
                 if (metricData[i].month == element.month) {
+                  metricData[i].counter += 1;
                   metricData[i].reported += element.reported;
                   metricData[i].over45 += element.over45;
                   metricData[i].resolved += element.resolved;
@@ -175,8 +177,8 @@ export class TeamsTasksComponent implements OnInit {
               }               
           })
           metricData.forEach(x => {
-            // delta is an average so we fix it here? Not sure this is correct.
-            x.delta /= metricData.length;
+            // delta is an average so we fix it here? not sure this is correct.
+            x.delta /= x.counter;
           })
         } else {
           metricData = data.filter(di =>

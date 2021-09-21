@@ -321,6 +321,7 @@ namespace SigOpsMetrics.API.Controllers
         [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridorsByCorridor(string corridor)
         {
+            corridor = System.Web.HttpUtility.UrlDecode(corridor);
             var cacheName = $"signals/subcorridorsbycorridor/{corridor}";
             try
             {
