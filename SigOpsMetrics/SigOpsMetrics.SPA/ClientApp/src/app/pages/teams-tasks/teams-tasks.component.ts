@@ -153,12 +153,14 @@ export class TeamsTasksComponent implements OnInit {
 
       let metric = new Metrics();
       metric.measure = item.measure;
-      this._metricsService.getMetrics(metric).subscribe(data => {
+      this._metricsService.filterMetrics(metric, this._filter).subscribe(data => {
         let metricData = [];
-        if (this._filter.zone_Group == 'All') {
+        // TODO - make this work with other filter levels - currently only works with zone_group
+        if (this._filter.zone_Group) {
           data.forEach(element => {
-              element.corridor = 'All';
-              element.counter = 1;
+              element.corridor = this._filter.zone_Group;
+              element.zone_Group = this._filter.zone_Group;
+              element.counter = 0;
               let found = false;
               for (let i=0; i<metricData.length;i++) {
                 if (metricData[i].month == element.month) {
@@ -173,6 +175,7 @@ export class TeamsTasksComponent implements OnInit {
                 } 
               }       
               if (!found) {
+                element.counter = 1;
                 metricData.push(element);
               }               
           })
@@ -182,9 +185,10 @@ export class TeamsTasksComponent implements OnInit {
           })
         } else {
           metricData = data.filter(di =>
-            di["corridor"] === this._filter.zone_Group || di["corridor"] === this._filter.corridor
+            di["corridor"] === this._filter.zone_Group || di["corridor"] === this._filter.corridor || this._filter.signalId != ''
           );
         }
+        console.log(metricData);
         let metricItem = metricData[0];
         item.metricValue = metricItem[item.measure];
         item.metricChange = "(" + this._formatService.formatPercent(metricItem["delta"],2) + ")";

@@ -54,6 +54,7 @@ export class TicketsTableComponent implements OnInit {
   private _loadData(){
     if(this._filter !== undefined && this._data !== undefined){
 
+      // TODO - the tables appear to have aggregates for zone_groups, so when all is selected it is getting the individuals corridors and the zone group aggregates 
       let filteredData = this._data.filter(value => value['corridor'] === this._filter.zone_Group || this._filter.zone_Group === 'All')
                           .sort((a,b) => b['outstanding'] - a['outstanding']);
 

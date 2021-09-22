@@ -52,26 +52,29 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<DataTable> Get(string source, string level, string interval, string measure, DateTime start,
             DateTime end)
         {
-            var cacheName = $"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}";
-            try
-            {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
+            //try
+            //{
                     var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
                         end);
                     return dt;
-                });
-                return await cacheEntry;
-            }
-            catch (Exception ex)
-            {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
-                return null;
-            }
+            //}
+            //var cacheName = $"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}";
+            //try
+            //{
+            //    var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+            //    {
+            //        entry.AbsoluteExpirationRelativeToNow = OneHourCache;
+
+            //    });
+            //    return await cacheEntry;
+            //}
+            //catch (Exception ex)
+            //{
+            //    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+            //        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+            //        cacheName, ex);
+            //    return null;
+            //}
         }
 
         /// <summary>
