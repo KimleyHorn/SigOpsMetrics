@@ -188,7 +188,7 @@ export class TeamsTasksComponent implements OnInit {
             di["corridor"] === this._filter.zone_Group || di["corridor"] === this._filter.corridor || this._filter.signalId != ''
           );
         }
-        console.log(metricData);
+
         let metricItem = metricData[0];
         item.metricValue = metricItem[item.measure];
         item.metricChange = "(" + this._formatService.formatPercent(metricItem["delta"],2) + ")";
