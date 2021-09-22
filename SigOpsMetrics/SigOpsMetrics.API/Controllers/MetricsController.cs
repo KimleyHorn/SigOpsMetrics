@@ -320,6 +320,11 @@ namespace SigOpsMetrics.API.Controllers
             //todo more checks as we start using the filter
             if (filter.timePeriod < 0) return null;
 
+            if (!string.IsNullOrEmpty(filter.signalId))
+            {
+                signalOnly = true;
+            }
+
             //Quarterly data is formatted differently
             var interval = GetIntervalFromFilter(filter);
             var dates = GenerateDateFilter(filter);

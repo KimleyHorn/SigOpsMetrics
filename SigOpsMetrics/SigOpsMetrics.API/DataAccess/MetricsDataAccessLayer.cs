@@ -71,9 +71,7 @@ namespace SigOpsMetrics.API.DataAccess
                         new MySqlCommand($"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.Corridor ELSE s.Zone_Group END AS ActualZoneGroup from mark1.{level}_{interval}_{measure} t left join (select {type} AS SignalType, Zone_Group FROM mark1.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.Corridor {whereClause}", sqlConnection);
                     await using var reader = await command.ExecuteReaderAsync();
                     tb.Load(reader);
-                }
-                else
-                {
+                } else {
                     await sqlConnection.OpenAsync();
                     await using var command =
                         new MySqlCommand($"select * from mark1.{level}_{interval}_{measure} {whereClause}", sqlConnection);
