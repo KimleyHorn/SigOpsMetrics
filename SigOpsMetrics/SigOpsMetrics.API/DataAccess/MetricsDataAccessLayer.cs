@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
@@ -46,29 +47,37 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
         public static async Task<DataTable> GetMetricByFilter(MySqlConnection sqlConnection, string source, string measure,
-            string interval, string start, string end, FilteredItems filteredItems)
+            string interval, string start, string end, FilteredItems filteredItems, bool all = false)
         {
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
             var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, filteredItems.Items);
 
             return await GetFromDatabase(sqlConnection,
                 filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig", interval, measure,
-                fullWhereClause);
+                fullWhereClause, all);
         }
 
         private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level, string interval, string measure,
-            string whereClause)
+            string whereClause, bool all = false)
         {
             var tb = new DataTable();
             try
             {
-                await sqlConnection.OpenAsync();
-                await using var command =
-                    new MySqlCommand($"select * from mark1.{level}_{interval}_{measure} {whereClause}", sqlConnection);
-                await using var reader = await command.ExecuteReaderAsync();
-
-                tb.Load(reader);
-                return tb;
+                if (all)
+                {
+                    string type = level == "sig" ? "SignalId" : "Corridor";
+                    await sqlConnection.OpenAsync();
+                    await using var command =
+                        new MySqlCommand($"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.Corridor ELSE s.Zone_Group END AS ActualZoneGroup from mark1.{level}_{interval}_{measure} t left join (select {type} AS SignalType, Zone_Group FROM mark1.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.Corridor {whereClause}", sqlConnection);
+                    await using var reader = await command.ExecuteReaderAsync();
+                    tb.Load(reader);
+                } else {
+                    await sqlConnection.OpenAsync();
+                    await using var command =
+                        new MySqlCommand($"select * from mark1.{level}_{interval}_{measure} {whereClause}", sqlConnection);
+                    await using var reader = await command.ExecuteReaderAsync();
+                    tb.Load(reader);
+                }
             }
             catch (Exception ex)
             {
@@ -79,7 +88,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 await sqlConnection.CloseAsync();
             }
-            return tb;
+                return tb;
         }
 
         private static string CreateDateRangeClause(string interval, string measure, string start, string end)
@@ -124,7 +133,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         private static string CreateZoneGroupAndClause(string zoneGroup)
         {
-            return $" and Zone_Group = '{zoneGroup}'";
+            return zoneGroup == "All" ? "" : $" and Zone_Group = '{zoneGroup}'";
         }
 
         private static string CreateCorridorAndClause(string corridor)
@@ -153,9 +162,9 @@ namespace SigOpsMetrics.API.DataAccess
 
         private static string AddSignalsToWhereClause(string whereClause, List<string> itemIDs)
         {
-            var newWhere = whereClause;
+            var newWhere = string.IsNullOrEmpty(whereClause) ? " where " : whereClause;
 
-            newWhere += " and Corridor in (";
+            newWhere += string.IsNullOrEmpty(whereClause) ? " Corridor in (" : " and Corridor in (";
             foreach (var row in itemIDs)
             {
                 newWhere += $"'{row}',";

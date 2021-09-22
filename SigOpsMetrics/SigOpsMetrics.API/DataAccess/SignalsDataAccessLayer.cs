@@ -104,6 +104,7 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<IEnumerable<string>> GetZoneGroupsSQL(MySqlConnection sqlConnection)
         {
             var zoneGroups = new List<string>();
+            zoneGroups.Add("All");
             try
             {
                 await sqlConnection.OpenAsync();
@@ -178,18 +179,21 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL and Zone <> '' and signalid <> -1 and include = 1 AND TRIM(UPPER(Zone_Group))";
-                    var where = "";
+                        "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL and signalid <> -1 and include = 1";
+                    string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
                         case "ALL RTOP":
-                            where += " IN ('RTOP1','RTOP2')";
+                            where += " AND TRIM(UPPER(Zone_Group)) IN ('RTOP1','RTOP2')";
                             break;
                         case "Zone 7":
-                            where += " IN ('ZONE 7M', 'ZONE 7D')";
+                            where += " AND TRIM(UPPER(Zone_Group)) IN ('ZONE 7M', 'ZONE 7D')";
+                            break;
+                        case "ALL":
+                            where += "";
                             break;
                         default:
-                            where += " = @zoneGroupName";
+                            where += " AND TRIM(UPPER(Zone_Group)) = @zoneGroupName";
                             cmd.Parameters.AddWithValue("zoneGroupName", zoneGroupName.Trim().ToUpper());
                             break;
                     }
@@ -228,18 +232,20 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL and corridor <> '' and signalid <> -1 and include = 1 AND TRIM(UPPER(Zone_Group))";
-                    var where = "";
+                        "SELECT DISTINCT(Corridor) FROM signals WHERE Corridor IS NOT NULL and corridor <> '' and signalid <> -1 and include = 1";
+                    string where = "";
                     switch (zoneGroupName.Trim().ToUpper())
                     {
                         case "ALL RTOP":
-                            where += " IN ('RTOP1','RTOP2')";
+                            where += " AND TRIM(UPPER(Zone_Group)) IN ('RTOP1','RTOP2')";
                             break;
                         case "Zone 7":
-                            where += " IN ('ZONE 7M', 'ZONE 7D')";
+                            where += " AND TRIM(UPPER(Zone_Group)) IN ('ZONE 7M', 'ZONE 7D')";
+                            break;
+                        case "ALL":                       
                             break;
                         default:
-                            where += " = @zoneGroupName";
+                            where += " AND TRIM(UPPER(Zone_Group)) = @zoneGroupName";
                             cmd.Parameters.AddWithValue("zoneGroupName", zoneGroupName.Trim().ToUpper());
                             break;
                     }
@@ -530,9 +536,8 @@ namespace SigOpsMetrics.API.DataAccess
         {
             var filterType = GenericEnums.FilteredItemType.Signal;
             var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                filter.city, filter.corridor, filter.subcorridor);
-            var sqlText = "select distinct(signalid) from mark1.signals " + where + " and include = 1";
-
+                filter.city, filter.corridor, filter.subcorridor, filter.signalId);
+            var sqlText = "select distinct(signalid) from mark1.signals where include = 1" + where;
             var retVal = new List<string>();
             await sqlConnection.OpenAsync();
             await using (var cmd = new MySqlCommand())
@@ -554,9 +559,16 @@ namespace SigOpsMetrics.API.DataAccess
         {
             var filterType = GenericEnums.FilteredItemType.Corridor;
             var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                filter.city, filter.corridor, filter.subcorridor);
-            var sqlText = "select distinct(corridor) from mark1.signals " + where + " and include = 1";
-
+                filter.city, filter.corridor, filter.subcorridor, filter.signalId);
+            var sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
+            if (filter.zone_Group == "All")
+            {
+                sqlText = "SELECT DISTINCT(Zone_Group) FROM mark1.signals WHERE Zone_Group IS NOT NULL";
+            }
+            else
+            {
+                sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
+            }
             var retVal = new List<string>();
             await sqlConnection.OpenAsync();
             await using (var cmd = new MySqlCommand())
@@ -575,14 +587,18 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
         private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,
-            string county, string city, string corridor, string subcorridor)
+            string county, string city, string corridor, string subcorridor, string signalId)
         {
-            if (zoneGroup.IsStringNullOrBlank() && zone.IsStringNullOrBlank() && agency.IsStringNullOrBlank() &&
-                county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() && subcorridor.IsStringNullOrBlank())
+            if (!signalId.IsStringNullOrBlank())
+            {
+                return $" and SignalID = '{signalId}'";
+            }
+            if ((zoneGroup.IsStringNullOrBlank() || zoneGroup == "All") && zone.IsStringNullOrBlank() && agency.IsStringNullOrBlank() &&
+                county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() && subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank())
                 return string.Empty;
-            var where = "where ";
+            var where = " and ";
 
-            if (!zoneGroup.IsStringNullOrBlank())
+            if (!zoneGroup.IsStringNullOrBlank() && zoneGroup != "All")
                 where += $"Zone_Group = '{zoneGroup}' and ";
             if (!zone.IsStringNullOrBlank())
                 where += $"zone = '{zone}' and ";

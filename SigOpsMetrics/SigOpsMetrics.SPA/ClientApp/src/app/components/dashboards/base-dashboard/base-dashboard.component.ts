@@ -1,4 +1,4 @@
-import { Component, ContentChild, Input, OnInit, TemplateRef } from '@angular/core';
+import { Component, ContentChild, Input, OnInit, TemplateRef, ɵclearResolutionOfComponentResourcesQueue } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Metrics } from 'src/app/models/metrics';
 import { FilterService } from 'src/app/services/filter.service';
@@ -34,6 +34,7 @@ export class BaseDashboardComponent implements OnInit {
   data: any;
   averageData: any;
   filteredData: any;
+  filterState: any;
 
   constructor(private _filterService: FilterService,
     private _metricsService: MetricsService,
@@ -41,6 +42,7 @@ export class BaseDashboardComponent implements OnInit {
 
     ngOnInit(): void {
       this._filterSubscription = this._filterService.filters.subscribe(filter => {
+        this.filterState = filter;
         this._metricsSubscription = this._metricsService.filterMetrics(this.graphMetrics, filter).subscribe(response => {
           this.data = response;
           this._loadData();
@@ -64,10 +66,13 @@ export class BaseDashboardComponent implements OnInit {
     private _loadData(){
       if(this.data !== undefined && this.averageData !== undefined){
         this.filteredData = this.data;
-
+        
         //get a list of distinct corridors
-        this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
-
+        if (this.filterState.zone_Group === 'All') {
+          this.corridors = new Set(this.filteredData.filter(value => value['zone_Group'] !== null).map(data => data['zone_Group']));
+        } else {
+          this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
+        }
         let metricData = this._filterService.getAverageData(this.averageData);
 
         if(metricData !== undefined){

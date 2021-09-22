@@ -50,6 +50,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   selectedDataAggregationOption: number;
   // Date Range
   selectedDateOption: number = 4;
+  // Signal Id
+  selectedSignalId: string = "";
   options: any[] = [
     { value: 0, label: 'Prior Day'},
     { value: 3, label: 'Prior Quarter'},
@@ -83,16 +85,18 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   zoneGroupsSubscription: Subscription;
   zonesSubscription: Subscription;
   corridorsSubscription: Subscription;
+  subcorridorsSubscription: Subscription;
   agenciesSubscription: Subscription;
   filterSubscription: Subscription;
-  subcorridorsSubscription: Subscription;
 
-  constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {}
-
-  ngOnInit(): void {
-
+  initialLoad: boolean = true;
+  constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {
   }
-
+  
+  ngOnInit(): void {
+    
+  }
+  
   ngAfterViewInit(): void {
     //load the zone groups for the dropdown
     this.zoneGroupsSubscription = this.filterService.zoneGroups.subscribe(data =>{
@@ -109,6 +113,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.corridors = data;
     });
 
+      //load the corridors for the dropdown
+      this.subcorridorsSubscription = this.filterService.subcorridors.subscribe(data => {
+        this.subcorridors = data;
+      });
+
     //load the agencies for the dropdown
     this.agenciesSubscription = this.filterService.agencies.subscribe(data =>{
       this.agencies = data;
@@ -121,61 +130,70 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
     //clear removed items
     this.filterSubscription = this.filterService.filters.subscribe(filter => {
-      Object.keys(filter).forEach(item => {
-        let value = filter[item];
-        if(value === null){
-          switch (item) {
-            case 'dateRange':
-              this._resetStartDate();
-              this._resetEndDate();
-              this._resetDaysOfWeek();
-              this.selectedDateOption = 2;
-              break;
-            case 'customStart':
-              this._resetStartDate();
-              break;
-            case 'customEnd':
-              this._resetEndDate();
-              break;
-            case 'daysOfWeek':
-              this._resetDaysOfWeek();
-              break;
-            case 'startTime':
-              this._resetStartTime();
-              break;
-            case 'endTime':
-              this._resetEndTime();
-              break;
-            case 'dataAggregation':
-              this.selectedAggregationOption = 4;
-              break;
-            case 'zone_Group':
-              this.selectedSignalGroup = 'RTOP2';
-              break;
-            case 'zone':
-              this.selectedDistrict = '';
-              break;
-            case 'agency':
-              this.selectedAgency = '';
-              break;
-            case 'county':
-              this.selectedCounty = '';
-              break;
-            case 'city':
-              this.selectedCity = '';
-              break;
-            case 'corridor':
-              this.selectedCorridor = '';
-              break;
-            case 'subcorridor':
-              this.selectedSubcorridor = '';
-              break;
-            default:
-              break;
-          }
-        }
-      });
-    });
+      if (this.initialLoad) {
+        this.initialLoad = false;
+        this.syncSavedFilterOnLoad(filter);
+      } else {
+        Object.keys(filter).forEach(item => {
+          let value = filter[item];
+          if(value === null){
+            switch (item) {
+              case 'dateRange':
+                this._resetStartDate();
+                this._resetEndDate();
+                this._resetDaysOfWeek();
+                this.selectedDateOption = 2;
+                break;
+              case 'customStart':
+                this._resetStartDate();
+                break;
+              case 'customEnd':
+                this._resetEndDate();
+                break;
+              case 'daysOfWeek':
+                this._resetDaysOfWeek();
+                break;
+              case 'startTime':
+                this._resetStartTime();
+                break;
+              case 'endTime':
+                this._resetEndTime();
+                break;
+              case 'dataAggregation':
+                this.selectedAggregationOption = 4;
+                break;
+              case 'zone_Group':
+                this.selectedSignalGroup = 'Central Metro';
+                break;
+              case 'zone':
+                this.selectedDistrict = '';
+                break;
+              case 'agency':
+                this.selectedAgency = '';
+                break;
+              case 'county':
+                this.selectedCounty = '';
+                break;
+              case 'city':
+                this.selectedCity = '';
+                break;
+              case 'corridor':
+                this.selectedCorridor = '';
+                break;
+              case 'subcorridor':
+                this.selectedSubcorridor = '';
+                break;
+              case 'signalId':
+                this.selectedSignalId = '';
+                break;
+              default:
+                break;
+            }
+          } 
+        });
+
+      }
+    });  
   }
 
   //unsubscribe to services
@@ -183,6 +201,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.zoneGroupsSubscription.unsubscribe();
     this.zonesSubscription.unsubscribe();
     this.corridorsSubscription.unsubscribe();
+    this.subcorridorsSubscription.unsubscribe();
     this.agenciesSubscription.unsubscribe();
     this.filterSubscription.unsubscribe();
     this.subcorridorsSubscription.unsubscribe();
@@ -190,6 +209,23 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //update the filter on the filter service
   updateFilter(type, e){
+    if (type == "signalId" && e.value) {
+      // clear non-date filters automatically because we're going to hide them
+      this.selectedSignalGroup = "";
+      this.filterService.setValue("subcorridor","");
+      this.selectedAgency = "";
+      this.filterService.setValue("corridor","");
+      this.selectedDistrict = "";
+      this.filterService.setValue("city","");
+      this.selectedCounty = "";
+      this.filterService.setValue("county","");
+      this.selectedCity = "";
+      this.filterService.setValue("agency","");
+      this.selectedCorridor = "";
+      this.filterService.setValue("zone","");
+      this.selectedSubcorridor = "";
+      this.filterService.setValue("zone_Group","");
+    }
     this.filterService.setValue(type, e.value);
   }
 
@@ -297,7 +333,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.selectedCounty = "";
     this.selectedCity = "";
     this.selectedCorridor = "";
+    this.selectedSubcorridor = "";
     this.selectedDataAggregationOption = null;
+    this.selectedSignalId = null;
     this._resetAggregateField('disabled', false);
     this._resetStartDate();
     this._resetEndDate();
@@ -328,6 +366,31 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     });
 
     this.filterService.setValue('daysOfWeek', days);
+  }
+
+  saveFilter() {
+    this.applyFilter();
+    this.filterService.saveCurrentFilter();
+  }
+
+  // private checkExistingFilter() {
+  //   let localStorageFilter = localStorage.getItem('filter');
+  //   if (localStorageFilter) {
+  //     this.syncSavedFilterOnLoad(JSON.parse(localStorageFilter));
+  //   }
+  // }
+
+  syncSavedFilterOnLoad(filterData) {
+    this.selectedSignalGroup = filterData.zone_Group;
+    this.selectedAgency = filterData.agency;
+    this.selectedDateOption = filterData.dateRange;
+    this.selectedAggregationOption = filterData.timePeriod;
+    this.selectedDistrict = filterData.zone;
+    this.selectedCounty = filterData.county;
+    this.selectedCity = filterData.city;
+    this.selectedCorridor = filterData.corridor;
+    this.selectedSubcorridor = filterData.subcorridor;
+    this.selectedSignalId = filterData.signalId;
   }
 }
 

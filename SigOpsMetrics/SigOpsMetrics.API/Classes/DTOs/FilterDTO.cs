@@ -63,6 +63,10 @@ namespace SigOpsMetrics.API.Classes.DTOs
         /// </summary>
         public string corridor { get; set; }
         /// <summary>
+        /// Signal ID
+        /// </summary>
+        public string signalId { get; set; }
+        /// <summary>
         /// Location subcorridor
         /// </summary>
         public string subcorridor { get; set; }

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes.DTOs;
@@ -71,6 +74,15 @@ namespace SigOpsMetrics.API.DataAccess
 
                     await cmd.ExecuteNonQueryAsync();
                     success = 1;
+
+                    cmd.CommandText = "SELECT Email FROM ContactUsEmails WHERE IsActive = 1";
+                    await using var reader = await cmd.ExecuteReaderAsync();
+                    List<string> emails = new List<string>();
+                    while (reader.Read())
+                    {
+                        emails.Add(reader["Email"].ToString().Trim());
+                    }
+                    SendEmail(emails, data);
                 }
             }
             catch (Exception ex)
@@ -108,6 +120,48 @@ namespace SigOpsMetrics.API.DataAccess
                 return true;
             }
             return false;
+        }
+
+        private static void SendEmail(List<string> emails, ContactInfo data)
+        {
+
+            string body = $"<p>From: {data.FirstName} {data.LastName}</p><p>Email: {data.EmailAddress}</p><p>Phone Number: N/A</p><p>Reason: {data.Reason}</p><p>Comments: {data.Comments}</p>";
+            if (!string.IsNullOrEmpty(data.PhoneNumber))
+            {
+               body = body.Replace("N/A", data.PhoneNumber.Trim());
+            }
+
+            var client = new SmtpClient();
+            try
+            {
+                client.Host = "smtp.gmail.com";
+                client.Port = 587;
+                client.EnableSsl = true;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential("wisboom.robot@gmail.com", "KimleyHorn1");
+
+                MailMessage msg = new MailMessage();
+                msg.From = new MailAddress("wisboom.robot@gmail.com");
+                foreach (string email in emails)
+                {
+                    msg.To.Add(email);
+                }
+                msg.Body = body;
+                msg.Subject = "SigOps Feedback";
+                msg.IsBodyHtml = true;
+                client.Send(msg);
+                
+            }
+            catch
+            {
+                throw;
+            } 
+            finally
+            {
+                client.Dispose();
+            }
+            
         }
     }
 }

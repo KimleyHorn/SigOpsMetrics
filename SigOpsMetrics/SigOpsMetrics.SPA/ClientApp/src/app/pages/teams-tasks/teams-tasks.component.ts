@@ -153,11 +153,41 @@ export class TeamsTasksComponent implements OnInit {
 
       let metric = new Metrics();
       metric.measure = item.measure;
-
-      this._metricsService.getMetrics(metric).subscribe(data => {
-        let metricData = data.filter(di =>
-          di["corridor"] === this._filter.zone_Group || di["corridor"] === this._filter.corridor
-        );
+      this._metricsService.filterMetrics(metric, this._filter).subscribe(data => {
+        let metricData = [];
+        // TODO - make this work with other filter levels - currently only works with zone_group
+        if (this._filter.zone_Group) {
+          data.forEach(element => {
+              element.corridor = this._filter.zone_Group;
+              element.zone_Group = this._filter.zone_Group;
+              element.counter = 0;
+              let found = false;
+              for (let i=0; i<metricData.length;i++) {
+                if (metricData[i].month == element.month) {
+                  metricData[i].counter += 1;
+                  metricData[i].reported += element.reported;
+                  metricData[i].over45 += element.over45;
+                  metricData[i].resolved += element.resolved;
+                  metricData[i].outstanding += element.outstanding;
+                  metricData[i].delta += element.delta;
+                  found = true;
+                  break;
+                } 
+              }       
+              if (!found) {
+                element.counter = 1;
+                metricData.push(element);
+              }               
+          })
+          metricData.forEach(x => {
+            // delta is an average so we fix it here? not sure this is correct.
+            x.delta /= x.counter;
+          })
+        } else {
+          metricData = data.filter(di =>
+            di["corridor"] === this._filter.zone_Group || di["corridor"] === this._filter.corridor || this._filter.signalId != ''
+          );
+        }
 
         let metricItem = metricData[0];
         item.metricValue = metricItem[item.measure];

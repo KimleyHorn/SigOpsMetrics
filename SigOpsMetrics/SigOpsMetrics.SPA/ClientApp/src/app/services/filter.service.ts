@@ -43,6 +43,7 @@ export class FilterService {
   public agencyData: string[];
 
   constructor(private http: HttpClient, @Inject('BASE_URL') baseUrlInject: string, private _formatService: FormatService) {
+    this.checkExistingFilter();
     this.baseUrl = baseUrlInject;
     this._filters.next(this.filter);
     this.getSignalGroupsFromDb().subscribe(data => this.signalGroups = data);
@@ -136,7 +137,7 @@ export class FilterService {
   }
 
   getSubcorridorsByCorridor(corridor: string){
-    return this.http.get<string[]>(this.baseUrl + 'signals/subcorridorsbycorridor/' + corridor).pipe(
+    return this.http.get<string[]>(this.baseUrl + 'signals/subcorridorsbycorridor/' +  encodeURIComponent(corridor)).pipe(
       map(response => {
         this.subcorridorData = response;
         return response;
@@ -163,21 +164,22 @@ export class FilterService {
   }
 
   public setValue(key: string, value: any){
-    switch (key) {
-      case "zone_Group":
-        this.getZonesByZoneGroup(value);
-        this.getCorridorsByZoneGroup(value);
-        break;
-      case "zone":
-        this.getCorridorsByZone(value);
-        break;
-      case "corridor":
-        this.getSubcorridorsByCorridor(value);
-        break;
-      default:
-        break;
+    if (value) {
+      switch (key) {
+        case "zone_Group":
+          this.getZonesByZoneGroup(value);
+          this.getCorridorsByZoneGroup(value);
+          break;
+        case "zone":
+          this.getCorridorsByZone(value);
+          break;
+        case "corridor":
+          this.getSubcorridorsByCorridor(value);
+          break;
+        default:
+          break;
+      }
     }
-
     this.filter[key] = value;
     this.isFiltering.next(true);
   }
@@ -232,5 +234,16 @@ export class FilterService {
     }
 
     return metric;
+  }
+
+  public saveCurrentFilter() {
+    localStorage.setItem("filter", JSON.stringify(this.filter));
+  }
+
+  private checkExistingFilter() {
+    let localStorageFilter = localStorage.getItem('filter');
+    if (localStorageFilter) {
+      this.filter = JSON.parse(localStorageFilter);
+    }
   }
 }

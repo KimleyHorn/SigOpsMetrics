@@ -68,10 +68,11 @@ export class TicketsGraphComponent implements OnInit {
     //load the data to the graph if the filter and metric data have been returned
     if(this.graphFilter !== undefined && this.graphData !== undefined){
       let data: any[] = [];
-
+      
       //filter the data based on the set filter
-      let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group);
-
+      // TODO - the tables appear to have aggregates for zone_groups, so when all is selected it is getting the individuals corridors and the zone group aggregates 
+      let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group || this.graphFilter.zone_Group === 'All');
+      
       //sort the data
       let sortedData = filteredData.sort((n1, n2) => n1[this.graph.x] - n2[this.graph.x]);
 
