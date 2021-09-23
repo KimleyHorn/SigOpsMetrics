@@ -17,9 +17,9 @@ namespace SigOpsMetrics.API.Classes
         //todo: add 15 min and hour descriptions
         public enum DataAggregationType
         {
-            [Description("tbd")]
+            [Description("qhr")]
             Min,
-            [Description("tbd")]
+            [Description("hr")]
             Hour,
             [Description("dy")]
             Daily,

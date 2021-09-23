@@ -191,30 +191,40 @@ namespace SigOpsMetrics.API.Controllers
             var deltaColIndex = 3;
             var idCol = 0;
 
-            //todo:some signals have different column orders than corridors - add here as we find them
-            switch (measure)
+            if (GetIntervalFromFilter(filter) == "wk")
             {
-                case "vphpa":
-                case "vphpp":
-                    avgColIndex = 3;
-                    deltaColIndex = 4;
-                    break;
-                case "pau":
-                case "cu":
-                    idCol = 1;
-                    avgColIndex = 3;
-                    deltaColIndex = 4;
-                    break;
-                case "du":
-                    idCol = 1;
-                    avgColIndex = 3;
-                    deltaColIndex = 6;
-                    break;
-                case "cctv":
-                    avgColIndex = 4;
-                    deltaColIndex = 5;
-                    break;
+                idCol = 1;
+                avgColIndex = 3;
+                deltaColIndex = 4;
             }
+            else
+            {
+                //todo:some signals have different column orders than corridors - add here as we find them
+                switch (measure)
+                {
+                    case "vphpa":
+                    case "vphpp":
+                        avgColIndex = 3;
+                        deltaColIndex = 4;
+                        break;
+                    case "pau":
+                    case "cu":
+                        idCol = 1;
+                        avgColIndex = 3;
+                        deltaColIndex = 4;
+                        break;
+                    case "du":
+                        idCol = 1;
+                        avgColIndex = 3;
+                        deltaColIndex = 6;
+                        break;
+                    case "cctv":
+                        avgColIndex = 4;
+                        deltaColIndex = 5;
+                        break;
+                }
+            }
+            
             if (filter.zone_Group == "All")
             {
                 groupedData = (from row in retVal.AsEnumerable()
