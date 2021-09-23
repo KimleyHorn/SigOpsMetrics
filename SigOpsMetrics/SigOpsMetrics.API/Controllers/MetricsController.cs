@@ -187,44 +187,12 @@ namespace SigOpsMetrics.API.Controllers
                 return groupedData.ToList();
             }
 
-            var avgColIndex = 2;
-            var deltaColIndex = 3;
-            var idCol = 0;
+            var indexes = GetAvgDeltaIDColumnIndexes(filter, measure, false);
 
-            if (GetIntervalFromFilter(filter) == "wk")
-            {
-                idCol = 1;
-                avgColIndex = 3;
-                deltaColIndex = 4;
-            }
-            else
-            {
-                //todo:some signals have different column orders than corridors - add here as we find them
-                switch (measure)
-                {
-                    case "vphpa":
-                    case "vphpp":
-                        avgColIndex = 3;
-                        deltaColIndex = 4;
-                        break;
-                    case "pau":
-                    case "cu":
-                        idCol = 1;
-                        avgColIndex = 3;
-                        deltaColIndex = 4;
-                        break;
-                    case "du":
-                        idCol = 1;
-                        avgColIndex = 3;
-                        deltaColIndex = 6;
-                        break;
-                    case "cctv":
-                        avgColIndex = 4;
-                        deltaColIndex = 5;
-                        break;
-                }
-            }
-            
+            var avgColIndex = indexes.avgColIndex;
+            var deltaColIndex = indexes.deltaColIndex;
+            var idCol = indexes.idColIndex;
+
             if (filter.zone_Group == "All")
             {
                 groupedData = (from row in retVal.AsEnumerable()
@@ -258,14 +226,12 @@ namespace SigOpsMetrics.API.Controllers
             var retVal = await GetFilteredDataTable(source, measure, filter);
             List<AverageDTO> groupedData = new List<AverageDTO>();
 
-            var avgColIndex = 3;
-            var deltaColIndex = 5;
+            //todo: this isn't always true - make it smarter
+            var indexes = GetAvgDeltaIDColumnIndexes(filter, measure, true);
 
-            if (measure == "vphpa" || measure == "vphpp")
-            {
-                avgColIndex = 3;
-                deltaColIndex = 4;
-            }
+            var idColIndex = indexes.idColIndex;
+            var avgColIndex = indexes.avgColIndex;
+            var deltaColIndex = indexes.deltaColIndex;
 
             if (retVal == null || retVal.Rows.Count == 0)
             {
@@ -301,7 +267,7 @@ namespace SigOpsMetrics.API.Controllers
             else
             {
                 groupedData = (from row in retVal.AsEnumerable()
-                               group row by new { label = row[0].ToString() } into g
+                               group row by new { label = row[idColIndex].ToString() } into g
                                select new AverageDTO
                                {
                                    label = g.Key.label,
@@ -448,6 +414,78 @@ namespace SigOpsMetrics.API.Controllers
         {
             var aggregationType = (GenericEnums.DataAggregationType) filter.timePeriod;
             return EnumDescriptions.GetDescriptionFromEnumValue(aggregationType);
+        }
+
+        private (int idColIndex, int avgColIndex, int deltaColIndex) GetAvgDeltaIDColumnIndexes(FilterDTO filter, string measure, bool isCorridor)
+        {
+            return isCorridor
+                ? GetCorridorAvgDeltaIDColumnIndexes(filter, measure)
+                : GetSignalAvgDeltaIDColumnIndexes(filter, measure);
+        }
+
+        private (int idColIndex, int avgColIndex, int deltaColIndex) GetSignalAvgDeltaIDColumnIndexes(FilterDTO filter, string measure)
+        {
+            var avgColIndex = 2;
+            var deltaColIndex = 3;
+            var idColIndex = 0;
+
+            if (GetIntervalFromFilter(filter) == "wk")
+            {
+                idColIndex = 1;
+                avgColIndex = 3;
+                deltaColIndex = 4;
+            }
+            else
+            {
+                //todo:some signals have different column orders than corridors - add here as we find them
+                switch (measure)
+                {
+                    case "vphpa":
+                    case "vphpp":
+                        avgColIndex = 3;
+                        deltaColIndex = 4;
+                        break;
+                    case "pau":
+                    case "cu":
+                        idColIndex = 1;
+                        avgColIndex = 3;
+                        deltaColIndex = 4;
+                        break;
+                    case "du":
+                        idColIndex = 1;
+                        avgColIndex = 3;
+                        deltaColIndex = 6;
+                        break;
+                    case "cctv":
+                        avgColIndex = 4;
+                        deltaColIndex = 5;
+                        break;
+                }
+            }
+
+            return (idColIndex, avgColIndex, deltaColIndex);
+        }
+
+        private (int idColIndex, int avgColIndex, int deltaColIndex) GetCorridorAvgDeltaIDColumnIndexes(FilterDTO filter, string measure)
+        {
+            var idColIndex = 0;
+            var avgColIndex = 3;
+            var deltaColIndex = 5;
+
+            if (measure == "vphpa" || measure == "vphpp")
+            {
+                avgColIndex = 3;
+                deltaColIndex = 4;
+            }
+
+            if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
+            {
+                idColIndex = 1;
+                avgColIndex = 3;
+                deltaColIndex = 5; //doesn't exist
+            }
+
+            return (idColIndex, avgColIndex, deltaColIndex);
         }
 
         #endregion
