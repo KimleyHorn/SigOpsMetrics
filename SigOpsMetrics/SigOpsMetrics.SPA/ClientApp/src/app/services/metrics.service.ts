@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Filter } from '../models/filter';
 import { Metrics } from '../models/metrics';
@@ -40,7 +41,12 @@ export class MetricsService {
                                                     + "&interval=" + metrics.interval
                                                     + "&measure=" + metrics.measure
                                                     + "&start="+ metrics.start
-                                                    + "&end="+ metrics.end);
+                                                    + "&end="+ metrics.end).pipe(
+                                                      map(data => {
+                                                        this.checkData(data);
+                                                        return data;
+                                                      })
+                                                    );
   }
 
   getSignalMetrics(metrics: Metrics){
@@ -52,14 +58,24 @@ export class MetricsService {
                                                     + "&measure=" + metrics.measure
                                                     + "&start="+ metrics.start
                                                     + "&end="+ metrics.end
-                                                    + "&metric=" + metrics.field);
+                                                    + "&metric=" + metrics.field).pipe(
+                                                      map(data => {
+                                                        this.checkData(data);
+                                                        return data;
+                                                      })
+                                                    );
   }
 
   filterMetrics(metrics: Metrics, filter: Filter){
     return this.http.post<any[]>(this._baseUrl + 'metrics/filter?source=' + metrics.source
                                                 + "&measure=" + metrics.measure,
                                               filter,
-                                              this._options);
+                                              this._options).pipe(
+                                                map(data => {
+                                                  this.checkData(data);
+                                                  return data;
+                                                })
+                                              );
   }
 
   averageMetrics(metrics: Metrics, filter: Filter){
@@ -67,13 +83,30 @@ export class MetricsService {
     + "&measure=" + metrics.measure
     + "&dashboard=" + metrics.dashboard,
     filter,
-    this._options);
+    this._options).pipe(
+      map(data => {
+        this.checkData(data);
+        return data;
+      })
+    );
   }
 
   filterSignalMetrics(metrics: Metrics, filter: Filter) {
     return this.http.post<any[]>(this._baseUrl + 'metrics/signals/filter/average?source=' + metrics.source
                                                 + "&measure=" + metrics.measure,
                                               filter,
-                                              this._options);
+                                              this._options).pipe(
+                                                map(data => {
+                                                  this.checkData(data);
+                                                  return data;
+                                                })
+                                              );
+  }
+
+  checkData(data: any[]) {
+    if (!data) {
+      // show invalid filter popup
+      console.log("no data found");
+    }
   }
 }

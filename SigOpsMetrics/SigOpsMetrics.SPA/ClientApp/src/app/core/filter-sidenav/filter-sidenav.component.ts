@@ -90,6 +90,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   filterSubscription: Subscription;
 
   initialLoad: boolean = true;
+  invalidFilter: boolean = false;
   constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {
   }
   
