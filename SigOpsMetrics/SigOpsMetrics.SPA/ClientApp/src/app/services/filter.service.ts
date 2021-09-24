@@ -10,6 +10,10 @@ import { FormatService } from './format.service';
   providedIn: 'root'
 })
 export class FilterService {
+  private _errorState: boolean = false;
+  private _errorStateObs = new BehaviorSubject<boolean>(this._errorState);
+  public errorState = this._errorStateObs.asObservable();
+
   private filter: Filter = new Filter();
   private _filters = new BehaviorSubject<Filter>(null);
   public filters = this._filters.asObservable();
@@ -245,5 +249,9 @@ export class FilterService {
     if (localStorageFilter) {
       this.filter = JSON.parse(localStorageFilter);
     }
+  }
+
+  public updateFilterErrorState(state: boolean){
+    this._errorStateObs.next(state);
   }
 }

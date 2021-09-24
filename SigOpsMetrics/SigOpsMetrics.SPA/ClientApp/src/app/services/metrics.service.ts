@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Filter } from '../models/filter';
 import { Metrics } from '../models/metrics';
@@ -41,13 +41,15 @@ export class MetricsService {
                                                     + "&interval=" + metrics.interval
                                                     + "&measure=" + metrics.measure
                                                     + "&start="+ metrics.start
-                                                    + "&end="+ metrics.end).pipe(
-                                                      map(data => {
-                                                        this.checkData(data);
-                                                        return data;
-                                                      })
-                                                    );
+                                                    + "&end="+ metrics.end);
   }
+
+  // .pipe(
+  //   map(data => {
+  //     this.checkData(data);
+  //     return data;
+  //   })
+  // )
 
   getSignalMetrics(metrics: Metrics){
     metrics = this._setDefaultMetric(metrics);
@@ -58,24 +60,14 @@ export class MetricsService {
                                                     + "&measure=" + metrics.measure
                                                     + "&start="+ metrics.start
                                                     + "&end="+ metrics.end
-                                                    + "&metric=" + metrics.field).pipe(
-                                                      map(data => {
-                                                        this.checkData(data);
-                                                        return data;
-                                                      })
-                                                    );
+                                                    + "&metric=" + metrics.field);
   }
 
   filterMetrics(metrics: Metrics, filter: Filter){
     return this.http.post<any[]>(this._baseUrl + 'metrics/filter?source=' + metrics.source
                                                 + "&measure=" + metrics.measure,
                                               filter,
-                                              this._options).pipe(
-                                                map(data => {
-                                                  this.checkData(data);
-                                                  return data;
-                                                })
-                                              );
+                                              this._options);
   }
 
   averageMetrics(metrics: Metrics, filter: Filter){
@@ -83,30 +75,20 @@ export class MetricsService {
     + "&measure=" + metrics.measure
     + "&dashboard=" + metrics.dashboard,
     filter,
-    this._options).pipe(
-      map(data => {
-        this.checkData(data);
-        return data;
-      })
-    );
+    this._options);
   }
 
   filterSignalMetrics(metrics: Metrics, filter: Filter) {
     return this.http.post<any[]>(this._baseUrl + 'metrics/signals/filter/average?source=' + metrics.source
                                                 + "&measure=" + metrics.measure,
                                               filter,
-                                              this._options).pipe(
-                                                map(data => {
-                                                  this.checkData(data);
-                                                  return data;
-                                                })
-                                              );
+                                              this._options);
   }
 
-  checkData(data: any[]) {
-    if (!data) {
-      // show invalid filter popup
-      console.log("no data found");
-    }
-  }
+  // checkData(data: any[]) {
+  //   if (!data) {
+  //     // show invalid filter popup
+  //     console.log("no data found");
+  //   }
+  // }
 }
