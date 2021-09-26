@@ -47,6 +47,7 @@ import { FilterChipListComponent } from './components/chip-lists/filter-chip-lis
 import { HelpComponent } from './pages/help/help.component';
 import { HelpPanelComponent } from './components/panels/help-panel/help-panel.component';
 import { ExcelExportComponent } from './components/excel-export/excel-export.component';
+import { GlobalHttpInterceptorService } from './services/global-http-interceptor.service';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -108,7 +109,7 @@ const routes = [
     PlotlyViaCDNModule,
     NgxMaskModule.forRoot()
   ],
-  providers: [DatePipe,ContactComponent],
+  providers: [DatePipe,ContactComponent,{provide: HTTP_INTERCEPTORS, useClass: GlobalHttpInterceptorService, multi: true }],
   bootstrap: [AppComponent]
 })
 //export class MaterialModule {}

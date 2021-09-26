@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { catchError, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Filter } from '../models/filter';
 import { Metrics } from '../models/metrics';
@@ -43,6 +44,13 @@ export class MetricsService {
                                                     + "&end="+ metrics.end);
   }
 
+  // .pipe(
+  //   map(data => {
+  //     this.checkData(data);
+  //     return data;
+  //   })
+  // )
+
   getSignalMetrics(metrics: Metrics){
     metrics = this._setDefaultMetric(metrics);
 
@@ -76,4 +84,11 @@ export class MetricsService {
                                               filter,
                                               this._options);
   }
+
+  // checkData(data: any[]) {
+  //   if (!data) {
+  //     // show invalid filter popup
+  //     console.log("no data found");
+  //   }
+  // }
 }

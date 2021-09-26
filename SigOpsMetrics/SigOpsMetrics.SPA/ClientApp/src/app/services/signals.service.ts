@@ -1,6 +1,7 @@
 import { Component, Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { SignalInfo} from '../models/signal-info';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -16,5 +17,6 @@ export class SignalsService {
   getData() {
     return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/all');
   }
+  
 }
 

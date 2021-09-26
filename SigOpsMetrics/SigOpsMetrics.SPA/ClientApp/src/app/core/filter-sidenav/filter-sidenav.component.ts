@@ -82,6 +82,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     {day:'Sa',selected: false},
   ];
 
+  filterErrorSubscription: Subscription;
   zoneGroupsSubscription: Subscription;
   zonesSubscription: Subscription;
   corridorsSubscription: Subscription;
@@ -90,6 +91,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   filterSubscription: Subscription;
 
   initialLoad: boolean = true;
+  inErrorState: boolean = false;
   constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {
   }
   
@@ -98,6 +100,10 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   }
   
   ngAfterViewInit(): void {
+    //get the current error state of the filter
+    this.filterErrorSubscription = this.filterService.errorState.subscribe(data =>{
+      this.inErrorState = data;
+    });
     //load the zone groups for the dropdown
     this.zoneGroupsSubscription = this.filterService.zoneGroups.subscribe(data =>{
       this.signalGroups = data;
@@ -349,8 +355,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //apply the filter so that it loads the new data
   applyFilter(){
+    this.inErrorState = false;
+    this.filterService.updateFilterErrorState(false);
     this.filterService.updateFilter();
-    this.toggleFilter.emit();
   }
 
   toggleDay(day) {

@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
+import { FilterService } from "src/app/services/filter.service";
 import { SideNavService } from "../side-nav/side-nav.service";
 
 @Component({
@@ -15,9 +16,9 @@ export class SideNavComponent implements OnInit {
   public menuItems: Array<any> = [];
   public isExpanded: boolean = true;
   public filterIsExpanded: boolean = false;
-
-  constructor(private router: Router, private sideNavService: SideNavService){}
-
+  public buttonColor = 'primary';
+  constructor(private router: Router, private sideNavService: SideNavService, public filterService: FilterService){}
+  
   ngOnInit(): void {
     this.sideNavService.setSideNav(this.sideNav);
 
@@ -29,8 +30,15 @@ export class SideNavComponent implements OnInit {
       this.isExpanded = value;
     })
 
-  }
+    this.filterService.errorState.subscribe((value) => {
+      if (value) {
+        this.buttonColor ='warn';
+      } else {
+        this.buttonColor ='primary';
+      }
+    })
 
+  }
   public mapItems(routes: any[]){
     var items: any[] = [];
     routes.forEach(route => {
@@ -49,5 +57,4 @@ export class SideNavComponent implements OnInit {
   toggleFilter() {
     this.filterIsExpanded = !this.filterIsExpanded;
   }
-
 }
