@@ -429,7 +429,8 @@ namespace SigOpsMetrics.API.Controllers
             var deltaColIndex = 3;
             var idColIndex = 0;
 
-            if (GetIntervalFromFilter(filter) == "wk")
+            var interval = GetIntervalFromFilter(filter);
+            if (interval == "wk" || interval == "dy")
             {
                 idColIndex = 1;
                 avgColIndex = 3;
@@ -472,7 +473,7 @@ namespace SigOpsMetrics.API.Controllers
             var avgColIndex = 3;
             var deltaColIndex = 5;
 
-            if (measure == "vphpa" || measure == "vphpp")
+            if (measure == "vpd" || measure == "vphpa" || measure == "vphpp")
             {
                 avgColIndex = 3;
                 deltaColIndex = 4;

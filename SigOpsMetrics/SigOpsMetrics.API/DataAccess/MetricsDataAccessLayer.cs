@@ -99,8 +99,14 @@ namespace SigOpsMetrics.API.DataAccess
 
             switch (interval)
             {
+                //case "qhr": //todo
+                //    break;
+                //case "hr": //todo
+                //    break;
                 case "dy":
                     period = "date";
+                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd");
+                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd");
                     break;
                 case "wk":
                     period = "date";
