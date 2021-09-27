@@ -77,10 +77,10 @@ export class FilterChipListComponent implements OnInit {
                   value = "1 hour";
                   break;
                 case 2:
-                  value = "Weekly";
+                  value = "Daily";
                   break;
                 case 3:
-                  value = "Daily";
+                  value = "Weekly";
                   break;
                 case 4:
                   value = "Monthly";
