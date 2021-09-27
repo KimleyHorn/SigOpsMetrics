@@ -1,6 +1,5 @@
 import { Component, OnInit, AfterViewInit, Output, EventEmitter, ViewChild, ViewEncapsulation, ChangeDetectorRef } from "@angular/core";
 import { MatDatepicker } from "@angular/material/datepicker";
-import { MatSelectionList } from "@angular/material/list";
 import { Subscription } from "rxjs";
 import { FilterService } from "../../services/filter.service";
 
@@ -57,8 +56,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     { value: 3, label: 'Prior Quarter'},
     { value: 1, label: 'Prior Week'},
     { value: 4, label: 'Prior Year'},
-    { value: 2, label: 'Prior Month'},
-    { value: 5, label: 'Custom' }
+    { value: 2, label: 'Prior Month'}
+    //{ value: 5, label: 'Custom' }
   ]
 
   selectedAggregationOption: number = 4;
@@ -247,18 +246,25 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     });
   }
 
-  //clear the selected aggregate option
-  private _clearAggregateOption(value){
-    if(this.selectedAggregationOption > value + 1){
-      this.selectedAggregationOption = null;
-    }
+//clear the selected aggregate option
+private _clearAggregateOption(value){
+  //determine which aggregation options to enable
+  this.aggregationOptions.forEach(agg => {
+    if (agg.value === value || agg.value === value + 1) {
+      agg.disabled = false;
+    } 
+  });
+  if (this.selectedAggregationOption < value || this.selectedAggregationOption > value + 1) {
+    this.selectedAggregationOption = value;
+    this.updateFilter('timePeriod', {value: value});
   }
+}
 
   //dynamically update the available aggregates when the date ranged has changed
   updateDateRange(e){
     let value = e.value;
 
-    this._resetAggregateField('disabled', false);
+    this._resetAggregateField('disabled', true);
 
     switch (value) {
       case 5:
@@ -269,18 +275,13 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
         this.startTime.select(dt);
         this.endTime.select(dt);
         break;
-      case 0:
-        this._clearAggregateOption(value);
-        this._updateAggregateField('Daily', 'disabled', true);
+      case 0:    
       case 1:
-        this._clearAggregateOption(value);
-        this._updateAggregateField('Weekly', 'disabled', true);
       case 2:
-        this._clearAggregateOption(value);
-        this._updateAggregateField('Monthly', 'disabled', true);
       case 3:
+      case 4:   
         this._clearAggregateOption(value);
-        this._updateAggregateField('Quarterly', 'disabled', true);
+        break;
       default:
         //clear if not custom
         this._resetStartDate();
@@ -289,7 +290,6 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
         this._resetEndTime();
         break;
     }
-
     this.updateFilter('dateRange', e);
   }
 
