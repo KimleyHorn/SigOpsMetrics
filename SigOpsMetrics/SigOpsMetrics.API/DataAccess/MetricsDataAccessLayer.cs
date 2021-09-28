@@ -88,7 +88,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 await sqlConnection.CloseAsync();
             }
-                return tb;
+            return tb;
         }
 
         private static string CreateDateRangeClause(string interval, string measure, string start, string end)
@@ -99,10 +99,16 @@ namespace SigOpsMetrics.API.DataAccess
 
             switch (interval)
             {
-                //case "qhr": //todo
-                //    break;
-                //case "hr": //todo
-                //    break;
+                case "qhr":
+                    period = "timeperiod";
+                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    break;
+                case "hr":
+                    period = "hour";
+                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    break;
                 case "dy":
                     period = "date";
                     startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd");

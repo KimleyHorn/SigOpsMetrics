@@ -173,6 +173,8 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
         this.line.x = "month";
         break;
       case 5: //qu
+        this.line.x = "quarter";
+        break;
     }
   }
 
