@@ -191,12 +191,12 @@ namespace SigOpsMetrics.API.Controllers
 
             var avgColIndex = indexes.avgColIndex;
             var deltaColIndex = indexes.deltaColIndex;
-            var idCol = indexes.idColIndex;
+            var idColIndex = indexes.idColIndex;
 
             if (filter.zone_Group == "All")
             {
                 groupedData = (from row in retVal.AsEnumerable()
-                               group row by new { label = row[idCol].ToString(), zoneGroup = row["ActualZoneGroup"] } into g
+                               group row by new { label = row[idColIndex].ToString(), zoneGroup = row["ActualZoneGroup"] } into g
                                select new AverageDTO
                                {
                                    label = g.Key.label,
@@ -208,7 +208,7 @@ namespace SigOpsMetrics.API.Controllers
             else
             {
                 groupedData = (from row in retVal.AsEnumerable()
-                               group row by new { label = row[idCol].ToString() } into g
+                               group row by new { label = row[idColIndex].ToString() } into g
                                select new AverageDTO
                                {
                                    label = g.Key.label,
@@ -223,11 +223,14 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("average")]
         public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
         {
+            var isCorridor = true;
             var retVal = await GetFilteredDataTable(source, measure, filter);
-            List<AverageDTO> groupedData = new List<AverageDTO>();
+            if (retVal.TableName.Contains("sig"))
+                isCorridor = false;
 
-            //todo: this isn't always true - make it smarter
-            var indexes = GetAvgDeltaIDColumnIndexes(filter, measure, true);
+            var groupedData = new List<AverageDTO>();
+            
+            var indexes = GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
 
             var idColIndex = indexes.idColIndex;
             var avgColIndex = indexes.avgColIndex;
@@ -458,6 +461,7 @@ namespace SigOpsMetrics.API.Controllers
                         deltaColIndex = 6;
                         break;
                     case "cctv":
+                        idColIndex = 1;
                         avgColIndex = 4;
                         deltaColIndex = 5;
                         break;

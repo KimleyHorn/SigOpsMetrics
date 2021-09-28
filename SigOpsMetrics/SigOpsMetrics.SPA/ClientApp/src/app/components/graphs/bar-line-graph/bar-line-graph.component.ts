@@ -50,6 +50,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
         },
         yaxis:{
           automargin: true,
+          type: 'category'
         },
         margin:{
           t:25
