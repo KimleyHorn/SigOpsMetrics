@@ -23,13 +23,13 @@ export class WatchdogComponent implements OnInit {
   plotData: any[] = [];
   tableData;
   displayedColumns: string[] = ['zone', 'corridor', 'signalID', 'name', 'alert', 'occurrences', 'streak'];
-  alerts: string[] = ["No Camera Image","Bad Vehicle Detection","Bad Ped Pushbuttons","Pedestrian Activations","Force Offs","Max Offs","Count","Missing Records"]
+  alerts: string[] = ["No Camera Image","Bad Vehicle Detection","Bad Ped Pushbuttons","Pedestrian Activations","Force Offs","Max Outs","Count","Missing Records"]
   phases: string[] = ["All","1","2","3","4","5","6","7","8"]
   streaks: string[] = ["All","Active","Active 3-days"]
   filter: WatchdogFilter = new WatchdogFilter()
   filterSubject: Subject<WatchdogFilter> = new Subject<WatchdogFilter>();
 
-  constructor(private titleService:Title, private filterService:WatchdogService) { 
+  constructor(private titleService:Title, private filterService:WatchdogService) {
     this.tableData = new MatTableDataSource([]);
     this.plotData.push({
       x:[],
@@ -68,11 +68,11 @@ export class WatchdogComponent implements OnInit {
         this.plotData[0].z = data[0].z;
         this.plotData[0].colorbar.len = this.getLegendLen(data[0].y.length)
         try {
-          Plotly.newPlot('plot',this.plotData, this.layout, { responsive: true })     
+          Plotly.newPlot('plot',this.plotData, this.layout, { responsive: true })
         } catch (error) {
           console.error(error);
         }
-        this.isLoading = false; 
+        this.isLoading = false;
       }
     })
     this.filterChange();
@@ -148,7 +148,7 @@ export class WatchdogComponent implements OnInit {
   //       maxLabelLength = element.length;
   //     }
   //   })
-  
+
   //   var width = maxLabelLength * 5;
   //   width += length * 125;
   //   console.log(width);
