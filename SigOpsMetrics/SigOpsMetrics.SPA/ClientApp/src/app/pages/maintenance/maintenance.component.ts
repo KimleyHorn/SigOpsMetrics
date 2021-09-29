@@ -5,6 +5,7 @@ import { ChartToggleService } from 'src/app/components/toggles/chart-toggle/char
 import { Graph } from 'src/app/models/graph';
 import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';
+import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
   selector: 'app-maintenance',
@@ -152,7 +153,7 @@ export class MaintenanceComponent implements OnInit {
       '<extra></extra>'
   };
 
-  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title) { }
+  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title, private filterService: FilterService) { }
 
   ngOnInit(): void {
     this.toggleService.toggleValue.subscribe(value => {
@@ -164,5 +165,6 @@ export class MaintenanceComponent implements OnInit {
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.currentTab = tabChangeEvent.tab.textLabel;
     this.titleService.setTitle("SigOpsMetrics - Operations - " + this.currentTab);
+    this.filterService.updateFilterErrorState(false);
   }
 }

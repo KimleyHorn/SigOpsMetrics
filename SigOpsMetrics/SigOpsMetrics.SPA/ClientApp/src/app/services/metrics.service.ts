@@ -44,13 +44,6 @@ export class MetricsService {
                                                     + "&end="+ metrics.end);
   }
 
-  // .pipe(
-  //   map(data => {
-  //     this.checkData(data);
-  //     return data;
-  //   })
-  // )
-
   getSignalMetrics(metrics: Metrics){
     metrics = this._setDefaultMetric(metrics);
 
@@ -85,10 +78,4 @@ export class MetricsService {
                                               this._options);
   }
 
-  // checkData(data: any[]) {
-  //   if (!data) {
-  //     // show invalid filter popup
-  //     console.log("no data found");
-  //   }
-  // }
 }
