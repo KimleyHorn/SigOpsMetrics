@@ -42,7 +42,7 @@ export class DashboardComponent  implements OnInit {
 
   ngOnInit(){
     this.titleService.setTitle("SigOpsMetrics - Dashboard")
-    this.selectedSettings = this.mapSettings.tpMapSettings;
+    this.selectedSettings = this.mapSettings.dtvMapSettings;
 
     this._metricSelectService.selectedMetric.subscribe(value => {
       switch (value) {
@@ -80,7 +80,7 @@ export class DashboardComponent  implements OnInit {
           this.selectedSettings = this.mapSettings.cuMapSettings;
           break;
         default:
-          this.selectedSettings = this.mapSettings.tpMapSettings;
+          this.selectedSettings = this.mapSettings.dtvMapSettings;
           break;
       }
     });

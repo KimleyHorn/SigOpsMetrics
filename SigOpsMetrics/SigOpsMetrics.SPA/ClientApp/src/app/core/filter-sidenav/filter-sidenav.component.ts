@@ -210,6 +210,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.agenciesSubscription.unsubscribe();
     this.filterSubscription.unsubscribe();
     this.subcorridorsSubscription.unsubscribe();
+    this.filterErrorSubscription.unsubscribe();
   }
 
   //update the filter on the filter service
@@ -380,6 +381,9 @@ private _clearAggregateOption(value){
     this.filterService.saveCurrentFilter();
   }
 
+  resetErrorState() {
+    this.inErrorState = false;
+  }
   // private checkExistingFilter() {
   //   let localStorageFilter = localStorage.getItem('filter');
   //   if (localStorageFilter) {

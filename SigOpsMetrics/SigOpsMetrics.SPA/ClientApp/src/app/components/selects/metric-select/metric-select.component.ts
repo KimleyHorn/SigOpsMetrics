@@ -9,6 +9,7 @@ import { MetricSelectService } from './metric-select.service';
 })
 export class MetricSelectComponent implements OnInit {
   metrics: any[] = [
+    { text: "Daily Traffic Volume", value: "vpd" },
     { text: "Throughput", value: "tp" },
     { text: "Arrivals on Green", value: "aogd" },
     { text: "Progression Rate", value: "prd" },
@@ -17,7 +18,7 @@ export class MetricSelectComponent implements OnInit {
     { text: "Off-Peak Split Failures", value: "sfo" },
   ]
 
-  selectedMetric: string = "tp";
+  selectedMetric: string = "vpd";
 
   constructor(public metricSelectService: MetricSelectService) { }
 
