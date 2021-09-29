@@ -255,7 +255,8 @@ namespace SigOpsMetrics.API.Controllers
                     delta = delta
                 };
                 groupedData.Add(data);
-            } else if (filter.zone_Group == "All")
+            } 
+            else if (filter.zone_Group == "All")
             {
                 // group on zone_group instead of corridor
                 groupedData = (from row in retVal.AsEnumerable()
@@ -314,6 +315,20 @@ namespace SigOpsMetrics.API.Controllers
                 endQuarter = dates.Item2.NearestQuarterEnd();
             }
 
+            //Switch from certain daily to hourly tables here
+            if (interval == "hr" || interval == "qhr")
+            {
+                switch (measure)
+                {
+                    case "aogd":
+                        measure = "aogh";
+                        break;
+                    case "vpd":
+                        measure = "vph";
+                        break;
+                }
+            }
+
             var filteredItems = new FilteredItems();
             if (signalOnly)
             {
@@ -344,7 +359,8 @@ namespace SigOpsMetrics.API.Controllers
                     }
 
                     return retVal;
-                } else if (filter.zone_Group == "All")
+                } 
+                else if (filter.zone_Group == "All")
                 {
                     var retVal =
                         MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1.ToString(),
@@ -439,7 +455,13 @@ namespace SigOpsMetrics.API.Controllers
                 avgColIndex = 3;
                 deltaColIndex = 4;
             }
-            else
+            else if (interval == "qu")
+            {
+                idColIndex = 0;
+                avgColIndex = 3;
+                deltaColIndex = 5;
+            }
+            else //mo 
             {
                 //todo:some signals have different column orders than corridors - add here as we find them
                 switch (measure)
