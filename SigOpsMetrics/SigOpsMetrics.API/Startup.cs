@@ -45,7 +45,7 @@ namespace SigOpsMetrics.API
                     builder =>
                     {
                         //Add future domains here
-                        builder.WithOrigins("http://localhost:4200", "http://sigops-test.s3-website-us-east-1.amazonaws.com").AllowAnyMethod().AllowAnyHeader();
+                        builder.WithOrigins("http://localhost:4200", "http://sigops-test.s3-website-us-east-1.amazonaws.com", "http://new.sigopsmetrics.com").AllowAnyMethod().AllowAnyHeader();
                     });
             });
             //services.AddResponseCaching();
