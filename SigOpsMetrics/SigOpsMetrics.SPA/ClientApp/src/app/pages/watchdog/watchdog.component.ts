@@ -1,19 +1,25 @@
-import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Title } from '@angular/platform-browser';
-import { PlotlyComponent } from 'angular-plotly.js';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { WatchdogFilter } from 'src/app/models/watchdog-filter';
-import { WatchdogService } from 'src/app/services/watchdog-service';
+import {
+  Component,
+  EventEmitter,
+  OnInit,
+  Output,
+  ViewChild,
+} from "@angular/core";
+import { MatPaginator } from "@angular/material/paginator";
+import { MatSort } from "@angular/material/sort";
+import { MatTable, MatTableDataSource } from "@angular/material/table";
+import { Title } from "@angular/platform-browser";
+import { PlotlyComponent } from "angular-plotly.js";
+import { BehaviorSubject, Subject } from "rxjs";
+import { debounceTime, distinctUntilChanged } from "rxjs/operators";
+import { WatchdogFilter } from "src/app/models/watchdog-filter";
+import { WatchdogService } from "src/app/services/watchdog-service";
 declare const Plotly;
 
 @Component({
-  selector: 'app-watchdog',
-  templateUrl: './watchdog.component.html',
-  styleUrls: ['./watchdog.component.css']
+  selector: "app-watchdog",
+  templateUrl: "./watchdog.component.html",
+  styleUrls: ["./watchdog.component.css"],
 })
 export class WatchdogComponent implements OnInit {
   @ViewChild(MatSort) sort: MatSort;
@@ -22,59 +28,87 @@ export class WatchdogComponent implements OnInit {
   layout: Object;
   plotData: any[] = [];
   tableData;
-  displayedColumns: string[] = ['zone', 'corridor', 'signalID', 'name', 'alert', 'occurrences', 'streak'];
-  alerts: string[] = ["No Camera Image","Bad Vehicle Detection","Bad Ped Pushbuttons","Pedestrian Activations","Force Offs","Max Outs","Count","Missing Records"]
-  phases: string[] = ["All","1","2","3","4","5","6","7","8"]
-  streaks: string[] = ["All","Active","Active 3-days"]
-  filter: WatchdogFilter = new WatchdogFilter()
+  displayedColumns: string[] = [
+    "zone",
+    "corridor",
+    "signalID",
+    "name",
+    "alert",
+    "occurrences",
+    "streak",
+  ];
+  alerts: string[] = [
+    "No Camera Image",
+    "Bad Vehicle Detection",
+    "Bad Ped Pushbuttons",
+    "Pedestrian Activations",
+    "Force Offs",
+    "Max Outs",
+    "Count",
+    "Missing Records",
+  ];
+  phases: string[] = ["All", "1", "2", "3", "4", "5", "6", "7", "8"];
+  streaks: string[] = ["All", "Active", "Active 3-days"];
+  filter: WatchdogFilter = new WatchdogFilter();
   filterSubject: Subject<WatchdogFilter> = new Subject<WatchdogFilter>();
 
-  constructor(private titleService:Title, private filterService:WatchdogService) {
+  constructor(
+    private titleService: Title,
+    private filterService: WatchdogService
+  ) {
     this.tableData = new MatTableDataSource([]);
+
     this.plotData.push({
-      x:[],
-      y:[],
-      z:[],
-      type : 'heatmap',
-          hoverongaps : false,
-          xgap : 1,
-          ygap : 1,
-          colorscale : [
-            ['0', 'rgb(237,237,237)'],
-            ['.01111111111', 'rgb(245,158,103)'],
-            ['1', 'rgb(153,62,5)']
-          ],
-          colorbar : {
-            len: .25,
-            title: "streak"
-          }
-    })
-    this.filterSubject.pipe(debounceTime(1000)).subscribe(filterUpdate => {
+      x: [],
+      y: [],
+      z: [],
+      type: "heatmap",
+      hoverongaps: false,
+      xgap: 1,
+      ygap: 1,
+      colorscale: [
+        ["0", "rgb(237,237,237)"],
+        [".01111111111", "rgb(245,158,103)"],
+        ["1", "rgb(153,62,5)"],
+      ],
+      colorbar: {
+        len: 0.25,
+        title: "streak",
+      },
+      //text: text,
+      hovertemplate:
+        "<b>Name:</b> %{y}<br><b>Date:</b> %{x}<br><b>Streak:</b> %{z}" +
+        "<extra></extra>",
+    });
+    this.filterSubject.pipe(debounceTime(1000)).subscribe((filterUpdate) => {
       if (filterUpdate.startDate && filterUpdate.endDate) {
         this.isLoading = true;
         this.filterService.loadFilteredData(this.filter);
       }
-    })
+    });
   }
 
   ngOnInit(): void {
-    this.titleService.setTitle("SigOpsMetrics - Watchdog")
-    this.filterService.data.subscribe(data => {
+    this.titleService.setTitle("SigOpsMetrics - Watchdog");
+    this.filterService.data.subscribe((data) => {
       this.getLayout(data);
       if (data) {
         this.tableData.data = data[0].tableData;
         this.plotData[0].x = data[0].x;
         this.plotData[0].y = data[0].y;
         this.plotData[0].z = data[0].z;
-        this.plotData[0].colorbar.len = this.getLegendLen(data[0].y.length)
+        this.plotData[0].colorbar.len = this.getLegendLen(data[0].y.length);
+
         try {
-          Plotly.newPlot('plot',this.plotData, this.layout, { responsive: true })
+          Plotly.newPlot("plot", this.plotData, this.layout, {
+            responsive: true,
+          });
         } catch (error) {
           console.error(error);
         }
         this.isLoading = false;
       }
-    })
+    });
     this.filterChange();
   }
   ngAfterViewInit() {
@@ -90,7 +124,7 @@ export class WatchdogComponent implements OnInit {
     if (data && data[0].z.length > 0) {
       this.layout = {
         font: {
-          size: 10
+          size: 10,
         },
         height: data[0].y.length * 18 + 200,
         // width: this.getGridWidth(data[0].x.length, data[0].y),
@@ -102,30 +136,30 @@ export class WatchdogComponent implements OnInit {
         xaxis: {
           side: "top",
           tickformat: "%B %d",
-          tickmode: "linear"
-        }
-      }
+          tickmode: "linear",
+        },
+      };
     } else {
       this.layout = {
         height: 30,
         xaxis: {
-            visible: false
+          visible: false,
         },
         yaxis: {
-            visible: false
+          visible: false,
         },
         annotations: [
-            {
-                text: "No data",
-                xref: "paper",
-                yref: "paper",
-                showarrow: false,
-                font: {
-                    size: 28
-                }
-            }
-        ]
-      }
+          {
+            text: "No data",
+            xref: "paper",
+            yref: "paper",
+            showarrow: false,
+            font: {
+              size: 28,
+            },
+          },
+        ],
+      };
     }
   }
 
@@ -135,9 +169,9 @@ export class WatchdogComponent implements OnInit {
     } else if (length > 3 && length <= 7) {
       return 1;
     } else if (length > 7 && length <= 20) {
-      return .5;
+      return 0.5;
     } else {
-      return .25;
+      return 0.25;
     }
   }
   // Logic to handle dynamic cell width sizing. maybe won't need.
