@@ -138,6 +138,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       if (this.initialLoad) {
         this.initialLoad = false;
         this.syncSavedFilterOnLoad(filter);
+        this.updateDateRange({value: this.selectedDateOption});
       } else {
         Object.keys(filter).forEach(item => {
           let value = filter[item];
@@ -198,7 +199,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
         });
 
       }
-    });
+    });      
   }
 
   //unsubscribe to services
@@ -360,6 +361,7 @@ private _clearAggregateOption(value){
     this.inErrorState = false;
     this.filterService.updateFilterErrorState(false);
     this.filterService.updateFilter();
+    this.toggleFilter.emit();
   }
 
   toggleDay(day) {
@@ -403,6 +405,7 @@ private _clearAggregateOption(value){
     this.selectedCorridor = filterData.corridor;
     this.selectedSubcorridor = filterData.subcorridor;
     this.selectedSignalId = filterData.signalId;
+
   }
 }
 

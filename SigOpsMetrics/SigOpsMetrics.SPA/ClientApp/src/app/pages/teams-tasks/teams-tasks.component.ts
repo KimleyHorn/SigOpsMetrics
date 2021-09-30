@@ -92,19 +92,19 @@ export class TeamsTasksComponent implements OnInit {
     private titleService:Title) {
 
     //get the current month
-    let metricDate = (this._dt.getMonth() + 1) + '/' + this._dt.getFullYear();
-    metricDate = '2/' + this._dt.getFullYear(); //temporary date
+    let metricDateStartDate = (this._dt.getMonth()) + '/' + (this._dt.getFullYear() - 1);
+    let metricDateEndDate = (this._dt.getMonth()) + '/' + (this._dt.getFullYear());
     this.metricsSource.measure = "tsou";
-    this.metricsSource.start = metricDate;
-    this.metricsSource.end = metricDate;
+    this.metricsSource.start = metricDateStartDate;
+    this.metricsSource.end = metricDateEndDate;
 
     this.metricsType.measure = "ttyp";
-    this.metricsType.start = metricDate;
-    this.metricsType.end = metricDate;
+    this.metricsType.start = metricDateStartDate;
+    this.metricsType.end = metricDateEndDate;
 
     this.metricsSubtype.measure = "tsub";
-    this.metricsSubtype.start = metricDate;
-    this.metricsSubtype.end = metricDate;
+    this.metricsSubtype.start = metricDateStartDate;
+    this.metricsSubtype.end = metricDateEndDate;
 
     this.tabs = [
       { label: "SOURCE", metrics: this.metricsSource, graph: this.graphSource, level: "cor", interval: "mo", measure: "tsou" },
@@ -189,7 +189,7 @@ export class TeamsTasksComponent implements OnInit {
           );
         }
 
-        let metricItem = metricData[0];
+        let metricItem = metricData[metricData.length-1];
         item.metricValue = metricItem[item.measure];
         item.metricChange = "(" + this._formatService.formatPercent(metricItem["delta"],2) + ")";
 
