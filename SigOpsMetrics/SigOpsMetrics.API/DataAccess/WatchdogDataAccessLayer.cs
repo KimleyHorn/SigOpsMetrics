@@ -1,6 +1,7 @@
 ﻿using MySqlConnector;
 using SigOpsMetrics.API.Classes.DTOs;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,17 +10,19 @@ namespace SigOpsMetrics.API.DataAccess
 {
     public class WatchdogDataAccessLayer : BaseDataAccessLayer
     {
-        public static async Task<List<WatchdogHeatmapDTO>> GetWatchdogData(MySqlConnection sqlConnection, WatchdogFilterRequestObject data)
+        public static async Task<List<WatchdogHeatmapDTO>> GetWatchdogData(MySqlConnection sqlConnection,
+            WatchdogFilterRequestObject data)
         {
             List<WatchdogDTO> dataList = new List<WatchdogDTO>();
-            List<WatchdogDTO> tableDataList = new List<WatchdogDTO>();
+            ConcurrentBag<WatchdogDTO> tableDataList = new ConcurrentBag<WatchdogDTO>();
             try
             {
                 await sqlConnection.OpenAsync();
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = @"SELECT Zone_Group AS ZoneGroup, Zone, Corridor, SignalID, Date, Name, Alert, streak AS Streak FROM mark1.WatchdogAlerts
+                    cmd.CommandText =
+                        @"SELECT DISTINCT Zone_Group AS ZoneGroup, Zone, Corridor, SignalID, Date, Name, Alert, streak AS Streak FROM mark1.WatchdogAlerts
                                         WHERE str_to_date(Date,'%Y-%m-%d') >= @startDate AND str_to_date(Date,'%Y-%m-%d') <= @endDate AND Alert = @alert";
 
                     cmd.Parameters.AddWithValue("startDate", data.StartDate.ToString("yyyy-MM-dd"));
@@ -68,7 +71,7 @@ namespace SigOpsMetrics.API.DataAccess
                 sqlConnection.Close();
             }
 
-            WatchdogHeatmapDTO heatmap = new WatchdogHeatmapDTO
+            var heatmap = new WatchdogHeatmapDTO
             {
                 X = new List<string>(),
                 Y = new List<string>(),
@@ -76,12 +79,13 @@ namespace SigOpsMetrics.API.DataAccess
             };
 
             int days = (int)(Math.Ceiling((data.EndDate - data.StartDate).TotalDays));
-            for (int i=0;i<=days;i++)
+            for (int i = 0; i <= days; i++)
             {
                 heatmap.X.Add(data.StartDate.Date.AddDays(i).ToString("yyyy-MM-dd"));
             }
 
             var uniqueCombos = dataList.Select(x => new { x.Name, x.SignalID }).Distinct();
+
             foreach (var td in uniqueCombos)
             {
                 if (!string.IsNullOrEmpty(data.Streak) && data.Streak != "All")
@@ -89,29 +93,33 @@ namespace SigOpsMetrics.API.DataAccess
                     if (data.Streak == "Active")
                     {
                         //Only get records where the last day is part of the streak?
-                        if (dataList.Any(x => x.SignalID == td.SignalID && x.Name == td.Name && x.Date == heatmap.X[heatmap.X.Count - 1]))
+                        if (dataList.Any(x =>
+                            x.SignalID == td.SignalID && x.Name == td.Name && x.Date == heatmap.X[heatmap.X.Count - 1]))
                         {
                             heatmap.Y.Add(td.SignalID + ": " + td.Name);
                         }
                     }
-                    else if (data.Streak == "Active 3-days" && heatmap.X.Count() >=3)
+                    else if (data.Streak == "Active 3-days" && heatmap.X.Count() >= 3)
                     {
                         //Only get records where the last 3 days are part of the streak?
                         DateTime startDay = DateTime.Parse(heatmap.X[heatmap.X.Count - 3]);
                         DateTime endDate = DateTime.Parse(heatmap.X[heatmap.X.Count - 1]);
-                        int dayCount = dataList.Where(x => x.SignalID == td.SignalID && x.Name == td.Name && DateTime.Parse(x.Date) <= endDate && DateTime.Parse(x.Date) >= startDay).Count();
+                        int dayCount = dataList.Count(x => x.SignalID == td.SignalID && x.Name == td.Name && DateTime.Parse((string)x.Date) <= endDate &&
+                                                           DateTime.Parse((string)x.Date) >= startDay);
                         if (dayCount == 3)
                         {
                             heatmap.Y.Add(td.SignalID + ": " + td.Name);
                         }
                     }
-                } else
+                }
+                else
                 {
                     heatmap.Y.Add(td.SignalID + ": " + td.Name);
                 }
             }
-            
+
             List<WatchdogDTO> sortedList = dataList.OrderByDescending(x => x.Streak).ToList();
+
             foreach (string s in heatmap.Y)
             {
                 List<int?> streaks = new List<int?>();
@@ -121,14 +129,16 @@ namespace SigOpsMetrics.API.DataAccess
                     {
                         int? streak = dataList.First(x => x.SignalID + ": " + x.Name == s && x.Date == date).Streak;
                         streaks.Add(streak);
-                    } else
+                    }
+                    else
                     {
                         streaks.Add(0);
                     }
                 }
+
                 heatmap.Z.Add(streaks);
                 //Table data
-                int occurances = dataList.Where(x => x.SignalID + ": " + x.Name == s).Count();
+                int occurances = dataList.Count(x => x.SignalID + ": " + x.Name == s);
                 WatchdogDTO tableItem = sortedList.First(x => x.SignalID + ": " + x.Name == s);
                 tableItem.Occurrences = occurances;
                 tableDataList.Add(tableItem);
@@ -137,9 +147,10 @@ namespace SigOpsMetrics.API.DataAccess
             //Plotly plots items in reverse for some reason
             heatmap.Y.Reverse();
             heatmap.Z.Reverse();
-            heatmap.TableData = tableDataList;
+            heatmap.TableData = tableDataList.ToList();
             List<WatchdogHeatmapDTO> listHeatmap = new List<WatchdogHeatmapDTO>();
             listHeatmap.Add(heatmap);
+            
             return listHeatmap;
         }
     }
