@@ -56,8 +56,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     { value: 3, label: 'Prior Quarter'},
     { value: 1, label: 'Prior Week'},
     { value: 4, label: 'Prior Year'},
-    { value: 2, label: 'Prior Month'}
-    //{ value: 5, label: 'Custom' }
+    { value: 2, label: 'Prior Month'},
+    { value: 5, label: 'Custom' }
   ]
 
   selectedAggregationOption: number = 4;
@@ -93,11 +93,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   inErrorState: boolean = false;
   constructor(private filterService: FilterService, private changeDetectorRef: ChangeDetectorRef) {
   }
-  
+
   ngOnInit(): void {
-    
+
   }
-  
+
   ngAfterViewInit(): void {
     //get the current error state of the filter
     this.filterErrorSubscription = this.filterService.errorState.subscribe(data =>{
@@ -195,7 +195,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
               default:
                 break;
             }
-          } 
+          }
         });
 
       }
@@ -252,9 +252,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 private _clearAggregateOption(value){
   //determine which aggregation options to enable
   this.aggregationOptions.forEach(agg => {
-    if (agg.value === value || agg.value === value + 1) {
+    if (value === 5 || agg.value === value || agg.value === value + 1) {
       agg.disabled = false;
-    } 
+    }
   });
   if (this.selectedAggregationOption < value || this.selectedAggregationOption > value + 1) {
     this.selectedAggregationOption = value;
@@ -276,12 +276,13 @@ private _clearAggregateOption(value){
         this.endDate.select(dt);
         this.startTime.select(dt);
         this.endTime.select(dt);
+        this._clearAggregateOption(value);
         break;
-      case 0:    
+      case 0:
       case 1:
       case 2:
       case 3:
-      case 4:   
+      case 4:
         this._clearAggregateOption(value);
         break;
       default:

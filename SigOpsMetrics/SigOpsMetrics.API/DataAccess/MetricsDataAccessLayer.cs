@@ -101,13 +101,13 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 case "qhr":
                     period = "timeperiod";
-                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
-                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
+                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
                     break;
                 case "hr":
                     period = "hour";
-                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
-                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
+                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
                     break;
                 case "dy":
                     period = "date";
