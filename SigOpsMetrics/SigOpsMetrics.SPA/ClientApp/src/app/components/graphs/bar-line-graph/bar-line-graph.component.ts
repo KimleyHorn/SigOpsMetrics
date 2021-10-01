@@ -131,7 +131,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
 
   private _loadLineGraph(){
     this.updateLineXAxis();
-    this.updateLineYAxis();
+    //this.updateLineYAxis();
 
     let graphData: any[] = [];
 
