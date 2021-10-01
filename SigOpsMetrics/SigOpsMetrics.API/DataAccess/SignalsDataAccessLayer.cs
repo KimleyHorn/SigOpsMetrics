@@ -564,7 +564,7 @@ namespace SigOpsMetrics.API.DataAccess
             if (filter.zone_Group == "All")
             {
                 sqlText = "SELECT DISTINCT(Zone_Group) FROM mark1.signals WHERE Zone_Group IS NOT NULL";
-            }
+            } 
             else
             {
                 sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
