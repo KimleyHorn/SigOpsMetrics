@@ -7,7 +7,7 @@ export class WatchdogFilter {
     streak: string;
   
     constructor() {
-      this.startDate = new Date(new Date().setDate(new Date().getDate()-15));
+      this.startDate = new Date(new Date().setDate(new Date().getDate()-7));
       this.endDate = new Date();
       this.alert = "No Camera Image";
       this.phase = "All",

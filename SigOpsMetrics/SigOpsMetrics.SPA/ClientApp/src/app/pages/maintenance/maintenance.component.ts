@@ -160,6 +160,7 @@ export class MaintenanceComponent implements OnInit {
       this.toggleValue = value;
     });
     this.titleService.setTitle("SigOpsMetrics - Maintenance - Daily Traffic Volumes");
+    this.filterService.updateFilterErrorState(false);
 
   }
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {

@@ -115,7 +115,7 @@ export class TeamsTasksComponent implements OnInit {
 
   ngOnInit(): void {
     this.titleService.setTitle("SigOpsMetrics - TEAMSTasks")
-
+    this._filterSerivce.updateFilterErrorState(false);
     //create the layout for the big graph
     this.bigGraphConfig = {
       data: [],
