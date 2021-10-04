@@ -57,7 +57,8 @@ namespace SigOpsMetrics.API.DataAccess
                 fullWhereClause, all);
         }
 
-        private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level, string interval, string measure,
+        private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level,
+            string interval, string measure,
             string whereClause, bool all = false)
         {
             var tb = new DataTable();
@@ -65,16 +66,21 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 if (all)
                 {
-                    string type = level == "sig" ? "SignalId" : "Corridor";
+                    var type = level == "sig" ? "SignalId" : "Corridor";
                     await sqlConnection.OpenAsync();
                     await using var command =
-                        new MySqlCommand($"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.Corridor ELSE s.Zone_Group END AS ActualZoneGroup from mark1.{level}_{interval}_{measure} t left join (select {type} AS SignalType, Zone_Group FROM mark1.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.Corridor {whereClause}", sqlConnection);
+                        new MySqlCommand(
+                            $"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.Corridor ELSE s.Zone_Group END AS ActualZoneGroup from mark1.{level}_{interval}_{measure} t left join (select {type} AS SignalType, Zone_Group FROM mark1.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.Corridor {whereClause}",
+                            sqlConnection);
                     await using var reader = await command.ExecuteReaderAsync();
                     tb.Load(reader);
-                } else {
+                }
+                else
+                {
                     await sqlConnection.OpenAsync();
                     await using var command =
-                        new MySqlCommand($"select * from mark1.{level}_{interval}_{measure} {whereClause}", sqlConnection);
+                        new MySqlCommand(CreateSQLStatement(level, interval, measure, whereClause),
+                            sqlConnection);
                     await using var reader = await command.ExecuteReaderAsync();
                     tb.Load(reader);
                 }
@@ -88,7 +94,50 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 await sqlConnection.CloseAsync();
             }
+
             return tb;
+        }
+
+        private static string CreateSQLStatement(string level, string interval, string measure, string whereClause)
+        {
+            switch (interval)
+            {
+                case "mo":
+                    switch (measure)
+                    {
+                        case "tsub":
+                            return
+                                $"select Zone_Group, Corridor, Task_Subtype, Month, Reported, Resolved, Outstanding from mark1.{level}_{interval}_{measure} {whereClause}";
+                        case "tsou":
+                            return
+                                $"select Zone_Group, Corridor, Task_Source, Month, Reported, Resolved, Outstanding from mark1.{level}_{interval}_{measure} {whereClause}";
+                        case "ttyp":
+                            return
+                                $"select Zone_Group, Corridor, Task_Type, Month, Reported, Resolved, Outstanding from mark1.{level}_{interval}_{measure} {whereClause}";
+                    }
+                    break;
+                case "hr":
+                    switch (measure)
+                    {
+                        case "vph":
+                            return
+                                $"select Corridor, Zone_Group, Hour, vph as vpd, delta, Description from mark1.{level}_{interval}_{measure} {whereClause}";
+                    }
+
+                    break;
+                case "qhr":
+                    switch (measure)
+                    {
+                        case "vph":
+                            return
+                                $"select Corridor, Zone_Group, Timeperiod, vol as vpd, delta, Description from mark1.{level}_{interval}_{measure} {whereClause}";
+                    }
+
+                    break;
+            }
+
+            return $"select * from mark1.{level}_{interval}_{measure} {whereClause}";
+
         }
 
         private static string CreateDateRangeClause(string interval, string measure, string start, string end)
@@ -101,13 +150,13 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 case "qhr":
                     period = "timeperiod";
-                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
-                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
+                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
                     break;
                 case "hr":
                     period = "hour";
-                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
-                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd hh:mm:ss");
+                    startFormat = start.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
+                    endFormat = end.ToNullableDateTime().GetValueOrDefault().ToString("yyyy-MM-dd HH:mm:ss");
                     break;
                 case "dy":
                     period = "date";

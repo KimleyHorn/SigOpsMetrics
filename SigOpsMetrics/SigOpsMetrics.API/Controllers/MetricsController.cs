@@ -315,19 +315,7 @@ namespace SigOpsMetrics.API.Controllers
                 endQuarter = dates.Item2.NearestQuarterEnd();
             }
 
-            //Switch from certain daily to hourly tables here
-            if (interval == "hr" || interval == "qhr")
-            {
-                switch (measure)
-                {
-                    case "aogd":
-                        measure = "aogh";
-                        break;
-                    case "vpd":
-                        measure = "vph";
-                        break;
-                }
-            }
+            measure = UpdateMeasure(measure, interval);
 
             var filteredItems = new FilteredItems();
             if (signalOnly)
@@ -380,6 +368,35 @@ namespace SigOpsMetrics.API.Controllers
             return null;
         }
 
+        private static string UpdateMeasure(string measure, string interval)
+        {
+            //Switch from certain daily to hourly tables here
+            if (interval != "hr" && interval != "qhr") return measure;
+            switch (measure)
+            {
+                case "aogd":
+                    measure = "aogh";
+                    break;
+                case "papd":
+                    measure = "paph";
+                    break;
+                case "prd":
+                    measure = "prh";
+                    break;
+                case "qsd":
+                    measure = "qsh";
+                    break;
+                case "sfd":
+                    measure = "sfh";
+                    break;
+                case "vpd":
+                    measure = "vph";
+                    break;
+            }
+
+            return measure;
+        }
+
         private (DateTime, DateTime) GenerateDateFilter(FilterDTO filter)
         {
             var dt = DateTime.Today;
@@ -413,9 +430,13 @@ namespace SigOpsMetrics.API.Controllers
                         fullEnd = dt;
                         break;
                     case GenericEnums.DateRangeType.Custom:
-                        //TODO: add time range filter
                         fullStart = Convert.ToDateTime(filter.customStart);
+                        var timeStart = Convert.ToDateTime(filter.startTime);
+                        fullStart = fullStart.Date.Add(timeStart.TimeOfDay);
+
                         fullEnd = Convert.ToDateTime(filter.customEnd);
+                        var timeEnd = Convert.ToDateTime(filter.endTime);
+                        fullEnd = fullEnd.Date.Add(timeEnd.TimeOfDay);
                         break;
                     case GenericEnums.DateRangeType.PriorMonth:
                     default:
@@ -449,7 +470,7 @@ namespace SigOpsMetrics.API.Controllers
             var idColIndex = 0;
 
             var interval = GetIntervalFromFilter(filter);
-            if (interval == "wk" || interval == "dy")
+            if (interval == "wk" || interval == "dy" || interval == "hr" || interval == "qhr")
             {
                 idColIndex = 1;
                 avgColIndex = 3;
@@ -499,18 +520,33 @@ namespace SigOpsMetrics.API.Controllers
             var avgColIndex = 3;
             var deltaColIndex = 5;
 
-            if (measure == "vpd" || measure == "vphpa" || measure == "vphpp")
+            var interval = GetIntervalFromFilter(filter);
+
+            if (interval == "hr" || interval == "qhr")
             {
-                avgColIndex = 3;
-                deltaColIndex = 4;
+                if (measure == "vpd")
+                {
+                    idColIndex = 0;
+                    avgColIndex = 3;
+                    deltaColIndex = 5;
+                }
+            }
+            else
+            {
+                if (measure == "vpd" || measure == "vphpa" || measure == "vphpp")
+                {
+                    avgColIndex = 3;
+                    deltaColIndex = 4;
+                }
+                else if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
+                {
+                    idColIndex = 1;
+                    avgColIndex = 3;
+                    deltaColIndex = 5; //doesn't exist
+                }
             }
 
-            if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
-            {
-                idColIndex = 1;
-                avgColIndex = 3;
-                deltaColIndex = 5; //doesn't exist
-            }
+
 
             return (idColIndex, avgColIndex, deltaColIndex);
         }

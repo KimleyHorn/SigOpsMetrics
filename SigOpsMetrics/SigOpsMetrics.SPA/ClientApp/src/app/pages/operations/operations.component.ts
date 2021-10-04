@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Title } from '@angular/platform-browser';
 import { ChartToggleService } from 'src/app/components/toggles/chart-toggle/chart-toggle.service';
 import { Graph } from 'src/app/models/graph';
 import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';
+import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
   selector: 'app-operations',
@@ -13,6 +14,7 @@ import { Metrics } from 'src/app/models/metrics';
   providers: [MapSettings]
 })
 export class OperationsComponent implements OnInit {
+  @Output("resetErrorState") resetErrorState: EventEmitter<any> = new EventEmitter();
   toggleValue: string;
   currentTab: string;
 
@@ -196,7 +198,7 @@ export class OperationsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title) {}
+  constructor(private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title, private filterService: FilterService) {}
 
   ngOnInit(): void {
     this.toggleService.toggleValue.subscribe(value => {
@@ -210,6 +212,7 @@ export class OperationsComponent implements OnInit {
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.currentTab = tabChangeEvent.tab.textLabel;
     this.titleService.setTitle("SigOpsMetrics - Operations - " + this.currentTab);
+    this.filterService.updateFilterErrorState(false);
   }
   
 }

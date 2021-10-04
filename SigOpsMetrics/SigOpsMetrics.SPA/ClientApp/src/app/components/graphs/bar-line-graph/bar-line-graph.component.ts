@@ -131,8 +131,10 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
 
   private _loadLineGraph(){
     this.updateLineXAxis();
+    //this.updateLineYAxis();
 
     let graphData: any[] = [];
+
     if(this.corridors !== undefined){
       this.corridors.forEach(corridor => {
         let lineData = this.lineData.filter(data => data['corridor'] === corridor);
@@ -175,6 +177,15 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       case 5: //qu
         this.line.x = "quarter";
         break;
+    }
+  }
+
+  updateLineYAxis() {
+    //weird case for volume because the columns keep changing
+    if ((this.line.y == 'vpd' || this.line.y == 'vol') && this.filter.timePeriod == 1) {
+      this.line.y = 'vph';
+    } else if ((this.line.y == 'vpd' || this.line.y == 'vph') && this.filter.timePeriod == 0) {
+      this.line.y = 'vol';
     }
   }
 

@@ -24,10 +24,8 @@ export class TicketsGraphComponent implements OnInit {
 
   constructor(private _metricsService: MetricsService, private _filterService: FilterService) { }
 
-  ngOnInit(): void {}
-
-  ngOnChanges(){
-    //set the initial configuration of the graph
+  ngOnInit(): void {
+    //initialize graph
     this.graphConfig = {
       data: [],
       layout: {
@@ -37,6 +35,8 @@ export class TicketsGraphComponent implements OnInit {
         },
         yaxis:{
           automargin: true,
+          tickmode: "linear",
+          range: [0, 10]
         },
         margin:{
           t:25
@@ -45,36 +45,61 @@ export class TicketsGraphComponent implements OnInit {
       }
     }
 
-    //load the filters
+    //sets up filter sub so when user changes filter the current graph refreshes
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
-      this.graphFilter = filter;
-
+      this.graphFilter = filter; 
+      this._getMetricData();
       this._loadGraph();
     });
 
-    //get the graph data
-    this._metricsService.getMetrics(this.metrics).subscribe(data => {
-      this.graphData = data;
-
-      this._loadGraph();
-    });
   }
+  
+  ngOnChanges(){}
 
   ngOnDestroy(): void {
     this._filterSubscription.unsubscribe();
+  }
+
+  private _getMetricData() {
+    this._metricsService.filterMetrics(this.metrics, this.graphFilter).subscribe(data => {
+      this.graphData = data;
+      this._loadGraph();
+    });
   }
 
   private _loadGraph(){
     //load the data to the graph if the filter and metric data have been returned
     if(this.graphFilter !== undefined && this.graphData !== undefined){
       let data: any[] = [];
-      
-      //filter the data based on the set filter
-      // TODO - the tables appear to have aggregates for zone_groups, so when all is selected it is getting the individuals corridors and the zone group aggregates 
-      let filteredData = this.graphData.filter(dataItem => dataItem.zone_Group === this.graphFilter.zone_Group || this.graphFilter.zone_Group === 'All');
-      
+
+      //group the data - seems like we only care about task_source/task_subtype/task_type and oustanding?
+      let reFilteredData = [];
+        let type;
+        for (const [key] of Object.entries(this.graphData[0])) {
+          if (key.includes('task_')) {
+            type = key;
+          }
+        }
+
+        this.graphData.forEach(element => {
+          let found = false;
+          var newItem = {};     
+          for (let i=0; i<reFilteredData.length;i++) {
+            if (reFilteredData[i][type] == element[type]) {
+              reFilteredData[i].outstanding += element.outstanding;
+              found = true;
+              break;
+            } 
+          }       
+          if (!found) {
+            newItem[type] = element[type];
+            newItem["outstanding"] = element.outstanding;
+            reFilteredData.push(newItem);
+          }               
+        })
+              
       //sort the data
-      let sortedData = filteredData.sort((n1, n2) => n1[this.graph.x] - n2[this.graph.x]);
+      let sortedData = reFilteredData.sort((n1, n2) => n1[this.graph.x] - n2[this.graph.x]);
 
       //create the traces for the graph
       sortedData.forEach(sortItem => {
@@ -94,7 +119,15 @@ export class TicketsGraphComponent implements OnInit {
       });
 
       //add all the traces to the graph
+      this.graphConfig.layout.yaxis.nticks = sortedData.length;
+
+      //forces starting position of Y axis to top of range
+      if (sortedData.length > 10) {
+        this.graphConfig.layout.yaxis.range = [sortedData.length - 10,sortedData.length];
+      } else {
+        this.graphConfig.layout.yaxis.range = [0,sortedData.length];
+      }
       this.graphConfig.data = data;
-    }
+    } 
   }
 }

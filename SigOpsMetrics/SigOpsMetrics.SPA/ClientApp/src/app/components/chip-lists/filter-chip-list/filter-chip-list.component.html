@@ -4,12 +4,25 @@
       <mat-chip-list aria-label="Filter selection">
         <span *ngFor="let filter of filters">
           <mat-chip
-            *ngIf='filter'
+            *ngIf="filter"
             (removed)="remove(filter)"
-            [removable]="true" >
-              <strong>{{ filter.name }}:</strong>
-              <span>{{ filter.value }}</span>
-              <mat-icon *ngIf="filter.key !== 'dateRange' && filter.key !== 'timePeriod'" matChipRemove>cancel</mat-icon>
+            [removable]="true"
+          >
+            <strong>{{ filter.name }}: </strong>
+            <span>{{ filter.value }}</span>
+            <mat-icon
+              *ngIf="
+                filter.key !== 'dateRange' &&
+                filter.key !== 'timePeriod' &&
+                filter.key !== 'zone_Group' &&
+                filter.key !== 'customStart' &&
+                filter.key !== 'customEnd' &&
+                filter.key !== 'startTime' &&
+                filter.key !== 'endTime'
+              "
+              matChipRemove
+              >cancel</mat-icon
+            >
           </mat-chip>
         </span>
       </mat-chip-list>
