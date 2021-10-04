@@ -470,7 +470,18 @@ namespace SigOpsMetrics.API.Controllers
             var idColIndex = 0;
 
             var interval = GetIntervalFromFilter(filter);
-            if (interval == "wk" || interval == "dy" || interval == "hr" || interval == "qhr")
+            if (interval == "hr")
+            {
+                switch (measure)
+                {
+                    case "vpd":
+                        idColIndex = 0;
+                        avgColIndex = 3;
+                        deltaColIndex = 4;
+                        break;
+                }
+            }
+            if (interval == "wk" || interval == "dy" ||  interval == "qhr")
             {
                 idColIndex = 1;
                 avgColIndex = 3;
