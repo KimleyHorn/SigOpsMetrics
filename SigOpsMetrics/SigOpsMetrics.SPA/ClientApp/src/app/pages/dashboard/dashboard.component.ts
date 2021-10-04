@@ -4,6 +4,7 @@ import { MetricSelectService } from 'src/app/components/selects/metric-select/me
 import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';
 import { BrowserModule, Title } from '@angular/platform-browser';
+import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,11 +39,13 @@ export class DashboardComponent  implements OnInit {
     { name: "Communications Uptime", measure: "cu", metric: "uptime", format:"percent", precision: 1 },
   ];
 
-  constructor(public mapSettings: MapSettings, private _metricSelectService: MetricSelectService, private titleService:Title) { }
+  constructor(public mapSettings: MapSettings, private _metricSelectService: MetricSelectService, private titleService:Title, private filterService: FilterService) { }
 
   ngOnInit(){
     this.titleService.setTitle("SigOpsMetrics - Dashboard")
     this.selectedSettings = this.mapSettings.dtvMapSettings;
+    
+    this.filterService.updateFilterErrorState(false);
 
     this._metricSelectService.selectedMetric.subscribe(value => {
       switch (value) {
