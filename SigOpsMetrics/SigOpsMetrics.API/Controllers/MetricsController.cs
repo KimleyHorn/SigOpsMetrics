@@ -544,7 +544,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             else
             {
-                if (measure == "vpd" || measure == "vphpa" || measure == "vphpp")
+                if (measure == "vphpa" || measure == "vphpp")
                 {
                     avgColIndex = 3;
                     deltaColIndex = 4;
@@ -554,6 +554,11 @@ namespace SigOpsMetrics.API.Controllers
                     idColIndex = 1;
                     avgColIndex = 3;
                     deltaColIndex = 5; //doesn't exist
+                }
+                else if (measure == "du")
+                {
+                    avgColIndex = 5;
+                    deltaColIndex = 6;
                 }
             }
 
