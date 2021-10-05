@@ -25,14 +25,15 @@ namespace SigOpsMetrics.API.Controllers
     public class SignalsController : _BaseController
     {
         private const string KeyName = "Corridors_v3_Latest.xlsx";
-        
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="connection"></param>
         /// <param name="cache"></param>
-        public SignalsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(settings, connection, cache)
+        public SignalsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(
+            settings, connection, cache)
         {
         }
 
@@ -234,7 +235,7 @@ namespace SigOpsMetrics.API.Controllers
             var cacheName = $"signals/corridorsbyzone/{zone}";
             try
             {
-                
+
                 var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
                 {
                     entry.AbsoluteExpirationRelativeToNow = SixHourCache;
@@ -371,6 +372,54 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
+        [HttpGet("counties")]
+        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<IEnumerable<string>> GetCounties()
+        {
+            const string cacheName = "signals/counties";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+
+                    return await SignalsDataAccessLayer.GetCountiesSQL(SqlConnection);
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
+        }
+
+        [HttpGet("cities")]
+        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
+        public async Task<IEnumerable<string>> GetCities()
+        {
+            const string cacheName = "signals/counties";
+            try
+            {
+                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
+                {
+                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
+
+                    return await SignalsDataAccessLayer.GetCitiesSQL(SqlConnection);
+                });
+                return await cacheEntry;
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    cacheName, ex);
+                return null;
+            }
+        }
+
         /// <summary>
         /// Endpoint for performing daily pata pull of corridors_latest.xls into sql table.
         /// </summary>
@@ -390,8 +439,8 @@ namespace SigOpsMetrics.API.Controllers
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "DataPull", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "DataPull", ex);
             }
         }
 
@@ -410,9 +459,10 @@ namespace SigOpsMetrics.API.Controllers
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-                System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                "ContactUs", ex);
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "ContactUs", ex);
             }
+
             return Ok(result);
         }
 
@@ -474,9 +524,9 @@ namespace SigOpsMetrics.API.Controllers
             return new List<string>();
         }
 
-        
+
 
         #endregion
-        
+
     }
 }

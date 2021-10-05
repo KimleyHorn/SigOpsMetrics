@@ -46,6 +46,14 @@ export class FilterService {
   public agencies = this._agencies.asObservable();
   public agencyData: string[];
 
+  private _counties: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  public counties = this._counties.asObservable();
+  public countyData: string[];
+
+  private _cities: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  public cities = this._cities.asObservable();
+  public cityData: string[];
+
   constructor(private http: HttpClient, @Inject('BASE_URL') baseUrlInject: string, private _formatService: FormatService) {
     this.checkExistingFilter();
     this.baseUrl = baseUrlInject;
@@ -66,6 +74,14 @@ export class FilterService {
   //Managing Agency
   public getAgenciesFromDb() {
     return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
+  }
+
+  public getCountiesFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/counties');
+  }
+
+  public getCitiesFromDb() {
+    return this.http.get<any[]>(this.baseUrl + 'signals/cities');
   }
 
   getSignals(){
@@ -158,6 +174,24 @@ export class FilterService {
     ).subscribe(response => this._agencies.next(response));;
   }
 
+  getCounties() {
+    return this.http.get<string[]>(this.baseUrl + 'signals/counties').pipe(
+      map(response => {
+        this.countyData = response;
+        return response;
+      })
+    ).subscribe(response => this._counties.next(response));;
+  }
+
+  getCities() {
+    return this.http.get<string[]>(this.baseUrl + 'signals/cities').pipe(
+      map(response => {
+        this.cityData = response;
+        return response;
+      })
+    ).subscribe(response => this._cities.next(response));;
+  }
+
   private _loadData(filter: Filter){
     this.getZoneGroups();
     this.getZonesByZoneGroup(filter.zone_Group);
@@ -165,6 +199,8 @@ export class FilterService {
     this.getSubcorridors();
     this.getAgencies();
     this.getSignals();
+    this.getCounties();
+    this.getCities();
   }
 
   public setValue(key: string, value: any){
