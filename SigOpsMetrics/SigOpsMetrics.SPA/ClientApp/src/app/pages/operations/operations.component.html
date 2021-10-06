@@ -1,200 +1,231 @@
 <app-filter-chip-list></app-filter-chip-list>
 
 <mat-tab-group mat-stretch-tabs (selectedTabChange)="tabChanged($event)">
-    <mat-tab label="Throughput">
-        <ng-template matTabContent>
-          <div class="container-fluid">
-            <app-map-dashboard
-              [graphMetrics]='tpGraphMetrics'
-              [mapSettings]='mapSettings.tpMapSettings'
-              [metricField]='mapSettings.tpMapField'
-              [metricLabel]='"Average vehicles per hour"'
-              [changeLabel]='"Change from prior period"'>
-              <ng-template let-data #tpTemplate>
-                  <app-bar-line-graph
-                      [data]='data.filteredData'
-                      [averageData]='data.averageData'
-                      [title]='tpTitle'
-                      [line]='tpLine'
-                      [bar]='tpBar'>
-                  </app-bar-line-graph>
-              </ng-template>
-            </app-map-dashboard>
-          </div>
-        </ng-template>
-    </mat-tab>
+  <mat-tab label="Throughput">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="tpGraphMetrics"
+          [mapSettings]="mapSettings.tpMapSettings"
+          [metricField]="mapSettings.tpMapField"
+          [metricLabel]="'Average vehicles per hour'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #tpTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="tpTitle"
+              [line]="tpLine"
+              [bar]="tpBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Daily Traffic Volumes">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="dtvGraphMetrics"
+          [mapSettings]="mapSettings.dtvMapSettings"
+          [metricField]="mapSettings.dtvMapField"
+          [metricLabel]="'Traffic Volume [veh/day]'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #dtvTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="dtvTitle"
+              [line]="dtvLine"
+              [bar]="dtvBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 
-    <mat-tab label="Arrivals on Green">
-        <ng-template matTabContent>
-          <div class="container-fluid">
-            <app-map-dashboard
-              [graphMetrics]='aogdGraphMetrics'
-              [mapSettings]='mapSettings.aogdMapSettings'
-              [metricField]='mapSettings.aogdMapField'
-              [metricLabel]='"Arrivals on Green"'
-              [changeLabel]='"Change from prior period"'>
-              <ng-template let-data #aogTemplate>
-                <app-bar-line-graph
-                  [data]='data.filteredData'
-                  [averageData]='data.averageData'
-                  [title]='aogTitle'
-                  [line]='aogdLine'
-                  [bar]='aogBar'>
-                </app-bar-line-graph>
-                <!-- <app-bar-line-line-graph
-                    [data1]='filteredData'
-                    [additionalMetrics]='aoghGraphMetrics'
-                    [title]='aogTitle'
-                    [line1]='aogdLine'
-                    [line2]='aoghLine'
-                    [bar]='aogBar'>
-                </app-bar-line-line-graph> -->
-              </ng-template>
-            </app-map-dashboard>
-          </div>
-        </ng-template>
-    </mat-tab>
+  <mat-tab label="Arrivals on Green">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="aogdGraphMetrics"
+          [mapSettings]="mapSettings.aogdMapSettings"
+          [metricField]="mapSettings.aogdMapField"
+          [metricLabel]="'Arrivals on Green'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #aogTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="aogTitle"
+              [line]="aogdLine"
+              [bar]="aogBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 
-    <mat-tab label="Progression Ratio">
-      <ng-template matTabContent>
-        <div class="container-fluid">
-          <app-map-dashboard
-            [graphMetrics]='prdGraphMetrics'
-            [mapSettings]='mapSettings.prdMapSettings'
-            [metricField]='mapSettings.prdMapField'
-            [metricDecimals]='2'
-            [metricLabel]='"Progression Ratio"'
-            [changeLabel]='"Change from prior period"'>
-            <ng-template let-data #prTemplate>
-              <app-bar-line-graph
-                [data]='data.filteredData'
-                [averageData]='data.averageData'
-                [title]='prdTitle'
-                [line]='prdLine'
-                [bar]='prdBar'>
-              </app-bar-line-graph>
-            </ng-template>
-          </app-map-dashboard>
-        </div>
+  <mat-tab label="Progression Ratio">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="prdGraphMetrics"
+          [mapSettings]="mapSettings.prdMapSettings"
+          [metricField]="mapSettings.prdMapField"
+          [metricDecimals]="2"
+          [metricLabel]="'Progression Ratio'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #prTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="prdTitle"
+              [line]="prdLine"
+              [bar]="prdBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 
-      </ng-template>
-    </mat-tab>
+  <mat-tab label="Spillback Rate">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="qsdGraphMetrics"
+          [mapSettings]="mapSettings.qsdMapSettings"
+          [metricField]="mapSettings.qsdMapField"
+          [metricLabel]="'Spillback rate'"
+          [metricDecimals]="2"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #qsdTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="qsdTitle"
+              [line]="qsdLine"
+              [bar]="qsdBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 
-    <mat-tab label="Spillback Rate">
-        <ng-template matTabContent>
-          <div class="container-fluid">
-            <app-map-dashboard
-              [graphMetrics]='qsdGraphMetrics'
-              [mapSettings]='mapSettings.qsdMapSettings'
-              [metricField]='mapSettings.qsdMapField'
-              [metricLabel]='"Spillback rate"'
-              [metricDecimals]='2'
-              [changeLabel]='"Change from prior period"'>
-              <ng-template let-data #qsdTemplate>
-                  <app-bar-line-graph
-                    [data]='data.filteredData'
-                    [averageData]='data.averageData'
-                    [title]='qsdTitle'
-                    [line]='qsdLine'
-                    [bar]='qsdBar'>
-                  </app-bar-line-graph>
-              </ng-template>
-            </app-map-dashboard>
-          </div>
-        </ng-template>
-    </mat-tab>
+  <mat-tab label="Peak Period Split Failures">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="psfGraphMetrics"
+          [mapSettings]="mapSettings.psfMapSettings"
+          [metricField]="mapSettings.psfMapField"
+          [metricLabel]="'Peak Period Split Failures'"
+          [metricDecimals]="2"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #sfTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="sfTitle"
+              [line]="sfLine"
+              [bar]="sfBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 
-    <mat-tab label="Peak Period Split Failures">
-      <ng-template matTabContent>
-        <div class="container-fluid">
-          <app-map-dashboard
-            [graphMetrics]='psfGraphMetrics'
-            [mapSettings]='mapSettings.psfMapSettings'
-            [metricField]='mapSettings.psfMapField'
-            [metricLabel]='"Peak Period Split Failures"'
-            [metricDecimals]='2'
-            [changeLabel]='"Change from prior period"'>
-            <ng-template let-data #sfTemplate>
-                <app-bar-line-graph
-                  [data]='data.filteredData'
-                  [averageData]='data.averageData'
-                  [title]='sfTitle'
-                  [line]='sfLine'
-                  [bar]='sfBar'>
-                </app-bar-line-graph>
-            </ng-template>
-          </app-map-dashboard>
-        </div>
-      </ng-template>
-    </mat-tab>
+  <mat-tab label="Off-Peak Split Failures">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="osfGraphMetrics"
+          [mapSettings]="mapSettings.osfMapSettings"
+          [metricField]="mapSettings.osfMapField"
+          [metricLabel]="'Off-Peak Split Failures'"
+          [metricDecimals]="2"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #sfTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="sfTitle"
+              [line]="sfLine"
+              [bar]="sfBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 
-    <mat-tab label="Off-Peak Split Failures">
-      <ng-template matTabContent>
-        <div class="container-fluid">
-          <app-map-dashboard
-            [graphMetrics]='osfGraphMetrics'
-            [mapSettings]='mapSettings.osfMapSettings'
-            [metricField]='mapSettings.osfMapField'
-            [metricLabel]='"Off-Peak Split Failures"'
-            [metricDecimals]='2'
-            [changeLabel]='"Change from prior period"'>
-            <ng-template let-data #sfTemplate>
-                <app-bar-line-graph
-                  [data]='data.filteredData'
-                  [averageData]='data.averageData'
-                  [title]='sfTitle'
-                  [line]='sfLine'
-                  [bar]='sfBar'>
-                </app-bar-line-graph>
-            </ng-template>
-          </app-map-dashboard>
-        </div>
-      </ng-template>
-    </mat-tab>
+  <mat-tab label="Travel Time Index">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-graph-dashboard
+          [graphMetrics]="ttiGraphMetrics"
+          [metricField]="ttiMetricField"
+          [metricLabel]="'Travel Time Index'"
+          [metricDecimals]="2"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #ttiTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="ttiTitle"
+              [line]="ttiLine"
+              [bar]="ttiBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-graph-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 
-    <mat-tab label="Travel Time Index">
-      <ng-template matTabContent>
-        <div class="container-fluid">
-          <app-graph-dashboard
-            [graphMetrics]='ttiGraphMetrics'
-            [metricField]='ttiMetricField'
-            [metricLabel]='"Travel Time Index"'
-            [metricDecimals]='2'
-            [changeLabel]='"Change from prior period"'>
-            <ng-template let-data #ttiTemplate>
-              <app-bar-line-graph
-                [data]='data.filteredData'
-                [averageData]='data.averageData'
-                [title]='ttiTitle'
-                [line]='ttiLine'
-                [bar]='ttiBar'>
-              </app-bar-line-graph>
-            </ng-template>
-          </app-graph-dashboard>
-        </div>
-      </ng-template>
-    </mat-tab>
-
-    <mat-tab label="Planning Time Index">
-      <ng-template matTabContent>
-        <div class="container-fluid">
-          <app-graph-dashboard
-            [graphMetrics]='ptiGraphMetrics'
-            [metricField]='ptiMetricField'
-            [metricLabel]='"Planning Time Index"'
-            [metricDecimals]='2'
-            [changeLabel]='"Change from prior period"'>
-            <ng-template let-data #ptiTemplate>
-              <app-bar-line-graph
-                [data]='data.filteredData'
-                [averageData]='data.averageData'
-                [title]='ptiTitle'
-                [line]='ptiLine'
-                [bar]='ptiBar'>
-              </app-bar-line-graph>
-            </ng-template>
-          </app-graph-dashboard>
-        </div>
-      </ng-template>
-    </mat-tab>
+  <mat-tab label="Planning Time Index">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-graph-dashboard
+          [graphMetrics]="ptiGraphMetrics"
+          [metricField]="ptiMetricField"
+          [metricLabel]="'Planning Time Index'"
+          [metricDecimals]="2"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #ptiTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="ptiTitle"
+              [line]="ptiLine"
+              [bar]="ptiBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-graph-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 </mat-tab-group>

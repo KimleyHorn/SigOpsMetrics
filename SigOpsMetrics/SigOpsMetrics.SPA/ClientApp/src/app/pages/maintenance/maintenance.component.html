@@ -1,138 +1,124 @@
 <app-filter-chip-list></app-filter-chip-list>
 
 <mat-tab-group mat-stretch-tabs (selectedTabChange)="tabChanged($event)">
-    <mat-tab label="Daily Traffic Volumes">
-        <ng-template matTabContent>
-            <div class="container-fluid">
-                <app-map-dashboard
-                    [graphMetrics]='dtvGraphMetrics'
-                    [mapSettings]='mapSettings.dtvMapSettings'
-                    [metricField]='mapSettings.dtvMapField'
-                    [metricLabel]='"Traffic Volume [veh/day]"'
-                    [changeLabel]='"Change from prior period"'>
-                    <ng-template let-data #dtvTemplate>
-                        <app-bar-line-graph
-                          [data]='data.filteredData'
-                          [averageData]='data.averageData'
-                          [title]='dtvTitle'
-                          [line]='dtvLine'
-                          [bar]='dtvBar'>
-                        </app-bar-line-graph>
-                    </ng-template>
-                </app-map-dashboard>
-            </div>
-        </ng-template>
-    </mat-tab>
-    <mat-tab label="Daily Pedestrian Pushbutton Activity">
-        <ng-template matTabContent>
-            <div class="container-fluid">
-                <app-map-dashboard
-                    [graphMetrics]='papdGraphMetrics'
-                    [mapSettings]='mapSettings.papdMapSettings'
-                    [metricField]='mapSettings.papdMapField'
-                    [metricLabel]='"Pedestrian Activations [pa/day]"'
-                    [changeLabel]='"Change from prior period"'>
-                    <ng-template let-data #papdTemplate>
-                        <app-bar-line-graph
-                          [data]='data.filteredData'
-                          [averageData]='data.averageData'
-                          [title]='papdTitle'
-                          [line]='papdLine'
-                          [bar]='papdBar'>
-                        </app-bar-line-graph>
-                    </ng-template>
-                </app-map-dashboard>
-            </div>
-        </ng-template>
-    </mat-tab>
-    <mat-tab label="Detector Uptime">
-        <ng-template matTabContent>
-            <div class="container-fluid">
-                <app-map-dashboard
-                    [graphMetrics]='duGraphMetrics'
-                    [mapSettings]='mapSettings.duMapSettings'
-                    [metricField]='mapSettings.duMapField'
-                    [metricLabel]='"Detector Uptime"'
-                    [changeLabel]='"Change from prior period"'>
-                    <ng-template let-data #duTemplate>
-                        <app-bar-line-graph
-                          [data]='data.filteredData'
-                          [averageData]='data.averageData'
-                          [title]='duTitle'
-                          [line]='duLine'
-                          [bar]='duBar'>
-                        </app-bar-line-graph>
-                    </ng-template>
-                </app-map-dashboard>
-            </div>
-        </ng-template>
-    </mat-tab>
-    <mat-tab label="Pedestrian Pushbutton Uptime">
-        <ng-template matTabContent>
-            <div class="container-fluid">
-                <app-map-dashboard
-                    [graphMetrics]='pauGraphMetrics'
-                    [mapSettings]='mapSettings.pauMapSettings'
-                    [metricField]='mapSettings.pauMapField'
-                    [metricLabel]='"Pedestrian Pushbutton Availability"'
-                    [changeLabel]='"Change from prior period"'>
-                    <ng-template let-data #pauTemplate>
-                        <app-bar-line-graph
-                          [data]='data.filteredData'
-                          [averageData]='data.averageData'
-                          [title]='pauTitle'
-                          [line]='pauLine'
-                          [bar]='pauBar'>
-                        </app-bar-line-graph>
-                    </ng-template>
-                </app-map-dashboard>
-            </div>
-        </ng-template>
-    </mat-tab>
-    <mat-tab label="CCTV Uptime">
-        <ng-template matTabContent>
-            <div class="container-fluid">
-                <app-graph-dashboard
-                    [graphMetrics]='cctvGraphMetrics'
-                    [mapSettings]='mapSettings.cctvMapSettings'
-                    [metricField]='mapSettings.cctvMapField'
-                    [metricLabel]='"CCTV Availability"'
-                    [changeLabel]='"Change from prior period"'>
-                    <ng-template let-data #cctvTemplate>
-                        <app-bar-line-graph
-                          [data]='data.filteredData'
-                          [averageData]='data.averageData'
-                          [title]='cctvTitle'
-                          [line]='cctvLine'
-                          [bar]='cctvBar'>
-                        </app-bar-line-graph>
-                    </ng-template>
-                </app-graph-dashboard>
-            </div>
-        </ng-template>
-    </mat-tab>
-    <mat-tab label="Communication Uptime">
-        <ng-template matTabContent>
-            <div class="container-fluid">
-                <app-map-dashboard
-                    [graphMetrics]='cuGraphMetrics'
-                    [mapSettings]='mapSettings.cuMapSettings'
-                    [metricField]='mapSettings.cuMapField'
-                    [metricLabel]='"Communications Uptime"'
-                    [changeLabel]='"Change from prior period"'>
-                    <ng-template let-data #cuTemplate>
-                        <app-bar-line-graph
-                          [data]='data.filteredData'
-                          [averageData]='data.averageData'
-                          [title]='cuTitle'
-                          [line]='cuLine'
-                          [bar]='cuBar'>
-                        </app-bar-line-graph>
-                    </ng-template>
-                </app-map-dashboard>
-            </div>
-        </ng-template>
-    </mat-tab>
+  <mat-tab label="Detector Uptime">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="duGraphMetrics"
+          [mapSettings]="mapSettings.duMapSettings"
+          [metricField]="mapSettings.duMapField"
+          [metricLabel]="'Detector Uptime'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #duTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="duTitle"
+              [line]="duLine"
+              [bar]="duBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Daily Pedestrian Pushbutton Activity">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="papdGraphMetrics"
+          [mapSettings]="mapSettings.papdMapSettings"
+          [metricField]="mapSettings.papdMapField"
+          [metricLabel]="'Pedestrian Activations [pa/day]'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #papdTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="papdTitle"
+              [line]="papdLine"
+              [bar]="papdBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Pedestrian Pushbutton Uptime">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="pauGraphMetrics"
+          [mapSettings]="mapSettings.pauMapSettings"
+          [metricField]="mapSettings.pauMapField"
+          [metricLabel]="'Pedestrian Pushbutton Availability'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #pauTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="pauTitle"
+              [line]="pauLine"
+              [bar]="pauBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="CCTV Uptime">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-graph-dashboard
+          [graphMetrics]="cctvGraphMetrics"
+          [mapSettings]="mapSettings.cctvMapSettings"
+          [metricField]="mapSettings.cctvMapField"
+          [metricLabel]="'CCTV Availability'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #cctvTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="cctvTitle"
+              [line]="cctvLine"
+              [bar]="cctvBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-graph-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
+  <mat-tab label="Communication Uptime">
+    <ng-template matTabContent>
+      <div class="container-fluid">
+        <app-map-dashboard
+          [graphMetrics]="cuGraphMetrics"
+          [mapSettings]="mapSettings.cuMapSettings"
+          [metricField]="mapSettings.cuMapField"
+          [metricLabel]="'Communications Uptime'"
+          [changeLabel]="'Change from prior period'"
+        >
+          <ng-template let-data #cuTemplate>
+            <app-bar-line-graph
+              [data]="data.filteredData"
+              [averageData]="data.averageData"
+              [title]="cuTitle"
+              [line]="cuLine"
+              [bar]="cuBar"
+            >
+            </app-bar-line-graph>
+          </ng-template>
+        </app-map-dashboard>
+      </div>
+    </ng-template>
+  </mat-tab>
 </mat-tab-group>
-
-
