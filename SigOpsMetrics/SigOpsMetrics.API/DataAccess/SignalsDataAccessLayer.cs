@@ -40,10 +40,10 @@ namespace SigOpsMetrics.API.DataAccess
                             MainStreetName = reader.IsDBNull(6) ? "" : reader.GetString(6).Trim(),
                             SideStreetName = reader.IsDBNull(7) ? "" : reader.GetString(7).Trim(),
                             Milepost = reader.IsDBNull(8) ? "" : reader.GetString(8).Trim(),
-                            AsOf = reader.IsDBNull(9) ? (DateTime?) null : reader.GetDateTime(9),
+                            AsOf = reader.IsDBNull(9) ? (DateTime?)null : reader.GetDateTime(9),
                             Duplicate = reader.IsDBNull(10) ? "" : reader.GetString(10).Trim(),
                             Include = reader.IsDBNull(11) ? "" : reader.GetString(11).Trim(),
-                            Modified = reader.IsDBNull(12) ? (DateTime?) null : reader.GetDateTime(12),
+                            Modified = reader.IsDBNull(12) ? (DateTime?)null : reader.GetDateTime(12),
                             Note = reader.IsDBNull(13) ? "" : reader.GetString(13).Trim(),
                             Latitude = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
                             Longitude = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
@@ -145,7 +145,8 @@ namespace SigOpsMetrics.API.DataAccess
                 {
 
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL and Zone <> '' and signalid <> -1 and include = 1 ORDER BY Zone ASC";
+                    cmd.CommandText =
+                        "SELECT DISTINCT(Zone) FROM signals WHERE Zone IS NOT NULL and Zone <> '' and signalid <> -1 and include = 1 ORDER BY Zone ASC";
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
@@ -242,7 +243,7 @@ namespace SigOpsMetrics.API.DataAccess
                         case "Zone 7":
                             where += " AND TRIM(UPPER(Zone_Group)) IN ('ZONE 7M', 'ZONE 7D')";
                             break;
-                        case "ALL":                       
+                        case "ALL":
                             break;
                         default:
                             where += " AND TRIM(UPPER(Zone_Group)) = @zoneGroupName";
@@ -442,6 +443,72 @@ namespace SigOpsMetrics.API.DataAccess
             return agencies;
         }
 
+        public static async Task<IEnumerable<string>> GetCountiesSQL(MySqlConnection sqlConnection)
+        {
+            var counties = new List<string>();
+            try
+            {
+                await sqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
+                {
+                    cmd.Connection = sqlConnection;
+                    cmd.CommandText =
+                        "SELECT DISTINCT(County) FROM signals WHERE County IS NOT NULL and County <> '' and signalid <> -1 and include = 1 order by County ASC";
+
+                    await using var reader = await cmd.ExecuteReaderAsync();
+                    while (reader.Read())
+                    {
+                        counties.Add(reader.GetString(0).Trim());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetCountiesSQL", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return counties;
+        }
+
+        public static async Task<IEnumerable<string>> GetCitiesSQL(MySqlConnection sqlConnection)
+        {
+            var cities = new List<string>();
+            try
+            {
+                await sqlConnection.OpenAsync();
+                await using (var cmd = new MySqlCommand())
+                {
+                    cmd.Connection = sqlConnection;
+                    cmd.CommandText =
+                        "SELECT DISTINCT(City) FROM signals WHERE City IS NOT NULL and City <> '' and signalid <> -1 and include = 1 order by City ASC";
+
+                    await using var reader = await cmd.ExecuteReaderAsync();
+                    while (reader.Read())
+                    {
+                        cities.Add(reader.GetString(0).Trim());
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetCitiesSQL", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return cities;
+        }
+
         public static async Task WriteToSignals(MySqlConnection sqlConnection, ExcelWorksheet ws)
         {
             try
@@ -518,7 +585,8 @@ namespace SigOpsMetrics.API.DataAccess
             }
         }
 
-        public static async Task<FilteredItems> GetCorridorsOrSignalsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
+        public static async Task<FilteredItems> GetCorridorsOrSignalsByFilter(MySqlConnection sqlConnection,
+            FilterDTO filter)
         {
             //Based on the filter, we want to return a list of either corridors or signals
             if (filter.corridor.IsStringNullOrBlank())
@@ -564,11 +632,12 @@ namespace SigOpsMetrics.API.DataAccess
             if (filter.zone_Group == "All")
             {
                 sqlText = "SELECT DISTINCT(Zone_Group) FROM mark1.signals WHERE Zone_Group IS NOT NULL";
-            } 
+            }
             else
             {
                 sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
             }
+
             var retVal = new List<string>();
             await sqlConnection.OpenAsync();
             await using (var cmd = new MySqlCommand())
@@ -593,8 +662,11 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 return $" and SignalID = '{signalId}'";
             }
-            if ((zoneGroup.IsStringNullOrBlank() || zoneGroup == "All") && zone.IsStringNullOrBlank() && agency.IsStringNullOrBlank() &&
-                county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() && subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank())
+
+            if ((zoneGroup.IsStringNullOrBlank() || zoneGroup == "All") && zone.IsStringNullOrBlank() &&
+                agency.IsStringNullOrBlank() &&
+                county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() &&
+                subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank())
                 return string.Empty;
             var where = " and ";
 
@@ -620,7 +692,5 @@ namespace SigOpsMetrics.API.DataAccess
 
 
         }
-
-
     }
 }

@@ -1,29 +1,64 @@
 <div class="col">
-  <span *ngIf="this.inErrorState" class="error-label" style="font-size:14px; margin-top:10px; color:red;">The current metric is not fully compatible with the selected filter. Please select another metric or another filter.</span>
+  <span
+    *ngIf="this.inErrorState"
+    class="error-label"
+    style="font-size: 14px; margin-top: 10px; color: red"
+    >The current metric is not fully compatible with the selected filter. Please
+    select another metric or another filter.</span
+  >
 
-  <span class="header-label" style="font-size:12px; margin-top:10px;">Filters</span>
+  <span class="header-label" style="font-size: 12px; margin-top: 10px"
+    >Filters</span
+  >
 
   <div class="filter-break"></div>
 
   <span class="header-label">Date Range</span>
 
-  <mat-radio-group class="date-range-radio-group" (change)="updateDateRange($event)" [(ngModel)]="selectedDateOption">
-    <mat-radio-button class="date-range-radio-button" *ngFor="let option of options" [value]="option.value">
-      {{option.label}}
+  <mat-radio-group
+    class="date-range-radio-group"
+    (change)="updateDateRange($event)"
+    [(ngModel)]="selectedDateOption"
+  >
+    <mat-radio-button
+      class="date-range-radio-button"
+      *ngFor="let option of options"
+      [value]="option.value"
+    >
+      {{ option.label }}
     </mat-radio-button>
   </mat-radio-group>
 
   <div *ngIf="this.selectedDateOption === 5">
-    <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%;">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="max-width: 45%"
+    >
       <mat-label>Start Date</mat-label>
-      <input matInput [matDatepicker]="startDate" (dateChange)="updateFilter('customStart',$event)">
-      <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+      <input
+        matInput
+        [matDatepicker]="startDate"
+        (dateChange)="updateFilter('customStart', $event)"
+      />
+      <mat-datepicker-toggle
+        matSuffix
+        [for]="startDate"
+      ></mat-datepicker-toggle>
       <mat-datepicker #startDate></mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%;margin-left:25px;">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="max-width: 45%; margin-left: 25px"
+    >
       <mat-label>End Date</mat-label>
-      <input matInput [matDatepicker]="endDate" (dateChange)="updateFilter('customEnd',$event)">
+      <input
+        matInput
+        [matDatepicker]="endDate"
+        (dateChange)="updateFilter('customEnd', $event)"
+      />
       <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
       <mat-datepicker #endDate></mat-datepicker>
     </mat-form-field>
@@ -41,26 +76,49 @@
     <div class="filter-break"></div>
 
     <span class="header-label">Time Range</span>
-    <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%" >
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="max-width: 45%"
+    >
       <mat-label>Begin Time</mat-label>
-      <input matInput [matDatepicker]="startTime" (dateChange)="updateFilter('startTime',$event)">
-      <mat-datepicker-toggle matSuffix [for]="startTime"></mat-datepicker-toggle>
+      <input
+        matInput
+        [matDatepicker]="startTime"
+        (dateChange)="updateFilter('startTime', $event)"
+      />
+      <mat-datepicker-toggle
+        matSuffix
+        [for]="startTime"
+      ></mat-datepicker-toggle>
       <mat-datepicker #startTime type="time" [twelveHour]="true">
         <mat-datepicker-actions>
           <button mat-button matDatepickerCancel>Cancel</button>
-          <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+          <button mat-raised-button color="primary" matDatepickerApply>
+            Apply
+          </button>
         </mat-datepicker-actions>
       </mat-datepicker>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="filter-form-field" style="max-width:45%; margin-left:25px;" >
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="max-width: 45%; margin-left: 25px"
+    >
       <mat-label>End Time</mat-label>
-      <input matInput [matDatepicker]="endTime" (dateChange)="updateFilter('endTime',$event)">
+      <input
+        matInput
+        [matDatepicker]="endTime"
+        (dateChange)="updateFilter('endTime', $event)"
+      />
       <mat-datepicker-toggle matSuffix [for]="endTime"></mat-datepicker-toggle>
       <mat-datepicker #endTime type="time" [twelveHour]="true">
         <mat-datepicker-actions>
           <button mat-button matDatepickerCancel>Cancel</button>
-          <button mat-raised-button color="primary" matDatepickerApply>Apply</button>
+          <button mat-raised-button color="primary" matDatepickerApply>
+            Apply
+          </button>
         </mat-datepicker-actions>
       </mat-datepicker>
     </mat-form-field>
@@ -70,9 +128,19 @@
 
   <span class="header-label">Data Aggregation</span>
 
-  <mat-radio-group class="date-range-radio-group" (change)="updateFilter('timePeriod',$event)" [(ngModel)]="selectedAggregationOption">
-    <mat-radio-button class="date-range-radio-button" *ngFor="let option of aggregationOptions" [checked]="option.checked" [disabled]="option.disabled" [value]="option.value">
-      {{option.aggregate}}
+  <mat-radio-group
+    class="date-range-radio-group"
+    (change)="updateFilter('timePeriod', $event)"
+    [(ngModel)]="selectedAggregationOption"
+  >
+    <mat-radio-button
+      class="date-range-radio-button"
+      *ngFor="let option of aggregationOptions"
+      [checked]="option.checked"
+      [disabled]="option.disabled"
+      [value]="option.value"
+    >
+      {{ option.aggregate }}
     </mat-radio-button>
   </mat-radio-group>
 
@@ -87,73 +155,146 @@
 
   <div class="filter-break"></div>
   <span class="header-label">Signal Id</span>
-  <mat-form-field ngDefaultControl appearance="outline" class="filter-form-field" style="display: block;">
+  <mat-form-field
+    ngDefaultControl
+    appearance="outline"
+    class="filter-form-field"
+    style="display: block"
+  >
     <mat-label>Enter Id</mat-label>
-    <input matInput type="number" [(ngModel)]="selectedSignalId" (ngModelChange)="updateFilter('signalId',{ value: $event })">
+    <input
+      matInput
+      type="number"
+      [(ngModel)]="selectedSignalId"
+      (ngModelChange)="updateFilter('signalId', { value: $event })"
+    />
   </mat-form-field>
   <div class="filter-break"></div>
   <div *ngIf="!this.selectedSignalId">
     <span class="header-label">Signal Attributes</span>
-    <mat-form-field ngDefaultControl appearance="outline" class="filter-form-field" style="display: block;">
+    <mat-form-field
+      ngDefaultControl
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
       <mat-label>Select Region</mat-label>
-      <mat-select (selectionChange)="updateFilter('zone_Group',$event)" [(ngModel)]="selectedSignalGroup">
+      <mat-select
+        (selectionChange)="updateFilter('zone_Group', $event)"
+        [(ngModel)]="selectedSignalGroup"
+      >
         <mat-option *ngFor="let signal of signalGroups" [value]="signal">
-          {{signal}}
+          {{ signal }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
       <mat-label>Select District</mat-label>
-      <mat-select (selectionChange)="updateFilter('zone',$event)" [(ngModel)]="selectedDistrict">
+      <mat-select
+        (selectionChange)="updateFilter('zone', $event)"
+        [(ngModel)]="selectedDistrict"
+      >
         <mat-option *ngFor="let district of districts" [value]="district">
-          {{district}}
+          {{ district }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
       <mat-label>Select Managing Agency</mat-label>
-      <mat-select (selectionChange)="updateFilter('agency',$event)" [(ngModel)]="selectedAgency">
+      <mat-select
+        (selectionChange)="updateFilter('agency', $event)"
+        [(ngModel)]="selectedAgency"
+      >
         <mat-option *ngFor="let agency of agencies" [value]="agency">
-          {{agency}}
+          {{ agency }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
       <mat-label>Select County</mat-label>
-      <mat-select (selectionChange)="updateFilter('county',$event)" [(ngModel)]="selectedCounty">
-        <mat-option *ngFor="let agency of agencies" [value]="agency">
-          {{agency}}
+      <mat-select
+        (selectionChange)="updateFilter('county', $event)"
+        [(ngModel)]="selectedCounty"
+      >
+        <mat-option *ngFor="let county of counties" [value]="county">
+          {{ county }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
       <mat-label>Select City</mat-label>
-      <mat-select (selectionChange)="updateFilter('city',$event)" [(ngModel)]="selectedCity">
-        <mat-option *ngFor="let agency of agencies" [value]="agency">
-          {{agency}}
+      <mat-select
+        (selectionChange)="updateFilter('city', $event)"
+        [(ngModel)]="selectedCity"
+      >
+        <mat-option *ngFor="let city of cities" [value]="city">
+          {{ city }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
       <mat-label>Select Corridor</mat-label>
-      <mat-select (selectionChange)="updateFilter('corridor',$event)" [(ngModel)]="selectedCorridor">
+      <mat-select
+        (selectionChange)="updateFilter('corridor', $event)"
+        [(ngModel)]="selectedCorridor"
+      >
         <mat-option *ngFor="let corridor of corridors" [value]="corridor">
-          {{corridor}}
+          {{ corridor }}
         </mat-option>
       </mat-select>
     </mat-form-field>
-    <mat-form-field appearance="outline" class="filter-form-field" style="display: block;" *ngIf="this.selectedCorridor && subcorridors.length > 0">
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+      *ngIf="this.selectedCorridor && subcorridors.length > 0"
+    >
       <mat-label>Select Subcorridor</mat-label>
-      <mat-select (selectionChange)="updateFilter('subcorridor',$event)" [(ngModel)]="selectedSubcorridor">
-        <mat-option *ngFor="let subcorridor of subcorridors" [value]="subcorridor">
-          {{subcorridor}}
+      <mat-select
+        (selectionChange)="updateFilter('subcorridor', $event)"
+        [(ngModel)]="selectedSubcorridor"
+      >
+        <mat-option
+          *ngFor="let subcorridor of subcorridors"
+          [value]="subcorridor"
+        >
+          {{ subcorridor }}
         </mat-option>
       </mat-select>
     </mat-form-field>
   </div>
 </div>
-<div class="container" style="display: flex; justify-content: space-evenly; margin-top:10px;">
-    <button mat-raised-button color="basic" (click)="this.saveFilter();">Set As Defaults</button>
-    <button mat-raised-button color="basic" (click)="this.resetSelections();">Clear</button>
-    <button mat-raised-button color="primary" (click)="applyFilter()">Apply</button>
+<div
+  class="container"
+  style="display: flex; justify-content: space-evenly; margin-top: 10px"
+>
+  <button mat-raised-button color="basic" (click)="this.saveFilter()">
+    Set As Defaults
+  </button>
+  <button mat-raised-button color="basic" (click)="this.resetSelections()">
+    Clear
+  </button>
+  <button mat-raised-button color="primary" (click)="applyFilter()">
+    Apply
+  </button>
 </div>
