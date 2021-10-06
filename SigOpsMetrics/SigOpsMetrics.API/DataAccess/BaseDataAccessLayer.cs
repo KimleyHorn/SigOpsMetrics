@@ -10,9 +10,11 @@ namespace SigOpsMetrics.API.DataAccess
 {
     public class BaseDataAccessLayer
     {
-        public static async Task WriteToErrorLog(MySqlConnection sqlConnection, string applicationName, string functionName, Exception ex)
+        public static async Task WriteToErrorLog(MySqlConnection sqlConnection, string applicationName,
+            string functionName, Exception ex)
         {
-            await WriteToErrorLog(sqlConnection, applicationName, functionName, ex.Message, ex.InnerException?.ToString());
+            await WriteToErrorLog(sqlConnection, applicationName, functionName, ex.Message,
+                ex.InnerException?.ToString());
         }
 
         public static async Task WriteToErrorLog(MySqlConnection sqlConnection, string applicationName,
@@ -44,11 +46,14 @@ namespace SigOpsMetrics.API.DataAccess
                 await sqlConnection.CloseAsync();
             }
         }
+
         public static async Task<int> WriteToContactUs(MySqlConnection sqlConnection, ContactInfo data)
         {
-            int success = 0;  
-            
-            if (CheckInvalidString(data.FirstName) || CheckInvalidString(data.LastName) || CheckInvalidString(data.EmailAddress) || CheckInvalidString(data.Reason) || CheckInvalidString(data.Comments))
+            int success = 0;
+
+            if (CheckInvalidString(data.FirstName) || CheckInvalidString(data.LastName) ||
+                CheckInvalidString(data.EmailAddress) || CheckInvalidString(data.Reason) ||
+                CheckInvalidString(data.Comments))
             {
                 return 0;
             }
@@ -64,7 +69,8 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "INSERT INTO mark1.UserComments (FirstName, LastName, EmailAddress, PhoneNumber, Reason, Comments, Timestamp) VALUES (@firstName, @lastName, @emailAddress, @phoneNumber, @reason, @comments, NOW())";
+                    cmd.CommandText =
+                        "INSERT INTO mark1.UserComments (FirstName, LastName, EmailAddress, PhoneNumber, Reason, Comments, Timestamp) VALUES (@firstName, @lastName, @emailAddress, @phoneNumber, @reason, @comments, NOW())";
                     cmd.Parameters.AddWithValue("firstName", data.FirstName);
                     cmd.Parameters.AddWithValue("lastName", data.LastName);
                     cmd.Parameters.AddWithValue("emailAddress", data.EmailAddress);
@@ -82,6 +88,7 @@ namespace SigOpsMetrics.API.DataAccess
                     {
                         emails.Add(reader["Email"].ToString().Trim());
                     }
+
                     SendEmail(emails, data);
                 }
             }
@@ -95,6 +102,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 await sqlConnection.CloseAsync();
             }
+
             return success;
         }
 
@@ -103,7 +111,8 @@ namespace SigOpsMetrics.API.DataAccess
             if (str != null && str.Trim().Length > 0)
             {
                 return str.Trim();
-            } else
+            }
+            else
             {
                 return DBNull.Value;
             }
@@ -115,20 +124,23 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 return true;
             }
+
             if (string.IsNullOrEmpty(str.Trim()))
             {
                 return true;
             }
+
             return false;
         }
 
         private static void SendEmail(List<string> emails, ContactInfo data)
         {
 
-            string body = $"<p>From: {data.FirstName} {data.LastName}</p><p>Email: {data.EmailAddress}</p><p>Phone Number: N/A</p><p>Reason: {data.Reason}</p><p>Comments: {data.Comments}</p>";
+            string body =
+                $"<p>From: {data.FirstName} {data.LastName}</p><p>Email: {data.EmailAddress}</p><p>Phone Number: N/A</p><p>Reason: {data.Reason}</p><p>Comments: {data.Comments}</p>";
             if (!string.IsNullOrEmpty(data.PhoneNumber))
             {
-               body = body.Replace("N/A", data.PhoneNumber.Trim());
+                body = body.Replace("N/A", data.PhoneNumber.Trim());
             }
 
             var client = new SmtpClient();
@@ -139,29 +151,31 @@ namespace SigOpsMetrics.API.DataAccess
                 client.EnableSsl = true;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential("wisboom.robot@gmail.com", "KimleyHorn1");
+                client.Credentials = new NetworkCredential("sigopsmetrics@gmail.com", "yjtahpmryapfklgk");
 
                 MailMessage msg = new MailMessage();
-                msg.From = new MailAddress("wisboom.robot@gmail.com");
+                msg.From = new MailAddress("sigopsmetrics@gmail.com");
                 foreach (string email in emails)
                 {
                     msg.To.Add(email);
                 }
+
                 msg.Body = body;
                 msg.Subject = "SigOps Feedback";
                 msg.IsBodyHtml = true;
                 client.Send(msg);
-                
+
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
-            } 
+                var test = ex;
+                //todo
+            }
             finally
             {
                 client.Dispose();
             }
-            
+
         }
     }
 }
