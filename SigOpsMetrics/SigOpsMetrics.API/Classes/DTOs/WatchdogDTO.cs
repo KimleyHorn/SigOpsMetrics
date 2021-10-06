@@ -26,6 +26,7 @@ namespace SigOpsMetrics.API.Classes.DTOs
         public string Phase { get; set; }
         public string IntersectionFilter { get; set; }
         public string Streak { get; set; }
+        public string ZoneGroup { get; set; }
     }
 
     public class WatchdogHeatmapDTO {
