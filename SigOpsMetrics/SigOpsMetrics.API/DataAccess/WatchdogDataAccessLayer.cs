@@ -41,6 +41,12 @@ namespace SigOpsMetrics.API.DataAccess
                         cmd.Parameters.AddWithValue("intersectionFilter", "%" + data.IntersectionFilter + "%");
                     }
 
+                    if (!string.IsNullOrEmpty(data.ZoneGroup))
+                    {
+                        cmd.CommandText += " AND Zone_Group = @zoneGroup";
+                        cmd.Parameters.AddWithValue("zoneGroup", data.ZoneGroup);
+                    }
+
                     cmd.CommandText += " ORDER BY SignalID * 1 ASC, SignalID ASC";
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())

@@ -1,4 +1,13 @@
 <div style="max-width: 100%;display:inline-block;">
+  <mat-form-field appearance="fill">
+    <mat-label>Region:</mat-label>
+    <mat-select [(ngModel)]="filter.zoneGroup" (ngModelChange)="filterChange()">
+      <mat-option *ngFor="let zoneGroup of zoneGroups" [value]="zoneGroup">
+        {{zoneGroup}}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
     <mat-form-field appearance="fill">
         <mat-label>Enter a date range</mat-label>
         <mat-date-range-input [rangePicker]="picker">
