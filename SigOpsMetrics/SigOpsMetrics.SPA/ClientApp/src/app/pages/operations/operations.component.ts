@@ -37,7 +37,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Throughput (peak veh/hr): <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -60,7 +60,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Traffic Volume [veh/day]: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -90,7 +90,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Arrivals on Green: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -101,7 +101,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Arrivals on Green: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -122,7 +122,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Progression Ratio: <b>%{x}</b>" +
       "<extra></extra>",
   };
@@ -150,7 +150,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Queue Spillback Rate: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -183,7 +183,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Split Failures Rate[%]: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -206,7 +206,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Month of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Travel Time Index: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -231,7 +231,7 @@ export class OperationsComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Month of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Planning Time Index: <b>%{y}</b>" +
       "<extra></extra>",
   };
