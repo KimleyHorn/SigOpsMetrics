@@ -544,6 +544,11 @@ namespace SigOpsMetrics.API.Controllers
             }
             else
             {
+                if (interval == "dy" && measure == "vpd")
+                {
+                    avgColIndex = 3;
+                    deltaColIndex = 4;
+                }
                 if (measure == "vphpa" || measure == "vphpp")
                 {
                     avgColIndex = 3;
