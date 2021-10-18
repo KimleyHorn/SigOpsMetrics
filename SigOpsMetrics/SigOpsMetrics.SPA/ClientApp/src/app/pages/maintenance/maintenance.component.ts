@@ -35,7 +35,7 @@ export class MaintenanceComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Pedestrian Activations per Day [pa/day]: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -59,7 +59,7 @@ export class MaintenanceComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Uptime: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -85,7 +85,7 @@ export class MaintenanceComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Pedestrian Pushbutton Uptime [%]: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -109,7 +109,7 @@ export class MaintenanceComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>CCTV Uptime [%]: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -135,7 +135,7 @@ export class MaintenanceComponent implements OnInit {
     text: "corridor",
     hoverTemplate:
       "<b>%{text}</b>" +
-      "<br>Week of: <b>%{x}</b>" +
+      "<br><b>%{x}</b>" +
       "<br>Communication Uptime [%]: <b>%{y}</b>" +
       "<extra></extra>",
   };
@@ -152,14 +152,14 @@ export class MaintenanceComponent implements OnInit {
       this.toggleValue = value;
     });
     this.titleService.setTitle(
-      "SigOpsMetrics - Maintenance - Daily Traffic Volumes"
+      "SigOpsMetrics - Maintenance - Detector Uptime"
     );
     this.filterService.updateFilterErrorState(false);
   }
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.currentTab = tabChangeEvent.tab.textLabel;
     this.titleService.setTitle(
-      "SigOpsMetrics - Operations - " + this.currentTab
+      "SigOpsMetrics - Maintenance - " + this.currentTab
     );
     this.filterService.updateFilterErrorState(false);
   }
