@@ -227,7 +227,6 @@ export class FilterService {
   public updateFilter(){
     this._filters.next(this.filter);
     this.isFiltering.next(false);
-    console.log(this.filter);
   }
 
   public resetFilter(){
