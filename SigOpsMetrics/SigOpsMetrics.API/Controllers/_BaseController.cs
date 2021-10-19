@@ -15,16 +15,11 @@ namespace SigOpsMetrics.API.Controllers
         internal static readonly RegionEndpoint BucketRegion = RegionEndpoint.USEast1;
         internal AppConfig AppConfig;
         internal MySqlConnection SqlConnection;
-        internal readonly IMemoryCache Cache;
 
-        internal TimeSpan OneHourCache = TimeSpan.FromHours(1);
-        internal TimeSpan SixHourCache = TimeSpan.FromHours(6);
-
-        public _BaseController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache)
+        public _BaseController(IOptions<AppConfig> settings, MySqlConnection connection)
         {
             AppConfig = settings.Value;
             SqlConnection = connection;
-            Cache = cache;
         }
 
         internal IAmazonS3 CreateS3Client()

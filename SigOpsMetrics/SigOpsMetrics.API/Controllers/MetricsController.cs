@@ -30,13 +30,10 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="settings"></param>
         /// <param name="connection"></param>
         /// <param name="cache"></param>
-        public MetricsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(settings, connection, cache)
+        public MetricsController(IOptions<AppConfig> settings, MySqlConnection connection) : base(settings, connection)
         {
 
         }
-
-        #region Endpoints
-
         /// <summary>
         /// API method for returning high-level metric data from SigOpsMetrics.com
         /// </summary>
@@ -48,33 +45,22 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="end">End date for data pull</param>
         /// <returns></returns>
         [HttpGet("")]
-        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<DataTable> Get(string source, string level, string interval, string measure, DateTime start,
             DateTime end)
         {
-            //try
-            //{
-                    var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
-                        end);
-                    return dt;
-            //}
-            //var cacheName = $"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}";
-            //try
-            //{
-            //    var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-            //    {
-            //        entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
-            //    });
-            //    return await cacheEntry;
-            //}
-            //catch (Exception ex)
-            //{
-            //    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-            //        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-            //        cacheName, ex);
-            //    return null;
-            //}
+            try
+            {
+                var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
+                    end);
+                return dt;
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "Metrics/Get", ex);
+                return null;
+            }
         }
 
         /// <summary>
@@ -89,28 +75,20 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="zoneGroup">Zone Group (aka Signal Group) to pull data for</param>
         /// <returns></returns>
         [HttpGet(("zonegroup"))]
-        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<DataTable> GetByZoneGroup(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string zoneGroup)
         {
-            var cacheName = $"Metrics/ZoneGroup/{source}/{level}/{interval}/{measure}/{start}/{end}/{zoneGroup}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
                     var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
                         start, end, zoneGroup);
                     return dt;
-                });
-                return await cacheEntry;
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "metrics/zonegroups", ex);
                 return null;
             }
         }
@@ -127,34 +105,26 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="corridor">Corridor to pull data for</param>
         /// <returns></returns>
         [HttpGet(("corridor"))]
-        //[ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<DataTable> GetByCorridor(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string corridor)
         {
-            var cacheName = $"Metrics/Corridor/{source}/{level}/{interval}/{measure}/{start}/{end}/{corridor}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
-                    var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
-                        start, end, corridor);
-                    return dt;
-                });
-                return await cacheEntry;
+                var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
+                    start, end, corridor);
+                return dt;
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "metrics/corridor", ex);
                 return null;
             }
         }
 
         /// <summary>
-        /// 
+        /// API method for returning metric data by corridor from SigOpsMetrics.com.
         /// </summary>
         /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
         /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
@@ -163,416 +133,190 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
-            var retVal = await GetFilteredDataTable(source, measure, filter);
-            return retVal;
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/filter", ex);
+                return null;
+            }
         }
 
+        /// <summary>
+        /// API method for returning filtered signal data.
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="filter">Filter object from the SPA</param>
+        /// <returns></returns>
         [HttpPost("signals/filter")]
         public async Task<DataTable> GetSignalsByFilter(string source, string measure, [FromBody]
             FilterDTO filter)
         {
-            var retVal = await GetFilteredDataTable(source, measure, filter, true);
-            return retVal;
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/signals/filter", ex);
+                return null;
+            }
         }
 
+        /// <summary>
+        /// API method for returning filtered average signal data.
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="filter">Filter object from the SPA</param>
+        /// <returns></returns>
         [HttpPost("signals/filter/average")]
         public async Task<List<AverageDTO>> GetSignalsAverageByFilter(string source, string measure, [FromBody]
             FilterDTO filter)
         {
-            var retVal = await GetFilteredDataTable(source, measure, filter, true);
-            List<AverageDTO> groupedData = new List<AverageDTO>();
-
-            if (retVal == null || retVal.Rows.Count == 0)
+            try
             {
-                return groupedData.ToList();
-            }
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                List<AverageDTO> groupedData = new List<AverageDTO>();
 
-            var indexes = GetAvgDeltaIDColumnIndexes(filter, measure, false);
-
-            var avgColIndex = indexes.avgColIndex;
-            var deltaColIndex = indexes.deltaColIndex;
-            var idColIndex = indexes.idColIndex;
-
-            if (filter.zone_Group == "All")
-            {
-                groupedData = (from row in retVal.AsEnumerable()
-                               group row by new { label = row[idColIndex].ToString(), zoneGroup = row["ActualZoneGroup"] } into g
-                               select new AverageDTO
-                               {
-                                   label = g.Key.label,
-                                   avg = g.Average(x => x[avgColIndex].ToDouble()),
-                                   delta = g.Average(x => x[deltaColIndex].ToDouble()),
-                                   zoneGroup = g.Key.zoneGroup.ToString()
-                               }).ToList();
-            }
-            else
-            {
-                groupedData = (from row in retVal.AsEnumerable()
-                               group row by new { label = row[idColIndex].ToString() } into g
-                               select new AverageDTO
-                               {
-                                   label = g.Key.label,
-                                   avg = g.Average(x => x[avgColIndex].ToDouble()),
-                                   delta = g.Average(x => x[deltaColIndex].ToDouble())
-                               }).ToList();
-            }
-
-            return groupedData;
-        }
-
-        [HttpPost("average")]
-        public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
-        {
-            var isCorridor = true;
-            var retVal = await GetFilteredDataTable(source, measure, filter);
-            if (retVal.TableName.Contains("sig"))
-                isCorridor = false;
-
-            var groupedData = new List<AverageDTO>();
-            
-            var indexes = GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
-
-            var idColIndex = indexes.idColIndex;
-            var avgColIndex = indexes.avgColIndex;
-            var deltaColIndex = indexes.deltaColIndex;
-
-            if (retVal == null || retVal.Rows.Count == 0)
-            {
-                return groupedData.ToList();
-            }
-
-            if (dashboard)
-            {
-                var avg = (from row in retVal.AsEnumerable()
-                           select row[avgColIndex].ToDouble()).Average();
-                var delta = (from row in retVal.AsEnumerable()
-                             select row[deltaColIndex].ToDouble()).Average();
-
-                var data = new AverageDTO
+                if (retVal == null || retVal.Rows.Count == 0)
                 {
-                    label = "Dashboard",
-                    avg = avg,
-                    delta = delta
-                };
-                groupedData.Add(data);
-            } 
-            else if (filter.zone_Group == "All")
-            {
-                // group on zone_group instead of corridor
-                groupedData = (from row in retVal.AsEnumerable()
-                               group row by new { label = row[7].ToString() } into g
-                               select new AverageDTO
-                               {
-                                   label = g.Key.label,
-                                   avg = g.Average(x => x[avgColIndex].ToDouble()),
-                                   delta = g.Average(x => x[deltaColIndex].ToDouble())
-                               }).ToList();
-            }
-            else
-            {
-                groupedData = (from row in retVal.AsEnumerable()
-                               group row by new { label = row[idColIndex].ToString() } into g
-                               select new AverageDTO
-                               {
-                                   label = g.Key.label,
-                                   avg = g.Average(x => x[avgColIndex].ToDouble()),
-                                   delta = g.Average(x => x[deltaColIndex].ToDouble())
-                               }).ToList();
-            }
-            //else if (!string.IsNullOrEmpty(filter.corridor))
-            //{
-            //    groupedData = (from row in retVal.AsEnumerable()
-            //                      group row by new { label = row[0].ToString() } into g
-            //                      select new AverageDTO
-            //                      {
-            //                          label = g.Key.label,
-            //                          avg = g.Average(x => x[avgColIndex].ToDouble()),
-            //                          delta = g.Average(x => x[deltaColIndex].ToDouble())
-            //                      }).ToList();
-            //}
+                    return groupedData.ToList();
+                }
 
-            return groupedData.ToList();
-        }
+                var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, false);
 
-        private async Task<DataTable> GetFilteredDataTable(string source, string measure, [FromBody] FilterDTO filter, bool signalOnly = false)
-        {
-            // Check for an invalid filter
-            //todo more checks as we start using the filter
-            if (filter.timePeriod < 0) return null;
+                var avgColIndex = indexes.avgColIndex;
+                var deltaColIndex = indexes.deltaColIndex;
+                var idColIndex = indexes.idColIndex;
 
-            if (!string.IsNullOrEmpty(filter.signalId))
-            {
-                signalOnly = true;
-            }
-
-            //Quarterly data is formatted differently
-            var interval = GetIntervalFromFilter(filter);
-            var dates = GenerateDateFilter(filter);
-            string startQuarter = null, endQuarter = null;
-            if (interval == "qu")
-            {
-                startQuarter = dates.Item1.NearestQuarterEnd();
-                endQuarter = dates.Item2.NearestQuarterEnd();
-            }
-
-            measure = UpdateMeasure(measure, interval);
-
-            var filteredItems = new FilteredItems();
-            if (signalOnly)
-            {
-                filteredItems = await SignalsDataAccessLayer.GetSignalsByFilter(SqlConnection, filter);
-            } else 
-            {
-                filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(SqlConnection, filter);
-            }
-
-            //If we got no corridors/signals, bail
-            if (filteredItems.Items.Any())
-            {
-                if (interval == "qu" && startQuarter != null && endQuarter != null)
+                if (filter.zone_Group == "All")
                 {
-                    var retVal = await MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval,
-                        startQuarter, endQuarter, filteredItems);
-
-                    //var quarterCol = retVal.Columns["quarter"];
-                    retVal.Columns["quarter"].MaxLength = 30;
-
-                    foreach (DataRow row in retVal.Rows)
-                    {
-                        string cellData = row["quarter"].ToString();
-                        var year = cellData.Substring(0, 4);
-                        var quarter = cellData.Substring(5, 1);
-                        var newDate = new DateTime(year.ToInt(), quarter.ToInt() * 3, 30);
-                        row["quarter"] = newDate;
-                    }
-
-                    return retVal;
-                } 
-                else if (filter.zone_Group == "All")
-                {
-                    var retVal =
-                        MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1.ToString(),
-                            dates.Item2.ToString(), filteredItems, true);
-                    return await retVal;
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[idColIndex].ToString(), zoneGroup = row["ActualZoneGroup"] } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble()),
+                                       zoneGroup = g.Key.zoneGroup.ToString()
+                                   }).ToList();
                 }
                 else
                 {
-                    var retVal =
-                        MetricsDataAccessLayer.GetMetricByFilter(SqlConnection, source, measure, interval, dates.Item1.ToString(),
-                            dates.Item2.ToString(), filteredItems);
-                    return await retVal;
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[idColIndex].ToString() } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                   }).ToList();
                 }
 
+                return groupedData;
             }
-
-            return null;
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/signals/filter/average", ex);
+                return null;
+            }
         }
 
-        private static string UpdateMeasure(string measure, string interval)
+        /// <summary>
+        /// API method for returning average data.
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="dashboard">Format data for dashboard.</param>
+        /// <param name="filter">Filter object from the SPA</param>
+        /// <returns></returns>
+        [HttpPost("average")]
+        public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
         {
-            //Switch from certain daily to hourly tables here
-            if (interval != "hr" && interval != "qhr") return measure;
-            switch (measure)
+            try
             {
-                case "aogd":
-                    measure = "aogh";
-                    break;
-                case "papd":
-                    measure = "paph";
-                    break;
-                case "prd":
-                    measure = "prh";
-                    break;
-                case "qsd":
-                    measure = "qsh";
-                    break;
-                case "sfd":
-                    measure = "sfh";
-                    break;
-                case "vpd":
-                    measure = "vph";
-                    break;
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var isCorridor = true;
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                if (retVal.TableName.Contains("sig"))
+                    isCorridor = false;
+
+                var groupedData = new List<AverageDTO>();
+
+                var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
+
+                var idColIndex = indexes.idColIndex;
+                var avgColIndex = indexes.avgColIndex;
+                var deltaColIndex = indexes.deltaColIndex;
+
+                if (retVal == null || retVal.Rows.Count == 0)
+                {
+                    return groupedData.ToList();
+                }
+
+                if (dashboard)
+                {
+                    var avg = (from row in retVal.AsEnumerable()
+                               select row[avgColIndex].ToDouble()).Average();
+                    var delta = (from row in retVal.AsEnumerable()
+                                 select row[deltaColIndex].ToDouble()).Average();
+
+                    var data = new AverageDTO
+                    {
+                        label = "Dashboard",
+                        avg = avg,
+                        delta = delta
+                    };
+                    groupedData.Add(data);
+                }
+                else if (filter.zone_Group == "All")
+                {
+                    // group on zone_group instead of corridor
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[7].ToString() } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                   }).ToList();
+                }
+                else
+                {
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[idColIndex].ToString() } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                   }).ToList();
+                }
+
+                return groupedData.ToList();
             }
-
-            return measure;
-        }
-
-        private (DateTime, DateTime) GenerateDateFilter(FilterDTO filter)
-        {
-            var dt = DateTime.Today;
-
-            var fullStart = new DateTime(dt.Year, dt.Month - 1, 1);
-            var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
-
-            if (filter.dateRange != null)
+            catch (Exception ex)
             {
-                switch ((GenericEnums.DateRangeType)filter.dateRange)
-                {
-                    case GenericEnums.DateRangeType.PriorDay:
-                        fullStart = dt.AddDays(-1);
-                        fullEnd = dt;
-                        break;
-                    case GenericEnums.DateRangeType.PriorWeek:
-                        while (dt.DayOfWeek != DayOfWeek.Sunday)
-                            dt = dt.AddDays(-1);
-
-                        fullStart = dt.AddDays(-7);
-                        fullEnd = dt.AddDays(-1);
-                        break;
-                    case GenericEnums.DateRangeType.PriorQuarter:
-                        var month = (int)Math.Ceiling((double)dt.AddMonths(-3).Month / 3);
-                        fullStart = new DateTime(dt.Year, month, 1);
-                        fullEnd = new DateTime(dt.Year, month + 2, DateTime.DaysInMonth(dt.Year, month + 2));
-                        break;
-                    case GenericEnums.DateRangeType.PriorYear:
-                        var priorYear = dt.Year - 1;
-                        fullStart = new DateTime(priorYear, dt.Month, dt.Day);
-                        fullEnd = dt;
-                        break;
-                    case GenericEnums.DateRangeType.Custom:
-                        fullStart = Convert.ToDateTime(filter.customStart);
-                        var timeStart = Convert.ToDateTime(filter.startTime);
-                        fullStart = fullStart.Date.Add(timeStart.TimeOfDay);
-
-                        fullEnd = Convert.ToDateTime(filter.customEnd);
-                        var timeEnd = Convert.ToDateTime(filter.endTime);
-                        fullEnd = fullEnd.Date.Add(timeEnd.TimeOfDay);
-                        break;
-                    case GenericEnums.DateRangeType.PriorMonth:
-                    default:
-                        var priorMonth = dt.Month - 1;
-                        fullStart = new DateTime(dt.Year, priorMonth, 1);
-                        fullEnd = new DateTime(dt.Year, priorMonth, DateTime.DaysInMonth(dt.Year, priorMonth));
-                        break;
-                }
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/average", ex);
+                return null;
             }
-
-            return (fullStart, fullEnd);
-        }
-
-        private string GetIntervalFromFilter(FilterDTO filter)
-        {
-            var aggregationType = (GenericEnums.DataAggregationType) filter.timePeriod;
-            return EnumDescriptions.GetDescriptionFromEnumValue(aggregationType);
-        }
-
-        private (int idColIndex, int avgColIndex, int deltaColIndex) GetAvgDeltaIDColumnIndexes(FilterDTO filter, string measure, bool isCorridor)
-        {
-            return isCorridor
-                ? GetCorridorAvgDeltaIDColumnIndexes(filter, measure)
-                : GetSignalAvgDeltaIDColumnIndexes(filter, measure);
-        }
-
-        private (int idColIndex, int avgColIndex, int deltaColIndex) GetSignalAvgDeltaIDColumnIndexes(FilterDTO filter, string measure)
-        {
-            var avgColIndex = 2;
-            var deltaColIndex = 3;
-            var idColIndex = 0;
-
-            var interval = GetIntervalFromFilter(filter);
-            if (interval == "hr")
-            {
-                switch (measure)
-                {
-                    case "vpd":
-                        idColIndex = 0;
-                        avgColIndex = 3;
-                        deltaColIndex = 4;
-                        break;
-                }
-            }
-            if (interval == "wk" || interval == "dy" ||  interval == "qhr")
-            {
-                idColIndex = 1;
-                avgColIndex = 3;
-                deltaColIndex = 4;
-            }
-            else if (interval == "qu")
-            {
-                idColIndex = 0;
-                avgColIndex = 3;
-                deltaColIndex = 5;
-            }
-            else //mo 
-            {
-                //todo:some signals have different column orders than corridors - add here as we find them
-                switch (measure)
-                {
-                    case "vphpa":
-                    case "vphpp":
-                        avgColIndex = 3;
-                        deltaColIndex = 4;
-                        break;
-                    case "pau":
-                    case "cu":
-                        idColIndex = 1;
-                        avgColIndex = 3;
-                        deltaColIndex = 4;
-                        break;
-                    case "du":
-                        idColIndex = 1;
-                        avgColIndex = 3;
-                        deltaColIndex = 6;
-                        break;
-                    case "cctv":
-                        idColIndex = 1;
-                        avgColIndex = 4;
-                        deltaColIndex = 5;
-                        break;
-                }
-            }
-
-            return (idColIndex, avgColIndex, deltaColIndex);
-        }
-
-        private (int idColIndex, int avgColIndex, int deltaColIndex) GetCorridorAvgDeltaIDColumnIndexes(FilterDTO filter, string measure)
-        {
-            var idColIndex = 0;
-            var avgColIndex = 3;
-            var deltaColIndex = 5;
-
-            var interval = GetIntervalFromFilter(filter);
-
-            if (interval == "hr" || interval == "qhr")
-            {
-                if (measure == "vpd")
-                {
-                    idColIndex = 0;
-                    avgColIndex = 3;
-                    deltaColIndex = 5;
-                }
-            }
-            else
-            {
-                if (interval == "dy" && measure == "vpd")
-                {
-                    avgColIndex = 3;
-                    deltaColIndex = 4;
-                }
-                if (measure == "vphpa" || measure == "vphpp")
-                {
-                    avgColIndex = 3;
-                    deltaColIndex = 4;
-                }
-                else if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
-                {
-                    idColIndex = 1;
-                    avgColIndex = 3;
-                    deltaColIndex = 5; //doesn't exist
-                }
-                else if (measure == "du")
-                {
-                    avgColIndex = 5;
-                    deltaColIndex = 6;
-                }
-            }
-
-
-
-            return (idColIndex, avgColIndex, deltaColIndex);
-        }
-
-        #endregion
-        
+        }   
     }
 }

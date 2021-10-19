@@ -89,7 +89,7 @@ namespace SigOpsMetrics.API.DataAccess
                         emails.Add(reader["Email"].ToString().Trim());
                     }
 
-                    SendEmail(emails, data);
+                    SendEmail(emails, data, sqlConnection);
                 }
             }
             catch (Exception ex)
@@ -133,7 +133,7 @@ namespace SigOpsMetrics.API.DataAccess
             return false;
         }
 
-        private static void SendEmail(List<string> emails, ContactInfo data)
+        private static void SendEmail(List<string> emails, ContactInfo data, MySqlConnection conn)
         {
 
             string body =
@@ -168,14 +168,30 @@ namespace SigOpsMetrics.API.DataAccess
             }
             catch (Exception ex)
             {
-                var test = ex;
-                //todo
+                MetricsDataAccessLayer.WriteToErrorLog(conn,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "SendEmail", ex);
             }
             finally
             {
                 client.Dispose();
             }
 
+        }
+
+        public static string ValidateTableName(string level, string interval, string measure)
+        {
+            string levels = "cor,progress,sig,sub,tsos";
+            string intervals = "dy,hr,mo,qhr,qu,summary,wk,report,camera,detector";
+            string measures = "aogd,cctv,cu,du,outstanding,papd,pau,prd,qsd,reported,resolved,sfd,sfo,tasks,tp,tpri,tsou,tsub,ttyp,vpd,vphpa,vphpp,aogh,paph,prh,qsh,sfh,vph,bi,bih,bpsi,cri,flash,hourly_udc,kabco,maint,maint_plot,mttr,ops,ops_plot,over45,pd,pti,ptih,rsi,safety,safety_plot,spd,spdh,tti,ttih,udc_trend,udc_trend_table,data,content,content_test,alert_notes";
+
+            if (levels.Contains(level) && intervals.Contains(interval) && measures.Contains(measure))
+            {
+                return level + "_" + interval + "_" + measure;
+            } else
+            {
+                return "";
+            }
         }
     }
 }
