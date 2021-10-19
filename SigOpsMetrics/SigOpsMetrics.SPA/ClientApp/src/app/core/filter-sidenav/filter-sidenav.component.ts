@@ -317,6 +317,11 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       case 3:
       case 4:
         this._clearAggregateOption(value);
+        this._resetStartDate();
+        this._resetEndDate();
+        this._resetDaysOfWeek();
+        this._resetStartTime();
+        this._resetEndTime();
         break;
       default:
         //clear if not custom

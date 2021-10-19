@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
+using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.DataAccess;
 
@@ -16,7 +19,7 @@ namespace SigOpsMetrics.API.Controllers
     [ApiController]
     public class ExportMetricsController : _BaseController
     {
-        public ExportMetricsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(settings, connection, cache)
+        public ExportMetricsController(IOptions<AppConfig> settings, MySqlConnection connection) : base(settings, connection)
         {
 
         }
@@ -36,25 +39,14 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<FileStreamResult> Get(string source, string level, string interval, string measure, DateTime start,
             DateTime end)
         {
-            var cacheName = $"Metrics/{source}/{level}/{interval}/{measure}/{start}/{end}";
             try
             {
-                Task<DataTable> cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
-                    var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
-                        end);
-                    return dt;
-                });
-
-                return File(StreamExtensions.ConvertToCSV(cacheEntry), "text/plain","data.csv");
+                var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start, end);
+                return File(StreamExtensions.ConvertToCSV(dt), "text/plain","data.csv");
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/get", ex);
                 return null;
             }
         }
@@ -75,24 +67,14 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<FileStreamResult> GetByZoneGroup(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string zoneGroup)
         {
-            var cacheName = $"Metrics/ZoneGroup/{source}/{level}/{interval}/{measure}/{start}/{end}/{zoneGroup}";
             try
             {
-                Task<DataTable> cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
-                    var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
-                        start, end, zoneGroup);
-                    return dt;
-                });
-                return File(StreamExtensions.ConvertToCSV(cacheEntry), "text/plain", "data.csv"); ;
+                var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure, start, end, zoneGroup);
+                return File(StreamExtensions.ConvertToCSV(dt), "text/plain", "data.csv");
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/zonegroup", ex);
                 return null;
             }
         }
@@ -113,24 +95,203 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<FileStreamResult> GetByCorridor(string source, string level, string interval, string measure,
             DateTime start, DateTime end, string corridor)
         {
-            var cacheName = $"Metrics/Corridor/{source}/{level}/{interval}/{measure}/{start}/{end}/{corridor}";
             try
             {
-                Task<DataTable> cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = OneHourCache;
-
-                    var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
-                        start, end, corridor);
-                    return dt;
-                });
-                return File(StreamExtensions.ConvertToCSV(cacheEntry), "text/plain", "data.csv");
+                var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure, start, end, corridor);
+                return File(StreamExtensions.ConvertToCSV(dt), "text/plain", "data.csv");
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name,"metrics/csv/corridor", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// API method for returning metric data by corridor from SigOpsMetrics.com in CSV format.
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="filter">Filter object from the SPA</param>
+        /// <returns></returns>
+        [HttpPost("filter")]
+        public async Task<FileStreamResult> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
+        {
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                return File(StreamExtensions.ConvertToCSV(retVal), "text/plain", "data.csv");
+
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/filter", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// API method for returning filtered signal data in CSV format.
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="filter">Filter object from the SPA</param>
+        /// <returns></returns>
+        [HttpPost("signals/filter")]
+        public async Task<FileStreamResult> GetSignalsByFilter(string source, string measure, [FromBody]
+            FilterDTO filter)
+        {
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                return File(StreamExtensions.ConvertToCSV(retVal), "text/plain", "data.csv");
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/signals/filter", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// API method for returning filtered average signal data in CSV format.
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="filter">Filter object from the SPA</param>
+        /// <returns></returns>
+        [HttpPost("signals/filter/average")]
+        public async Task<FileStreamResult> GetSignalsAverageByFilter(string source, string measure, [FromBody]
+            FilterDTO filter)
+        {
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                List<AverageDTO> groupedData = new List<AverageDTO>();
+
+                if (retVal == null || retVal.Rows.Count == 0)
+                {
+                    return null;
+                }
+
+                var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, false);
+
+                var avgColIndex = indexes.avgColIndex;
+                var deltaColIndex = indexes.deltaColIndex;
+                var idColIndex = indexes.idColIndex;
+
+                if (filter.zone_Group == "All")
+                {
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[idColIndex].ToString(), zoneGroup = row["ActualZoneGroup"] } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble()),
+                                       zoneGroup = g.Key.zoneGroup.ToString()
+                                   }).ToList();
+                }
+                else
+                {
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[idColIndex].ToString() } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                   }).ToList();
+                }
+                return File(StreamExtensions.ConvertToCSV(groupedData), "text/plain", "data.csv");
+
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/signals/filter/average", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// API method for returning average data is CSV format.
+        /// </summary>
+        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
+        /// <param name="dashboard">Format data for dashboard.</param>
+        /// <param name="filter">Filter object from the SPA</param>
+        /// <returns></returns>
+        [HttpPost("average")]
+        public async Task<FileStreamResult> GetAverage(string source, string measure, bool dashboard, [FromBody] FilterDTO filter)
+        {
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var isCorridor = true;
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                if (retVal.TableName.Contains("sig"))
+                    isCorridor = false;
+
+                var groupedData = new List<AverageDTO>();
+
+                var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
+
+                var idColIndex = indexes.idColIndex;
+                var avgColIndex = indexes.avgColIndex;
+                var deltaColIndex = indexes.deltaColIndex;
+
+                if (retVal == null || retVal.Rows.Count == 0)
+                {
+                    return null;
+                }
+
+                if (dashboard)
+                {
+                    var avg = (from row in retVal.AsEnumerable()
+                               select row[avgColIndex].ToDouble()).Average();
+                    var delta = (from row in retVal.AsEnumerable()
+                                 select row[deltaColIndex].ToDouble()).Average();
+
+                    var data = new AverageDTO
+                    {
+                        label = "Dashboard",
+                        avg = avg,
+                        delta = delta
+                    };
+                    groupedData.Add(data);
+                }
+                else if (filter.zone_Group == "All")
+                {
+                    // group on zone_group instead of corridor
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[7].ToString() } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                   }).ToList();
+                }
+                else
+                {
+                    groupedData = (from row in retVal.AsEnumerable()
+                                   group row by new { label = row[idColIndex].ToString() } into g
+                                   select new AverageDTO
+                                   {
+                                       label = g.Key.label,
+                                       avg = g.Average(x => x[avgColIndex].ToDouble()),
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                   }).ToList();
+                }
+
+                return File(StreamExtensions.ConvertToCSV(groupedData), "text/plain", "data.csv");
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/average", ex);
                 return null;
             }
         }

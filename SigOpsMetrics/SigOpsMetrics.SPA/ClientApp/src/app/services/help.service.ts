@@ -156,9 +156,9 @@ export class HelpService {
             if(item.length > 0){           
                 var firstP = item[0].htmlText.indexOf("</p>");  
                 if (firstP != -1) {
-                    data = item[0].htmlText.substr(0,firstP) + "<p><a href=" + window.location.origin + "/help>Learn more...</a></p>";
+                    data = item[0].htmlText.substr(0,firstP) + "<p><a href=" + window.location.origin + "/help>Learn more...</a></p><p class='app-version'><span>App Version 1.0.1</span></p>";
                 } else {
-                    data = item[0].htmlText;
+                    data = item[0].htmlText + "</p><p class='app-version'><span>App Version 1.0.1</span></p>";
                 }
                 break;
             }

@@ -603,15 +603,15 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<FilteredItems> GetSignalsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
         {
             var filterType = GenericEnums.FilteredItemType.Signal;
-            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                filter.city, filter.corridor, filter.subcorridor, filter.signalId);
-            var sqlText = "select distinct(signalid) from mark1.signals where include = 1" + where;
             var retVal = new List<string>();
-            await sqlConnection.OpenAsync();
             await using (var cmd = new MySqlCommand())
             {
+                var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
+                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
+                var sqlText = "select distinct(signalid) from mark1.signals where include = 1" + where;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = sqlText;
+                await sqlConnection.OpenAsync();
                 await using var reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
@@ -625,23 +625,23 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<FilteredItems> GetCorridorsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
         {
-            var filterType = GenericEnums.FilteredItemType.Corridor;
-            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                filter.city, filter.corridor, filter.subcorridor, filter.signalId);
-            var sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
-            if (filter.zone_Group == "All")
-            {
-                sqlText = "SELECT DISTINCT(Zone_Group) FROM mark1.signals WHERE Zone_Group IS NOT NULL";
-            }
-            else
-            {
-                sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
-            }
-
             var retVal = new List<string>();
-            await sqlConnection.OpenAsync();
+            var filterType = GenericEnums.FilteredItemType.Corridor;
             await using (var cmd = new MySqlCommand())
             {
+                var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
+                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
+                var sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
+                if (filter.zone_Group == "All")
+                {
+                    sqlText = "SELECT DISTINCT(Zone_Group) FROM mark1.signals WHERE Zone_Group IS NOT NULL";
+                }
+                else
+                {
+                    sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
+                }
+
+                await sqlConnection.OpenAsync();
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = sqlText;
                 await using var reader = await cmd.ExecuteReaderAsync();
@@ -656,41 +656,70 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
         private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,
-            string county, string city, string corridor, string subcorridor, string signalId)
+            string county, string city, string corridor, string subcorridor, string signalId, MySqlCommand cmd)
         {
             if (!signalId.IsStringNullOrBlank())
             {
-                return $" and SignalID = '{signalId}'";
+                cmd.Parameters.AddWithValue("SignalID", signalId);
+                return " and SignalID = @SignalID";
             }
 
             if ((zoneGroup.IsStringNullOrBlank() || zoneGroup == "All") && zone.IsStringNullOrBlank() &&
                 agency.IsStringNullOrBlank() &&
                 county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() &&
                 subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank())
+            {
                 return string.Empty;
+            }
+
             var where = " and ";
 
             if (!zoneGroup.IsStringNullOrBlank() && zoneGroup != "All")
-                where += $"Zone_Group = '{zoneGroup}' and ";
+            {
+                cmd.Parameters.AddWithValue("zoneGroup", zoneGroup);
+                where += "Zone_Group = @zoneGroup and ";
+            }
+
             if (!zone.IsStringNullOrBlank())
-                where += $"zone = '{zone}' and ";
+            {
+                cmd.Parameters.AddWithValue("zone", zone);
+                where += "zone = @zone and ";
+            }
+
             if (!agency.IsStringNullOrBlank())
-                where += $"agency = '{agency}' and ";
+            {
+                cmd.Parameters.AddWithValue("agency", agency);
+                where += "agency = @agency and ";
+            }
+
             if (!county.IsStringNullOrBlank())
-                where += $"county = '{county}' and ";
+            {
+                cmd.Parameters.AddWithValue("county", county);
+                where += "county = @county and ";
+            }
+
             if (!city.IsStringNullOrBlank())
-                where += $"city = '{city}' and ";
+            {
+                cmd.Parameters.AddWithValue("city", city);
+                where += "city = @city and ";
+            }
+
             if (!corridor.IsStringNullOrBlank())
-                where += $"corridor = '{corridor}' and ";
+            {
+                cmd.Parameters.AddWithValue("corridor", corridor);
+                where += "corridor = @corridor and ";
+            }
+
             if (!subcorridor.IsStringNullOrBlank())
-                where += $"subcorridor = '{subcorridor}' and ";
+            {
+                cmd.Parameters.AddWithValue("subcorridor", subcorridor);
+                where += "subcorridor = @subcorridor and ";
+            }
 
             //chop off the last 'and'
             where = where.Substring(0, where.Length - 4);
 
             return where;
-
-
         }
     }
 }

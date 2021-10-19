@@ -32,8 +32,8 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="settings"></param>
         /// <param name="connection"></param>
         /// <param name="cache"></param>
-        public SignalsController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(
-            settings, connection, cache)
+        public SignalsController(IOptions<AppConfig> settings, MySqlConnection connection) : base(
+            settings, connection)
         {
         }
 
@@ -46,28 +46,17 @@ namespace SigOpsMetrics.API.Controllers
         //todo: known issue with Swagger - this crashes it due to response size
         //todo: Leave it for now and hope Swagger fixes it down the road - MJW 3/2/21
         [HttpGet("all")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<SignalDTO>> Get()
         {
-            const string cacheName = "signals/all";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-                    //var retVal = GetAllSignalData(await worksheet);
-
-                    return await SignalsDataAccessLayer.GetAllSignalDataSQL(SqlConnection);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetAllSignalDataSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/all", ex);
                 return null;
             }
         }
@@ -77,29 +66,17 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("names")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetNames()
         {
-            const string cacheName = "signals/names";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetSignalNames(await worksheet);
-                    return await SignalsDataAccessLayer.GetSignalNamesSQL(SqlConnection);
-
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetSignalNamesSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/names", ex);
                 return null;
             }
         }
@@ -109,29 +86,17 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("zonegroups")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZoneGroups()
         {
-            const string cacheName = "signals/zonegroups";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetZoneGroups(await worksheet);
-                    return await SignalsDataAccessLayer.GetZoneGroupsSQL(SqlConnection);
-
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetZoneGroupsSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/zonegroups", ex);
                 return null;
             }
         }
@@ -141,54 +106,33 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("zones")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZones()
         {
-            const string cacheName = "signals/zones";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetZones(await worksheet);
-                    return await SignalsDataAccessLayer.GetZonesSQL(SqlConnection);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetZonesSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/zones", ex);
                 return null;
             }
         }
 
         [HttpGet("zonesbyzonegroup/{zoneGroup}")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetZonesByZoneGroup(string zoneGroup)
         {
-            string cacheName = $"signals/zonesbyzonegroup/{zoneGroup}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetZonesByZoneGroup(await worksheet, zoneGroup);
-                    return await SignalsDataAccessLayer.GetZonesByZoneGroupSQL(SqlConnection, zoneGroup);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetZonesByZoneGroupSQL(SqlConnection, zoneGroup);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/zonesbyzonegroup/{zoneGroup}", ex);
                 return null;
             }
         }
@@ -198,28 +142,17 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("corridors")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridors()
         {
-            const string cacheName = "signals/corridors";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetCorridors(await worksheet);
-                    return await SignalsDataAccessLayer.GetCorridorsSQL(SqlConnection);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetCorridorsSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/corridors", ex);
                 return null;
             }
         }
@@ -229,56 +162,33 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("corridorsbyzone/{zone}")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridorsByZone(string zone)
         {
-            var cacheName = $"signals/corridorsbyzone/{zone}";
             try
             {
-
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetCorridorsByZone(await worksheet, zone);
-                    return await SignalsDataAccessLayer.GetCorridorsByZoneSQL(SqlConnection, zone);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetCorridorsByZoneSQL(SqlConnection, zone);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/corridorsbyzone/{zone}", ex);
                 return null;
             }
         }
 
         [HttpGet("corridorsbyzonegroup/{zoneGroup}")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCorridorsByZoneGroup(string zoneGroup)
         {
-            var cacheName = $"signals/corridorsbyzonegroup/{zoneGroup}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-                    //var retVal = GetCorridorsByZoneGroup(await worksheet, zoneGroup);
-                    return await SignalsDataAccessLayer.GetCorridorsByZoneGroupSQL(SqlConnection, zoneGroup);
-                });
-
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetCorridorsByZoneGroupSQL(SqlConnection, zoneGroup);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "corridorsbyzonegroup/{zoneGroup}", ex);
                 return null;
             }
         }
@@ -288,28 +198,17 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("subcorridors")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridors()
         {
-            const string cacheName = "signals/subcorridors";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetSubCorridors(await worksheet);
-                    return await SignalsDataAccessLayer.GetSubCorridorsSQL(SqlConnection);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetSubCorridorsSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/subcorridors", ex);
                 return null;
             }
         }
@@ -319,103 +218,79 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("subcorridorsbycorridor/{corridor}")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetSubCorridorsByCorridor(string corridor)
         {
-            corridor = System.Web.HttpUtility.UrlDecode(corridor);
-            var cacheName = $"signals/subcorridorsbycorridor/{corridor}";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-
-                    //var retVal = GetSubCorridorsByCorridor(await worksheet, corridor);
-                    return await SignalsDataAccessLayer.GetSubCorridorsByCorridorSQL(SqlConnection, corridor);
-                });
-                return await cacheEntry;
+                //Decoding to handle corridors with / in them
+                corridor = System.Web.HttpUtility.UrlDecode(corridor);
+                return await SignalsDataAccessLayer.GetSubCorridorsByCorridorSQL(SqlConnection, corridor);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/subcorridorsbycorridor/{corridor}", ex);
                 return null;
             }
         }
 
+        /// <summary>
+        /// Return list of all agencies in the system.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("agencies")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetAgencies()
         {
-            const string cacheName = "signals/agencies";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    //var worksheet = GetSpreadsheet();
-                    //var retVal = GetAgencies(await worksheet);
-                    return await SignalsDataAccessLayer.GetAgenciesSQL(SqlConnection);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetAgenciesSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/agencies", ex);
                 return null;
             }
         }
 
+        /// <summary>
+        /// Return list of all coutnies in the system.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("counties")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCounties()
         {
-            const string cacheName = "signals/counties";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    return await SignalsDataAccessLayer.GetCountiesSQL(SqlConnection);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetCountiesSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/counties", ex);
                 return null;
             }
         }
 
+        /// <summary>
+        /// Return list of all cities in system.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("cities")]
-        [ResponseCache(CacheProfileName = CacheProfiles.Default)]
         public async Task<IEnumerable<string>> GetCities()
         {
-            const string cacheName = "signals/counties";
             try
             {
-                var cacheEntry = Cache.GetOrCreate(cacheName, async entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = SixHourCache;
-
-                    return await SignalsDataAccessLayer.GetCitiesSQL(SqlConnection);
-                });
-                return await cacheEntry;
+                return await SignalsDataAccessLayer.GetCitiesSQL(SqlConnection);
             }
             catch (Exception ex)
             {
                 await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    cacheName, ex);
+                    "signals/cities", ex);
                 return null;
             }
         }
@@ -490,42 +365,6 @@ namespace SigOpsMetrics.API.Controllers
             var package = new ExcelPackage(ms);
             return package.Workbook.Worksheets[0];
         }
-
-        //private IEnumerable<string> GetAgencies(ExcelWorksheet sheet)
-        //{
-        //    return GetSingleColumnFromSpreadsheet(sheet, 6).Distinct().OrderBy(x => x);
-        //}
-
-        private IEnumerable<string> GetSingleColumnFromSpreadsheet(ExcelWorksheet sheet, int col)
-        {
-            try
-            {
-                var start = sheet.Dimension.Start;
-                var end = sheet.Dimension.End;
-
-                var retVal = new List<string>();
-
-                for (var row = start.Row + 1; row <= end.Row; row++)
-                {
-                    var stringToEnter = sheet.Cells[row, col].Text.Trim();
-                    if (!string.IsNullOrWhiteSpace(stringToEnter))
-                        retVal.Add(stringToEnter);
-                }
-
-                return retVal;
-            }
-            catch (Exception ex)
-            {
-                MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    $"signals/getsinglecolumnfromspreadsheet/{col}", ex).GetAwaiter();
-            }
-
-            return new List<string>();
-        }
-
-
-
         #endregion
 
     }

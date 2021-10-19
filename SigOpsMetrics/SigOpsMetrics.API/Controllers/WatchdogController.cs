@@ -26,7 +26,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="settings"></param>
         /// <param name="connection"></param>
         /// <param name="cache"></param>
-        public WatchdogController(IOptions<AppConfig> settings, MySqlConnection connection, IMemoryCache cache) : base(settings, connection, cache)
+        public WatchdogController(IOptions<AppConfig> settings, MySqlConnection connection) : base(settings, connection)
         {
         }
 
