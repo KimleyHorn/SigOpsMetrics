@@ -10,8 +10,8 @@ import { FormatService } from './format.service';
   providedIn: 'root'
 })
 export class FilterService {
-  private _errorState: boolean = false;
-  private _errorStateObs = new BehaviorSubject<boolean>(this._errorState);
+  private _errorState: number = 1; // 1 = primary, 2 = warn, 3 = disabled
+  private _errorStateObs = new BehaviorSubject<number>(this._errorState);
   public errorState = this._errorStateObs.asObservable();
 
   private filter: Filter = new Filter();
@@ -232,8 +232,8 @@ export class FilterService {
   public resetFilter(){
     this.filter = new Filter();
     this._loadData(this.filter);
-    this.updateFilter();
-    this.isFiltering.next(false);
+    //this.updateFilter();
+    //this.isFiltering.next(false);
   }
 
   public filterData(data: any, corridors: [] = []){
@@ -287,7 +287,7 @@ export class FilterService {
     }
   }
 
-  public updateFilterErrorState(state: boolean){
+  public updateFilterErrorState(state: number){
     this._errorStateObs.next(state);
   }
 }

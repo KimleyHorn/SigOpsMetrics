@@ -154,13 +154,13 @@ export class MaintenanceComponent implements OnInit {
     this.titleService.setTitle(
       "SigOpsMetrics - Maintenance - Detector Uptime"
     );
-    this.filterService.updateFilterErrorState(false);
+    this.filterService.updateFilterErrorState(1);
   }
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     this.currentTab = tabChangeEvent.tab.textLabel;
     this.titleService.setTitle(
       "SigOpsMetrics - Maintenance - " + this.currentTab
     );
-    this.filterService.updateFilterErrorState(false);
+    this.filterService.updateFilterErrorState(1);
   }
 }

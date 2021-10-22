@@ -14,6 +14,7 @@ import {Sort} from '@angular/material/sort';
 import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Title } from '@angular/platform-browser';
+import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
   selector: 'app-health-metrics',
@@ -114,7 +115,7 @@ export class HealthMetricsComponent implements OnInit {
   sortedDataSafety: HealthSafety[];
   readonly formControlSafety: AbstractControl;
 
-  constructor(private metricsService: MetricsService, formBuilder: FormBuilder, private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title) {
+  constructor(private metricsService: MetricsService, formBuilder: FormBuilder, private toggleService: ChartToggleService, public mapSettings: MapSettings, private titleService:Title, private filterService:FilterService) {
     // Object to create Filter for
     this.filterSelectListMaintenance = [
       {
@@ -494,7 +495,7 @@ export class HealthMetricsComponent implements OnInit {
     });
     this.currentTab = "Maintenance";
     this.titleService.setTitle("SigOpsMetrics - HealthMetrics - Maintenance");
-
+    this.filterService.updateFilterErrorState(3);
   }
 
   

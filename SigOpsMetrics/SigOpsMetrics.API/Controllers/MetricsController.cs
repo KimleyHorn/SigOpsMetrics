@@ -253,7 +253,7 @@ namespace SigOpsMetrics.API.Controllers
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var isCorridor = true;
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
-                if (retVal.TableName.Contains("sig"))
+                if (retVal != null && retVal.TableName.Contains("sig"))
                     isCorridor = false;
 
                 var groupedData = new List<AverageDTO>();

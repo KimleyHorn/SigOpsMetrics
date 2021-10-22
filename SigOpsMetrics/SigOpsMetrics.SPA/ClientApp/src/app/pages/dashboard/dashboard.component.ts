@@ -45,7 +45,7 @@ export class DashboardComponent  implements OnInit {
     this.titleService.setTitle("SigOpsMetrics - Dashboard")
     this.selectedSettings = this.mapSettings.dtvMapSettings;
     
-    this.filterService.updateFilterErrorState(false);
+    this.filterService.updateFilterErrorState(1);
 
     this._metricSelectService.selectedMetric.subscribe(value => {
       switch (value) {

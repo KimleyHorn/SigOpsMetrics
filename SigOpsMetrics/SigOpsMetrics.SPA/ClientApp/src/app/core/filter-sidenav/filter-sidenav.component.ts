@@ -101,7 +101,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   citiesSubscription: Subscription;
 
   initialLoad: boolean = true;
-  inErrorState: boolean = false;
+  inErrorState: number = 1;
   constructor(
     private filterService: FilterService,
     private changeDetectorRef: ChangeDetectorRef
@@ -371,7 +371,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //reset all options in the filter side nav to their default
   resetSelections() {
-    this.selectedSignalGroup = "";
+    this.selectedSignalGroup = "Central Metro";
     this.selectedAgency = "";
     this.selectedDateOption = 2;
     this.selectedAggregationOption = 4;
@@ -391,13 +391,13 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this._resetEndTime();
 
     this.filterService.resetFilter();
-    this.toggleFilter.emit();
+    //this.toggleFilter.emit();
   }
 
   //apply the filter so that it loads the new data
   applyFilter() {
-    this.inErrorState = false;
-    this.filterService.updateFilterErrorState(false);
+    this.inErrorState = 1;
+    this.filterService.updateFilterErrorState(1);
     this.filterService.updateFilter();
     this.toggleFilter.emit();
   }
@@ -423,7 +423,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   }
 
   resetErrorState() {
-    this.inErrorState = false;
+    this.inErrorState = 1;
   }
   // private checkExistingFilter() {
   //   let localStorageFilter = localStorage.getItem('filter');

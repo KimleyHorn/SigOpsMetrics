@@ -13,6 +13,7 @@ import { FilterService } from 'src/app/services/filter.service';
 })
 export class BarLineGraphComponent implements OnInit, OnChanges {
   private _filterSubscription: Subscription;
+  private _filterErrorStateSubscription: Subscription;
   private _color = new Colors();
 
   @Input() title: string = "";
@@ -34,6 +35,8 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
   defaultColor: string = this._color.gray;
   primaryColor: string = this._color.blue;
   secondaryColor: string = this._color.darkGray;
+
+  filterErrorState: number;
 
   constructor(private _filterService: FilterService) {}
 
@@ -76,6 +79,9 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       }
     };
 
+    this._filterErrorStateSubscription = this._filterService.errorState.subscribe(errorState => {
+      this.filterErrorState = errorState;     
+    })
     //when the filters are loaded or changed
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
       if(this.data !== undefined){
@@ -101,6 +107,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
 
   ngOnDestroy(): void {
     this._filterSubscription.unsubscribe();
+    this._filterErrorStateSubscription.unsubscribe();
   }
 
   private _loadBarGraph(){
@@ -127,6 +134,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     }
 
     this.barGraph.data = graphData;
+    this.barGraph.data = this.filterErrorState == 2 ? [] : graphData;
   }
 
   private _loadLineGraph(){
@@ -154,7 +162,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       });
     }
 
-    this.lineGraph.data = graphData;
+    this.lineGraph.data = this.filterErrorState == 2 ? [] : graphData;
   }
 
   updateLineXAxis() {

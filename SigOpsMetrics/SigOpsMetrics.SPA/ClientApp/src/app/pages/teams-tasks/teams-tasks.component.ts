@@ -1,6 +1,7 @@
 import { core } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { Subscriber, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { Colors } from 'src/app/models/colors';
 import { Filter } from 'src/app/models/filter';
@@ -16,10 +17,11 @@ import { MetricsService } from 'src/app/services/metrics.service';
   styleUrls: ['./teams-tasks.component.css']
 })
 export class TeamsTasksComponent implements OnInit {
+  filterErrorStateSubscription: Subscription;
+  filterErrorState: number;
   color: Colors = new Colors();
   bigGraphConfig: any;
   bigGraphData: any;
-
   private _hoverTemplate: string = '%{y}:' +
   '<b>%{x}</b>' +
   '<extra></extra>';
@@ -114,8 +116,19 @@ export class TeamsTasksComponent implements OnInit {
    }
 
   ngOnInit(): void {
+    this.filterErrorStateSubscription = this._filterSerivce.errorState.subscribe(data => {
+        this.filterErrorState = data;
+        if (data === 2) {
+          this.bigGraphConfig.data = [];
+          this.metrics.forEach(element => {
+            element.metricValue = 'N/A';
+            element.metricChange = 'N/A';
+          })
+        }
+      }
+    );
     this.titleService.setTitle("SigOpsMetrics - TEAMSTasks")
-    this._filterSerivce.updateFilterErrorState(false);
+    this._filterSerivce.updateFilterErrorState(1);
     //create the layout for the big graph
     this.bigGraphConfig = {
       data: [],

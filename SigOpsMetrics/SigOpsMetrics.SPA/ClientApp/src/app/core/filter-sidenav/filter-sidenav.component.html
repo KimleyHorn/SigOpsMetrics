@@ -1,6 +1,6 @@
 <div class="col">
   <span
-    *ngIf="this.inErrorState"
+    *ngIf="this.inErrorState == 2"
     class="error-label"
     style="font-size: 14px; margin-top: 10px; color: red"
     >The current metric is not fully compatible with the selected filter. Please
@@ -202,6 +202,10 @@
           {{ district }}
         </mat-option>
       </mat-select>
+      <button mat-button *ngIf="selectedDistrict" matSuffix mat-icon-button aria-label="Clear" 
+        (click)="selectedDistrict=null; updateFilter('zone', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
     </mat-form-field>
     <mat-form-field
       appearance="outline"
@@ -217,6 +221,10 @@
           {{ agency }}
         </mat-option>
       </mat-select>
+      <button mat-button *ngIf="selectedAgency" matSuffix mat-icon-button aria-label="Clear" 
+        (click)="selectedAgency=null; updateFilter('agency', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
     </mat-form-field>
     <mat-form-field
       appearance="outline"
@@ -232,6 +240,10 @@
           {{ county }}
         </mat-option>
       </mat-select>
+      <button mat-button *ngIf="selectedCounty" matSuffix mat-icon-button aria-label="Clear" 
+        (click)="selectedCounty=null; updateFilter('county', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
     </mat-form-field>
     <mat-form-field
       appearance="outline"
@@ -247,6 +259,10 @@
           {{ city }}
         </mat-option>
       </mat-select>
+      <button mat-button *ngIf="selectedCity" matSuffix mat-icon-button aria-label="Clear" 
+        (click)="selectedCity=null; updateFilter('city', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
     </mat-form-field>
     <mat-form-field
       appearance="outline"
@@ -262,6 +278,10 @@
           {{ corridor }}
         </mat-option>
       </mat-select>
+      <button mat-button *ngIf="selectedCorridor" matSuffix mat-icon-button aria-label="Clear" 
+        (click)="selectedCorridor=null; updateFilter('corridor', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
     </mat-form-field>
     <mat-form-field
       appearance="outline"
@@ -281,6 +301,10 @@
           {{ subcorridor }}
         </mat-option>
       </mat-select>
+      <button mat-button *ngIf="selectedSubcorridor" matSuffix mat-icon-button aria-label="Clear" 
+        (click)="selectedSubcorridor=null; updateFilter('subcorridor', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
     </mat-form-field>
   </div>
 </div>

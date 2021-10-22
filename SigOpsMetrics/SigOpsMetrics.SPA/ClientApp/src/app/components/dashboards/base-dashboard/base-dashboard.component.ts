@@ -84,6 +84,9 @@ export class BaseDashboardComponent implements OnInit {
 
           this.changeValue = this._formatService.formatPercent(metricData.delta,2);
         }
+      } else {
+        this.filteredData = [];
+        this.averageData = [];
       }
     }
 }

@@ -7,6 +7,7 @@ import {Sort} from '@angular/material/sort';
 import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
 import { Title } from '@angular/platform-browser';
 import { formatDate } from '@angular/common';
+import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
   selector: 'app-signal-info',
@@ -22,7 +23,7 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
   sortedData: SignalInfo[];
   readonly formControl: AbstractControl;
 
-  constructor(private signalsService: SignalsService, formBuilder: FormBuilder, private titleService:Title) {
+  constructor(private signalsService: SignalsService, formBuilder: FormBuilder, private titleService:Title, private filterService: FilterService) {
     // Object to create Filter for
     this.filterSelectList = [
       {
@@ -171,6 +172,7 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.titleService.setTitle("SigOpsMetrics - SignalInfo")
+    this.filterService.updateFilterErrorState(3);
   }
   
 
