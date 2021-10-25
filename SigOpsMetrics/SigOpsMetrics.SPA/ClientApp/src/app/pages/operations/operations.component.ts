@@ -250,7 +250,7 @@ export class OperationsComponent implements OnInit {
     this.currentTab = "Throughput";
 
     this.titleService.setTitle("SigOpsMetrics - Operations - Throughput");
-    this.filterService.updateFilterErrorState(false);
+    this.filterService.updateFilterErrorState(1);
   }
 
   tabChanged(tabChangeEvent: MatTabChangeEvent): void {
@@ -258,6 +258,6 @@ export class OperationsComponent implements OnInit {
     this.titleService.setTitle(
       "SigOpsMetrics - Operations - " + this.currentTab
     );
-    this.filterService.updateFilterErrorState(false);
+    this.filterService.updateFilterErrorState(1);
   }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { FilterService } from 'src/app/services/filter.service';
 import { HelpService } from 'src/app/services/help.service';
 
 @Component({
@@ -13,10 +14,11 @@ import { HelpService } from 'src/app/services/help.service';
 export class HelpComponent implements OnInit {
 
   data = [];
-  constructor(private titleService:Title, private helpService: HelpService) { }
+  constructor(private titleService:Title, private helpService: HelpService, private filterService:FilterService) { }
 
   ngOnInit() {
     this.titleService.setTitle("SigOpsMetrics - Help");
     this.data = this.helpService.getAllHelpData().filter(d => d.panel === true);
+    this.filterService.updateFilterErrorState(3);
   }
 }

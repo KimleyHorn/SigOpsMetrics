@@ -17,6 +17,7 @@ export class SideNavComponent implements OnInit {
   public isExpanded: boolean = true;
   public filterIsExpanded: boolean = false;
   public buttonColor = 'primary';
+  public isDisabled = false;
   constructor(private router: Router, private sideNavService: SideNavService, public filterService: FilterService){}
   
   ngOnInit(): void {
@@ -31,10 +32,16 @@ export class SideNavComponent implements OnInit {
     })
 
     this.filterService.errorState.subscribe((value) => {
-      if (value) {
-        this.buttonColor ='warn';
-      } else {
+      if (value == 1) {
         this.buttonColor ='primary';
+        this.isDisabled = false;
+      } else if (value == 2) {
+        this.buttonColor ='warn';
+        this.isDisabled = false;
+      } else {
+        this.buttonColor = 'disabled';
+        this.filterIsExpanded = false;
+        this.isDisabled = true;
       }
     })
 

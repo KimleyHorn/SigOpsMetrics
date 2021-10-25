@@ -13,6 +13,7 @@ import { PlotlyComponent } from "angular-plotly.js";
 import { BehaviorSubject, Subject } from "rxjs";
 import { debounceTime, distinctUntilChanged } from "rxjs/operators";
 import { WatchdogFilter } from "src/app/models/watchdog-filter";
+import { FilterService } from "src/app/services/filter.service";
 import { WatchdogService } from "src/app/services/watchdog-service";
 declare const Plotly;
 
@@ -55,7 +56,8 @@ export class WatchdogComponent implements OnInit {
 
   constructor(
     private titleService: Title,
-    private filterService: WatchdogService
+    private filterService: WatchdogService,
+    private siteFilterService: FilterService
   ) {
     this.tableData = new MatTableDataSource([]);
 
@@ -111,6 +113,7 @@ export class WatchdogComponent implements OnInit {
       }
     });
     this.filterChange();
+    this.siteFilterService.updateFilterErrorState(3);
   }
   ngAfterViewInit() {
     this.tableData.sort = this.sort;

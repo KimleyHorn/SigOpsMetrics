@@ -14,6 +14,6 @@ export class MetricSelectService {
 
   selectMetric(event: MatSelectChange){
     this._selectedMetric.next(event.value);
-    this.filterService.updateFilterErrorState(false);
+    this.filterService.updateFilterErrorState(1);
   }
 }

@@ -14,6 +14,7 @@ import { MetricsService } from 'src/app/services/metrics.service';
 export class TicketsTableComponent implements OnInit {
   private _filterSubscription: Subscription;
   private _metricsSubscription: Subscription;
+  private _filterErrorSubscription: Subscription;
   private _filter: Filter;
   private _data: any;
   private _dt: Date = new Date();
@@ -44,15 +45,23 @@ export class TicketsTableComponent implements OnInit {
       this._data = data;
       this._loadData();
     });
+
+    this._filterErrorSubscription = this._filterService.errorState.subscribe(errorState => {
+      if (errorState == 2) {
+        this.outstandingTickets = 0;
+        this.tableDataSource.next([]);
+      }
+    })
   }
 
   ngOnDestroy(): void {
     this._filterSubscription.unsubscribe();
     this._metricsSubscription.unsubscribe();
+    this._filterErrorSubscription.unsubscribe();
   }
 
   private _loadData(){
-    if(this._filter !== undefined && this._data !== undefined){
+    if (this._filter !== undefined && this._data !== undefined){
 
       // TODO - the tables appear to have aggregates for zone_groups, so when all is selected it is getting the individuals corridors and the zone group aggregates 
       let filteredData = this._data.filter(value => value['corridor'] === this._filter.zone_Group || this._filter.zone_Group === 'All')
@@ -61,6 +70,6 @@ export class TicketsTableComponent implements OnInit {
       this.outstandingTickets = filteredData.reduce((sum, current) => sum + current['outstanding'],0);
 
       this.tableDataSource.next(filteredData);
-    }
+    } 
   }
 }

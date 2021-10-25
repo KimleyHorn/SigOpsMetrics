@@ -26,10 +26,10 @@
 
     <div class="col-lg-4">
       <mat-card>
-        <mat-tab-group>
+        <mat-tab-group >
           <mat-tab *ngFor="let tab of tabs;" [label]="tab.label">
             <ng-template matTabContent>
-              <app-tickets-graph
+              <app-tickets-graph *ngIf="filterErrorState !== 2"
                 [metrics]="tab.metrics"
                 [graph]="tab.graph">
               </app-tickets-graph>

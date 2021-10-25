@@ -23,14 +23,14 @@ export class GlobalHttpInterceptorService implements HttpInterceptor {
         if (this.responseBody.length === 0) {
             console.log("empty response body");
             //load filter error msg?
-            this.inj.get(FilterService).updateFilterErrorState(true);
+            this.inj.get(FilterService).updateFilterErrorState(2);
         }
         }), 
       catchError((error) => {
         console.log('API error occurred')
         console.error(error);
         //load filter error msg?
-        this.inj.get(FilterService).updateFilterErrorState(true);
+        this.inj.get(FilterService).updateFilterErrorState(2);
         return throwError(error.message);
       })
     )
