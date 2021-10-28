@@ -39,6 +39,9 @@ export class ScatterMapComponent implements OnInit {
           yaxis: {
             zeroline: false
           },
+        },
+        config: {
+          displayModeBar: false
         }
       }
   }

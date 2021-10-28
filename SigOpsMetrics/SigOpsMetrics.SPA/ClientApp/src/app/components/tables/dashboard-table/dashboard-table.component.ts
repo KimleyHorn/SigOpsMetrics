@@ -39,7 +39,7 @@ export class DashboardTableComponent implements OnInit {
 
   private _loadData(){
     this.tableDataSource.next(this.tableData);
-
+    console.log(this.tableData);
     this.tableData.forEach(dataItem => {
       this._getValue(dataItem);
     });
@@ -55,9 +55,13 @@ export class DashboardTableComponent implements OnInit {
 
     this._metricsSubscription = this._metricsService.averageMetrics(metrics, this.filter).subscribe(response => {
       if(response.length > 0){
-        let formattedVal = this._formatService.formatData(response[0].avg, td.format, td.precision);
-
+        let formattedVal = this._formatService.formatData(response[0].avg, td.format, td.precision, true);
+        var dataItem = this.tableData.filter(item => item.name === td.name)[0];
+        if (dataItem.format === 'percent') {
+          this.tableData.filter(item => item.name === td.name)[0]["unit"] = '%';
+        }
         this.tableData.filter(item => item.name === td.name)[0].value = formattedVal;
+
       } else {
         this.tableData.filter(item => item.name === td.name)[0].value = "N/A";
       }
