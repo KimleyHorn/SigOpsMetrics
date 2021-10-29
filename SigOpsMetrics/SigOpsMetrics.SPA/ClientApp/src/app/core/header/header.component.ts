@@ -12,7 +12,11 @@ import { SideNavService } from '../side-nav/side-nav.service';
 })
 export class HeaderComponent implements OnInit {
   helpData: any = "";
-  constructor(private sideNav: SideNavService, private contact: ContactComponent, private helpService: HelpService) { }
+  patchData: any;
+  showPatchData: boolean = false;
+  constructor(private sideNav: SideNavService, private contact: ContactComponent, private helpService: HelpService) {
+    this.getHelpContent();
+   }
   links: any[] = [
     {url:"https://traffic.dot.ga.gov/atspm", name:"ATSPM", icon: "..\\assets\\images\\icon_atspm.png"},
     {url:"https://gdotcitrix.dot.ga.gov/vpn/index.html", name:"GDOT Citrix", icon: "..\\assets\\images\\icon_citrix.png"},
@@ -37,6 +41,11 @@ export class HeaderComponent implements OnInit {
 
   getHelpContent(){
     this.helpData = this.helpService.getHelpData();
+    this.patchData = this.helpService.getPatchNotes();
+  }
+
+  togglePatchNotes() {
+    this.showPatchData = !this.showPatchData;
   }
 
 }

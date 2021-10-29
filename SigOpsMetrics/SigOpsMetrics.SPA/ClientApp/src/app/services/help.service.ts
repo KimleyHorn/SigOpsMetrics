@@ -113,7 +113,23 @@ export class HelpService {
                     htmlText: "An all-encompassing repository of help documentation within the SigOps Metrics system."
                 }]
         }]
-
+        patchNotes = [
+        'v1.0.2',
+        'Added patch notes.',
+        'Column name in Signal Info will still show up when filtering.',
+        'Renamed Help to About.',
+        'Map toolbox is now hidden.',
+        'Adjusted % to be inline with other measurement units on dashboard.',
+        'Added chips to TEAMS tasks.',
+        'v1.0.1',
+        '-Added ability to deselect filters one at a time.',
+        '-Corrected issue with region mismatch between chip and filter.',
+        '-Pressing the clear button on the filter no longer automatically applies it.',
+        '-When an invalid filter is applied, existing charts/maps should show blank.',
+        '-Disabled filter on pages where it is not used.',
+        'v1.0.0',
+        '-Site launch.'
+    ];
     constructor(private titleService:Title) { }
       
 
@@ -156,9 +172,9 @@ export class HelpService {
             if(item.length > 0){           
                 var firstP = item[0].htmlText.indexOf("</p>");  
                 if (firstP != -1) {
-                    data = item[0].htmlText.substr(0,firstP) + "<p><a href=" + window.location.origin + "/help>Learn more...</a></p><p class='app-version'><span>App Version 1.0.1</span></p>";
+                    data = item[0].htmlText.substr(0,firstP) + "<p><a href=" + window.location.origin + "/about>Learn more...</a></p>";
                 } else {
-                    data = item[0].htmlText + "</p><p class='app-version'><span>App Version 1.0.1</span></p>";
+                    data = item[0].htmlText + "</p>";
                 }
                 break;
             }
@@ -168,6 +184,10 @@ export class HelpService {
 
     getAllHelpData(): any [] {
         return this.helpData;
+    }
+
+    getPatchNotes(): any[] {
+        return this.patchNotes;
     }
 }
 

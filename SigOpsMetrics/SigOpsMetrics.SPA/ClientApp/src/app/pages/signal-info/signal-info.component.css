@@ -119,3 +119,11 @@ mat-form-field.mat-form-field {
   line-height: 15px;
   white-space: pre-wrap !important;
 }
+
+mat-label {
+  color:white;
+}
+
+::ng-deep .mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-form-field-outline-gap {
+  border-top-color: initial !important;
+}

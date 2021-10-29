@@ -17,7 +17,7 @@ export class HelpComponent implements OnInit {
   constructor(private titleService:Title, private helpService: HelpService, private filterService:FilterService) { }
 
   ngOnInit() {
-    this.titleService.setTitle("SigOpsMetrics - Help");
+    this.titleService.setTitle("SigOpsMetrics - About");
     this.data = this.helpService.getAllHelpData().filter(d => d.panel === true);
     this.filterService.updateFilterErrorState(3);
   }

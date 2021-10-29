@@ -18,7 +18,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[0].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[0].columnProp}}" placeholder="Signal ID">
+          <mat-label>Signal ID</mat-label>
+          <input matInput formControlName="{{filterSelectList[0].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -29,7 +30,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[1].style}}" appearance="outline" style="color: white; width: 100px;">
-          <input matInput formControlName="{{filterSelectList[1].columnProp}}" placeholder="Zone Group">
+          <mat-label>Zone Group</mat-label>
+          <input matInput formControlName="{{filterSelectList[1].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -40,7 +42,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[2].style}}" appearance="outline" style="color: white; width: 100px;">
-          <input matInput formControlName="{{filterSelectList[2].columnProp}}" placeholder="Zone">
+          <mat-label>Zone</mat-label>
+          <input matInput formControlName="{{filterSelectList[2].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -51,7 +54,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[3].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[3].columnProp}}" placeholder="Corridor">
+          <mat-label>Corridor</mat-label>
+          <input matInput formControlName="{{filterSelectList[3].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -62,7 +66,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[4].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[4].columnProp}}" placeholder="Subcorridor">
+          <mat-label>Subcorridor</mat-label>
+          <input matInput formControlName="{{filterSelectList[4].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -73,7 +78,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[5].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[5].columnProp}}" placeholder="Agency">
+          <mat-label>Agency</mat-label>
+          <input matInput formControlName="{{filterSelectList[5].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -84,7 +90,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[6].style}}" appearance="outline" style="color: white; width: 100%;">
-          <input matInput formControlName="{{filterSelectList[6].columnProp}}" placeholder="Main Street Name">
+          <mat-label>Main Street Name</mat-label>
+          <input matInput formControlName="{{filterSelectList[6].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -95,7 +102,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[7].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[7].columnProp}}" placeholder="Side Street Name">
+          <mat-label>Side Street Name</mat-label>
+          <input matInput formControlName="{{filterSelectList[7].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -106,7 +114,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[8].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[8].columnProp}}" placeholder="Milepost">
+          <mat-label>Milepost</mat-label>
+          <input matInput formControlName="{{filterSelectList[8].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -117,7 +126,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[9].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[9].columnProp}}" placeholder="As Of">
+          <mat-label>As Of</mat-label>
+          <input matInput formControlName="{{filterSelectList[9].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -128,7 +138,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[10].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[10].columnProp}}" placeholder="Duplicate">
+          <mat-label>Duplicate</mat-label>
+          <input matInput formControlName="{{filterSelectList[10].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -139,7 +150,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[11].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[11].columnProp}}" placeholder="Include">
+          <mat-label>Include</mat-label>
+          <input matInput formControlName="{{filterSelectList[11].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -150,7 +162,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[12].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[12].columnProp}}" placeholder="Modified">
+          <mat-label>Modified</mat-label>
+          <input matInput formControlName="{{filterSelectList[12].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -161,7 +174,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[13].style}}" appearance="outline" style="color: white; width: 150px;">
-          <input matInput formControlName="{{filterSelectList[13].columnProp}}" placeholder="Note">
+          <mat-label>Note</mat-label>
+          <input matInput formControlName="{{filterSelectList[13].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -172,7 +186,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[14].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[14].columnProp}}" placeholder="Latitude">
+          <mat-label>Latitude</mat-label>
+          <input matInput formControlName="{{filterSelectList[14].columnProp}}">
         </mat-form-field>
       </form>
     </th>
@@ -183,7 +198,8 @@
     <th mat-header-cell *matHeaderCellDef>
       <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
         <mat-form-field class="{{filterSelectList[15].style}}" appearance="outline" style="color: white; width: 80px;">
-          <input matInput formControlName="{{filterSelectList[15].columnProp}}" placeholder="Longitude">
+          <mat-label>Longitude</mat-label>
+          <input matInput formControlName="{{filterSelectList[15].columnProp}}">
         </mat-form-field>
       </form>
     </th>

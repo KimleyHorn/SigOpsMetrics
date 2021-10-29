@@ -58,7 +58,7 @@ const routes = [
   { text: 'Reports', icon: 'receipt', path: 'reports', component: ReportsComponent},
   { text: 'Health Metrics', icon: 'healing', path: 'health-metrics', component: HealthMetricsComponent},
   { text: 'Signal Info', icon: 'info', path: 'signal-info', component: SignalInfoComponent},
-  { text: 'Help', icon: 'help', path: 'help', component: HelpComponent}
+  { text: 'About', icon: 'help', path: 'about', component: HelpComponent}
 ];
 
 @NgModule({
