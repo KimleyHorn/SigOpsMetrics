@@ -39,7 +39,6 @@ export class DashboardTableComponent implements OnInit {
 
   private _loadData(){
     this.tableDataSource.next(this.tableData);
-    console.log(this.tableData);
     this.tableData.forEach(dataItem => {
       this._getValue(dataItem);
     });

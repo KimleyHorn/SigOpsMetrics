@@ -9,6 +9,9 @@ export class FormatService {
   constructor(private _datePipe: DatePipe) { }
 
   public formatNumber(val:any, dec: number = 0): string{
+    if (isNaN(val)) {
+      return 'N/A';
+    }
     if(val === null){
       val = 0;
     }
@@ -17,6 +20,9 @@ export class FormatService {
   }
 
   public formatPercent(val:any, dec: number = 0, isDashboard = false): string{
+    if (isNaN(val)) {
+      return 'N/A';
+    }
     if(val === null){
       val = 0;
     }
