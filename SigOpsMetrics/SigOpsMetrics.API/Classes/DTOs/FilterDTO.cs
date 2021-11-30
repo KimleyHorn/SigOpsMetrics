@@ -12,63 +12,119 @@ namespace SigOpsMetrics.API.Classes.DTOs
     /// </summary>
     public class FilterDTO
     {
+        /// <summary>
+        /// Deprecated
+        /// </summary>
+        /// <example>null</example>
         public string month { get; set; }
+
+        /// <summary>
+        /// 0: Prior Day<br />
+        /// 1: Prior Week<br />
+        /// 2: Prior Month<br />
+        /// 3: Prior Quarter<br />
+        /// 4: Prior Year<br />
+        /// 5: Custom (see customStart, customEnd, startTime, and endTime)
+        /// </summary>
+        /// <example>4</example>
         public int? dateRange { get; set; }
+
         /// <summary>
-        /// Custom start date
+        /// When a custom dateRange is specified (dateRange = 5), this contains the custom start date to be used
         /// </summary>
+        /// <example>null</example>
         public string customStart { get; set; }
+
         /// <summary>
-        /// Custom end date
+        /// When a custom dateRange is specified (dateRange = 5), this contains the custom end date to be used
         /// </summary>
+        /// <example>null</example>
         public string customEnd { get; set; }
+
         /// <summary>
-        /// List of selected days (Mo, Tu, We, Th, Fr, Sa, Su)
+        /// Deprecated 
         /// </summary>
+        /// <example>null</example>
         public string[]? daysOfWeek { get; set; }
+
         /// <summary>
-        /// Custom start time
+        /// When a custom dateRange is specified (dateRange = 5), this contains the custom start time to be used
         /// </summary>
+        /// <example>null</example>
         public string startTime { get; set; }
+
         /// <summary>
-        /// Custom end time
+        /// When a custom dateRange is specified (dateRange = 5), this contains the custom end time to be used
         /// </summary>
+        /// <example>null</example>
         public string endTime { get; set; }
+
         /// <summary>
-        /// Numeric value for time aggregation (min, hour, daily, weekly, monthly, quarterly)
+        /// Data is aggregated based on the value supplied:<br />
+        /// 0: Quarter-hourly<br />
+        /// 1: Hourly<br />
+        /// 2: Daily<br />
+        /// 3: Weekly<br />
+        /// 4: Monthly<br />
+        /// 5: Quarterly<br />
         /// </summary>
+        /// <example>4</example>
         public int? timePeriod { get; set; }
+
         /// <summary>
-        /// Zone group/Region
+        /// Zone group/Region filter<br />
+        /// Values are subject to change, but current values include:<br />
+        /// All<br />
+        /// Central Metro<br />
+        /// East Metro<br />
+        /// North<br />
+        /// Southeast<br />
+        /// Southwest<br />
+        /// West Metro<br />
         /// </summary>
+        /// <example>Central Metro</example>
         public string zone_Group { get; set; }
+
         /// <summary>
-        /// Zone/District
+        /// Zone/District filter
         /// </summary>
+        /// <example>null</example>
         public string zone { get; set; }
+
         /// <summary>
-        /// Agency
+        /// Agency filter
         /// </summary>
+        /// <example>null</example>
         public string agency { get; set; }
+
         /// <summary>
-        /// Location County
+        /// County filter
         /// </summary>
+        /// <example>null</example>
         public string county { get; set; }
+
         /// <summary>
-        /// Location city
+        /// City filter
         /// </summary>
+        /// <example>null</example>
         public string city { get; set; }
+
         /// <summary>
-        /// Location corridor
+        /// Corridor filter
         /// </summary>
+        /// <example>null</example>
         public string corridor { get; set; }
+
         /// <summary>
-        /// Signal ID
+        /// Signal ID filter - narrows results to a single intersection
         /// </summary>
+        /// <example>null</example>
         public string signalId { get; set; }
+
         /// <summary>
-        /// Location subcorridor
+        /// Subcorridor filter
         /// </summary>
+        /// <example>null</example>
         public string subcorridor { get; set; }
     }
 }
