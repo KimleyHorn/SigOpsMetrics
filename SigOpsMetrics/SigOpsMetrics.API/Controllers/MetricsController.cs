@@ -5,13 +5,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
-using SigOpsMetrics.API.Classes.Internal;
 using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
@@ -35,7 +33,7 @@ namespace SigOpsMetrics.API.Controllers
 
         }
         /// <summary>
-        /// API method for returning high-level metric data from SigOpsMetrics.com
+        /// This API method has been deprecated. Use the GetWithFilter method instead.
         /// </summary>
         /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
         /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
@@ -64,7 +62,7 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning metric data by zone group from SigOpsMetrics.com
+        /// This API method has been deprecated. Use the GetWithFilter method instead.
         /// </summary>
         /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
         /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
@@ -94,7 +92,7 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning metric data by corridor from SigOpsMetrics.com
+        /// This API method has been deprecated. Use the GetWithFilter method instead.
         /// </summary>
         /// <param name="source">One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
         /// <param name="level">One of {cor, sub, sig} for Corridor, Subcorridor or Signal-level data</param>
@@ -124,11 +122,15 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning metric data by corridor from SigOpsMetrics.com.
+        /// Primary API method for returning corridor/signal data from the SigOps Metrics database
         /// </summary>
-        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <remarks>
+        /// This method will attempt to return data at a Corridor level, but will switch to Signal data if the filter is too restrictive. 
+        /// Use the Signals\Filter method to explicitly ask for Signal level data
+        /// </remarks>
+        /// <param name="source">'main' is currently the only allowed source. The database is updated nightly.</param>
         /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
-        /// <param name="filter">Filter object from the SPA</param>
+        /// <param name="filter">Filter object</param>
         /// <returns></returns>
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
@@ -149,11 +151,11 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning filtered signal data.
+        /// API method for returning Signal data from the SigOps Metrics database.
         /// </summary>
-        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="source">'main' is currently the only allowed source. The database is updated nightly.</param>
         /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
-        /// <param name="filter">Filter object from the SPA</param>
+        /// <param name="filter">Filter object</param>
         /// <returns></returns>
         [HttpPost("signals/filter")]
         public async Task<DataTable> GetSignalsByFilter(string source, string measure, [FromBody]
@@ -175,11 +177,11 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning filtered average signal data.
+        /// Returns the average value per signal based on the supplied filter.
         /// </summary>
-        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <param name="source">'main' is currently the only allowed source. The database is updated nightly.</param>
         /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
-        /// <param name="filter">Filter object from the SPA</param>
+        /// <param name="filter">Filter object</param>
         /// <returns></returns>
         [HttpPost("signals/filter/average")]
         public async Task<List<AverageDTO>> GetSignalsAverageByFilter(string source, string measure, [FromBody]
@@ -238,9 +240,13 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// API method for returning average data.
+        /// Primary API method for returning corridor/signal data from the SigOps Metrics database.
         /// </summary>
-        /// <param name="source">>One of {main, staging, beta}. main is the production data. staging is an advance preview of production from the 5th to the 15th of each month. beta is updated nightly, but isn't guaranteed to be available and may have errors.</param>
+        /// <remarks>
+        /// This method will attempt to return data at a Corridor level, but will switch to Signal data if the filter is too restrictive.
+        /// Use the Signals\Filter method to explicitly ask for Signal level data.
+        /// </remarks>
+        /// <param name="source">'main' is currently the only allowed source. The database is updated nightly.</param>
         /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
         /// <param name="dashboard">Format data for dashboard.</param>
         /// <param name="filter">Filter object from the SPA</param>
@@ -317,6 +323,29 @@ namespace SigOpsMetrics.API.Controllers
                     "metrics/average", ex);
                 return null;
             }
-        }   
+        }
+
+        /// <summary>
+        /// Legacy API method for getting the PTI metric from the 'All RTOP' group
+        /// </summary>
+        /// <param name="year">4 digit number for year (ex. 2021)</param>
+        /// <param name="quarter">Single digit number for quarter (1, 2, 3, 4)</param>
+        /// <returns></returns>
+        [HttpGet("RTOP/PTI")]
+        public async Task<DataTable> GetQuarterlyLegacyPTIForAllRTOP(int year, int quarter)
+        {
+            try
+            {
+                var metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetQuarterlyLegacyPTIForAllRTOP(SqlConnection, year, quarter);
+                return retVal;
+            }
+            catch (Exception ex)
+            {
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/rtop/pti", ex);
+                return null;
+            }
+        }
     }
 }
