@@ -331,7 +331,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="year">4 digit number for year (ex. 2021)</param>
         /// <param name="quarter">Single digit number for quarter (1, 2, 3, 4)</param>
         /// <returns></returns>
-        [HttpGet("RTOP/PTI")]
+        [HttpGet("rtop/pti")]
         public async Task<DataTable> GetQuarterlyLegacyPTIForAllRTOP(int year, int quarter)
         {
             try
