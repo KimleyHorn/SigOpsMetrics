@@ -1,0 +1,71 @@
+<div class="row">
+  <div class="columm">
+    <div class="row">
+      <div [ngClass]="'titleBox'" [ngStyle]="{'background': headerColor}">{{title}}</div>
+    </div>
+    <div class='row'>
+      <div class="column labels">
+        <circle-progress
+        [percent]="chartData[0]"
+        [radius]="55"
+        [outerStrokeWidth]="11"
+        [innerStrokeWidth]="6"
+        [outerStrokeColor]="getOuterStrokeColor(0)"
+        [innerStrokeColor]="getInnerStrokeColor(0)"
+        [animation]="true"
+        [animationDuration]="300"
+        [imageSrc]="'..\\assets\\images\\operation.svg'"
+        [imageHeight]="60"
+        [imageWidth]="60"
+        [showImage]="true"
+        [backgroundColor]="'transparent'"
+        [matTooltip]="chartData[0] + '%'"
+        matTooltipPosition="above"
+        ></circle-progress>
+        <h3>Operation</h3>
+      </div>
+      <div class="column labels">
+        <circle-progress
+          [percent]="chartData[1]"
+          [radius]="55"
+          [outerStrokeWidth]="11"
+          [innerStrokeWidth]="6"
+          [outerStrokeColor]="getOuterStrokeColor(1)"
+          [innerStrokeColor]="getInnerStrokeColor(1)"
+          [animation]="true"
+          [animationDuration]="300"
+          [imageSrc]="'..\\assets\\images\\maintenance.svg'"
+          [imageHeight]="60"
+          [imageWidth]="60"
+          [showImage]="true"
+          [backgroundColor]="'transparent'"
+          [matTooltip]="chartData[1] + '%'"
+          matTooltipPosition="above"
+          ></circle-progress>
+          <h3>Maintenance</h3>
+      </div>
+      <div class="column labels">
+        <circle-progress
+        [percent]="chartData[2]"
+        [radius]="55"
+        [outerStrokeWidth]="11"
+        [innerStrokeWidth]="6"
+        [outerStrokeColor]="getOuterStrokeColor(2)"
+        [innerStrokeColor]="getInnerStrokeColor(2)"
+        [animation]="true"
+        [animationDuration]="300"
+        [imageSrc]="'..\\assets\\images\\safety.svg'"
+        [imageHeight]="60"
+        [imageWidth]="60"
+        [showImage]="true"
+        [backgroundColor]="'transparent'"
+        [matTooltip]="chartData[2] + '%'"
+        matTooltipPosition="above"
+        ></circle-progress>
+        <h3>Safety</h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+

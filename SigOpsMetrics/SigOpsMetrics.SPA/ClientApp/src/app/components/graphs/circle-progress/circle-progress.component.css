@@ -1,0 +1,22 @@
+.titleBox{
+  border-radius: 25px;
+  width:400px;
+	height:40px;
+	margin:20px;
+	padding:10px;
+  text-align: center;
+  color: white;
+  font: bold;
+  font-family:  Verdana, Geneva, Tahoma, sans-serif;
+}
+
+h3{
+  color: navy;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  text-align: center;
+}
+
+.labels{
+  float: left;
+  width: 33.33%;
+}

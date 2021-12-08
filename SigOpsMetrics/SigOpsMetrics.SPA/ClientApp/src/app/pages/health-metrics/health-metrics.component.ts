@@ -24,6 +24,14 @@ import { FilterService } from 'src/app/services/filter.service';
 })
 
 export class HealthMetricsComponent implements OnInit {
+  northData: number[] = [];
+  southWestData: number[] = [];
+  southEastData: number[] = [];
+  westernMetroData: number[] = [];
+  centralMetroData: number[] = [];
+  easternMetroData: number[] = [];
+  statewideData: number[] = [];
+
   toggleValue: string;
   currentTab: string;
 
@@ -50,7 +58,7 @@ export class HealthMetricsComponent implements OnInit {
       '<extra></extra>'
   };
 
-  
+
   otGraphMetrics: Metrics = new Metrics({ measure: "ops_plot", formatDecimals: 1, formatType: "percent"  });
   otTitle: string = 'Percent Health';
   otBar: Graph = {
@@ -196,7 +204,7 @@ export class HealthMetricsComponent implements OnInit {
       const b = !filter.corridor || data.corridor.toLowerCase().includes(filter.corridor);
       const c = !filter.percentHealth || this.evaluateFilter(data, 'percent Health', filter.percentHealth, true);
       const d = !filter.missingData || this.evaluateFilter(data, 'missing Data', filter.missingData, true);
-      const e = !filter.detectionUptimeScore || this.evaluateFilter(data, 'detection Uptime Score', filter.detectionUptimeScore, false);      
+      const e = !filter.detectionUptimeScore || this.evaluateFilter(data, 'detection Uptime Score', filter.detectionUptimeScore, false);
       const f = !filter.pedActuationUptimeScore || this.evaluateFilter(data, 'ped Actuation Uptime Score',filter.pedActuationUptimeScore, false);
       const g = !filter.commUptimeScore || this.evaluateFilter(data, 'comm Uptime Score', filter.commUptimeScore, false);
       const h = !filter.cctvUptimeScore || this.evaluateFilter(data, 'cctv Uptime Score', filter.cctvUptimeScore, false);
@@ -371,7 +379,7 @@ export class HealthMetricsComponent implements OnInit {
       } as string;
       this.dataSourceOperations.filter = filter;
     });
-  
+
     this.filterSelectListSafety = [
       {
         name: 'Zone Gr',
@@ -449,7 +457,7 @@ export class HealthMetricsComponent implements OnInit {
       const j = !filter.kabcoCrashSeverityIndex || !data.kabcoCrashSeverityIndex || data.modified.toLowerCase().includes(filter.kabcoCrashSeverityIndex);
       const k = !filter.highSpeedIndex || data.highSpeedIndex.toLowerCase().includes(filter.highSpeedIndex);
       const l = !filter.pedInjuryExposureIndex || data.pedInjuryExposureIndex.toLowerCase().includes(filter.pedInjuryExposureIndex);
-      
+
       return a && b && c && d && e && f && g && h && i && j && k && l;
     }) as (HealthSafety, string) => boolean;
 
@@ -465,7 +473,7 @@ export class HealthMetricsComponent implements OnInit {
       crashRateIndex: '',
       kabcoCrashSeverityIndex: '',
       highSpeedIndex: '',
-      pedInjuryExposureIndex: ''      
+      pedInjuryExposureIndex: ''
     });
     this.formControlSafety.valueChanges.subscribe(value => {
       const filter = {...value,
@@ -487,7 +495,7 @@ export class HealthMetricsComponent implements OnInit {
 
   }
 
-  
+
 
   ngOnInit(): void {
     this.toggleService.toggleValue.subscribe(value => {
@@ -498,20 +506,20 @@ export class HealthMetricsComponent implements OnInit {
     this.filterService.updateFilterErrorState(3);
   }
 
-  
+
   private maintenancePaginator: MatPaginator;
   private operationsPaginator: MatPaginator;
   private safetyPaginator: MatPaginator;
   @ViewChild(MatPaginator) set matPaginator(mp: MatPaginator) {
-    this.maintenancePaginator = mp; 
+    this.maintenancePaginator = mp;
     this.setDataSourceAttributes();
   }
   @ViewChild(MatPaginator) set matPaginator2(mp: MatPaginator) {
-    this.operationsPaginator = mp; 
+    this.operationsPaginator = mp;
     this.setDataSourceAttributes();
   }
   @ViewChild(MatPaginator) set matPaginator3(mp: MatPaginator) {
-    this.safetyPaginator = mp; 
+    this.safetyPaginator = mp;
     this.setDataSourceAttributes();
   }
   setDataSourceAttributes(){
@@ -523,8 +531,10 @@ export class HealthMetricsComponent implements OnInit {
     var currentDate = new Date();
     var startDate = (currentDate.getMonth() -1) + '-01-' + currentDate.getFullYear();
     var endDate = (currentDate.getMonth() +1) + '-02-' + currentDate.getFullYear();
-    
+
     //Set the paginator before the data or performance really tanks
+    this.setRegionStatus();
+
     var maintMetric = new Metrics();
     maintMetric.source = "main";
     maintMetric.level = "cor";
@@ -532,8 +542,8 @@ export class HealthMetricsComponent implements OnInit {
     maintMetric.measure = "maint_plot";
     maintMetric.start = startDate;
     maintMetric.end = endDate;
-    this.metricsService.getMetrics(maintMetric).subscribe(data => { 
-      this.dataSourceMaintenance.data = data 
+    this.metricsService.getMetrics(maintMetric).subscribe(data => {
+      this.dataSourceMaintenance.data = data
     });
 
     var opsMetric = new Metrics();
@@ -715,5 +725,17 @@ export class HealthMetricsComponent implements OnInit {
       }
     }
     return result;
+  }
+
+  setRegionStatus(){
+    var date = new Date();
+    let dateString = date.getFullYear() + "-" + (date.getMonth() + 1) + "-01";
+    this.metricsService.averagesForMonth('North', dateString).subscribe(res => this.northData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('Southeast', dateString).subscribe(res => this.southEastData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('Southwest', dateString).subscribe(res => this.southWestData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('Central Metro', dateString).subscribe(res => this.centralMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('West Metro', dateString).subscribe(res => this.westernMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('East Metro', dateString).subscribe(res => this.easternMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('', dateString).subscribe(res => this.statewideData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
   }
 }

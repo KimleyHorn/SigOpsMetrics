@@ -1,4 +1,29 @@
 <mat-tab-group (selectedTabChange)="tabChanged($event)">
+    <mat-tab label="Region Status">
+      <ng-template matTabContent>
+        <div class="container-fluid">
+          <div class="row region-row" >
+            <div class="column regions">
+              <app-circle-progress [title]="'NORTH'" [chartData]='northData'></app-circle-progress>
+              <app-circle-progress [title]="'SOUTHWEST'" [chartData]='southWestData'></app-circle-progress>
+              <app-circle-progress [title]="'SOUTHEAST'" [chartData]='southEastData'></app-circle-progress>
+            </div>
+            <div class="column regions">
+              <app-circle-progress [title]="'STATEWIDE'" [chartData]='statewideData'></app-circle-progress>
+              <img src="..\\assets\\images\\georgia_region_map.png" style="max-width: 90%; max-height: 90%;">
+            </div>
+            <div class="column regions">
+              <app-circle-progress [title]="'WESTERN METRO'" [chartData]='westernMetroData'></app-circle-progress>
+              <app-circle-progress [title]="'CENTRAL METRO'" [chartData]='centralMetroData'></app-circle-progress>
+              <app-circle-progress [title]="'EASTERN METRO'" [chartData]='easternMetroData'></app-circle-progress>
+            </div>
+          </div>
+          <div class="row footer">
+            *Data reflects current month.
+          </div>
+        </div>
+      </ng-template>
+    </mat-tab>
     <mat-tab label="Maintenance">
         <ng-template matTabContent>
             <div class="container-fluid">
@@ -195,6 +220,7 @@
             </div>
         </ng-template>
     </mat-tab>
+
     <mat-tab label="Operations">
         <ng-template matTabContent>
             <div class="container-fluid">

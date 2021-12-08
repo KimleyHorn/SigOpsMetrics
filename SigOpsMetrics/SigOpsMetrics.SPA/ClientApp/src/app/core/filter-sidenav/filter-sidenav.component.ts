@@ -298,7 +298,6 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   //dynamically update the available aggregates when the date ranged has changed
   updateDateRange(e) {
     let value = e.value;
-
     this._resetAggregateField("disabled", true);
 
     switch (value) {
@@ -373,7 +372,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   resetSelections() {
     this.selectedSignalGroup = "Central Metro";
     this.selectedAgency = "";
-    this.selectedDateOption = 2;
+    this.selectedDateOption = 4;
     this.selectedAggregationOption = 4;
     this.selectedDistrict = "";
     this.selectedAgency = "";
@@ -383,7 +382,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.selectedSubcorridor = "";
     this.selectedDataAggregationOption = null;
     this.selectedSignalId = null;
-    this._resetAggregateField("disabled", false);
+    this._resetAggregateField("disabled", true);
+    this._clearAggregateOption(4);
     this._resetStartDate();
     this._resetEndDate();
     this._resetDaysOfWeek();

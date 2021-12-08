@@ -2,22 +2,22 @@ table {
     width: 100%;
     border-spacing: 0 8px !important;
   }
-  
+
   td.mat-cell {
    padding: 16px 4px 16px 4px;
    border-bottom: 1px solid #bababa;
    border-right: 1px solid #bababa;
    border-top: 1px solid #bababa;
   }
-  
+
   td.mat-cell:first-child {
     border-left: 1px solid #bababa;
   }
-  
+
   td.mat-cell:last-child {
     border-right: 1px solid #bababa;
   }
-  
+
   th.mat-header-cell {
     text-align: center !important;
     color: white;
@@ -36,11 +36,11 @@ table {
   .search-input {
     text-align: center;
   }
-  
+
   .search-input-zg {
     width: 4.6%;
   }
-  
+
   .search-input-cor {
     width: 14%;
   }
@@ -77,7 +77,7 @@ table {
     margin-right: 1.8%;
     margin-bottom: 16px;
   }
-  
+
   .mat-row:nth-child(even){
     background-color: #ececec;
 }
@@ -88,4 +88,19 @@ table {
 
 ::placeholder {
   color: white;
+}
+
+.regions{
+  float: left;
+  width: 33.33%;
+}
+
+.region-row{
+  margin-left: 30px;
+}
+
+.footer{
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 10px;
+  font-style: italic;
 }

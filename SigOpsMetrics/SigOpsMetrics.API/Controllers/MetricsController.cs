@@ -288,7 +288,7 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     // group on zone_group instead of corridor
                     groupedData = (from row in retVal.AsEnumerable()
-                                   group row by new { label = row[7].ToString() } into g
+                                   group row by new { label = row[1].ToString() } into g
                                    select new AverageDTO
                                    {
                                        label = g.Key.label,
@@ -317,6 +317,32 @@ namespace SigOpsMetrics.API.Controllers
                     "metrics/average", ex);
                 return null;
             }
-        }   
+        }
+
+        /// <summary>
+        /// API method for returning safety, operation, and maintenance health averages for a given month.
+        /// </summary>
+        /// <param name="zoneGroup">>Zone Group (aka Signal Group) to pull data for.  null returns all groups</param>
+        /// <param name="month">The month to pull data for</param>
+        /// <returns>List of averages in order of {operation, maintenance, safety}</returns>
+        [HttpGet("monthaverages")]
+        public async Task<List<double>> GetAveragesForMonth(string zoneGroup, string month)
+        {
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var s = await metricsData.GetAverageForMonth(SqlConnection, "safety", zoneGroup, month);     
+                var o = await metricsData.GetAverageForMonth(SqlConnection, "ops", zoneGroup, month);
+                var m = await metricsData.GetAverageForMonth(SqlConnection, "maint", zoneGroup, month);
+                return new List<double> { o,m,s };
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/monthaverages", ex);
+                return new List<double> { -1, -1, -1 };
+            }
+        }
     }
 }

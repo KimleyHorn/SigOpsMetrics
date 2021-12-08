@@ -29,6 +29,7 @@ import { MapComponent } from './components/map/map.component';
 import { ChartToggleComponent } from './components/toggles/chart-toggle/chart-toggle.component';
 import { FilterSidenavComponent } from './core/filter-sidenav/filter-sidenav.component';
 import { MetricCardComponent } from './components/cards/metric-card/metric-card.component';
+import { CircleProgressComponent } from './components/graphs/circle-progress/circle-progress.component';
 import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
 import { BarLineLineGraphComponent } from './components/graphs/bar-line-line-graph/bar-line-line-graph.component';
 import { GraphDashboardComponent} from './components/dashboards/graph-dashboard/graph-dashboard.component';
@@ -48,6 +49,7 @@ import { HelpComponent } from './pages/help/help.component';
 import { HelpPanelComponent } from './components/panels/help-panel/help-panel.component';
 import { ExcelExportComponent } from './components/excel-export/excel-export.component';
 import { GlobalHttpInterceptorService } from './services/global-http-interceptor.service';
+import { NgCircleProgressModule } from 'ng-circle-progress';
 
 const routes = [
   { text: 'Dashboard', icon: 'insert_chart', path: '', component: DashboardComponent, pathMatch: 'full' },
@@ -78,6 +80,7 @@ const routes = [
     ChartToggleComponent,
     FilterSidenavComponent,
     MetricCardComponent,
+    CircleProgressComponent,
     BarLineGraphComponent,
     BarLineLineGraphComponent,
     GraphDashboardComponent,
@@ -107,7 +110,15 @@ const routes = [
     MaterialModule,
     GoogleMapsModule,
     PlotlyViaCDNModule,
-    NgxMaskModule.forRoot()
+    NgxMaskModule.forRoot(),
+    NgCircleProgressModule.forRoot({
+      radius: 100,
+      outerStrokeWidth: 16,
+      innerStrokeWidth: 8,
+      outerStrokeColor: "#78C000",
+      innerStrokeColor: "#C7E596",
+      animationDuration: 300
+    })
   ],
   providers: [DatePipe,ContactComponent,{provide: HTTP_INTERCEPTORS, useClass: GlobalHttpInterceptorService, multi: true }],
   bootstrap: [AppComponent]

@@ -111,6 +111,11 @@ export class HelpService {
                 {
                     name: "Help",
                     htmlText: "An all-encompassing repository of help documentation within the SigOps Metrics system."
+                },
+                {
+                    name: "HealthMetrics",
+                    htmlText: "Health Metrics were developed to provide a consistent means to calculate and compare the relative health of signalized intersections throughout the state. The Health Metrics score for an individual intersection is based on 15 different performance metrics within three main categories: operations, maintenance, and safety."
+                    + "Metrics within each category are weighted differently depending on the characteristics of the intersection (i.e. volume, coordination, presence of pedestrians, etc.). The goal behind developing Health Metrics was to provide GDOT with a means to identify signalized intersections or groups of signalized intersection that may need additional attention or resources (retiming, technology upgrades, infrastructure improvements, etc.)."
                 }]
         }]
         patchNotes = [
@@ -131,14 +136,14 @@ export class HelpService {
         '-Site launch.'
     ];
     constructor(private titleService:Title) { }
-      
+
 
     getHelpData(): any {
         var data;
         this.title = this.titleService.getTitle().replace("SigOpsMetrics - ","");
         if (this.title.includes("-")) {
             this.title = this.title.substring(this.title.indexOf("-")+2, this.title.length);
-        } 
+        }
         switch(this.title) {
             case "Progression Rate":
                 this.title = "Progression Ratio";
@@ -162,15 +167,24 @@ export class HelpService {
             case "Communication Uptime":
                 this.title = "Communications Uptime";
                 break;
+            case "Region Status":
+            case "Maintenance":
+            case "Maintenance Trend":
+            case "Operations":
+            case "Operation Trend":
+            case "Safety":
+            case "Safety Trend":
+                this.title = "HealthMetrics";
+                break;
             default:
                 break;
         }
 
         for (let index = 0; index < this.helpData.length; index++) {
             let item = this.helpData[index].data.filter(y => y.name === this.title);
-           
-            if(item.length > 0){           
-                var firstP = item[0].htmlText.indexOf("</p>");  
+
+            if(item.length > 0){
+                var firstP = item[0].htmlText.indexOf("</p>");
                 if (firstP != -1) {
                     data = item[0].htmlText.substr(0,firstP) + "<p><a href=" + window.location.origin + "/about>Learn more...</a></p>";
                 } else {

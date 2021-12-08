@@ -30,6 +30,9 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
   barGraph: any;
   barData: any;
 
+  bothData: any[] = [];
+  bothLayout: any;
+
   filter: Filter;
 
   defaultColor: string = this._color.gray;
@@ -40,47 +43,47 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
 
   constructor(private _filterService: FilterService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.bothLayout = {
+      grid: {rows: 1, columns: 2, pattern: 'independent'},
+      showlegend: false,
+      xaxis: {
+        title: this.bar.title,
+        tickangle: 90,
+        domain: [0,.25]
+      },
+      yaxis:{
+        automargin: true,
+        type: 'category'
+      },
+      margin:{
+        t:25
+      },
+      xaxis2: {
+        title: this.line.title,
+        domain: [.3,1]
+      },
+      yaxis2:{
+        automargin: true,
+      },
+      hovermode: 'closest'
+    };
+  }
 
   ngOnChanges(changes: SimpleChanges){
+    this.bothData = [];
     this.barGraph = {
       data: [],
-      layout: {
-        showlegend: false,
-        xaxis: {
-          title: this.bar.title,
-          tickangle: 90
-        },
-        yaxis:{
-          automargin: true,
-          type: 'category'
-        },
-        margin:{
-          t:25
-        },
-        hovermode: 'closest'
-      }
+      layout: {}
     };
 
     this.lineGraph = {
       data: [],
-      layout: {
-        showlegend: false,
-        xaxis: {
-          title: this.line.title
-        },
-        yaxis:{
-          automargin: true,
-        },
-        margin:{
-          t:25
-        },
-        hovermode: 'closest'
-      }
+      layout: {}
     };
 
     this._filterErrorStateSubscription = this._filterService.errorState.subscribe(errorState => {
-      this.filterErrorState = errorState;     
+      this.filterErrorState = errorState;
     })
     //when the filters are loaded or changed
     this._filterSubscription = this._filterService.filters.subscribe(filter => {
@@ -112,10 +115,9 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
 
   private _loadBarGraph(){
     let graphData: any[] = [];
-
+    this.bothData = [];
     if(this.corridors !== undefined){
       let sortedData = this.barData.sort((n1, n2) => n1.avg - n2.avg);
-
       sortedData.forEach(sortItem => {
         let trace = {
           name: sortItem.label,
@@ -128,11 +130,10 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
             color: this.defaultColor
           }
         };
-
         graphData.push(trace);
+        this.bothData.push(trace);
       });
     }
-
     this.barGraph.data = graphData;
     this.barGraph.data = this.filterErrorState == 2 ? [] : graphData;
   }
@@ -155,9 +156,11 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
           mode: 'lines',
           line: {
             color: this.defaultColor
-          }
+          },
+          xaxis: 'x2',
+          yaxis: 'y2'
         };
-
+        this.bothData.push(trace);
         graphData.push(trace);
       });
     }
@@ -213,36 +216,52 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     }
 
     //reset the trace colors to the default
-    this._resetColor(this.barGraph.data, "marker");
-    this._resetColor(this.lineGraph.data, "line");
+    this._resetColor(this.bothData);
 
     //update the trace colors for each graph
-    this._changeColor(this.barGraph.data, "marker", name);
-    this._changeColor(this.lineGraph.data, "line", name);
+    this._changeColor(this.bothData, name);
   }
 
-  //adjust the color for the selected trace
-  private _changeColor(data, traceType, name){
+  private _changeColor(data, name){
     data.filter(item => item.name === name || item.name === this.filter.zone_Group)
     .map(dataItem => {
       if(dataItem.name === name && name === this.filter.zone_Group){
         //if the filered zone group is the selected trace, set the trace to the secondary color
-        dataItem[traceType].color = this.primaryColor;
+        if (dataItem.hasOwnProperty('line')){
+          dataItem['line'].color = this.primaryColor;
+        }
+        else{
+          dataItem['marker'].color = this.primaryColor;
+        }
       }else if(dataItem.name === this.filter.zone_Group){
         //if the filered zone group is not the selected trace, set the trace to the secondary color
-        dataItem[traceType].color = this.secondaryColor;
+        if (dataItem.hasOwnProperty('line')){
+          dataItem['line'].color = this.secondaryColor;
+        }
+        else{
+          dataItem['marker'].color = this.secondaryColor;
+        }
       }else{
         //all other selected traces will be the primary color
-        dataItem[traceType].color = this.primaryColor;
+        if (dataItem.hasOwnProperty('line')){
+          dataItem['line'].color = this.primaryColor;
+        }
+        else{
+          dataItem['marker'].color = this.primaryColor;
+        }
       }
       return dataItem;
     });
   }
 
-  //reset the color of all traces to default
-  private _resetColor(data, traceType){
+  private _resetColor(data){
     data.map(dataItem => {
-      dataItem[traceType].color = this.defaultColor;
+      if (dataItem.hasOwnProperty('line')){
+        dataItem['line'].color = this.defaultColor;
+      }
+      else{
+        dataItem['marker'].color = this.defaultColor;
+      }
       return dataItem;
     });
   }
