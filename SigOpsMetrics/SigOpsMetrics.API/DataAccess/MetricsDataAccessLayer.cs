@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
@@ -337,6 +338,24 @@ namespace SigOpsMetrics.API.DataAccess
             return await GetFromDatabase(sqlConnection,
                 filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig", interval, measure,
                 fullWhereClause, all);
+        }
+
+        public async Task<DataTable> GetQuarterlyLegacyPTIForAllRTOP(MySqlConnection sqlConnection, int year, int quarter)
+        {
+            var tb = new DataTable();
+            var cmd = new MySqlCommand();
+
+            await sqlConnection.OpenAsync();
+            cmd.CommandText = $"select * from mark1.rtop_pti where year = {year} && quarter = {quarter}";
+            cmd.Connection = sqlConnection;
+
+            await using (cmd)
+            {
+                await using var reader = await cmd.ExecuteReaderAsync();
+                tb.Load(reader);
+            }
+
+            return tb;
         }
 
         private static async Task<DataTable> GetFromDatabase(MySqlConnection sqlConnection, string level,

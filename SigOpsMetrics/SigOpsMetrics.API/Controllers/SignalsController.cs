@@ -296,7 +296,7 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint for performing daily pata pull of corridors_latest.xls into sql table.
+        /// Endpoint for performing daily data pull of corridors_latest.xls into sql table.
         /// </summary>
         /// <returns></returns>
         [HttpGet("datapull/{key}")]
@@ -320,7 +320,7 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint for performing submitting contact requests.
+        /// Endpoint for submitting contact requests.
         /// </summary>
         /// <returns></returns>
         [HttpPost("contact-us")]
