@@ -8,6 +8,7 @@ import {
   ViewEncapsulation,
   ChangeDetectorRef,
 } from "@angular/core";
+import { MatCheckbox } from "@angular/material/checkbox";
 import { MatDatepicker } from "@angular/material/datepicker";
 import { Subscription } from "rxjs";
 import { FilterService } from "../../services/filter.service";
@@ -29,6 +30,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   @ViewChild("endDate", { static: false }) endDate: MatDatepicker<Date>;
   @ViewChild("startTime", { static: false }) startTime: MatDatepicker<Date>;
   @ViewChild("endTime", { static: false }) endTime: MatDatepicker<Date>;
+  @ViewChild("allDayCheckbox") allDayCheckbox: MatCheckbox;
 
   @Output("toggleFilter") toggleFilter: EventEmitter<any> = new EventEmitter();
 
@@ -60,6 +62,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   selectedDateOption: number = 4;
   // Signal Id
   selectedSignalId: string = "";
+
+  // Ordered like this to sort in filter
   options: any[] = [
     { value: 0, label: "Prior Day" },
     { value: 3, label: "Prior Quarter" },
@@ -302,13 +306,17 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
     switch (value) {
       case 5:
-        let dt = new Date();
+        let start = new Date();
+        let end = new Date();
         this.changeDetectorRef.detectChanges();
-        this.startDate.select(dt);
-        this.endDate.select(dt);
-        this.startTime.select(dt);
-        this.endTime.select(dt);
+        this.startDate.select(start);
+        this.endDate.select(end);
+        start.setHours(0,0,0,0);
+        end.setHours(23,59,59,999);
+        this.startTime.select(start);
+        this.endTime.select(end);
         this._clearAggregateOption(value);
+        this.selectedAggregationOption = 2;
         break;
       case 0:
       case 1:
@@ -443,5 +451,20 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.selectedCorridor = filterData.corridor;
     this.selectedSubcorridor = filterData.subcorridor;
     this.selectedSignalId = filterData.signalId;
+  }
+
+  allDayChecked(e){
+    var start = new Date();
+    var end = new Date();
+    if (e.checked === true){
+      start.setHours(0,0,0,0);
+      end.setHours(23,59,59,999);
+      this.startTime.select(start);
+      this.endTime.select(end);
+    }
+  }
+
+  removeCheck(e){
+    this.allDayCheckbox.checked = false;
   }
 }

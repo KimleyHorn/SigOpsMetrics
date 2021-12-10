@@ -360,7 +360,7 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var s = await metricsData.GetAverageForMonth(SqlConnection, "safety", zoneGroup, month);     
+                var s = await metricsData.GetAverageForMonth(SqlConnection, "safety", zoneGroup, month);
                 var o = await metricsData.GetAverageForMonth(SqlConnection, "ops", zoneGroup, month);
                 var m = await metricsData.GetAverageForMonth(SqlConnection, "maint", zoneGroup, month);
                 return new List<double> { o,m,s };

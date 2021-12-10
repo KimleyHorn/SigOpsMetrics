@@ -70,7 +70,7 @@ export class FilterChipListComponent implements OnInit {
               value = this._datePipe.transform(value, 'hh:mm a');
               break;
             case 'timePeriod':
-              name = 'Time Period';
+              name = 'Data Aggregation';
 
               switch (value) {
                 case 1:

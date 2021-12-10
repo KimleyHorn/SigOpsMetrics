@@ -25,7 +25,7 @@ export class HeaderComponent implements OnInit {
     {url:"https://navigator-atms.dot.ga.gov/", name:"Navigator", icon: "..\\assets\\images\\icon_navigator.jpg"},
     {url:"https://ritis.org/", name:"RITIS", icon: "..\\assets\\images\\icon_ritis.jpg"},
     {url:"https://designitapps.com/GDOT/", name:"TEAMS", icon: "..\\assets\\images\\icon_teams.png"},
-    {url:"http://sigopsmetrics.com", name:"SigOps Metrics", icon: "..\\assets\\images\\SigOps_Metrics_Logo.png"}
+    {url:"http://sigopsmetrics.com", name:"SigOps Metrics", icon: "..\\assets\\images\\SigOps_Metrics_Logo_v1.png"}
   ]
 
   ngOnInit(): void {
