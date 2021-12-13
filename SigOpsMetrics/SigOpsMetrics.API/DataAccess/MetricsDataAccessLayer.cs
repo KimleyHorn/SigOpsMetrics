@@ -407,6 +407,24 @@ namespace SigOpsMetrics.API.DataAccess
             return tb;
         }
 
+        public async Task<double> GetAverageForMonth(MySqlConnection connection, string measure, string zoneGroup, string month)
+        {
+            try
+            {
+                var where = $"where `Zone Group` = '{zoneGroup}' and `Month` = '{month}'";
+                if (zoneGroup == null)
+                {
+                    where = $"where `Month` = '{month}'";
+                }
+                var dt = await GetFromDatabase(connection, "cor", "mo", measure, where);
+                return (double)dt.Compute("AVG([Percent Health])", "");
+            }
+            catch (Exception ex)
+            {
+                return -1;
+            }
+        }
+
         private static string CreateSQLStatement(string level, string interval, string measure, string whereClause)
         {
             var tableName = BaseDataAccessLayer.ValidateTableName(level, interval, measure);

@@ -78,4 +78,9 @@ export class MetricsService {
                                               this._options);
   }
 
+  averagesForMonth(zoneGroup: string, month: string){
+    return this.http.get<any[]>(this._baseUrl + 'metrics/monthaverages?zoneGroup=' + zoneGroup
+    + '&month=' + month)
+  }
+
 }

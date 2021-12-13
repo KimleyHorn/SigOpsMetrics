@@ -77,6 +77,8 @@ export class WatchdogComponent implements OnInit {
       colorbar: {
         len: 0.25,
         title: "streak",
+        y: 1,
+        yanchor: 'top'
       },
       //text: text,
       hovertemplate:

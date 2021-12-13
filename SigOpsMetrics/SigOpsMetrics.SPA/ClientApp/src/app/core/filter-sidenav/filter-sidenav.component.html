@@ -74,8 +74,17 @@
     </ul> -->
 
     <div class="filter-break"></div>
-
-    <span class="header-label">Time Range</span>
+    <div>
+      <span class="header-label">Time Range
+      </span>
+      <mat-checkbox #allDayCheckbox
+      class="date-range-checkbox"
+      (change)="allDayChecked($event)"
+      checked='true'
+      color='primary'>
+        All day
+      </mat-checkbox>
+    </div>
     <mat-form-field
       appearance="outline"
       class="filter-form-field"
@@ -94,7 +103,7 @@
       <mat-datepicker #startTime type="time" [twelveHour]="true">
         <mat-datepicker-actions>
           <button mat-button matDatepickerCancel>Cancel</button>
-          <button mat-raised-button color="primary" matDatepickerApply>
+          <button mat-raised-button color="primary" matDatepickerApply (click)="removeCheck($event)">
             Apply
           </button>
         </mat-datepicker-actions>
@@ -116,7 +125,7 @@
       <mat-datepicker #endTime type="time" [twelveHour]="true">
         <mat-datepicker-actions>
           <button mat-button matDatepickerCancel>Cancel</button>
-          <button mat-raised-button color="primary" matDatepickerApply>
+          <button mat-raised-button color="primary" matDatepickerApply (click)="removeCheck($event)">
             Apply
           </button>
         </mat-datepicker-actions>
@@ -202,7 +211,7 @@
           {{ district }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedDistrict" matSuffix mat-icon-button aria-label="Clear" 
+      <button mat-button *ngIf="selectedDistrict" matSuffix mat-icon-button aria-label="Clear"
         (click)="selectedDistrict=null; updateFilter('zone', { value: null }); $event.stopPropagation()">
         <mat-icon style="color:red;">close</mat-icon>
       </button>
@@ -221,7 +230,7 @@
           {{ agency }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedAgency" matSuffix mat-icon-button aria-label="Clear" 
+      <button mat-button *ngIf="selectedAgency" matSuffix mat-icon-button aria-label="Clear"
         (click)="selectedAgency=null; updateFilter('agency', { value: null }); $event.stopPropagation()">
         <mat-icon style="color:red;">close</mat-icon>
       </button>
@@ -240,7 +249,7 @@
           {{ county }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedCounty" matSuffix mat-icon-button aria-label="Clear" 
+      <button mat-button *ngIf="selectedCounty" matSuffix mat-icon-button aria-label="Clear"
         (click)="selectedCounty=null; updateFilter('county', { value: null }); $event.stopPropagation()">
         <mat-icon style="color:red;">close</mat-icon>
       </button>
@@ -259,7 +268,7 @@
           {{ city }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedCity" matSuffix mat-icon-button aria-label="Clear" 
+      <button mat-button *ngIf="selectedCity" matSuffix mat-icon-button aria-label="Clear"
         (click)="selectedCity=null; updateFilter('city', { value: null }); $event.stopPropagation()">
         <mat-icon style="color:red;">close</mat-icon>
       </button>
@@ -278,7 +287,7 @@
           {{ corridor }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedCorridor" matSuffix mat-icon-button aria-label="Clear" 
+      <button mat-button *ngIf="selectedCorridor" matSuffix mat-icon-button aria-label="Clear"
         (click)="selectedCorridor=null; updateFilter('corridor', { value: null }); $event.stopPropagation()">
         <mat-icon style="color:red;">close</mat-icon>
       </button>
@@ -301,7 +310,7 @@
           {{ subcorridor }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedSubcorridor" matSuffix mat-icon-button aria-label="Clear" 
+      <button mat-button *ngIf="selectedSubcorridor" matSuffix mat-icon-button aria-label="Clear"
         (click)="selectedSubcorridor=null; updateFilter('subcorridor', { value: null }); $event.stopPropagation()">
         <mat-icon style="color:red;">close</mat-icon>
       </button>
