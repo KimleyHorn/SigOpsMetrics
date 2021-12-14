@@ -119,6 +119,13 @@ export class HelpService {
                 }]
         }]
         patchNotes = [
+        'v1.0.3',
+        '-Added region status page.',
+        '-Updated about info.',
+        '-Filter bug fixes when clearing selections and All Day checkbox added.',
+        '-Fixed travel time index bug.',
+        '-Converted bar/line charts to subplots',
+        '-Reposition watch dog legend.',
         'v1.0.2',
         'Added patch notes.',
         'Column name in Signal Info will still show up when filtering.',
