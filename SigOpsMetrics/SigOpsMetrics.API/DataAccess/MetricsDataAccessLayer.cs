@@ -346,7 +346,7 @@ namespace SigOpsMetrics.API.DataAccess
             var cmd = new MySqlCommand();
 
             await sqlConnection.OpenAsync();
-            cmd.CommandText = $"select * from mark1.rtop_pti where year = {year} && quarter = {quarter}";
+            cmd.CommandText = $"select * from {AppConfig.DatabaseName}.rtop_pti where year = {year} && quarter = {quarter}";
             cmd.Connection = sqlConnection;
 
             await using (cmd)
@@ -376,7 +376,7 @@ namespace SigOpsMetrics.API.DataAccess
                     await sqlConnection.OpenAsync();
                     await using (cmd)
                     {
-                        cmd.CommandText = $"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.Corridor ELSE s.Zone_Group END AS ActualZoneGroup from mark1.{tableName} t left join (select {type} AS SignalType, Zone_Group FROM mark1.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.Corridor {whereClause}";
+                        cmd.CommandText = $"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.Corridor ELSE s.Zone_Group END AS ActualZoneGroup from {AppConfig.DatabaseName}.{tableName} t left join (select {type} AS SignalType, Zone_Group FROM {AppConfig.DatabaseName}.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.Corridor {whereClause}";
                         cmd.Connection = sqlConnection;
                         await using var reader = await cmd.ExecuteReaderAsync();
                         tb.Load(reader);
@@ -435,13 +435,13 @@ namespace SigOpsMetrics.API.DataAccess
                     {
                         case "tsub":
                             return
-                                $"select Zone_Group, Corridor, Task_Subtype, Month, Reported, Resolved, Outstanding from mark1.{tableName} {whereClause}";
+                                $"select Zone_Group, Corridor, Task_Subtype, Month, Reported, Resolved, Outstanding from {AppConfig.DatabaseName}.{tableName} {whereClause}";
                         case "tsou":
                             return
-                                $"select Zone_Group, Corridor, Task_Source, Month, Reported, Resolved, Outstanding from mark1.{tableName} {whereClause}";
+                                $"select Zone_Group, Corridor, Task_Source, Month, Reported, Resolved, Outstanding from {AppConfig.DatabaseName}.{tableName} {whereClause}";
                         case "ttyp":
                             return
-                                $"select Zone_Group, Corridor, Task_Type, Month, Reported, Resolved, Outstanding from mark1.{tableName} {whereClause}";
+                                $"select Zone_Group, Corridor, Task_Type, Month, Reported, Resolved, Outstanding from {AppConfig.DatabaseName}.{tableName} {whereClause}";
                     }
                     break;
                 case "hr":
@@ -449,7 +449,7 @@ namespace SigOpsMetrics.API.DataAccess
                     {
                         case "vph":
                             return
-                                $"select Corridor, Zone_Group, Hour, vph as vpd, delta, Description from mark1.{tableName} {whereClause}";
+                                $"select Corridor, Zone_Group, Hour, vph as vpd, delta, Description from {AppConfig.DatabaseName}.{tableName} {whereClause}";
                     }
 
                     break;
@@ -458,13 +458,13 @@ namespace SigOpsMetrics.API.DataAccess
                     {
                         case "vph":
                             return
-                                $"select Corridor, Zone_Group, Timeperiod, vol as vpd, delta, Description from mark1.{tableName} {whereClause}";
+                                $"select Corridor, Zone_Group, Timeperiod, vol as vpd, delta, Description from {AppConfig.DatabaseName}.{tableName} {whereClause}";
                     }
 
                     break;
             }
 
-            return $"select * from mark1.{tableName} {whereClause}";
+            return $"select * from {AppConfig.DatabaseName}.{tableName} {whereClause}";
 
         }
 

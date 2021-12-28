@@ -25,7 +25,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
 
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "SELECT * FROM mark1.signals WHERE SignalID <> -1 and include = 1";
+                    cmd.CommandText = $"SELECT * FROM {AppConfig.DatabaseName}.signals WHERE SignalID <> -1 and include = 1";
                     await using var reader = await cmd.ExecuteReaderAsync();
                     while (reader.Read())
                     {
@@ -570,11 +570,11 @@ namespace SigOpsMetrics.API.DataAccess
                 using (var cmd = new MySqlCommand())
                 {
                     cmd.Connection = sqlConnection;
-                    cmd.CommandText = "TRUNCATE TABLE mark1.signals";
+                    cmd.CommandText = $"TRUNCATE TABLE {AppConfig.DatabaseName}.signals";
                     cmd.ExecuteNonQuery();
 
                     var bulkCopy = new MySqlBulkCopy(sqlConnection);
-                    bulkCopy.DestinationTableName = "mark1.signals";
+                    bulkCopy.DestinationTableName = $"{AppConfig.DatabaseName}.signals";
                     bulkCopy.WriteToServer(tbl);
                 }
             }
@@ -608,7 +608,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
                     filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
-                var sqlText = "select distinct(signalid) from mark1.signals where include = 1" + where;
+                var sqlText = $"select distinct(signalid) from {AppConfig.DatabaseName}.signals where include = 1" + where;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = sqlText;
                 await sqlConnection.OpenAsync();
@@ -631,14 +631,14 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
                     filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
-                var sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
+                var sqlText = $"select distinct(corridor) from {AppConfig.DatabaseName}.signals where include = 1" + where;
                 if (filter.zone_Group == "All")
                 {
-                    sqlText = "SELECT DISTINCT(Zone_Group) FROM mark1.signals WHERE Zone_Group IS NOT NULL";
+                    sqlText = $"SELECT DISTINCT(Zone_Group) FROM {AppConfig.DatabaseName}.signals WHERE Zone_Group IS NOT NULL";
                 }
                 else
                 {
-                    sqlText = "select distinct(corridor) from mark1.signals where include = 1" + where;
+                    sqlText = $"select distinct(corridor) from {AppConfig.DatabaseName}.signals where include = 1" + where;
                 }
 
                 await sqlConnection.OpenAsync();
