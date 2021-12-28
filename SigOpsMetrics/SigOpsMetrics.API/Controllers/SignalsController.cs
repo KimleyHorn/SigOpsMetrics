@@ -24,8 +24,6 @@ namespace SigOpsMetrics.API.Controllers
     [Route("signals")]
     public class SignalsController : _BaseController
     {
-        private const string KeyName = "Corridors_v3_Latest.xlsx";
-
         /// <summary>
         /// Constructor
         /// </summary>
@@ -304,7 +302,7 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                if (key == "45632456236246")
+                if (key == AppConfig.DataPullKey)
                 {
                     Task<ExcelWorksheet> worksheet = GetSpreadsheet();
                     var ws = await worksheet;
@@ -352,7 +350,7 @@ namespace SigOpsMetrics.API.Controllers
             var request = new GetObjectRequest
             {
                 BucketName = AppConfig.AWSBucketName,
-                Key = KeyName
+                Key = AppConfig.CorridorsKey
             };
 
             var ms = new MemoryStream();

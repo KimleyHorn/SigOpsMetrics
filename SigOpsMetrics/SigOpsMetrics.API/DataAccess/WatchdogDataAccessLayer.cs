@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SigOpsMetrics.API.Classes;
 
 namespace SigOpsMetrics.API.DataAccess
 {
@@ -22,7 +23,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        @"SELECT DISTINCT Zone_Group AS ZoneGroup, Zone, Corridor, SignalID, Date, Name, Alert, streak AS Streak FROM mark1.WatchdogAlerts
+                        $@"SELECT DISTINCT Zone_Group AS ZoneGroup, Zone, Corridor, SignalID, Date, Name, Alert, streak AS Streak FROM {AppConfig.DatabaseName}.WatchdogAlerts
                                         WHERE str_to_date(Date,'%Y-%m-%d') >= @startDate AND str_to_date(Date,'%Y-%m-%d') <= @endDate AND Alert = @alert";
 
                     cmd.Parameters.AddWithValue("startDate", data.StartDate.ToString("yyyy-MM-dd"));

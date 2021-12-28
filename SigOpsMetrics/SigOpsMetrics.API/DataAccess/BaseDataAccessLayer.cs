@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using MySqlConnector;
+using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 
 namespace SigOpsMetrics.API.DataAccess
@@ -32,7 +33,7 @@ namespace SigOpsMetrics.API.DataAccess
 
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        $"insert into mark1.errorlog (applicationname, functionname, exception, innerexception) values ('{applicationName}', '{functionName}', '{exception.Substring(0, exception.Length > 500 ? 500 : exception.Length)}', '{innerException}') ";
+                        $"insert into {AppConfig.DatabaseName}.errorlog (applicationname, functionname, exception, innerexception) values ('{applicationName}', '{functionName}', '{exception.Substring(0, exception.Length > 500 ? 500 : exception.Length)}', '{innerException}') ";
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
@@ -70,7 +71,7 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     cmd.Connection = sqlConnection;
                     cmd.CommandText =
-                        "INSERT INTO mark1.UserComments (FirstName, LastName, EmailAddress, PhoneNumber, Reason, Comments, Timestamp) VALUES (@firstName, @lastName, @emailAddress, @phoneNumber, @reason, @comments, NOW())";
+                        $"INSERT INTO {AppConfig.DatabaseName}.UserComments (FirstName, LastName, EmailAddress, PhoneNumber, Reason, Comments, Timestamp) VALUES (@firstName, @lastName, @emailAddress, @phoneNumber, @reason, @comments, NOW())";
                     cmd.Parameters.AddWithValue("firstName", data.FirstName);
                     cmd.Parameters.AddWithValue("lastName", data.LastName);
                     cmd.Parameters.AddWithValue("emailAddress", data.EmailAddress);
@@ -151,10 +152,10 @@ namespace SigOpsMetrics.API.DataAccess
                 client.EnableSsl = true;
                 client.DeliveryMethod = SmtpDeliveryMethod.Network;
                 client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential("sigopsmetrics@gmail.com", "yjtahpmryapfklgk");
+                client.Credentials = new NetworkCredential(AppConfig.SmtpUsername, AppConfig.SmtpPassword);
 
                 MailMessage msg = new MailMessage();
-                msg.From = new MailAddress("sigopsmetrics@gmail.com");
+                msg.From = new MailAddress(AppConfig.SmtpUsername);
                 foreach (string email in emails)
                 {
                     msg.To.Add(email);
