@@ -30,7 +30,6 @@ export class TicketsTableComponent implements OnInit {
   ngOnInit(): void {
     //get the current month
     let metricDate = (this._dt.getMonth() + 1) + '/' + this._dt.getFullYear();
-    metricDate = '2/' + this._dt.getFullYear(); //temporary date
 
     this.metrics.measure = "ttyp";
     this.metrics.start = metricDate;
@@ -63,13 +62,13 @@ export class TicketsTableComponent implements OnInit {
   private _loadData(){
     if (this._filter !== undefined && this._data !== undefined){
 
-      // TODO - the tables appear to have aggregates for zone_groups, so when all is selected it is getting the individuals corridors and the zone group aggregates 
+      // TODO - the tables appear to have aggregates for zone_groups, so when all is selected it is getting the individuals corridors and the zone group aggregates
       let filteredData = this._data.filter(value => value['corridor'] === this._filter.zone_Group || this._filter.zone_Group === 'All')
                           .sort((a,b) => b['outstanding'] - a['outstanding']);
 
       this.outstandingTickets = filteredData.reduce((sum, current) => sum + current['outstanding'],0);
 
       this.tableDataSource.next(filteredData);
-    } 
+    }
   }
 }
