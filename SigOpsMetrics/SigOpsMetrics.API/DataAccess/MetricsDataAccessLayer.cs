@@ -122,11 +122,23 @@ namespace SigOpsMetrics.API.DataAccess
             return measure;
         }
 
+        private static int GetStartMonthForQuarter(int quarter)
+        {
+            return quarter switch
+            {
+                1 => 1,
+                2 => 4,
+                3 => 7,
+                4 => 10,
+                _ => -1
+            };
+        }
+
         private (DateTime, DateTime) GenerateDateFilter(FilterDTO filter)
         {
             var dt = DateTime.Today;
-
-            var fullStart = new DateTime(dt.Year, dt.Month - 1, 1);
+            // If January, set start to December of previous year
+            var fullStart = dt.Month == 1 ? new DateTime(dt.Year - 1, 12, 1) : new DateTime(dt.Year, dt.Month - 1, 1);
             var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
 
             if (filter.dateRange != null)
@@ -145,9 +157,11 @@ namespace SigOpsMetrics.API.DataAccess
                         fullEnd = dt.AddDays(-1);
                         break;
                     case GenericEnums.DateRangeType.PriorQuarter:
-                        var month = (int)Math.Ceiling((double)dt.AddMonths(-3).Month / 3);
-                        fullStart = new DateTime(dt.Year, month, 1);
-                        fullEnd = new DateTime(dt.Year, month + 2, DateTime.DaysInMonth(dt.Year, month + 2));
+                        var quarter = (int)Math.Ceiling((double)dt.AddMonths(-3).Month / 3);
+                        var startMonth = GetStartMonthForQuarter(quarter);
+                        var yr = quarter == 4 ? dt.Year -1: dt.Year;
+                        fullStart = new DateTime(yr, startMonth, 1);
+                        fullEnd = new DateTime(yr, startMonth + 2, DateTime.DaysInMonth(yr, startMonth + 2));
                         break;
                     case GenericEnums.DateRangeType.PriorYear:
                         var priorYear = dt.Year - 1;
@@ -165,9 +179,21 @@ namespace SigOpsMetrics.API.DataAccess
                         break;
                     case GenericEnums.DateRangeType.PriorMonth:
                     default:
-                        var priorMonth = dt.Month - 1;
-                        fullStart = new DateTime(dt.Year, priorMonth, 1);
-                        fullEnd = new DateTime(dt.Year, priorMonth, DateTime.DaysInMonth(dt.Year, priorMonth));
+                        int priorMonth;
+                        int year;
+                        // If January, set month to December of previous year
+                        if (dt.Month == 1)
+                        {
+                            priorMonth = 12;
+                            year = dt.Year - 1;
+                        }
+                        else
+                        {
+                            priorMonth = dt.Month - 1;
+                            year = dt.Year;
+                        }
+                        fullStart = new DateTime(year, priorMonth, 1);
+                        fullEnd = new DateTime(year, priorMonth, DateTime.DaysInMonth(year, priorMonth));
                         break;
                 }
             }
