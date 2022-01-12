@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -26,7 +27,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="settings"></param>
         /// <param name="connection"></param>
         /// <param name="cache"></param>
-        public WatchdogController(IOptions<AppConfig> settings, MySqlConnection connection) : base(settings, connection)
+        public WatchdogController(IOptions<AppConfig> settings, IConfiguration configuration) : base(settings, configuration)
         {
         }
 
@@ -40,11 +41,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await WatchdogDataAccessLayer.GetWatchdogData(SqlConnection, data);
+                return await WatchdogDataAccessLayer.GetWatchdogData(SqlConnectionReader, data);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                 System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                 "GetWatchdogData", ex);
                 return null;

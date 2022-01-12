@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
@@ -19,7 +20,7 @@ namespace SigOpsMetrics.API.Controllers
     [ApiController]
     public class ExportMetricsController : _BaseController
     {
-        public ExportMetricsController(IOptions<AppConfig> settings, MySqlConnection connection) : base(settings, connection)
+        public ExportMetricsController(IOptions<AppConfig> settings, IConfiguration configuration) : base(settings, configuration)
         {
 
         }
@@ -41,12 +42,12 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start, end);
+                var dt = await MetricsDataAccessLayer.GetMetric(SqlConnectionReader, source, level, interval, measure, start, end);
                 return File(StreamExtensions.ConvertToCSV(dt), "text/plain","data.csv");
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/get", ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/get", ex);
                 return null;
             }
         }
@@ -69,12 +70,12 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure, start, end, zoneGroup);
+                var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnectionReader, source, level, interval, measure, start, end, zoneGroup);
                 return File(StreamExtensions.ConvertToCSV(dt), "text/plain", "data.csv");
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/zonegroup", ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/zonegroup", ex);
                 return null;
             }
         }
@@ -97,12 +98,12 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure, start, end, corridor);
+                var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnectionReader, source, level, interval, measure, start, end, corridor);
                 return File(StreamExtensions.ConvertToCSV(dt), "text/plain", "data.csv");
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name,"metrics/csv/corridor", ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, System.Reflection.Assembly.GetEntryAssembly().GetName().Name,"metrics/csv/corridor", ex);
                 return null;
             }
         }
@@ -120,13 +121,13 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
                 return File(StreamExtensions.ConvertToCSV(retVal), "text/plain", "data.csv");
 
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/filter", ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/filter", ex);
                 return null;
             }
         }
@@ -145,12 +146,12 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
                 return File(StreamExtensions.ConvertToCSV(retVal), "text/plain", "data.csv");
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/signals/filter", ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/signals/filter", ex);
                 return null;
             }
         }
@@ -169,7 +170,7 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
 
                 if (retVal == null || retVal.Rows.Count == 0)
@@ -211,7 +212,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/signals/filter/average", ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/signals/filter/average", ex);
                 return null;
             }
         }
@@ -231,7 +232,7 @@ namespace SigOpsMetrics.API.Controllers
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var isCorridor = true;
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
                 if (retVal.TableName.Contains("sig"))
                     isCorridor = false;
 
@@ -291,7 +292,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/average", ex);
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/csv/average", ex);
                 return null;
             }
         }
