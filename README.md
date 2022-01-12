@@ -34,7 +34,8 @@ This is the source code for the new SigOps Metrics site (http://new.sigopsmetric
     "DatabaseName": "" 
   },
   "ConnectionStrings": {
-    "Default": ""
+    "Reader": "",
+    "Writer": ""
   }
 }
 ```
@@ -50,4 +51,5 @@ This is the source code for the new SigOps Metrics site (http://new.sigopsmetric
     - DatabaseName: Name of sql database (ie. myDatabase)
     
 #### 4. Fill in the following sensitive information under ConnectionStrings:
-    - Default: Connection string to SQL database (ie. "server=myServer;user=myUsername;password=myPassword;database=myDatabase")
+    - Reader: Connection string to reader instance SQL database (ie. "server=myServerReader;user=myUsername;password=myPassword;database=myDatabase")
+    - Writer: Connection string to writer instance SQL database (ie. "server=myServerWriter;user=myUsername;password=myPassword;database=myDatabase")
