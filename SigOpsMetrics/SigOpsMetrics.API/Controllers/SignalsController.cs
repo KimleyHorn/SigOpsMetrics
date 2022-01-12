@@ -13,6 +13,7 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using System.Data;
+using Microsoft.Extensions.Configuration;
 using SigOpsMetrics.API.DataAccess;
 
 namespace SigOpsMetrics.API.Controllers
@@ -30,8 +31,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="settings"></param>
         /// <param name="connection"></param>
         /// <param name="cache"></param>
-        public SignalsController(IOptions<AppConfig> settings, MySqlConnection connection) : base(
-            settings, connection)
+        public SignalsController(IOptions<AppConfig> settings, IConfiguration configuration) : base(settings, configuration)
         {
         }
 
@@ -48,11 +48,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetAllSignalDataSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetAllSignalDataSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/all", ex);
                 return null;
@@ -68,11 +68,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetSignalNamesSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetSignalNamesSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/names", ex);
                 return null;
@@ -88,11 +88,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetZoneGroupsSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetZoneGroupsSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/zonegroups", ex);
                 return null;
@@ -108,11 +108,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetZonesSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetZonesSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/zones", ex);
                 return null;
@@ -124,11 +124,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetZonesByZoneGroupSQL(SqlConnection, zoneGroup);
+                return await SignalsDataAccessLayer.GetZonesByZoneGroupSQL(SqlConnectionReader, zoneGroup);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/zonesbyzonegroup/{zoneGroup}", ex);
                 return null;
@@ -144,11 +144,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetCorridorsSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetCorridorsSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/corridors", ex);
                 return null;
@@ -164,11 +164,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetCorridorsByZoneSQL(SqlConnection, zone);
+                return await SignalsDataAccessLayer.GetCorridorsByZoneSQL(SqlConnectionReader, zone);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/corridorsbyzone/{zone}", ex);
                 return null;
@@ -180,11 +180,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetCorridorsByZoneGroupSQL(SqlConnection, zoneGroup);
+                return await SignalsDataAccessLayer.GetCorridorsByZoneGroupSQL(SqlConnectionReader, zoneGroup);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "corridorsbyzonegroup/{zoneGroup}", ex);
                 return null;
@@ -200,11 +200,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetSubCorridorsSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetSubCorridorsSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/subcorridors", ex);
                 return null;
@@ -222,11 +222,11 @@ namespace SigOpsMetrics.API.Controllers
             {
                 //Decoding to handle corridors with / in them
                 corridor = System.Web.HttpUtility.UrlDecode(corridor);
-                return await SignalsDataAccessLayer.GetSubCorridorsByCorridorSQL(SqlConnection, corridor);
+                return await SignalsDataAccessLayer.GetSubCorridorsByCorridorSQL(SqlConnectionReader, corridor);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/subcorridorsbycorridor/{corridor}", ex);
                 return null;
@@ -242,11 +242,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetAgenciesSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetAgenciesSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/agencies", ex);
                 return null;
@@ -262,11 +262,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetCountiesSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetCountiesSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/counties", ex);
                 return null;
@@ -282,11 +282,11 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                return await SignalsDataAccessLayer.GetCitiesSQL(SqlConnection);
+                return await SignalsDataAccessLayer.GetCitiesSQL(SqlConnectionReader);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "signals/cities", ex);
                 return null;
@@ -306,12 +306,12 @@ namespace SigOpsMetrics.API.Controllers
                 {
                     Task<ExcelWorksheet> worksheet = GetSpreadsheet();
                     var ws = await worksheet;
-                    await SignalsDataAccessLayer.WriteToSignals(SqlConnection, ws);
+                    await SignalsDataAccessLayer.WriteToSignals(SqlConnectionWriter, ws);
                 }
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "DataPull", ex);
             }
@@ -327,11 +327,11 @@ namespace SigOpsMetrics.API.Controllers
             int result = 0;
             try
             {
-                result = await SignalsDataAccessLayer.WriteToContactUs(SqlConnection, data);
+                result = await BaseDataAccessLayer.WriteToContactUs(SqlConnectionWriter, data);
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "ContactUs", ex);
             }

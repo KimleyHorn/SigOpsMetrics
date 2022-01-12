@@ -9,13 +9,13 @@
   </div>
 
   <span class="span-spacer"></span>
-  <button mat-icon-button matTooltip="Contact Us" (click)="toggleContact()">
+  <button *ngIf="showContactUs" mat-icon-button matTooltip="Contact Us" (click)="toggleContact()">
     <mat-icon>chat</mat-icon>
   </button>
   <button mat-icon-button matTooltip="About" [matMenuTriggerFor]="help" (click)="getHelpContent()">
     <mat-icon>help</mat-icon>
   </button>
-  <button mat-icon-button matTooltip="GDOT Applications" [matMenuTriggerFor]="menu">
+  <button *ngIf="showGdotApplications" mat-icon-button matTooltip="GDOT Applications" [matMenuTriggerFor]="menu">
     <mat-icon>apps</mat-icon>
   </button>
 </mat-toolbar>

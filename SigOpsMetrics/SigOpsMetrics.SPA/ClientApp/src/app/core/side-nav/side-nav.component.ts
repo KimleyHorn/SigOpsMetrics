@@ -3,6 +3,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { FilterService } from "src/app/services/filter.service";
 import { SideNavService } from "../side-nav/side-nav.service";
+import { environment } from "src/environments/environment";
 
 @Component({
   selector: 'app-side-nav',
@@ -19,14 +20,13 @@ export class SideNavComponent implements OnInit {
   public buttonColor = 'primary';
   public isDisabled = false;
   constructor(private router: Router, private sideNavService: SideNavService, public filterService: FilterService){}
-  
+
   ngOnInit(): void {
     this.sideNavService.setSideNav(this.sideNav);
+    var routes = this.router.config.filter(item => item["text"] !== undefined && item["text"] !== "" && this.filterRoute(item));
 
-    var routes = this.router.config.filter(item => item["text"] !== undefined && item["text"] !== "");
     this.menuItems = this.mapItems(routes);
 
-  
     this.sideNavService.isExpanded.subscribe((value) => {
       this.isExpanded = value;
     })
@@ -63,5 +63,23 @@ export class SideNavComponent implements OnInit {
 
   toggleFilter() {
     this.filterIsExpanded = !this.filterIsExpanded;
+  }
+
+  filterRoute(r){
+    switch (r["text"]){
+      case "Operations":
+        return environment.hasPageOperations;
+      case "Maintenance":
+        return environment.hasPageMaintenance;
+      case "Watchdog":
+        return environment.hasPageWatchdog;
+      case "TEAMS Tasks":
+        return environment.hasPageTeamsTasks;
+      case "Reports":
+        return environment.hasPageReports;
+      case "Health Metrics":
+        return environment.hasPageHealthMetrics;
+    }
+    return true;
   }
 }

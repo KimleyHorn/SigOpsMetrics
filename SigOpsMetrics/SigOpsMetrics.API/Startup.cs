@@ -62,8 +62,6 @@ namespace SigOpsMetrics.API
 
             //Dependency injection
             services.Configure<AppConfig>(Configuration.GetSection("AppConfig"));
-            services.AddTransient<MySqlConnection>(_ =>
-                new MySqlConnection(Configuration["ConnectionStrings:Default"]));
             services.AddMemoryCache();
 
             services.AddSwaggerGen(c =>

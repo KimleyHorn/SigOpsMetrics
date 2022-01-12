@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
@@ -28,7 +29,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="settings"></param>
         /// <param name="connection"></param>
         /// <param name="cache"></param>
-        public MetricsController(IOptions<AppConfig> settings, MySqlConnection connection) : base(settings, connection)
+        public MetricsController(IOptions<AppConfig> settings, IConfiguration configuration) : base(settings, configuration)
         {
 
         }
@@ -48,13 +49,13 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                var dt = await MetricsDataAccessLayer.GetMetric(SqlConnection, source, level, interval, measure, start,
+                var dt = await MetricsDataAccessLayer.GetMetric(SqlConnectionReader, source, level, interval, measure, start,
                     end);
                 return dt;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "Metrics/Get", ex);
                 return null;
@@ -78,13 +79,13 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                    var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnection, source, level, interval, measure,
+                    var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnectionReader, source, level, interval, measure,
                         start, end, zoneGroup);
                     return dt;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/zonegroups", ex);
                 return null;
@@ -108,13 +109,13 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnection, source, level, interval, measure,
+                var dt = await MetricsDataAccessLayer.GetMetricByCorridor(SqlConnectionReader, source, level, interval, measure,
                     start, end, corridor);
                 return dt;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/corridor", ex);
                 return null;
@@ -138,12 +139,12 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
                 return retVal;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/filter", ex);
                 return null;
@@ -164,12 +165,12 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
                 return retVal;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/signals/filter", ex);
                 return null;
@@ -190,7 +191,7 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
 
                 if (retVal == null || retVal.Rows.Count == 0)
@@ -232,7 +233,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/signals/filter/average", ex);
                 return null;
@@ -258,7 +259,7 @@ namespace SigOpsMetrics.API.Controllers
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var isCorridor = true;
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnection);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
                 if (retVal != null && retVal.TableName.Contains("sig"))
                     isCorridor = false;
 
@@ -318,7 +319,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/average", ex);
                 return null;
@@ -337,12 +338,12 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 var metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetQuarterlyLegacyPTIForAllRTOP(SqlConnection, year, quarter);
+                var retVal = await metricsData.GetQuarterlyLegacyPTIForAllRTOP(SqlConnectionReader, year, quarter);
                 return retVal;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/rtop/pti", ex);
                 return null;
             }
@@ -360,14 +361,14 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var s = await metricsData.GetAverageForMonth(SqlConnection, "safety", zoneGroup, month);
-                var o = await metricsData.GetAverageForMonth(SqlConnection, "ops", zoneGroup, month);
-                var m = await metricsData.GetAverageForMonth(SqlConnection, "maint", zoneGroup, month);
+                var s = await metricsData.GetAverageForMonth(SqlConnectionReader, "safety", zoneGroup, month);
+                var o = await metricsData.GetAverageForMonth(SqlConnectionReader, "ops", zoneGroup, month);
+                var m = await metricsData.GetAverageForMonth(SqlConnectionReader, "maint", zoneGroup, month);
                 return new List<double> { o,m,s };
             }
             catch (Exception ex)
             {
-                await BaseDataAccessLayer.WriteToErrorLog(SqlConnection,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/monthaverages", ex);
                 return new List<double> { -1, -1, -1 };
