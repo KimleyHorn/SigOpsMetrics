@@ -40,7 +40,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[0].style}}" appearance="outline" style="color: white; width: 100px">
-                            <input matInput formControlName="{{filterSelectListMaintenance[0].columnProp}}" (click)="$event.stopPropagation()" placeholder="Zone Group" (keydown.space)="$event.stopPropagation()">
+                            <mat-label>Zone Group</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[0].columnProp}}" (click)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -51,7 +52,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[1].style}}" appearance="outline" style="color: white; width: 100%">
-                            <input matInput formControlName="{{filterSelectListMaintenance[1].columnProp}}" (click)="$event.stopPropagation()" placeholder="Corridor" (keydown.space)="$event.stopPropagation()">
+                            <mat-label>Corridor</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[1].columnProp}}" (click)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -62,7 +64,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[2].style}}" appearance="outline" style="color: white; width: 110px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[2].columnProp}}" (click)="$event.stopPropagation()" placeholder="Percent Health">
+                            <mat-label>Percent Health</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[2].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -73,7 +76,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[3].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[3].columnProp}}" (click)="$event.stopPropagation()" placeholder="Missing Data">
+                            <mat-label>Missing Data</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[3].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -84,7 +88,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[4].style}}" appearance="outline" style="color: white; width: 110px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[4].columnProp}}" (click)="$event.stopPropagation()" placeholder="Detection Uptime Score">
+                            <mat-label>Detection Uptime Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[4].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -95,7 +100,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[5].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[5].columnProp}}" (click)="$event.stopPropagation()" placeholder="Ped Actuation Uptime Score">
+                            <mat-label>Ped Actuation Uptime Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[5].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -106,7 +112,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[6].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[6].columnProp}}" (click)="$event.stopPropagation()" placeholder="Comm Uptime Score">
+                            <mat-label>Comm Uptime Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[6].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -117,7 +124,8 @@
                         <th mat-header-cell *matHeaderCellDef>
                           <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                             <mat-form-field class="{{filterSelectListMaintenance[7].style}}" appearance="outline" style="color: white; width: 100px;">
-                              <input matInput formControlName="{{filterSelectListMaintenance[7].columnProp}}" (click)="$event.stopPropagation()" placeholder="CCTV Uptime Score">
+                              <mat-label>CCTV Uptime Score</mat-label>
+                              <input matInput formControlName="{{filterSelectListMaintenance[7].columnProp}}" (click)="$event.stopPropagation()">
                             </mat-form-field>
                           </form>
                         </th>
@@ -128,7 +136,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[8].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[8].columnProp}}" (click)="$event.stopPropagation()" placeholder="Flash Events Score">
+                            <mat-label>Flash Events Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[8].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -139,7 +148,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[9].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[9].columnProp}}" (click)="$event.stopPropagation()" placeholder="Detection Uptime">
+                            <mat-label>Detection Uptime</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[9].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -150,7 +160,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[10].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[10].columnProp}}" (click)="$event.stopPropagation()" placeholder="Ped Actuation Uptime">
+                            <mat-label>Ped Actuation Uptime</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[10].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -161,7 +172,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[11].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[11].columnProp}}" (click)="$event.stopPropagation()" placeholder="Comm Uptime">
+                            <mat-label>Comm Uptime</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[11].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -172,7 +184,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                           <mat-form-field class="{{filterSelectListMaintenance[12].style}}" appearance="outline" style="color: white; width: 100px;">
-                            <input matInput formControlName="{{filterSelectListMaintenance[12].columnProp}}" (click)="$event.stopPropagation()" placeholder="CCTV Uptime">
+                            <mat-label>CCTV Uptime</mat-label>
+                            <input matInput formControlName="{{filterSelectListMaintenance[12].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -183,7 +196,8 @@
                         <th mat-header-cell *matHeaderCellDef>
                           <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlMaintenance">
                             <mat-form-field class="{{filterSelectListMaintenance[13].style}}" appearance="outline" style="color: white; width: 100px;">
-                              <input matInput formControlName="{{filterSelectListMaintenance[13].columnProp}}" (click)="$event.stopPropagation()" placeholder="Flash Events">
+                              <mat-label>Flash Events</mat-label>
+                              <input matInput formControlName="{{filterSelectListMaintenance[13].columnProp}}" (click)="$event.stopPropagation()">
                             </mat-form-field>
                           </form>
                         </th>
@@ -238,7 +252,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[0].style}}" appearance="outline" style="color: white; width: 150px;">
-                            <input matInput formControlName="{{filterSelectListOperations[0].columnProp}}" placeholder="Zone Group" (keydown.space)="$event.stopPropagation()" (click)="$event.stopPropagation()">
+                            <mat-label>Zone Group</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[0].columnProp}}" (keydown.space)="$event.stopPropagation()" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -249,7 +264,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[1].style}}" appearance="outline" style="color: white; width: 100%;">
-                            <input matInput formControlName="{{filterSelectListOperations[1].columnProp}}" placeholder="Corridor" (click)="$event.stopPropagation()">
+                            <mat-label>Corridor</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[1].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -260,7 +276,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[2].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[2].columnProp}}" placeholder="Percent Health" (keydown.space)="$event.stopPropagation()" (click)="$event.stopPropagation()">
+                            <mat-label>Percent Health</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[2].columnProp}}" (keydown.space)="$event.stopPropagation()" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -271,7 +288,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[3].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[3].columnProp}}" placeholder="Missing Data" (click)="$event.stopPropagation()">
+                            <mat-label>Missing Data</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[3].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -282,7 +300,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[4].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[4].columnProp}}" placeholder="Platoon Ratio Score" (click)="$event.stopPropagation()">
+                            <mat-label>Platoon Ratio Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[4].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -293,7 +312,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[5].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[5].columnProp}}" placeholder="Ped Delay Score" (click)="$event.stopPropagation()">
+                            <mat-label>Ped Delay Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[5].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -304,7 +324,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[6].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[6].columnProp}}" placeholder="Split Failures Score" (click)="$event.stopPropagation()">
+                            <mat-label>Split Failures Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[6].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -315,7 +336,8 @@
                         <th mat-header-cell *matHeaderCellDef>
                           <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                             <mat-form-field class="{{filterSelectListOperations[7].style}}" appearance="outline" style="color: white; width: 80px;">
-                              <input matInput formControlName="{{filterSelectListOperations[7].columnProp}}" placeholder="Travel Time Index Score" (click)="$event.stopPropagation()">
+                              <mat-label>Travel Time Index Score</mat-label>
+                              <input matInput formControlName="{{filterSelectListOperations[7].columnProp}}" (click)="$event.stopPropagation()">
                             </mat-form-field>
                           </form>
                         </th>
@@ -326,7 +348,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[8].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[8].columnProp}}" placeholder="Buffer Index Score" (click)="$event.stopPropagation()">
+                            <mat-label>Buffer Index Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[8].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -337,7 +360,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[9].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[9].columnProp}}" placeholder="Platoon Ratio" (click)="$event.stopPropagation()">
+                            <mat-label>Platoon Ratio</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[9].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -348,7 +372,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[10].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[10].columnProp}}" placeholder="Ped Delay" (click)="$event.stopPropagation()">
+                            <mat-label>Ped Delay</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[10].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -360,7 +385,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[11].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[11].columnProp}}" placeholder="Split Failures" (click)="$event.stopPropagation()">
+                            <mat-label>Split Failures</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[11].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -372,7 +398,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                           <mat-form-field class="{{filterSelectListOperations[12].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListOperations[12].columnProp}}" placeholder="Travel Time Index" (click)="$event.stopPropagation()">
+                            <mat-label>Travel Time Index</mat-label>
+                            <input matInput formControlName="{{filterSelectListOperations[12].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -384,7 +411,8 @@
                         <th mat-header-cell *matHeaderCellDef>
                           <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlOperations">
                             <mat-form-field class="{{filterSelectListOperations[13].style}}" appearance="outline" style="color: white; width: 80px;">
-                              <input matInput formControlName="{{filterSelectListOperations[13].columnProp}}" placeholder="Buffer Index" (click)="$event.stopPropagation()">
+                              <mat-label>Buffer Index</mat-label>
+                              <input matInput formControlName="{{filterSelectListOperations[13].columnProp}}" (click)="$event.stopPropagation()">
                             </mat-form-field>
                           </form>
                         </th>
@@ -439,7 +467,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[0].style}}" appearance="outline" style="color: white; width: 150px;">
-                            <input matInput formControlName="{{filterSelectListSafety[0].columnProp}}" placeholder="Zone Group" (click)="$event.stopPropagation()">
+                            <mat-label>Zone Group</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[0].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -450,7 +479,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[1].style}}" appearance="outline" style="color: white; width: 100%;">
-                            <input matInput formControlName="{{filterSelectListSafety[1].columnProp}}" placeholder="Corridor" (click)="$event.stopPropagation()">
+                            <mat-label>Corridor</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[1].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -461,7 +491,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[2].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[2].columnProp}}" placeholder="Percent Health" (click)="$event.stopPropagation()">
+                            <mat-label>Percent Health</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[2].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -472,7 +503,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[3].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[3].columnProp}}" placeholder="Missing Data" (click)="$event.stopPropagation()">
+                            <mat-label>Missing Data</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[3].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -483,7 +515,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[4].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[4].columnProp}}" placeholder="Crash Rate Index Score" (click)="$event.stopPropagation()">
+                            <mat-label>Crash Rate Index Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[4].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -495,7 +528,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[5].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[5].columnProp}}" placeholder="KABCO Crash Severity Index Score" (click)="$event.stopPropagation()">
+                            <mat-label>KABCO Crash Severity Index Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[5].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -507,7 +541,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[6].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[6].columnProp}}" placeholder="High Speed Index Score" (click)="$event.stopPropagation()">
+                            <mat-label>High Speed Index Score</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[6].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -519,7 +554,8 @@
                         <th mat-header-cell *matHeaderCellDef>
                           <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                             <mat-form-field class="{{filterSelectListSafety[7].style}}" appearance="outline" style="color: white; width: 80px;">
-                              <input matInput formControlName="{{filterSelectListSafety[7].columnProp}}" placeholder="Ped Injury Exposure Index Score" (click)="$event.stopPropagation()">
+                              <mat-label>Ped Injury Exposure Index Score</mat-label>
+                              <input matInput formControlName="{{filterSelectListSafety[7].columnProp}}" (click)="$event.stopPropagation()">
                             </mat-form-field>
                           </form>
                         </th>
@@ -531,7 +567,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[8].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[8].columnProp}}" placeholder="Crash Rate Index" (click)="$event.stopPropagation()">
+                            <mat-label>Crash Rate Index</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[8].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -542,7 +579,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[9].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[9].columnProp}}" placeholder="KABCO Crash Severity Index" (click)="$event.stopPropagation()">
+                            <mat-label>KABCO Crash Severity Index</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[9].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -553,7 +591,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[10].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[10].columnProp}}" placeholder="High Speed Index" (click)="$event.stopPropagation()">
+                            <mat-label>High Speed Index</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[10].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
@@ -564,7 +603,8 @@
                       <th mat-header-cell *matHeaderCellDef>
                         <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControlSafety">
                           <mat-form-field class="{{filterSelectListSafety[11].style}}" appearance="outline" style="color: white; width: 80px;">
-                            <input matInput formControlName="{{filterSelectListSafety[11].columnProp}}" placeholder="Ped Injury Exposure Index" (click)="$event.stopPropagation()">
+                            <mat-label>Ped Injury Exposure Index</mat-label>
+                            <input matInput formControlName="{{filterSelectListSafety[11].columnProp}}" (click)="$event.stopPropagation()">
                           </mat-form-field>
                         </form>
                       </th>
