@@ -615,7 +615,7 @@ namespace SigOpsMetrics.API.DataAccess
                 await using var reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
-                    retVal.Add(reader.GetString(0).Trim());
+                    retVal.Add(reader.GetString(0).Replace("'", "''").Trim());
                 }
             }
 
@@ -647,7 +647,7 @@ namespace SigOpsMetrics.API.DataAccess
                 await using var reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
-                    retVal.Add(reader.GetString(0).Trim());
+                    retVal.Add(reader.GetString(0).Replace("'", "''").Trim());
                 }
             }
 
