@@ -49,7 +49,7 @@ export class WatchdogComponent implements OnInit {
     "Missing Records",
   ];
   phases: string[] = ["All", "1", "2", "3", "4", "5", "6", "7", "8"];
-  zoneGroups: string[] = ["Central Metro","East Metro","West Metro","North","Southeast","Southwest","Ramp Meters"];
+  zoneGroups: string[] = ["Central Metro","Eastern Metro","Western Metro","North","Southeast","Southwest","Ramp Meters"];
   streaks: string[] = ["All", "Active", "Active 3-days"];
   filter: WatchdogFilter = new WatchdogFilter();
   filterSubject: Subject<WatchdogFilter> = new Subject<WatchdogFilter>();

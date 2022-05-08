@@ -734,8 +734,8 @@ export class HealthMetricsComponent implements OnInit {
     this.metricsService.averagesForMonth('Southeast', dateString).subscribe(res => this.southEastData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
     this.metricsService.averagesForMonth('Southwest', dateString).subscribe(res => this.southWestData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
     this.metricsService.averagesForMonth('Central Metro', dateString).subscribe(res => this.centralMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
-    this.metricsService.averagesForMonth('West Metro', dateString).subscribe(res => this.westernMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
-    this.metricsService.averagesForMonth('East Metro', dateString).subscribe(res => this.easternMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('Western Metro', dateString).subscribe(res => this.westernMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
+    this.metricsService.averagesForMonth('Eastern Metro', dateString).subscribe(res => this.easternMetroData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
     this.metricsService.averagesForMonth('', dateString).subscribe(res => this.statewideData = res.map(function(x) { return Math.round((x * 100)*1e2) / 1e2}));
   }
 }

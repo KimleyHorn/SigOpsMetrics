@@ -132,9 +132,10 @@ namespace SigOpsMetrics.API.DataAccess
                 List<int?> streaks = new List<int?>();
                 foreach (string date in heatmap.X)
                 {
-                    if (dataList.Any(x => x.SignalID + ": " + x.Name == s && x.Date == date))
+                    var formattedDate = DateTime.Parse(date).ToString();
+                    if (dataList.Any(x => x.SignalID + ": " + x.Name == s && x.Date == formattedDate))
                     {
-                        int? streak = dataList.First(x => x.SignalID + ": " + x.Name == s && x.Date == date).Streak;
+                        int? streak = dataList.First(x => x.SignalID + ": " + x.Name == s && x.Date == formattedDate).Streak;
                         streaks.Add(streak);
                     }
                     else
