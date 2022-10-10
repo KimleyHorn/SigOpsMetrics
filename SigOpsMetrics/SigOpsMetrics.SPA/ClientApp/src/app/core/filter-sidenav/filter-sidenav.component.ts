@@ -129,7 +129,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
     //load the zones for the dropdown
     this.zonesSubscription = this.filterService.zones.subscribe((data) => {
-      this.districts = data;
+      this.districts = data.sort();
     });
 
     //load the corridors for the dropdown
