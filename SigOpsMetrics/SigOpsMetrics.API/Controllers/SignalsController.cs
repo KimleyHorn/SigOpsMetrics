@@ -15,6 +15,7 @@ using SigOpsMetrics.API.Classes.Extensions;
 using System.Data;
 using Microsoft.Extensions.Configuration;
 using SigOpsMetrics.API.DataAccess;
+using SigOpsMetrics.API.Classes.Internal;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -181,6 +182,35 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 return await SignalsDataAccessLayer.GetCorridorsByZoneGroupSQL(SqlConnectionReader, zoneGroup);
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "corridorsbyzonegroup/{zoneGroup}", ex);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns a list of corridors filtered by parts of the signal
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("corridorsbyfilter")]
+        public async Task<IEnumerable<string>> GetCorridorsByFilter(string zoneGroup, string zone, string agency, string county, string city)
+        {
+            try
+            {
+                FilterDTO filter = new FilterDTO()
+                {
+                    zone_Group = zoneGroup,
+                    zone = zone,
+                    agency = agency,
+                    county = county,
+                    city = city
+                };
+                FilteredItems results = await SignalsDataAccessLayer.GetCorridorsByFilter(SqlConnectionReader, filter);
+                return results.Items;
             }
             catch (Exception ex)
             {
