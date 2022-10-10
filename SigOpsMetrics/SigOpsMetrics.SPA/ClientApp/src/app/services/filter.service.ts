@@ -212,7 +212,7 @@ export class FilterService {
     }
     this.filter[key] = value;
     this.isFiltering.next(true);
-    this.getCorridorsByFilter();
+    this.getCorridorsByFilter(); // Always filter the corridor dropdown based on other selected filters.
   }
 
   public updateFilter(){

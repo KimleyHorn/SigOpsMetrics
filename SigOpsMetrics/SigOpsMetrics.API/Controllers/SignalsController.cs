@@ -195,6 +195,11 @@ namespace SigOpsMetrics.API.Controllers
         /// <summary>
         /// Returns a list of corridors filtered by parts of the signal
         /// </summary>
+        /// <param name="zoneGroup">Region or zone group of the signal</param>
+        /// <param name="zone">District or zone of the signal</param>
+        /// <param name="agency">Agency of the signal</param>
+        /// <param name="county">County of the signal</param>
+        /// <param name="city">City of the signal</param>
         /// <returns></returns>
         [HttpGet("corridorsbyfilter")]
         public async Task<IEnumerable<string>> GetCorridorsByFilter(string zoneGroup, string zone, string agency, string county, string city)
