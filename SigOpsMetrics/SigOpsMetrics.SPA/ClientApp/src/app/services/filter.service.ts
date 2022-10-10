@@ -227,26 +227,6 @@ export class FilterService {
     //this.isFiltering.next(false);
   }
 
-  // public filterCorridors(){
-  //   for (let key of Object.keys(this.filter)) {
-  //     switch (key)
-  //     {
-  //       case 'zone_Group':
-  //       case 'zone':
-  //       case 'agency':
-  //       case 'city':
-  //       case 'county':
-  //         this.corridors = this.signals.pipe(map(cors => {
-  //           let corr = cors.filter(c => c[key] === this.filter[key]);
-  //           return (corr.length > 0) ? corr['corridor'] : null;
-  //         }));
-  //         break;
-  //       default:
-  //           break;
-  //     }      
-  //   }
-  // }
-
   public filterData(data: any, corridors: [] = []){
     let filteredData = data;
 
