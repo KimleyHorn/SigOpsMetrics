@@ -129,20 +129,12 @@ export class FilterService {
     ).subscribe(response => this._corridors.next(response));;
   }
 
-  getCorridorsByZone(zone: string){
-    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyzone/' + zone).pipe(
+  getCorridorsByFilter(){
+    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyfilter' + "?zoneGroup=" + this.filter.zone_Group + "&zone=" + 
+                                   this.filter.zone + "&agency=" + this.filter.agency + "&county=" + this.filter.county + "&city=" + this.filter.city).pipe(
       map(response => {
         this.corridorData = response;
-        return response;
-      })
-    ).subscribe(response => this._corridors.next(response));;
-  }
-
-  getCorridorsByZoneGroup(zoneGroup: string){
-    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyzonegroup/' + zoneGroup).pipe(
-      map(response => {
-        this.corridorData = response;
-        return response;
+        return response.sort();
       })
     ).subscribe(response => this._corridors.next(response));;
   }
@@ -153,7 +145,7 @@ export class FilterService {
         this.subcorridorData = response;
         return response;
       })
-    ).subscribe(response => this._subcorridors.next(response));;
+    ).subscribe(response => this._subcorridors.next(response));
   }
 
   getSubcorridorsByCorridor(corridor: string){
@@ -195,7 +187,7 @@ export class FilterService {
   private _loadData(filter: Filter){
     this.getZoneGroups();
     this.getZonesByZoneGroup(filter.zone_Group);
-    this.getCorridorsByZoneGroup(filter.zone_Group);
+    this.getCorridorsByFilter();
     this.getSubcorridors();
     this.getAgencies();
     this.getSignals();
@@ -208,10 +200,8 @@ export class FilterService {
       switch (key) {
         case "zone_Group":
           this.getZonesByZoneGroup(value);
-          this.getCorridorsByZoneGroup(value);
           break;
         case "zone":
-          this.getCorridorsByZone(value);
           break;
         case "corridor":
           this.getSubcorridorsByCorridor(value);
@@ -222,6 +212,7 @@ export class FilterService {
     }
     this.filter[key] = value;
     this.isFiltering.next(true);
+    this.getCorridorsByFilter(); // Always filter the corridor dropdown based on other selected filters.
   }
 
   public updateFilter(){
