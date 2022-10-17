@@ -81,8 +81,16 @@ export class BaseDashboardComponent implements OnInit {
           }else{
             this.metricValue = this._formatService.formatNumber(metricData.avg, this.graphMetrics.formatDecimals);
           }
-
-          this.changeValue = this._formatService.formatPercent(metricData.delta,2);
+          // Display N/A for "Change from prior period" when using a custom date range
+          if (metricData.delta === null)
+          {
+            this.changeValue = "NA";
+          }
+          else
+          {
+            this.changeValue = this._formatService.formatPercent(metricData.delta,2);
+          }
+          
         }
       } // else {
       //   this.filteredData = [];

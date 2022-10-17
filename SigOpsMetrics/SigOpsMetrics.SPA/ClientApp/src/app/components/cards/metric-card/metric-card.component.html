@@ -1,9 +1,12 @@
 <mat-card class='metric-card'>
     <div class='outer'>
         <div class='inner'>
-            <mat-card-title *ngIf="metricValue !== null">{{metricValue}}</mat-card-title>
+            <mat-card-title *ngIf="metricValue !== null; else CustomDate">{{metricValue}}</mat-card-title>            
             <mat-card-subtitle *ngIf="metricChange !== null">{{metricChange}}</mat-card-subtitle>
             <mat-card-footer *ngIf="metricLabel !== null">{{metricLabel}}</mat-card-footer>
+            <ng-template #CustomDate>
+                "NA"
+            </ng-template>
         </div>
     </div>
 </mat-card>

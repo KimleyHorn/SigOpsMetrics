@@ -263,6 +263,10 @@ export class FilterService {
       avg: data.reduce((a, b) => a + b.avg, 0) / data.length,
       delta: data.reduce((a, b) => a + b.delta, 0) / data.length,
     }
+    if (this.filter.timePeriod == 5)
+    {
+      metric.delta = null;
+    }
 
     return metric;
   }
