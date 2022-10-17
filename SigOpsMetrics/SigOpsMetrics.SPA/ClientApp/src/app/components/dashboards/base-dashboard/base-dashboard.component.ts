@@ -84,7 +84,7 @@ export class BaseDashboardComponent implements OnInit {
           // Display N/A for "Change from prior period" when using a custom date range
           if (metricData.delta === null)
           {
-            this.changeValue = "NA";
+            this.changeValue = "N/A";
           }
           else
           {
