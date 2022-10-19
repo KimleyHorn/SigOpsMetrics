@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
@@ -532,6 +533,7 @@ namespace SigOpsMetrics.API.DataAccess
                 tbl.Columns.Add("Longitude", typeof(decimal));
                 tbl.Columns.Add("County", typeof(string));
                 tbl.Columns.Add("City", typeof(string));
+                tbl.Columns.Add("TeamsGuid", typeof(string));
 
                 var startRow = 2;
                 for (var rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
