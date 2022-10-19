@@ -264,7 +264,7 @@ export class FilterService {
       delta: data.reduce((a, b) => a + b.delta, 0) / data.length,
     }
     // Display N/A for "Change from prior period" when using a custom date range
-    if (this.filter.timePeriod == 5)
+    if (this.filter.dateRange == 5)
     {
       metric.delta = null;
     }
