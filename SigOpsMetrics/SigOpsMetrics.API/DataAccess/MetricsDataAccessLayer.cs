@@ -278,9 +278,10 @@ namespace SigOpsMetrics.API.DataAccess
 
         private (int idColIndex, int avgColIndex, int deltaColIndex) GetCorridorAvgDeltaIDColumnIndexes(FilterDTO filter, string measure)
         {
-            var idColIndex = 0;
-            var avgColIndex = 3;
-            var deltaColIndex = 5;
+            // BP Change signal calculation. We are calculating all corridors at the signal level now so we have to change the indexes
+            var idColIndex = 6; // This used to be 0 for the corridor tables
+            var avgColIndex = 2; // This used to be 3 for corridor tables
+            var deltaColIndex = 3; // This used to be 5 for corridor tables
 
             var interval = GetIntervalFromFilter(filter);
 
@@ -358,12 +359,11 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<DataTable> GetMetricByFilter(MySqlConnection sqlConnection, string source, string measure,
             string interval, string start, string end, FilteredItems filteredItems, bool all = false)
         {
+            string level = filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig";
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
-            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, filteredItems.Items);
+            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, filteredItems.Items, level);
 
-            return await GetFromDatabase(sqlConnection,
-                filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig", interval, measure,
-                fullWhereClause, all);
+            return await GetFromDatabase(sqlConnection, level, interval, measure, fullWhereClause, all);
         }
 
         public async Task<DataTable> GetQuarterlyLegacyPTIForAllRTOP(MySqlConnection sqlConnection, int year, int quarter)
@@ -468,6 +468,19 @@ namespace SigOpsMetrics.API.DataAccess
                         case "ttyp":
                             return
                                 $"select Zone_Group, Corridor, Task_Type, Month, Reported, Resolved, Outstanding from {AppConfig.DatabaseName}.{tableName} {whereClause}";
+                        //BP Change signal calculation. When looking at the corridor throughput data we need to look at the signals data instead of just the corridor "group". To get the signals by corridor
+                        //this needs to do a left outer join from sig_mo_tp to the signals table to get details along with corridor name.
+                        case "tp":
+                            switch (level)
+                            {
+                                case "sig": // This causes issues for the right graph.
+                                    return
+                                        $"SELECT SignalId, Month, vph, delta, sig_mo_tp.Zone_group, Description, signals.Corridor FROM {AppConfig.DatabaseName}.sig_mo_tp LEFT OUTER JOIN signals ON sig_mo_tp.Corridor = signals.SignalId {whereClause}";
+                                case "cor":
+                                    return
+                                        $"SELECT SignalId, Month, vph, delta, sig_mo_tp.Zone_group, Description, signals.Corridor FROM {AppConfig.DatabaseName}.sig_mo_tp LEFT OUTER JOIN signals ON sig_mo_tp.Corridor = signals.SignalId {whereClause}";
+                            }
+                            break;
                     }
                     break;
                 case "hr":
@@ -577,11 +590,21 @@ namespace SigOpsMetrics.API.DataAccess
             return dateRangeClause + CreateCorridorAndClause(corridor, cmd);
         }
 
-        private static string AddSignalsToWhereClause(string whereClause, List<string> itemIDs)
+        private static string AddSignalsToWhereClause(string whereClause, List<string> itemIDs, string level)
         {
+            // Need to change this to grab the sig_mo_tp data where the Corridor in matches the signals.SignalId
             var newWhere = string.IsNullOrEmpty(whereClause) ? " where " : whereClause;
+            switch (level)
+            {
+                case "sig":
+                    newWhere += string.IsNullOrEmpty(whereClause) ? " SignalId in (" : " and SignalId in (";
+                    break;
+                case "cor":
+                    newWhere += string.IsNullOrEmpty(whereClause) ? " signals.Corridor in (" : " and signals.Corridor in (";
+                    break;
+            }
+            
 
-            newWhere += string.IsNullOrEmpty(whereClause) ? " Corridor in (" : " and Corridor in (";
             foreach (var row in itemIDs)
             {
                 newWhere += $"'{row}',";

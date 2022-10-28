@@ -136,6 +136,8 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
+            // BP This is just for testing. I skip the function to track down a single api call.
+            //return null;
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
@@ -188,6 +190,8 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<List<AverageDTO>> GetSignalsAverageByFilter(string source, string measure, [FromBody]
             FilterDTO filter)
         {
+            // BP This is just for testing. I skip the function to track down a single api call.
+            //return new List<AverageDTO>();
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
@@ -255,18 +259,22 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("average")]
         public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
         {
+            // BP This is just for testing. I skip the function to track down a single api call.
+            //return new List<AverageDTO>();
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var isCorridor = true;
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
-                if (retVal != null && retVal.TableName.Contains("sig"))
+                // BP Change this to check if the user is filtering off of corridor instead?
+                if (retVal != null && !string.IsNullOrWhiteSpace(filter.corridor))
                     isCorridor = false;
+                //if (retVal != null && retVal.TableName.Contains("sig"))
+                //    isCorridor = false;
 
                 var groupedData = new List<AverageDTO>();
 
                 var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
-
                 var idColIndex = indexes.idColIndex;
                 var avgColIndex = indexes.avgColIndex;
                 var deltaColIndex = indexes.deltaColIndex;
@@ -313,8 +321,8 @@ namespace SigOpsMetrics.API.Controllers
                                        avg = g.Average(x => x[avgColIndex].ToDouble()),
                                        delta = g.Average(x => x[deltaColIndex].ToDouble())
                                    }).ToList();
+                    
                 }
-
                 return groupedData.ToList();
             }
             catch (Exception ex)
