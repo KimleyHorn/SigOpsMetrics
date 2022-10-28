@@ -278,10 +278,9 @@ namespace SigOpsMetrics.API.DataAccess
 
         private (int idColIndex, int avgColIndex, int deltaColIndex) GetCorridorAvgDeltaIDColumnIndexes(FilterDTO filter, string measure)
         {
-            // BP Change signal calculation. We are calculating all corridors at the signal level now so we have to change the indexes
-            var idColIndex = 6; // This used to be 0 for the corridor tables
-            var avgColIndex = 2; // This used to be 3 for corridor tables
-            var deltaColIndex = 3; // This used to be 5 for corridor tables
+            var idColIndex = 0;
+            var avgColIndex = 3;
+            var deltaColIndex = 5;
 
             var interval = GetIntervalFromFilter(filter);
 
@@ -468,17 +467,13 @@ namespace SigOpsMetrics.API.DataAccess
                         case "ttyp":
                             return
                                 $"select Zone_Group, Corridor, Task_Type, Month, Reported, Resolved, Outstanding from {AppConfig.DatabaseName}.{tableName} {whereClause}";
-                        //BP Change signal calculation. When looking at the corridor throughput data we need to look at the signals data instead of just the corridor "group". To get the signals by corridor
-                        //this needs to do a left outer join from sig_mo_tp to the signals table to get details along with corridor name.
                         case "tp":
                             switch (level)
                             {
-                                case "sig": // This causes issues for the right graph.
-                                    return
-                                        $"SELECT SignalId, Month, vph, delta, sig_mo_tp.Zone_group, Description, signals.Corridor FROM {AppConfig.DatabaseName}.sig_mo_tp LEFT OUTER JOIN signals ON sig_mo_tp.Corridor = signals.SignalId {whereClause}";
+                                //If we are at the corridor level, we still need to grab the signals from the sig_{interval}_{measure} table so we can pickup any signals that might have changed corridors.
                                 case "cor":
                                     return
-                                        $"SELECT SignalId, Month, vph, delta, sig_mo_tp.Zone_group, Description, signals.Corridor FROM {AppConfig.DatabaseName}.sig_mo_tp LEFT OUTER JOIN signals ON sig_mo_tp.Corridor = signals.SignalId {whereClause}";
+                                        $"SELECT signals.Corridor, sig_mo_tp.Zone_group, Month, vph, signals.SignalId, delta, Description FROM {AppConfig.DatabaseName}.sig_mo_tp LEFT OUTER JOIN signals ON sig_mo_tp.Corridor = signals.SignalId {whereClause}";
                             }
                             break;
                     }
@@ -592,18 +587,19 @@ namespace SigOpsMetrics.API.DataAccess
 
         private static string AddSignalsToWhereClause(string whereClause, List<string> itemIDs, string level)
         {
-            // Need to change this to grab the sig_mo_tp data where the Corridor in matches the signals.SignalId
             var newWhere = string.IsNullOrEmpty(whereClause) ? " where " : whereClause;
+
             switch (level)
             {
                 case "sig":
-                    newWhere += string.IsNullOrEmpty(whereClause) ? " SignalId in (" : " and SignalId in (";
+                    // This will return the "Corridor" from the sig_mo_tp table which is actually links to the signals.SignalId field. 
+                    newWhere += string.IsNullOrEmpty(whereClause) ? " Corridor in (" : " and Corridor in (";
                     break;
                 case "cor":
+                    // This will return the actual Corridor name from the signals table.
                     newWhere += string.IsNullOrEmpty(whereClause) ? " signals.Corridor in (" : " and signals.Corridor in (";
                     break;
             }
-            
 
             foreach (var row in itemIDs)
             {
