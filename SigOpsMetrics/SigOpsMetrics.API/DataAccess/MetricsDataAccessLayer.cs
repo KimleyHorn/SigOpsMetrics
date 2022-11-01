@@ -400,6 +400,7 @@ namespace SigOpsMetrics.API.DataAccess
                             var pti = Math.Round(Convert.ToDecimal(arr[3]), 2);
                             var delta = Math.Round(Convert.ToDecimal(arr[5]), 3);
                             tb.Rows.Add(arr[0], year, quarter, pti, delta);
+                            break;
                         }
                     }
                 }
