@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MySqlConnector;
@@ -600,6 +601,43 @@ namespace SigOpsMetrics.API.DataAccess
                 return await GetSignalsByFilter(sqlConnection, filter);
             }
 
+        }
+
+        /// <summary>
+        /// Returns a list of signals with their corresponding corridors.
+        /// </summary>
+        /// <param name="sqlConnection"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
+        public static async Task<IEnumerable<Signal>> GetSignalsWithCorridors(MySqlConnection sqlConnection, FilterDTO filter)
+        {
+            List<Signal> signals = new List<Signal>();
+            await using (var cmd = new MySqlCommand())
+            {
+                var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
+                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
+                var sqlText = $"SELECT SignalID, Corridor FROM {AppConfig.DatabaseName}.signals WHERE Include = 1 {where}";
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = sqlText;
+                await sqlConnection.OpenAsync();
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    signals.Add(new Signal
+                    {
+                        SignalId = reader.GetString(0).Replace("'", "''").Trim(),
+                        Corridor = reader.GetString(1).Replace("'", "''").Trim()
+                    });
+                }
+            }
+
+            await sqlConnection.CloseAsync();
+            var groupedSignals = signals.GroupBy(g => new { g.SignalId, g.Corridor }).Select(group => new Signal()
+            {
+                SignalId = group.Key.SignalId,
+                Corridor = group.Key.Corridor
+            });
+            return groupedSignals;
         }
 
         public static async Task<FilteredItems> GetSignalsByFilter(MySqlConnection sqlConnection, FilterDTO filter)

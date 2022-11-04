@@ -137,11 +137,13 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
             // BP This is just for testing. I skip the function to track down a single api call.
+            // This is for bottom right graph
             //return null;
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
+
                 return retVal;
             }
             catch (Exception ex)
@@ -191,9 +193,13 @@ namespace SigOpsMetrics.API.Controllers
             FilterDTO filter)
         {
             // BP This is just for testing. I skip the function to track down a single api call.
+            // This is for the map signals
             //return new List<AverageDTO>();
             try
             {
+                // Test forcing the measure as sig to make the data come back at the signal level.
+                // After that the data will be grouped/calculated up to the corridor level.
+                //measure = "sig";
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
@@ -203,6 +209,8 @@ namespace SigOpsMetrics.API.Controllers
                     return groupedData.ToList();
                 }
 
+                //Since we are refactoring how the data is calculated we need to only worried about one set of 
+                //var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, false);
                 var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, false);
 
                 var avgColIndex = indexes.avgColIndex;
@@ -260,6 +268,7 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
         {
             // BP This is just for testing. I skip the function to track down a single api call.
+            // This is for bottom left but also requires GetWithFilter
             //return new List<AverageDTO>();
             try
             {
@@ -269,8 +278,6 @@ namespace SigOpsMetrics.API.Controllers
                 // BP Change this to check if the user is filtering off of corridor instead?
                 if (retVal != null && !string.IsNullOrWhiteSpace(filter.corridor))
                     isCorridor = false;
-                //if (retVal != null && retVal.TableName.Contains("sig"))
-                //    isCorridor = false;
 
                 var groupedData = new List<AverageDTO>();
 
