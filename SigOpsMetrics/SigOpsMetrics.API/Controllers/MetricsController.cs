@@ -142,6 +142,13 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                // Do this check here to prevent extra processing and database queries if the filter is not valid.
+                string interval = metricsData.GetIntervalFromFilter(filter);
+                if (!IsFilterValid(measure, interval))
+                {
+                    throw new Exception("Invalid filter.");
+                }
+                
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
 
                 return retVal;
@@ -201,6 +208,14 @@ namespace SigOpsMetrics.API.Controllers
                 // After that the data will be grouped/calculated up to the corridor level.
                 //measure = "sig";
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+
+                // Do this check here to prevent extra processing and database queries if the filter is not valid.
+                string interval = metricsData.GetIntervalFromFilter(filter);
+                if (!IsFilterValid(measure, interval))
+                {
+                    throw new Exception("Invalid filter.");
+                }
+
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
 
@@ -269,10 +284,18 @@ namespace SigOpsMetrics.API.Controllers
         {
             // BP This is just for testing. I skip the function to track down a single api call.
             // This is for bottom left but also requires GetWithFilter
-            //return new List<AverageDTO>();
+            return new List<AverageDTO>();
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+
+                // Do this check here to prevent extra processing and database queries if the filter is not valid.
+                string interval = metricsData.GetIntervalFromFilter(filter);
+                if (!IsFilterValid(measure, interval))
+                {
+                    throw new Exception("Invalid filter.");
+                }
+
                 var isCorridor = true;
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
                 // BP Change this to check if the user is filtering off of corridor instead?
@@ -388,6 +411,28 @@ namespace SigOpsMetrics.API.Controllers
                     "metrics/monthaverages", ex);
                 return new List<double> { -1, -1, -1 };
             }
+        }
+
+        /// <summary>
+        /// Checks if the database is setup to calculate data based on the filter passed in.
+        /// </summary>
+        /// <param name="measure"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        private bool IsFilterValid(string measure, string interval)
+        {
+            switch (measure)
+            {
+                case "tp":
+                    switch (interval)
+                    {
+                        case "hr":
+                        case "qhr":
+                            return false;
+                    }
+                    break;
+            }
+            return true;
         }
     }
 }
