@@ -329,40 +329,47 @@ namespace SigOpsMetrics.API.DataAccess
 
             var interval = GetIntervalFromFilter(filter);
 
-            if (interval == "hr" || interval == "qhr")
-            {
-                if (measure == "vpd")
-                {
-                    idColIndex = 0;
-                    avgColIndex = 3;
-                    deltaColIndex = 5;
-                }
-            }
-            else
-            {
-                if (interval == "dy" && measure == "vpd")
-                {
-                    avgColIndex = 3;
-                    deltaColIndex = 4;
-                }
-                if (measure == "vphpa" || measure == "vphpp")
-                {
-                    avgColIndex = 3;
-                    deltaColIndex = 4;
-                }
-                else if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
-                {
-                    idColIndex = 1;
-                    avgColIndex = 3;
-                    deltaColIndex = 5; //doesn't exist
-                }
-                else if (measure == "du")
-                {
-                    avgColIndex = 5;
-                    deltaColIndex = 6;
-                }
-            }
+            //The data should all be returned in the same way now.
+            //if (interval == "hr" || interval == "qhr")
+            //{
+            //    if (measure == "vpd")
+            //    {
+            //        idColIndex = 0;
+            //        avgColIndex = 3;
+            //        deltaColIndex = 5;
+            //    }
+            //}
+            //else
+            //{
+            //    if (interval == "dy" && measure == "vpd")
+            //    {
+            //        avgColIndex = 3;
+            //        deltaColIndex = 4;
+            //    }
+            //    if (measure == "vphpa" || measure == "vphpp")
+            //    {
+            //        avgColIndex = 3;
+            //        deltaColIndex = 4;
+            //    }
+            //    else if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
+            //    {
+            //        idColIndex = 1;
+            //        avgColIndex = 3;
+            //        deltaColIndex = 5; //doesn't exist
+            //    }
+            //    else if (measure == "du")
+            //    {
+            //        avgColIndex = 5;
+            //        deltaColIndex = 6;
+            //    }
+            //}
 
+            if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
+            {
+                idColIndex = 1;
+                avgColIndex = 3;
+                deltaColIndex = 5; //doesn't exist
+            }
 
 
             return (idColIndex, avgColIndex, deltaColIndex);
@@ -421,19 +428,35 @@ namespace SigOpsMetrics.API.DataAccess
             //string returnLevel = filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig";
             string level = "sig";
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
-            var signalIds = signals.Select(s => s.SignalId).Distinct().ToList();
-            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, signalIds, level);
+
+            //TODO: Certain data is only at a corridor level and need to use that for the sql statements instead of signalIds and tables.
+            //TODO: rework how all the teams tasks are handled.
+            //TTI and PTI need to use Corridors.
+            List<string> idsForWhereClause = new List<string>();
+            if (measure == "tti" || measure == "pti" || measure == "cctv" || measure == "reported" || measure == "outstanding" || measure == "over45" 
+                || measure == "tsou" || measure == "resolved" || measure == "ttyp" || measure == "tsub")
+            {
+                idsForWhereClause = signals.Select(s => s.Corridor).Distinct().ToList();
+            }
+            else
+            {
+                idsForWhereClause = signals.Select(s => s.SignalId).Distinct().ToList();
+            }            
+
+            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, idsForWhereClause, level);
 
             //TODO: Need to reset the level for Travel Time Index (tti) measures since they are not calculated at a signal level.
             //TTI and PTI need to be reworked and thought out.
-            //level = measure != "tti" ? "sig" : "cor";
+            level = measure != "tti" && measure != "pti" ? "sig" : "cor";
 
             // this returns a list of everything from the signal details tables.
             var results = await GetFromDatabase(sqlConnection, level, interval, measure, fullWhereClause, all);
 
             //Need to check if we are returning data at a corridor level. If so convert the signals datatable to corridors.
             //Otherwise leave it as the signals table and return the data.
-            if (filterLevel == "sig")
+            //TTI does not get calculated/averaged and should just return the data as well.
+            if (filterLevel == "sig" || measure == "tti" || measure == "pti" || measure == "reported" || measure == "outstanding" || measure == "over45" 
+                || measure == "tsou" || measure == "resolved" || measure == "ttyp" || measure == "tsub")
             {
                 return results;
             }
@@ -448,8 +471,17 @@ namespace SigOpsMetrics.API.DataAccess
             //Loop through each corridor
             foreach (string corridorId in signals.Select(c => c.Corridor).Distinct().ToList())
             {
-                //Get all signals for this corridor.
-                var ids = signals.Where(p => p.Corridor == corridorId).Select(s => s.SignalId).Distinct().ToList();
+                //Get all signals for this corridor.                
+                //cctv data appears to use Corridor data instead of signals so we can try selecting the Corridor here instead of SignalId
+                List<string> ids = new List<string>();
+                if (measure == "cctv")
+                {
+                    ids = signals.Where(p => p.Corridor == corridorId).Select(s => s.Corridor).Distinct().ToList();
+                }
+                else
+                {
+                    ids = signals.Where(p => p.Corridor == corridorId).Select(s => s.SignalId).Distinct().ToList();
+                }
 
                 //Get all datatable rows where the signalId is in the list above.
                 //This will get all signals for the corridor being used. (grouped data)
@@ -470,7 +502,7 @@ namespace SigOpsMetrics.API.DataAccess
                 else
                 {
                     averagedData = GetAverageStandardIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName);
-                }                
+                }
 
                 foreach (var corridor in averagedData)
                 {
@@ -612,14 +644,30 @@ namespace SigOpsMetrics.API.DataAccess
         /// <returns></returns>
         private static string GetCalculatedValueColumnName(string measure)
         {
+            //TODO: Figure out tsou
             switch (measure)
             {
                 case "aogd":
                     return "aog";
+                case "cctv":
+                case "cu":
+                case "du":
+                case "pau":
+                    return "uptime";
+                case "outstanding":
+                    return "outstanding";
+                case "over45":
+                    return "over45";
+                case "papd":
+                    return "papd";
                 case "prd":
                     return "pr";
                 case "qsd":
                     return "qs_freq";
+                case "reported":
+                    return "reported";
+                case "resolved":
+                    return "resolved";
                 case "sfd":
                 case "sfo":
                     return "sf_freq";
@@ -777,16 +825,6 @@ namespace SigOpsMetrics.API.DataAccess
                         case "ttyp":
                             return
                                 $"select Zone_Group, Corridor, Task_Type, Month, Reported, Resolved, Outstanding from {AppConfig.DatabaseName}.{tableName} {whereClause}";
-                        // Removed this as it was an old test way of getting data.
-                        //case "tp":
-                        //    switch (level)
-                        //    {
-                        //        //If we are at the corridor level, we still need to grab the signals from the sig_{interval}_{measure} table so we can pickup any signals that might have changed corridors.
-                        //        case "cor":
-                        //            return
-                        //                $"SELECT signals.Corridor, sig_mo_tp.Zone_group, Month, vph, signals.SignalId, delta, Description FROM {AppConfig.DatabaseName}.sig_mo_tp LEFT OUTER JOIN signals ON sig_mo_tp.Corridor = signals.SignalId {whereClause}";
-                        //    }
-                        //    break;
                     }
                     break;
                 case "hr":
@@ -912,15 +950,33 @@ namespace SigOpsMetrics.API.DataAccess
                     break;
             }
 
-            foreach (var row in itemIDs)
+            if (itemIDs.Any())
             {
-                newWhere += $"'{row}',";
+                string separator = "','";
+                newWhere += $"'{String.Join(separator, itemIDs)}')";
             }
 
-            newWhere = newWhere.Substring(0, newWhere.Length - 1); //chop off last comma
-            newWhere += ")";
+            // Old way. Converted to a String.Join instead of a foreach loop to speed it up.
+            //foreach (var row in itemIDs)
+            //{
+            //    newWhere += $"'{row}',";
+            //}
+            //newWhere = newWhere.Substring(0, newWhere.Length - 1); //chop off last comma
+            //newWhere += ")";
 
             return newWhere;
+        }
+
+        private static string SetLevelByMeasure(string measure)
+        {
+            switch (measure)
+            {
+                case "tti":
+                case "pti":
+                    return "cor";
+
+            }
+            return "sig";
         }
     }
 }
