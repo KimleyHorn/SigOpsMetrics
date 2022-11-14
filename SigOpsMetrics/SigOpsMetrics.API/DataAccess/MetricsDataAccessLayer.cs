@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using MySqlConnector;
 using OfficeOpenXml.Export.ToDataTable;
 using SigOpsMetrics.API.Classes;
@@ -29,10 +30,17 @@ namespace SigOpsMetrics.API.DataAccess
             var interval = GetIntervalFromFilter(filter);
             var dates = GenerateDateFilter(filter);
             string startQuarter = null, endQuarter = null;
+            string startDate = string.Empty;
+            string endDate = string.Empty;
             if (interval == "qu")
             {
-                startQuarter = dates.Item1.NearestQuarterEnd();
-                endQuarter = dates.Item2.NearestQuarterEnd();
+                startDate = dates.Item1.NearestQuarterEnd();
+                endDate = dates.Item2.NearestQuarterEnd();
+            }
+            else
+            {
+                startDate = dates.Item1.ToString();
+                endDate = dates.Item2.ToString();
             }
 
             measure = UpdateMeasure(measure, interval);
@@ -46,96 +54,12 @@ namespace SigOpsMetrics.API.DataAccess
                 string level = string.IsNullOrWhiteSpace(filter.corridor) ? "cor" : "sig";
                 level = signalOnly == true ? "sig" : level;
                 bool allZoneGroup = filter.zone_Group == "All" ? true : false;
-                if (interval == "qu" && startQuarter != null && endQuarter != null)
-                {
-                    //TODO: Add back in quarter calculations
-                    var corridors = await GetMetricByFilterWithSignalsAndCorridors(sqlConnection, source, measure, interval, startQuarter, endQuarter,
+                var corridors = await GetMetricByFilterWithSignalsAndCorridors(sqlConnection, source, measure, interval, startDate, endDate,
                                                                                    signalsWithCorridors.ToList(), level, allZoneGroup);
-                    
-
-                    //Old
-                    //var retVal = await GetMetricByFilter(sqlConnection, source, measure, interval,
-                    //startQuarter, endQuarter, filteredItems);
-
-                    //var quarterCol = retVal.Columns["quarter"];
-                    //retVal.Columns["quarter"].MaxLength = 30;
-
-                    //foreach (DataRow row in retVal.Rows)
-                    //{
-                    //    string cellData = row["quarter"].ToString();
-                    //    var year = cellData.Substring(0, 4);
-                    //    var quarter = cellData.Substring(5, 1);
-                    //    var newDate = new DateTime(year.ToInt(), quarter.ToInt() * 3, 30);
-                    //    row["quarter"] = newDate;
-                    //}
-
-                    return corridors;
-                }
-                else
-                {
-                    var corridors = await GetMetricByFilterWithSignalsAndCorridors(sqlConnection, source, measure, interval, dates.Item1.ToString(), dates.Item2.ToString(),
-                                                                                   signalsWithCorridors.ToList(), level, allZoneGroup);
-                    return corridors;
-                }
+                return corridors;
             }
             // Return null if there are no signals to report.
             return null;
-
-            //// this will not be needed anymore
-            //if (!string.IsNullOrEmpty(filter.signalId))
-            //{
-            //    signalOnly = true;
-            //}
-            //var filteredItems = new FilteredItems();
-            //if (signalOnly)
-            //{
-            //    filteredItems = await SignalsDataAccessLayer.GetSignalsByFilter(sqlConnection, filter);
-            //}
-            //else
-            //{
-            //    filteredItems = await SignalsDataAccessLayer.GetCorridorsOrSignalsByFilter(sqlConnection, filter);
-            //}
-
-            //// Old way which should not get hit due to the return statements
-            ////If we got no corridors / signals, bail
-            //if (filteredItems.Items.Any())
-            //{
-            //    if (interval == "qu" && startQuarter != null && endQuarter != null)
-            //    {
-            //        var retVal = await GetMetricByFilter(sqlConnection, source, measure, interval,
-            //            startQuarter, endQuarter, filteredItems);
-
-            //        //var quarterCol = retVal.Columns["quarter"];
-            //        retVal.Columns["quarter"].MaxLength = 30;
-
-            //        foreach (DataRow row in retVal.Rows)
-            //        {
-            //            string cellData = row["quarter"].ToString();
-            //            var year = cellData.Substring(0, 4);
-            //            var quarter = cellData.Substring(5, 1);
-            //            var newDate = new DateTime(year.ToInt(), quarter.ToInt() * 3, 30);
-            //            row["quarter"] = newDate;
-            //        }
-
-            //        return retVal;
-            //    }
-            //    else if (filter.zone_Group == "All")
-            //    {
-            //        var retVal =
-            //            GetMetricByFilter(sqlConnection, source, measure, interval, dates.Item1.ToString(),
-            //                dates.Item2.ToString(), filteredItems, true);
-            //        return await retVal;
-            //    }
-            //    else
-            //    {
-            //        var retVal =
-            //            GetMetricByFilter(sqlConnection, source, measure, interval, dates.Item1.ToString(),
-            //                dates.Item2.ToString(), filteredItems);
-            //        return await retVal;
-            //    }
-
-            //}
-            //return null;
         }
 
         private static string UpdateMeasure(string measure, string interval)
@@ -329,48 +253,11 @@ namespace SigOpsMetrics.API.DataAccess
 
             var interval = GetIntervalFromFilter(filter);
 
-            //The data should all be returned in the same way now.
-            //if (interval == "hr" || interval == "qhr")
-            //{
-            //    if (measure == "vpd")
-            //    {
-            //        idColIndex = 0;
-            //        avgColIndex = 3;
-            //        deltaColIndex = 5;
-            //    }
-            //}
-            //else
-            //{
-            //    if (interval == "dy" && measure == "vpd")
-            //    {
-            //        avgColIndex = 3;
-            //        deltaColIndex = 4;
-            //    }
-            //    if (measure == "vphpa" || measure == "vphpp")
-            //    {
-            //        avgColIndex = 3;
-            //        deltaColIndex = 4;
-            //    }
-            //    else if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
-            //    {
-            //        idColIndex = 1;
-            //        avgColIndex = 3;
-            //        deltaColIndex = 5; //doesn't exist
-            //    }
-            //    else if (measure == "du")
-            //    {
-            //        avgColIndex = 5;
-            //        deltaColIndex = 6;
-            //    }
-            //}
-
+            // After reworking how the signals/corridors are calculated, all indexes are the same except the following.
             if (measure == "maint_plot" || measure == "ops_plot" || measure == "safety_plot")
             {
                 idColIndex = 1;
-                avgColIndex = 3;
-                deltaColIndex = 5; //doesn't exist
             }
-
 
             return (idColIndex, avgColIndex, deltaColIndex);
         }
@@ -425,16 +312,12 @@ namespace SigOpsMetrics.API.DataAccess
         public static async Task<DataTable> GetMetricByFilterWithSignalsAndCorridors(MySqlConnection sqlConnection, string source, 
             string measure, string interval, string start, string end, List<Signal> signals, string filterLevel, bool all = false)
         {
-            //string returnLevel = filteredItems.FilterType == GenericEnums.FilteredItemType.Corridor ? "cor" : "sig";
             string level = "sig";
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
 
-            //TODO: Certain data is only at a corridor level and need to use that for the sql statements instead of signalIds and tables.
-            //TODO: rework how all the teams tasks are handled.
-            //TTI and PTI need to use Corridors.
+            //Several table structures do not accomodate for Signals so they have to use Corridors instead.
             List<string> idsForWhereClause = new List<string>();
-            if (measure == "tti" || measure == "pti" || measure == "cctv" || measure == "reported" || measure == "outstanding" || measure == "over45" 
-                || measure == "tsou" || measure == "resolved" || measure == "ttyp" || measure == "tsub")
+            if (UseCorridorForWhereClause(measure))
             {
                 idsForWhereClause = signals.Select(s => s.Corridor).Distinct().ToList();
             }
@@ -445,8 +328,7 @@ namespace SigOpsMetrics.API.DataAccess
 
             var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, idsForWhereClause, level);
 
-            //TODO: Need to reset the level for Travel Time Index (tti) measures since they are not calculated at a signal level.
-            //TTI and PTI need to be reworked and thought out.
+            //Need to reset the level for Travel Time Index (tti) measures since they are not calculated at a signal level.
             level = measure != "tti" && measure != "pti" ? "sig" : "cor";
 
             // this returns a list of everything from the signal details tables.
@@ -455,8 +337,7 @@ namespace SigOpsMetrics.API.DataAccess
             //Need to check if we are returning data at a corridor level. If so convert the signals datatable to corridors.
             //Otherwise leave it as the signals table and return the data.
             //TTI does not get calculated/averaged and should just return the data as well.
-            if (filterLevel == "sig" || measure == "tti" || measure == "pti" || measure == "reported" || measure == "outstanding" || measure == "over45" 
-                || measure == "tsou" || measure == "resolved" || measure == "ttyp" || measure == "tsub")
+            if (ReturnDataAtSignalLevel(filterLevel, measure))
             {
                 return results;
             }
@@ -497,11 +378,11 @@ namespace SigOpsMetrics.API.DataAccess
                 List<Corridor> averagedData = new List<Corridor>();
                 if (interval == "qu")
                 {
-                    averagedData = GetAverageQuarterIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName);
+                    averagedData = GetAverageQuarterIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName, all);
                 }
                 else
                 {
-                    averagedData = GetAverageStandardIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName);
+                    averagedData = GetAverageStandardIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName, all);
                 }
 
                 foreach (var corridor in averagedData)
@@ -526,24 +407,43 @@ namespace SigOpsMetrics.API.DataAccess
         /// <param name="intervalColumnName"></param>
         /// <param name="calculatedDataColumnName"></param>
         /// <returns></returns>
-        private static List<Corridor> GetAverageStandardIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName)
+        private static List<Corridor> GetAverageStandardIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName, bool allZones)
         {
             //TODO: If using Zones, we need to separate that out as well. Otherwise do not worry about that.
-            var averagedData = corridorData.GroupBy(x => new
+            if (allZones)
             {
-                //zoneGroup = x.Field<string>("Zone_Group"), // ZoneGroup is the Region. There is a specific function for that. Separate this out.
-                intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
-            })
+                var averagedData = corridorData.GroupBy(x => new
+                {
+                    zoneGroup = x.Field<string>("Zone_Group"), // ZoneGroup is the Region. There is a specific function for that. Separate this out.
+                    intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
+                })
                     .Select(x => new Corridor()
                     {
                         CorridorId = corridorId,
                         TimePeriod = x.Key.intervalColumnName,
-                        //ZoneGroup = x.Key.zoneGroup,
+                        ZoneGroup = x.Key.zoneGroup,
                         CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
                         Delta = x.Average(xx => xx.Field<double>("delta")),
 
                     }).ToList();
-            return averagedData;
+                return averagedData;
+            }
+            else
+            {
+                var averagedData = corridorData.GroupBy(x => new
+                {
+                    intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
+                })
+                    .Select(x => new Corridor()
+                    {
+                        CorridorId = corridorId,
+                        TimePeriod = x.Key.intervalColumnName,
+                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                        Delta = x.Average(xx => xx.Field<double>("delta")),
+
+                    }).ToList();
+                return averagedData;
+            }
         }
 
         /// <summary>
@@ -555,24 +455,45 @@ namespace SigOpsMetrics.API.DataAccess
         /// <param name="intervalColumnName"></param>
         /// <param name="calculatedDataColumnName"></param>
         /// <returns></returns>
-        private static List<Corridor> GetAverageQuarterIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName)
+        private static List<Corridor> GetAverageQuarterIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName, bool allZones)
         {
-            //TODO: If using Zones, we need to separate that out as well. Otherwise do not worry about that.
-            var averagedData = corridorData.GroupBy(x => new
-            {
-                //zoneGroup = x.Field<string>("Zone_Group"), // ZoneGroup is the Region. There is a specific function for that. Separate this out.
-                intervalColumnName = x.Field<string>(intervalColumnName)
-            })
-                .Select(x => new Corridor()
-                {
-                    CorridorId = corridorId,
-                    TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
-                    //ZoneGroup = x.Key.zoneGroup,
-                    CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                    Delta = x.Average(xx => xx.Field<double>("delta")),
 
-                }).ToList();
-            return averagedData;
+            //If using Zones, we need to separate that out as well.
+            if (allZones)
+            {
+                var averagedData = corridorData.GroupBy(x => new
+                {
+                    intervalColumnName = x.Field<string>(intervalColumnName)
+                })
+                    .Select(x => new Corridor()
+                    {
+                        CorridorId = corridorId,
+                        TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
+                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                        Delta = x.Average(xx => xx.Field<double>("delta")),
+
+                    }).ToList();
+                return averagedData;
+            }
+            else
+            {
+                var averagedData = corridorData.GroupBy(x => new
+                {
+                    zoneGroup = x.Field<string>("Zone_Group"), // ZoneGroup is the Region. There is a specific function for that. Separate this out.
+                    intervalColumnName = x.Field<string>(intervalColumnName)
+                })
+                    .Select(x => new Corridor()
+                    {
+                        CorridorId = corridorId,
+                        TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
+                        ZoneGroup = x.Key.zoneGroup,
+                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                        Delta = x.Average(xx => xx.Field<double>("delta")),
+
+                    }).ToList();
+                return averagedData;
+            }
+            
         }
 
         /// <summary>
@@ -979,6 +900,26 @@ namespace SigOpsMetrics.API.DataAccess
 
             }
             return "sig";
+        }
+
+        private static bool UseCorridorForWhereClause(string measure)
+        {
+            if (measure == "tti" || measure == "pti" || measure == "cctv" || measure == "reported" || measure == "outstanding" || measure == "over45"
+                || measure == "tsou" || measure == "resolved" || measure == "ttyp" || measure == "tsub")
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private static bool ReturnDataAtSignalLevel(string filterLevel, string measure)
+        {
+            if (filterLevel == "sig" || measure == "tti" || measure == "pti" || measure == "reported" || measure == "outstanding" || measure == "over45"
+                || measure == "tsou" || measure == "resolved" || measure == "ttyp" || measure == "tsub")
+            {
+                return true;
+            }
+            return false;
         }
     }
 }
