@@ -672,6 +672,8 @@ namespace SigOpsMetrics.API.DataAccess
                 case "sfo":
                     return "sf_freq";
                 case "tp":
+                case "vphpa":
+                case "vphpp":
                     return "vph";
                 case "vpd":
                 case "vph":
