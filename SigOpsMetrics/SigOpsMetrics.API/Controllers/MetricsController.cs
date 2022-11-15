@@ -235,7 +235,7 @@ namespace SigOpsMetrics.API.Controllers
                 if (filter.zone_Group == "All")
                 {
                     groupedData = (from row in retVal.AsEnumerable()
-                                   group row by new { label = row[idColIndex].ToString(), zoneGroup = row["ActualZoneGroup"] } into g
+                                   group row by new { label = row[idColIndex].ToString(), zoneGroup = row["Zone_Group"] } into g
                                    select new AverageDTO
                                    {
                                        label = g.Key.label,
@@ -331,10 +331,9 @@ namespace SigOpsMetrics.API.Controllers
                 }
                 else if (filter.zone_Group == "All")
                 {
-                    var test = retVal.AsEnumerable();
                     // group on zone_group instead of corridor
                     groupedData = (from row in retVal.AsEnumerable()
-                                   group row by new { label = row["Zone_Group"].ToString() } into g
+                                   group row by new { label = row[1].ToString() } into g
                                    select new AverageDTO
                                    {
                                        label = g.Key.label,

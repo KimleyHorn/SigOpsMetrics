@@ -29,9 +29,8 @@ namespace SigOpsMetrics.API.DataAccess
             //Quarterly data is formatted differently
             var interval = GetIntervalFromFilter(filter);
             var dates = GenerateDateFilter(filter);
-            string startQuarter = null, endQuarter = null;
-            string startDate = string.Empty;
-            string endDate = string.Empty;
+            string startDate;
+            string endDate;
             if (interval == "qu")
             {
                 startDate = dates.Item1.NearestQuarterEnd();
@@ -414,7 +413,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 var averagedData = corridorData.GroupBy(x => new
                 {
-                    zoneGroup = x.Field<string>("Zone_Group"), // ZoneGroup is the Region. There is a specific function for that. Separate this out.
+                    zoneGroup = x.Field<string>("ActualZoneGroup"), // ZoneGroup is the Region.
                     intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
                 })
                     .Select(x => new Corridor()
@@ -463,23 +462,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 var averagedData = corridorData.GroupBy(x => new
                 {
-                    intervalColumnName = x.Field<string>(intervalColumnName)
-                })
-                    .Select(x => new Corridor()
-                    {
-                        CorridorId = corridorId,
-                        TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
-                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                        Delta = x.Average(xx => xx.Field<double>("delta")),
-
-                    }).ToList();
-                return averagedData;
-            }
-            else
-            {
-                var averagedData = corridorData.GroupBy(x => new
-                {
-                    zoneGroup = x.Field<string>("Zone_Group"), // ZoneGroup is the Region. There is a specific function for that. Separate this out.
+                    zoneGroup = x.Field<string>("ActualZoneGroup"), // ZoneGroup is the Region.
                     intervalColumnName = x.Field<string>(intervalColumnName)
                 })
                     .Select(x => new Corridor()
@@ -487,6 +470,22 @@ namespace SigOpsMetrics.API.DataAccess
                         CorridorId = corridorId,
                         TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
                         ZoneGroup = x.Key.zoneGroup,
+                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                        Delta = x.Average(xx => xx.Field<double>("delta")),
+
+                    }).ToList();
+                return averagedData;                
+            }
+            else
+            {
+                var averagedData = corridorData.GroupBy(x => new
+                {
+                    intervalColumnName = x.Field<string>(intervalColumnName)
+                })
+                    .Select(x => new Corridor()
+                    {
+                        CorridorId = corridorId,
+                        TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
                         CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
                         Delta = x.Average(xx => xx.Field<double>("delta")),
 
