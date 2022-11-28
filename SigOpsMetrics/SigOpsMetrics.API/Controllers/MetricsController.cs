@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
+using OfficeOpenXml.Export.ToDataTable;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
@@ -136,9 +137,7 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
-            // BP This is just for testing. I skip the function to track down a single api call.
             // This is for bottom right graph
-            //return null;
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
@@ -146,7 +145,9 @@ namespace SigOpsMetrics.API.Controllers
                 string interval = metricsData.GetIntervalFromFilter(filter);
                 if (!IsFilterValid(measure, interval))
                 {
-                    throw new Exception("Invalid filter.");
+                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/filter", new Exception("Invalid filter."));
                 }
                 
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
@@ -199,21 +200,19 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<List<AverageDTO>> GetSignalsAverageByFilter(string source, string measure, [FromBody]
             FilterDTO filter)
         {
-            // BP This is just for testing. I skip the function to track down a single api call.
             // This is for the map signals
-            //return new List<AverageDTO>();
             try
             {
-                // Test forcing the measure as sig to make the data come back at the signal level.
-                // After that the data will be grouped/calculated up to the corridor level.
-                //measure = "sig";
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
 
                 // Do this check here to prevent extra processing and database queries if the filter is not valid.
                 string interval = metricsData.GetIntervalFromFilter(filter);
                 if (!IsFilterValid(measure, interval))
                 {
-                    throw new Exception("Invalid filter.");
+                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/signals/filter/average", new Exception("Invalid filter."));
+                    return null;
                 }
 
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
@@ -224,8 +223,6 @@ namespace SigOpsMetrics.API.Controllers
                     return groupedData.ToList();
                 }
 
-                //Since we are refactoring how the data is calculated we need to only worried about one set of 
-                //var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, false);
                 var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, false);
 
                 var avgColIndex = indexes.avgColIndex;
@@ -282,9 +279,7 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("average")]
         public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
         {
-            // BP This is just for testing. I skip the function to track down a single api call.
             // This is for bottom left but also requires GetWithFilter
-            //return new List<AverageDTO>();
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
@@ -293,12 +288,15 @@ namespace SigOpsMetrics.API.Controllers
                 string interval = metricsData.GetIntervalFromFilter(filter);
                 if (!IsFilterValid(measure, interval))
                 {
-                    throw new Exception("Invalid filter.");
+                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/average", new Exception("Invalid filter."));
+                    return null;
+
                 }
 
                 var isCorridor = true;
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
-                // BP Change this to check if the user is filtering off of corridor instead?
                 if (retVal != null && !string.IsNullOrWhiteSpace(filter.corridor))
                     isCorridor = false;
 
@@ -415,6 +413,7 @@ namespace SigOpsMetrics.API.Controllers
 
         /// <summary>
         /// Checks if the database is setup to calculate data based on the filter passed in.
+        /// TODO: Add additional invalid filters
         /// </summary>
         /// <param name="measure"></param>
         /// <param name="interval"></param>

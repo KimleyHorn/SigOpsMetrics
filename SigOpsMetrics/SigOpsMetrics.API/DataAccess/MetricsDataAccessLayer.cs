@@ -314,7 +314,7 @@ namespace SigOpsMetrics.API.DataAccess
             string level = "sig";
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
 
-            //Several table structures do not accomodate for Signals so they have to use Corridors instead.
+            //Several table structures do not accommodate for Signals so they have to use Corridors instead.
             List<string> idsForWhereClause = new List<string>();
             if (UseCorridorForWhereClause(measure))
             {
@@ -344,7 +344,7 @@ namespace SigOpsMetrics.API.DataAccess
             //Setup a new datatable
             string intervalColumnName = GetIntervalColumnName(interval);
             string calculatedDataColumnName = GetCalculatedValueColumnName(measure);
-            string measureColumnName = String.Empty; // GetMeasureColumnName(measure); // This needs refactoring because the column is not used in this functionality.
+            string measureColumnName = string.Empty; // GetMeasureColumnName(measure); // This needs refactoring because the column is not used in this functionality.
             string tableName = ValidateTableName(filterLevel, interval, measure);
             DataTable groupedDataTable = CreateDataTableByLevelAndIntervalAndMeasure(tableName, intervalColumnName, calculatedDataColumnName, measureColumnName);
 
@@ -386,7 +386,6 @@ namespace SigOpsMetrics.API.DataAccess
                         dr[calculatedDataColumnName] = corridor.CalculatedField;
                         dr["delta"] = corridor.Delta;
                         dr["ActualZoneGroup"] = corridor.ZoneGroup;
-                        dr[4] = corridor.ZoneGroup; //Testing
                         dr["Description"] = corridor.ZoneGroup;
 
                         groupedDataTable.Rows.Add(dr);
@@ -443,7 +442,6 @@ namespace SigOpsMetrics.API.DataAccess
                     groupedDataTable.Rows.Add(dr);
                 }
             }
-            groupedDataTable.DefaultView.Sort = intervalColumnName;
             return groupedDataTable;
         }
 
