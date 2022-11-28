@@ -348,8 +348,50 @@ namespace SigOpsMetrics.API.DataAccess
             string tableName = ValidateTableName(filterLevel, interval, measure);
             DataTable groupedDataTable = CreateDataTableByLevelAndIntervalAndMeasure(tableName, intervalColumnName, calculatedDataColumnName, measureColumnName);
 
+            // All Zones filter should group up to the region/zone instead of corridor.
+            if (all)
+            {
+                foreach (string zone in signals.Select(p => p.ZoneGroup).Distinct().ToList())
+                {
+                    //List<string> ids = new List<string>();
+                    //if (measure == "cctv")
+                    //{
+                    //    ids = signals.Where(p => p.ZoneGroup == zone).Select(s => s.Corridor).Distinct().ToList();
+                    //}
+                    //else
+                    //{
+                    //    ids = signals.Where(p => p.Corridor == zone).Select(s => s.SignalId).Distinct().ToList();
+                    //}
+                    var dtCorrs = results.AsEnumerable().Where(p => p.Field<string>("ActualZoneGroup") == zone);
+
+                    if (!dtCorrs.Any())
+                    {
+                        continue;
+                    }
+
+                    List<Corridor> averagedData = new List<Corridor>();
+                    averagedData = GetAverageForAllZones(dtCorrs, zone, intervalColumnName, calculatedDataColumnName, measure == "qu");
+
+                    foreach (var corridor in averagedData)
+                    {
+                        DataRow dr = groupedDataTable.NewRow();
+                        dr["Corridor"] = corridor.CorridorId;
+                        dr["Zone_Group"] = corridor.ZoneGroup;
+                        dr[intervalColumnName] = corridor.TimePeriod;
+                        dr[calculatedDataColumnName] = corridor.CalculatedField;
+                        dr["delta"] = corridor.Delta;
+                        dr["ActualZoneGroup"] = corridor.ZoneGroup;
+                        dr[4] = corridor.ZoneGroup; //Testing
+                        dr["Description"] = corridor.ZoneGroup;
+
+                        groupedDataTable.Rows.Add(dr);
+                    }
+                }
+                return groupedDataTable;
+            }
+
             //Loop through each corridor
-            foreach (string corridorId in signals.Select(c => c.Corridor).Distinct().ToList())
+            foreach (string corridorId in signals.Where(m => m.Corridor == "Lindbergh Dr").Select(c => c.Corridor).Distinct().ToList())
             {
                 //Get all signals for this corridor.                
                 //cctv data appears to use Corridor data instead of signals so we can try selecting the Corridor here instead of SignalId
@@ -387,15 +429,58 @@ namespace SigOpsMetrics.API.DataAccess
                 foreach (var corridor in averagedData)
                 {
                     DataRow dr = groupedDataTable.NewRow();
-                    dr["Corridor"] = corridor.CorridorId;
-                    dr["Zone_Group"] = corridor.ZoneGroup;
-                    dr[intervalColumnName] = corridor.TimePeriod;
-                    dr[calculatedDataColumnName] = corridor.CalculatedField;
-                    dr["delta"] = corridor.Delta;
+                    dr["Corridor"] = corridor.CorridorId;                        
+                    dr["Zone_Group"] = corridor.ZoneGroup;                      
+                    dr[intervalColumnName] = corridor.TimePeriod;               
+                    dr[calculatedDataColumnName] = corridor.CalculatedField;    
+                    dr["delta"] = corridor.Delta;                  
+                        
                     groupedDataTable.Rows.Add(dr);
                 }
             }
+            groupedDataTable.DefaultView.Sort = intervalColumnName;
             return groupedDataTable;
+        }
+
+        private static List<Corridor> GetAverageForAllZones(IEnumerable<DataRow> corridorData, string zone, string intervalColumnName, string calculatedDataColumnName, bool isQuarterInterval)
+        {
+            //If using Zones, we need to separate that out as well.
+            if (isQuarterInterval)
+            {
+                var averagedData = corridorData.GroupBy(x => new
+                {
+                    zoneGroup = x.Field<string>("ActualZoneGroup"), // ZoneGroup is the Region.
+                    intervalColumnName = x.Field<string>(intervalColumnName)
+                })
+                    .Select(x => new Corridor()
+                    {
+                        CorridorId = zone,
+                        TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
+                        ZoneGroup = x.Key.zoneGroup,
+                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                        Delta = x.Average(xx => xx.Field<double>("delta")),
+
+                    }).ToList();
+                return averagedData;
+            }
+            else
+            {
+                var averagedData = corridorData.GroupBy(x => new
+                {
+                    //zoneGroup = x.Field<string>("ActualZoneGroup"), // ZoneGroup is the Region.
+                    intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
+                })
+                    .Select(x => new Corridor()
+                    {
+                        CorridorId = zone,
+                        TimePeriod = x.Key.intervalColumnName,
+                        ZoneGroup = zone,
+                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                        Delta = x.Average(xx => xx.Field<double>("delta")),
+                        Description = zone
+                    }).ToList();
+                return averagedData;
+            }
         }
 
         /// <summary>
@@ -492,7 +577,6 @@ namespace SigOpsMetrics.API.DataAccess
                     }).ToList();
                 return averagedData;
             }
-            
         }
 
         /// <summary>
@@ -514,23 +598,23 @@ namespace SigOpsMetrics.API.DataAccess
             //If we keep these in the same position then we can easily update them regardless of interval and measure
             //This order is based off the cor_mo_tp structure
             
-            dt.Columns.Add("Corridor", typeof(string));
-            dt.Columns.Add("Zone_Group", typeof(string));
+            dt.Columns.Add("Corridor", typeof(string));                                         //0
+            dt.Columns.Add("Zone_Group", typeof(string));                                       //1
             //If the interval is quarter we need to format the "Quarter" column differently.
             DataColumn dc = new DataColumn(intervalColumnName, typeof(string));
             if (intervalColumnName == "Quarter")
             {
                 dc.MaxLength = 30;
             }
-            dt.Columns.Add(dc);
-            dt.Columns.Add(calculatedDataColumnName, typeof(string));
-            dt.Columns.Add(measureColumnName, typeof(string)); // This column is not used here
-            dt.Columns.Add("delta", typeof(string));
-            dt.Columns.Add("Description", typeof(string)); // This column is not used here.
+            dt.Columns.Add(dc);                                                                 //2
+            dt.Columns.Add(calculatedDataColumnName, typeof(string));                           //3
+            dt.Columns.Add(measureColumnName, typeof(string)); // This column is not used here  //4
+            dt.Columns.Add("delta", typeof(string));                                            //5
+            dt.Columns.Add("Description", typeof(string)); // This column is not used here.     //6
+            dt.Columns.Add("ActualZoneGroup", typeof(string));                                  //7
 
-            
 
-                return dt;
+            return dt;
         }
 
         /// <summary>

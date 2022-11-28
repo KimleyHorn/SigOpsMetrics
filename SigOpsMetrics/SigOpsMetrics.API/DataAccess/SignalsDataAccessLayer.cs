@@ -616,26 +616,29 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
                     filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
-                var sqlText = $"SELECT SignalID, Corridor FROM {AppConfig.DatabaseName}.signals WHERE Include = 1 {where}";
+                var sqlText = $"SELECT SignalID, Corridor, Zone_Group FROM {AppConfig.DatabaseName}.signals WHERE Include = 1 {where}";
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = sqlText;
                 await sqlConnection.OpenAsync();
                 await using var reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
+                    var test = reader.GetString(2);
                     signals.Add(new Signal
                     {
                         SignalId = reader.GetString(0).Replace("'", "''").Trim(),
-                        Corridor = reader.GetString(1).Replace("'", "''").Trim()
+                        Corridor = reader.GetString(1).Replace("'", "''").Trim(),
+                        ZoneGroup = reader.GetString(2).Trim()
                     });
                 }
             }
 
             await sqlConnection.CloseAsync();
-            var groupedSignals = signals.GroupBy(g => new { g.SignalId, g.Corridor }).Select(group => new Signal()
+            var groupedSignals = signals.GroupBy(g => new { g.SignalId, g.Corridor, g.ZoneGroup }).Select(group => new Signal()
             {
                 SignalId = group.Key.SignalId,
-                Corridor = group.Key.Corridor
+                Corridor = group.Key.Corridor,
+                ZoneGroup = group.Key.ZoneGroup
             });
             return groupedSignals;
         }
