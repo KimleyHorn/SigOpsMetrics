@@ -201,7 +201,7 @@ namespace SigOpsMetrics.API.Controllers
         {
             // BP This is just for testing. I skip the function to track down a single api call.
             // This is for the map signals
-            return new List<AverageDTO>();
+            //return new List<AverageDTO>();
             try
             {
                 // Test forcing the measure as sig to make the data come back at the signal level.
@@ -284,7 +284,7 @@ namespace SigOpsMetrics.API.Controllers
         {
             // BP This is just for testing. I skip the function to track down a single api call.
             // This is for bottom left but also requires GetWithFilter
-            return new List<AverageDTO>();
+            //return new List<AverageDTO>();
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();

@@ -353,15 +353,6 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 foreach (string zone in signals.Select(p => p.ZoneGroup).Distinct().ToList())
                 {
-                    //List<string> ids = new List<string>();
-                    //if (measure == "cctv")
-                    //{
-                    //    ids = signals.Where(p => p.ZoneGroup == zone).Select(s => s.Corridor).Distinct().ToList();
-                    //}
-                    //else
-                    //{
-                    //    ids = signals.Where(p => p.Corridor == zone).Select(s => s.SignalId).Distinct().ToList();
-                    //}
                     var dtCorrs = results.AsEnumerable().Where(p => p.Field<string>("ActualZoneGroup") == zone);
 
                     if (!dtCorrs.Any())
@@ -391,7 +382,7 @@ namespace SigOpsMetrics.API.DataAccess
             }
 
             //Loop through each corridor
-            foreach (string corridorId in signals.Where(m => m.Corridor == "Lindbergh Dr").Select(c => c.Corridor).Distinct().ToList())
+            foreach (string corridorId in signals.Select(c => c.Corridor).Distinct().ToList())
             {
                 //Get all signals for this corridor.                
                 //cctv data appears to use Corridor data instead of signals so we can try selecting the Corridor here instead of SignalId
@@ -419,11 +410,11 @@ namespace SigOpsMetrics.API.DataAccess
                 List<Corridor> averagedData = new List<Corridor>();
                 if (interval == "qu")
                 {
-                    averagedData = GetAverageQuarterIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName, all);
+                    averagedData = GetAverageQuarterIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName);
                 }
                 else
                 {
-                    averagedData = GetAverageStandardIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName, all);
+                    averagedData = GetAverageStandardIntervalData(dtCorrs, corridorId, intervalColumnName, calculatedDataColumnName);
                 }
 
                 foreach (var corridor in averagedData)
@@ -460,7 +451,7 @@ namespace SigOpsMetrics.API.DataAccess
                         CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
                         Delta = x.Average(xx => xx.Field<double>("delta")),
 
-                    }).ToList();
+                    }).OrderBy(m => m.TimePeriod).ToList();
                 return averagedData;
             }
             else
@@ -478,7 +469,7 @@ namespace SigOpsMetrics.API.DataAccess
                         CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
                         Delta = x.Average(xx => xx.Field<double>("delta")),
                         Description = zone
-                    }).ToList();
+                    }).OrderBy(m => m.TimePeriod).ToList();
                 return averagedData;
             }
         }
@@ -491,43 +482,21 @@ namespace SigOpsMetrics.API.DataAccess
         /// <param name="intervalColumnName"></param>
         /// <param name="calculatedDataColumnName"></param>
         /// <returns></returns>
-        private static List<Corridor> GetAverageStandardIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName, bool allZones)
+        private static List<Corridor> GetAverageStandardIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName)
         {
-            //TODO: If using Zones, we need to separate that out as well. Otherwise do not worry about that.
-            if (allZones)
+            var averagedData = corridorData.GroupBy(x => new
             {
-                var averagedData = corridorData.GroupBy(x => new
+                intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
+            })
+                .Select(x => new Corridor()
                 {
-                    zoneGroup = x.Field<string>("ActualZoneGroup"), // ZoneGroup is the Region.
-                    intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
-                })
-                    .Select(x => new Corridor()
-                    {
-                        CorridorId = corridorId,
-                        TimePeriod = x.Key.intervalColumnName,
-                        ZoneGroup = x.Key.zoneGroup,
-                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                        Delta = x.Average(xx => xx.Field<double>("delta")),
+                    CorridorId = corridorId,
+                    TimePeriod = x.Key.intervalColumnName,
+                    CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                    Delta = x.Average(xx => xx.Field<double>("delta")),
 
-                    }).ToList();
-                return averagedData;
-            }
-            else
-            {
-                var averagedData = corridorData.GroupBy(x => new
-                {
-                    intervalColumnName = x.Field<DateTime>(intervalColumnName) // Does this need to be a DateTime or can it stay as a string until converting the data below?
-                })
-                    .Select(x => new Corridor()
-                    {
-                        CorridorId = corridorId,
-                        TimePeriod = x.Key.intervalColumnName,
-                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                        Delta = x.Average(xx => xx.Field<double>("delta")),
-
-                    }).ToList();
-                return averagedData;
-            }
+                }).OrderBy(m => m.TimePeriod).ToList();
+            return averagedData;
         }
 
         /// <summary>
@@ -539,44 +508,21 @@ namespace SigOpsMetrics.API.DataAccess
         /// <param name="intervalColumnName"></param>
         /// <param name="calculatedDataColumnName"></param>
         /// <returns></returns>
-        private static List<Corridor> GetAverageQuarterIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName, bool allZones)
+        private static List<Corridor> GetAverageQuarterIntervalData(IEnumerable<DataRow> corridorData, string corridorId, string intervalColumnName, string calculatedDataColumnName)
         {
-
-            //If using Zones, we need to separate that out as well.
-            if (allZones)
+            var averagedData = corridorData.GroupBy(x => new
             {
-                var averagedData = corridorData.GroupBy(x => new
+                intervalColumnName = x.Field<string>(intervalColumnName)
+            })
+                .Select(x => new Corridor()
                 {
-                    zoneGroup = x.Field<string>("ActualZoneGroup"), // ZoneGroup is the Region.
-                    intervalColumnName = x.Field<string>(intervalColumnName)
-                })
-                    .Select(x => new Corridor()
-                    {
-                        CorridorId = corridorId,
-                        TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
-                        ZoneGroup = x.Key.zoneGroup,
-                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                        Delta = x.Average(xx => xx.Field<double>("delta")),
+                    CorridorId = corridorId,
+                    TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
+                    CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
+                    Delta = x.Average(xx => xx.Field<double>("delta")),
 
-                    }).ToList();
-                return averagedData;                
-            }
-            else
-            {
-                var averagedData = corridorData.GroupBy(x => new
-                {
-                    intervalColumnName = x.Field<string>(intervalColumnName)
-                })
-                    .Select(x => new Corridor()
-                    {
-                        CorridorId = corridorId,
-                        TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
-                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                        Delta = x.Average(xx => xx.Field<double>("delta")),
-
-                    }).ToList();
-                return averagedData;
-            }
+                }).OrderBy(m => m.TimePeriod).ToList();
+            return averagedData;
         }
 
         /// <summary>
