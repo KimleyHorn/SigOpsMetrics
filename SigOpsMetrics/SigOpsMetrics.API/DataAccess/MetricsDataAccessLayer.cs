@@ -353,7 +353,21 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 foreach (string zone in signals.Select(p => p.ZoneGroup).Distinct().ToList())
                 {
-                    var dtCorrs = results.AsEnumerable().Where(p => p.Field<string>("ActualZoneGroup") == zone);
+                    //We need to use Ids even for Zones because the results do not breing back the ActualZoneGroup correctly from the cor_mo_cctv table.
+                    //The sig_mo_cctv table has the Corridor value in the Zone_Group column for some reason.
+                    //cctv data appears to use Corridor data instead of signals so we can select the Corridor here instead of SignalId
+                    List<string> ids = new List<string>();
+                    if (measure == "cctv")
+                    {
+                        ids = signals.Where(p => p.ZoneGroup == zone).Select(s => s.Corridor).Distinct().ToList();
+                    }
+                    else
+                    {
+                        ids = signals.Where(p => p.ZoneGroup == zone).Select(s => s.SignalId).Distinct().ToList();
+                    }
+                    //We cannot use the ActualZoneGroup due to the data in the cctv tables.
+                    //var dtCorrs = results.AsEnumerable().Where(p => p.Field<string>("ActualZoneGroup") == zone);
+                    var dtCorrs = results.AsEnumerable().Where(p => ids.Contains(p.Field<string>("Corridor")));
 
                     if (!dtCorrs.Any())
                     {
