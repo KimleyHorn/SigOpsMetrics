@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 using MySqlConnector;
@@ -372,13 +374,36 @@ namespace SigOpsMetrics.API.DataAccess
             var cmd = new MySqlCommand();
 
             await sqlConnection.OpenAsync();
-            cmd.CommandText = $"select * from {AppConfig.DatabaseName}.rtop_pti where year = {year} && quarter = {quarter}";
+            cmd.CommandText = "select * from rtop_pti rp where 1=0";
             cmd.Connection = sqlConnection;
 
             await using (cmd)
             {
                 await using var reader = await cmd.ExecuteReaderAsync();
                 tb.Load(reader);
+            }
+
+            const string url = "http://sigopsmetrics.com:8001/query?source=beta&level=cor&interval=qu&measure=pti";
+            using var client = new HttpClient();
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                using var ms = new StreamReader(await response.Content.ReadAsStreamAsync());
+                while (!ms.EndOfStream)
+                {
+                    var line = await ms.ReadLineAsync();
+                    if (line != null)
+                    {
+                        var arr = line.Split(',');
+                        if (arr[0] == "All RTOP" && arr[2] == $"{year}.{quarter}")
+                        {
+                            var pti = Math.Round(Convert.ToDecimal(arr[3]), 2);
+                            var delta = Math.Round(Convert.ToDecimal(arr[5]), 3);
+                            tb.Rows.Add(arr[0], year, quarter, pti, delta);
+                            break;
+                        }
+                    }
+                }
             }
 
             return tb;
