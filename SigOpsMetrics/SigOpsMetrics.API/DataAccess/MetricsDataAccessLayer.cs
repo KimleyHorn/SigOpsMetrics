@@ -375,7 +375,7 @@ namespace SigOpsMetrics.API.DataAccess
                     }
 
                     List<Corridor> averagedData = new List<Corridor>();
-                    averagedData = GetAverageForAllZones(dtCorrs, zone, intervalColumnName, calculatedDataColumnName, measure == "qu");
+                    averagedData = GetAverageForAllZones(dtCorrs, zone, intervalColumnName, calculatedDataColumnName, interval == "qu");
 
                     foreach (var corridor in averagedData)
                     {
@@ -460,8 +460,8 @@ namespace SigOpsMetrics.API.DataAccess
                         CorridorId = zone,
                         TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
                         ZoneGroup = x.Key.zoneGroup,
-                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                        Delta = x.Average(xx => xx.Field<double>("delta")),
+                        CalculatedField = x.Average(xx => !xx.IsNull(calculatedDataColumnName) ? xx.Field<double>(calculatedDataColumnName) : 0),
+                        Delta = x.Average(xx => !xx.IsNull("delta") ? xx.Field<double>("delta") : 0),
 
                     }).OrderBy(m => m.TimePeriod).ToList();
                 return averagedData;
@@ -478,8 +478,8 @@ namespace SigOpsMetrics.API.DataAccess
                         CorridorId = zone,
                         TimePeriod = x.Key.intervalColumnName,
                         ZoneGroup = zone,
-                        CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                        Delta = x.Average(xx => xx.Field<double>("delta")),
+                        CalculatedField = x.Average(xx => !xx.IsNull(calculatedDataColumnName) ? xx.Field<double>(calculatedDataColumnName) : 0),
+                        Delta = x.Average(xx => !xx.IsNull("delta") ? xx.Field<double>("delta") : 0),
                         Description = zone
                     }).OrderBy(m => m.TimePeriod).ToList();
                 return averagedData;
@@ -504,8 +504,8 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     CorridorId = corridorId,
                     TimePeriod = x.Key.intervalColumnName,
-                    CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                    Delta = x.Average(xx => xx.Field<double>("delta")),
+                    CalculatedField = x.Average(xx => !xx.IsNull(calculatedDataColumnName) ? xx.Field<double>(calculatedDataColumnName) : 0),
+                    Delta = x.Average(xx => !xx.IsNull("delta") ? xx.Field<double>("delta") : 0),
 
                 }).OrderBy(m => m.TimePeriod).ToList();
             return averagedData;
@@ -530,8 +530,8 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     CorridorId = corridorId,
                     TimePeriod = x.Key.intervalColumnName.ConvertQuarterStringToDateTime(),
-                    CalculatedField = x.Average(xx => xx.Field<double>(calculatedDataColumnName)),
-                    Delta = x.Average(xx => xx.Field<double>("delta")),
+                    CalculatedField = x.Average(xx => !xx.IsNull(calculatedDataColumnName) ? xx.Field<double>(calculatedDataColumnName) : 0),
+                    Delta = x.Average(xx => !xx.IsNull("delta") ? xx.Field<double>("delta") : 0),
 
                 }).OrderBy(m => m.TimePeriod).ToList();
             return averagedData;
