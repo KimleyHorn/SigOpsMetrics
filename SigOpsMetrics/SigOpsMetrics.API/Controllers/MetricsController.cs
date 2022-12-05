@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
+using OfficeOpenXml.Export.ToDataTable;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
@@ -136,10 +137,21 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
+            // This is for bottom right graph
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                // Do this check here to prevent extra processing and database queries if the filter is not valid.
+                string interval = metricsData.GetIntervalFromFilter(filter);
+                if (!IsFilterValid(measure, interval))
+                {
+                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/filter", new Exception("Invalid filter."));
+                }
+                
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
+
                 return retVal;
             }
             catch (Exception ex)
@@ -188,9 +200,21 @@ namespace SigOpsMetrics.API.Controllers
         public async Task<List<AverageDTO>> GetSignalsAverageByFilter(string source, string measure, [FromBody]
             FilterDTO filter)
         {
+            // This is for the map signals
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+
+                // Do this check here to prevent extra processing and database queries if the filter is not valid.
+                string interval = metricsData.GetIntervalFromFilter(filter);
+                if (!IsFilterValid(measure, interval))
+                {
+                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/signals/filter/average", new Exception("Invalid filter."));
+                    return null;
+                }
+
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
 
@@ -208,7 +232,7 @@ namespace SigOpsMetrics.API.Controllers
                 if (filter.zone_Group == "All")
                 {
                     groupedData = (from row in retVal.AsEnumerable()
-                                   group row by new { label = row[idColIndex].ToString(), zoneGroup = row["ActualZoneGroup"] } into g
+                                   group row by new { label = row[idColIndex].ToString(), zoneGroup = row["Zone_Group"] } into g
                                    select new AverageDTO
                                    {
                                        label = g.Key.label,
@@ -255,18 +279,30 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("average")]
         public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
         {
+            // This is for bottom left but also requires GetWithFilter
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+
+                // Do this check here to prevent extra processing and database queries if the filter is not valid.
+                string interval = metricsData.GetIntervalFromFilter(filter);
+                if (!IsFilterValid(measure, interval))
+                {
+                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "metrics/average", new Exception("Invalid filter."));
+                    return null;
+
+                }
+
                 var isCorridor = true;
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
-                if (retVal != null && retVal.TableName.Contains("sig"))
+                if (retVal != null && !string.IsNullOrWhiteSpace(filter.corridor))
                     isCorridor = false;
 
                 var groupedData = new List<AverageDTO>();
 
                 var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
-
                 var idColIndex = indexes.idColIndex;
                 var avgColIndex = indexes.avgColIndex;
                 var deltaColIndex = indexes.deltaColIndex;
@@ -313,8 +349,8 @@ namespace SigOpsMetrics.API.Controllers
                                        avg = g.Average(x => x[avgColIndex].ToDouble()),
                                        delta = g.Average(x => x[deltaColIndex].ToDouble())
                                    }).ToList();
+                    
                 }
-
                 return groupedData.ToList();
             }
             catch (Exception ex)
@@ -373,6 +409,38 @@ namespace SigOpsMetrics.API.Controllers
                     "metrics/monthaverages", ex);
                 return new List<double> { -1, -1, -1 };
             }
+        }
+
+        /// <summary>
+        /// Checks if the database is setup to calculate data based on the filter passed in.
+        /// TODO: Add additional invalid filters
+        /// </summary>
+        /// <param name="measure"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        private bool IsFilterValid(string measure, string interval)
+        {
+            switch (measure)
+            {
+                case "tp":
+                    switch (interval)
+                    {
+                        case "hr":
+                        case "qhr":
+                            return false;
+                    }
+                    break;
+                case "tti":
+                case "pti":
+                    switch (interval)
+                    {
+                        case "mo":
+                        case "qu":
+                            return true;
+                    }
+                    return false;
+            }
+            return true;
         }
     }
 }

@@ -30,6 +30,28 @@ namespace SigOpsMetrics.API.Classes.Extensions
             };
         }
 
+        /// <summary>
+        /// Converts a date stored as a string to a DateTime
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="interval"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public static DateTime ConvertQuarterStringToDateTime(this string input)
+        {
+            try
+            {
+                var year = input.Substring(0, 4);
+                var quarter = input.Substring(5, 1);
+                DateTime output = new DateTime(year.ToInt(), quarter.ToInt() * 3, 30);
+                return output;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Unable to parse the provided data to a date field. {input}");
+            }
+        }
+
         #endregion
     }
 }

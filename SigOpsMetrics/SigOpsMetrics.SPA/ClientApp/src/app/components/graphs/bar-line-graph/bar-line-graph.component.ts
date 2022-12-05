@@ -113,6 +113,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     this._filterErrorStateSubscription.unsubscribe();
   }
 
+  //Left graph is averaged/grouped by corridor/signal
   private _loadBarGraph(){
     let graphData: any[] = [];
     this.bothData = [];
@@ -138,6 +139,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
     this.barGraph.data = this.filterErrorState == 2 ? [] : graphData;
   }
 
+  // Right graph is averaged/grouped per month.
   private _loadLineGraph(){
     this.updateLineXAxis();
     //this.updateLineYAxis();
