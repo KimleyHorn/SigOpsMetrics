@@ -48,6 +48,7 @@ This is the source code for the new SigOps Metrics site (http://new.sigopsmetric
     - AWSBucketName: AWS bucket name (ie. "docexamplebucket1")
     - DataPullKey: Self-generated key to protect DataPull endpoint
     - CorridorsKey: Name of corridors .xlsx file stored in the AWS bucket (ie. example.xlsx) 
+    - CamerasKey: Name of cameras .xlsx file stored in the AWS bucket (ie. example.xlsx) 
     - SmtpUsername: Username of email to send from (ie. example@gmail.com) *Currently only gmail is supported
     - SmtpPassword: Password of email to send from
     - DatabaseName: Name of sql database (ie. myDatabase)
