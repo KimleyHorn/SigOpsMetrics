@@ -30,6 +30,7 @@ This is the source code for the new SigOps Metrics site (http://new.sigopsmetric
     "AWSBucketName": "",
     "DataPullKey": "",
     "CorridorsKey": "",
+    "CamerasKey": "",
     "SmtpUsername": "",
     "SmtpPassword": "",
     "DatabaseName": "" 
