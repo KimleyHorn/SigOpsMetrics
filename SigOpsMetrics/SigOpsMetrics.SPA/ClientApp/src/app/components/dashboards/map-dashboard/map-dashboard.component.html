@@ -8,7 +8,7 @@
                       [metricLabel]='metricLabel'>
                   </app-metric-card>
               </div>
-              <div class='col-sm-6 col-lg-12'>
+              <div class='col-sm-6 col-lg-12' *ngIf="changeValue !== null">
                   <app-metric-card
                       [metricValue]='changeValue'
                       [metricLabel]='changeLabel'>

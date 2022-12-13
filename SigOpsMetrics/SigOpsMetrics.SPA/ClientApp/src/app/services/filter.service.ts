@@ -130,7 +130,7 @@ export class FilterService {
   }
 
   getCorridorsByFilter(){
-    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyfilter' + "?zoneGroup=" + this.filter.zone_Group + "&zone=" + 
+    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyfilter' + "?zoneGroup=" + this.filter.zone_Group + "&zone=" +
                                    this.filter.zone + "&agency=" + this.filter.agency + "&county=" + this.filter.county + "&city=" + this.filter.city).pipe(
       map(response => {
         this.corridorData = response;
@@ -258,10 +258,16 @@ export class FilterService {
     return filteredData;
   }
 
-  public getAverageData(data: any[]){
+  public getWeightedAverageData(data: any[]){
+    let arrAvg = data.map(a => a.avg);
+    let arrDelta = data.map(a => a.delta);
+    let arrWeight = data.map(a => a.weight);
+    let wa = weightedAverage(arrAvg, arrWeight);
+    let waDelta = weightedAverage(arrDelta, arrWeight);
+
     let metric = {
-      avg: data.reduce((a, b) => a + b.avg, 0) / data.length,
-      delta: data.reduce((a, b) => a + b.delta, 0) / data.length,
+      avg: wa,
+      delta: waDelta,
     }
     // Display N/A for "Change from prior period" when using a custom date range
     if (this.filter.dateRange == 5)
@@ -287,3 +293,15 @@ export class FilterService {
     this._errorStateObs.next(state);
   }
 }
+
+const weightedAverage = (nums, weights) => {
+  const [sum, weightSum] = weights.reduce(
+    (acc, w, i) => {
+      acc[0] = acc[0] + nums[i] * w;
+      acc[1] = acc[1] + w;
+      return acc;
+    },
+    [0, 0]
+  );
+  return sum / weightSum;
+};

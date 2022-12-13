@@ -7,6 +7,7 @@
         public string AWSBucketName { get; set; }
         public string DataPullKey { get; set; }
         public string CorridorsKey { get; set; }
+        public string CamerasKey { get; set; }
         public static string SmtpUsername { get; set; }
         public static string SmtpPassword { get; set; }
         public static string DatabaseName { get; set; }

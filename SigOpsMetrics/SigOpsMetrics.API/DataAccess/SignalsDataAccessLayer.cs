@@ -611,7 +611,7 @@ namespace SigOpsMetrics.API.DataAccess
         /// <returns></returns>
         public static async Task<IEnumerable<Signal>> GetSignalsWithCorridors(MySqlConnection sqlConnection, FilterDTO filter)
         {
-            List<Signal> signals = new List<Signal>();
+            var signals = new List<Signal>();
             await using (var cmd = new MySqlCommand())
             {
                 var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
@@ -623,7 +623,6 @@ namespace SigOpsMetrics.API.DataAccess
                 await using var reader = await cmd.ExecuteReaderAsync();
                 while (reader.Read())
                 {
-                    var test = reader.GetString(2);
                     signals.Add(new Signal
                     {
                         SignalId = reader.GetString(0).Replace("'", "''").Trim(),
@@ -634,13 +633,8 @@ namespace SigOpsMetrics.API.DataAccess
             }
 
             await sqlConnection.CloseAsync();
-            var groupedSignals = signals.GroupBy(g => new { g.SignalId, g.Corridor, g.ZoneGroup }).Select(group => new Signal()
-            {
-                SignalId = group.Key.SignalId,
-                Corridor = group.Key.Corridor,
-                ZoneGroup = group.Key.ZoneGroup
-            });
-            return groupedSignals;
+
+            return signals;
         }
 
         public static async Task<FilteredItems> GetSignalsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
