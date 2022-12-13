@@ -1,10 +1,8 @@
-﻿using Microsoft.VisualBasic;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SigOpsMetrics.API.Classes
+namespace SigOpsMetrics.API.Classes.Internal
 {
     public class Corridor
     {

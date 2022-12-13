@@ -7,8 +7,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using MySqlConnector;
-using OfficeOpenXml.Export.ToDataTable;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
@@ -56,7 +54,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "Metrics/Get", ex);
                 return null;
@@ -86,7 +84,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/zonegroups", ex);
                 return null;
@@ -116,7 +114,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/corridor", ex);
                 return null;
@@ -145,18 +143,18 @@ namespace SigOpsMetrics.API.Controllers
                 string interval = metricsData.GetIntervalFromFilter(filter);
                 if (!IsFilterValid(measure, interval))
                 {
-                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/filter", new Exception("Invalid filter."));
                 }
                 
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter);
 
                 return retVal;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/filter", ex);
                 return null;
@@ -177,12 +175,12 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
                 return retVal;
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/signals/filter", ex);
                 return null;
@@ -209,13 +207,13 @@ namespace SigOpsMetrics.API.Controllers
                 string interval = metricsData.GetIntervalFromFilter(filter);
                 if (!IsFilterValid(measure, interval))
                 {
-                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/signals/filter/average", new Exception("Invalid filter."));
                     return null;
                 }
 
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
 
                 if (retVal == null || retVal.Rows.Count == 0)
@@ -257,7 +255,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/signals/filter/average", ex);
                 return null;
@@ -282,36 +280,32 @@ namespace SigOpsMetrics.API.Controllers
             // This is for bottom left but also requires GetWithFilter
             try
             {
-                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var metricsData = new MetricsDataAccessLayer();
 
                 // Do this check here to prevent extra processing and database queries if the filter is not valid.
-                string interval = metricsData.GetIntervalFromFilter(filter);
+                var interval = metricsData.GetIntervalFromFilter(filter);
                 if (!IsFilterValid(measure, interval))
                 {
-                    await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/average", new Exception("Invalid filter."));
                     return null;
-
                 }
 
                 var isCorridor = true;
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter);
                 if (retVal != null && !string.IsNullOrWhiteSpace(filter.corridor))
                     isCorridor = false;
 
                 var groupedData = new List<AverageDTO>();
-
-                var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
-                var idColIndex = indexes.idColIndex;
-                var avgColIndex = indexes.avgColIndex;
-                var deltaColIndex = indexes.deltaColIndex;
+                
+                var (idColIndex, avgColIndex, deltaColIndex) = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
 
                 if (retVal == null || retVal.Rows.Count == 0)
                 {
                     return groupedData.ToList();
                 }
-
+               
                 if (dashboard)
                 {
                     var avg = (from row in retVal.AsEnumerable()
@@ -329,6 +323,7 @@ namespace SigOpsMetrics.API.Controllers
                 }
                 else if (filter.zone_Group == "All")
                 {
+                    var total = (double)retVal.Rows.Count;
                     // group on zone_group instead of corridor
                     groupedData = (from row in retVal.AsEnumerable()
                                    group row by new { label = row[1].ToString() } into g
@@ -336,26 +331,28 @@ namespace SigOpsMetrics.API.Controllers
                                    {
                                        label = g.Key.label,
                                        avg = g.Average(x => x[avgColIndex].ToDouble()),
-                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble()),
+                                       weight = g.Count()/total
                                    }).ToList();
                 }
                 else
                 {
+                    var total = (double)retVal.Rows.Count;
                     groupedData = (from row in retVal.AsEnumerable()
                                    group row by new { label = row[idColIndex].ToString() } into g
                                    select new AverageDTO
                                    {
                                        label = g.Key.label,
                                        avg = g.Average(x => x[avgColIndex].ToDouble()),
-                                       delta = g.Average(x => x[deltaColIndex].ToDouble())
+                                       delta = g.Average(x => x[deltaColIndex].ToDouble()),
+                                       weight = g.Count()/total
                                    }).ToList();
-                    
                 }
                 return groupedData.ToList();
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/average", ex);
                 return null;
@@ -379,7 +376,7 @@ namespace SigOpsMetrics.API.Controllers
             }
             catch (Exception ex)
             {
-                await MetricsDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name, "metrics/rtop/pti", ex);
                 return null;
             }

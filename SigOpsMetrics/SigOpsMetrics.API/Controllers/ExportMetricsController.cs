@@ -121,7 +121,7 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter);
                 return File(StreamExtensions.ConvertToCSV(retVal), "text/plain", "data.csv");
 
             }
@@ -146,7 +146,7 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
                 return File(StreamExtensions.ConvertToCSV(retVal), "text/plain", "data.csv");
             }
             catch (Exception ex)
@@ -170,7 +170,7 @@ namespace SigOpsMetrics.API.Controllers
             try
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, true);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
 
                 if (retVal == null || retVal.Rows.Count == 0)
@@ -232,7 +232,7 @@ namespace SigOpsMetrics.API.Controllers
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var isCorridor = true;
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader);
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter);
                 if (retVal.TableName.Contains("sig"))
                     isCorridor = false;
 

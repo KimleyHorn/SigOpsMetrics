@@ -66,14 +66,14 @@ export class BaseDashboardComponent implements OnInit {
     private _loadData(){
       if(this.data !== undefined && this.averageData !== undefined){
         this.filteredData = this.data;
-        
+
         //get a list of distinct corridors
         if (this.filterState.zone_Group === 'All') {
           this.corridors = new Set(this.filteredData.filter(value => value['zone_Group'] !== null).map(data => data['zone_Group']));
         } else {
           this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
         }
-        let metricData = this._filterService.getAverageData(this.averageData);
+        let metricData = this._filterService.getWeightedAverageData(this.averageData);
 
         if(metricData !== undefined){
           if(this.graphMetrics.formatType === "percent"){
@@ -84,13 +84,13 @@ export class BaseDashboardComponent implements OnInit {
           // Display N/A for "Change from prior period" when using a custom date range
           if (metricData.delta === null)
           {
-            this.changeValue = "N/A";
+            this.changeValue = null;
           }
           else
           {
             this.changeValue = this._formatService.formatPercent(metricData.delta,2);
           }
-          
+
         }
       } // else {
       //   this.filteredData = [];

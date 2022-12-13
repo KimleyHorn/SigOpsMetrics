@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 
-namespace SigOpsMetrics.API.Classes
+namespace SigOpsMetrics.API.Classes.Internal
 {
     public class Signal
     {
