@@ -18,6 +18,7 @@ This is the source code for the new SigOps Metrics site (http://new.sigopsmetric
     }
   },
   "AllowedHosts": "*",
+  "Origins": "",
   "EPPlus": {
     "ExcelPackage": {
       "LicenseContext": "NonCommercial"
