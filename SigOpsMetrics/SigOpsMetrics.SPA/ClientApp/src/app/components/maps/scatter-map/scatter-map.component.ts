@@ -79,7 +79,7 @@ export class ScatterMapComponent implements OnInit {
       this._metricsService.filterSignalMetrics(this.mapSettings.metrics, this._filter).pipe(first()).subscribe(response =>{
         this._metricData = response;
         this.createMarkers();
-      })
+      });
     }
   }
 
@@ -129,8 +129,7 @@ export class ScatterMapComponent implements OnInit {
           newSignal[this.mapSettings.metrics.field] = dataItem["avg"];
           return newSignal;
         }
-
-      })
+      });
       joinedData = joinedData.filter(item => item);
       let data = [];
 
@@ -205,10 +204,16 @@ export class ScatterMapComponent implements OnInit {
     let sigText = "<b>Signal: " + signal.signalID + "</b> | " + signal.mainStreetName + " @ " + signal.sideStreetName;
     let value = "";
 
-    if(this.mapSettings.metrics.formatType === "percent"){
-      value = this._formatService.formatPercent(signal[this.mapSettings.metrics.field], this.mapSettings.metrics.formatDecimals);
-    }else{
-      value = this._formatService.formatNumber(signal[this.mapSettings.metrics.field], this.mapSettings.metrics.formatDecimals);
+    if (signal[this.mapSettings.metrics.field] === -1){
+      value = "Unavailable";
+    }
+    else{
+      if(this.mapSettings.metrics.formatType === "percent"){
+        value = this._formatService.formatPercent(signal[this.mapSettings.metrics.field], this.mapSettings.metrics.formatDecimals);
+      }
+      else{
+        value = this._formatService.formatNumber(signal[this.mapSettings.metrics.field], this.mapSettings.metrics.formatDecimals);
+      }
     }
 
     let metricText = "<br><b>" + this.mapSettings.metrics.label + ": " + value + "</b>";

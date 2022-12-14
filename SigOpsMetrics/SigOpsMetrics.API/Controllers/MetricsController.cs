@@ -208,12 +208,15 @@ namespace SigOpsMetrics.API.Controllers
                 if (!IsFilterValid(measure, interval))
                 {
                     await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    "metrics/signals/filter/average", new Exception("Invalid filter."));
+                        System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                        "metrics/signals/filter/average", new Exception("Invalid filter."));
                     return null;
                 }
 
-                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
+                var signals = await SignalsDataAccessLayer.GetSignalsByFilter(SqlConnectionReader, filter);
+
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader,
+                    SqlConnectionWriter, true);
                 List<AverageDTO> groupedData = new List<AverageDTO>();
 
                 if (retVal == null || retVal.Rows.Count == 0)
@@ -251,6 +254,16 @@ namespace SigOpsMetrics.API.Controllers
                                    }).ToList();
                 }
 
+                var includedIds = groupedData.Select(x => x.label);
+                foreach (var unavailableSignal in signals.Items.Where(x => !includedIds.Contains(x)))
+                {
+                    groupedData.Add(new AverageDTO
+                    {
+                        avg = -1,
+                        delta = -1,
+                        label = unavailableSignal
+                    });
+                }
                 return groupedData;
             }
             catch (Exception ex)
