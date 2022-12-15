@@ -138,6 +138,12 @@ namespace SigOpsMetrics.API.Controllers
             // This is for bottom right graph
             try
             {
+                // For health metrics, we want to show prior year, monthly
+                if (measure.EndsWith("plot"))
+                {
+                    filter.timePeriod = 4;
+                    filter.dateRange = 4;
+                }
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 // Do this check here to prevent extra processing and database queries if the filter is not valid.
                 string interval = metricsData.GetIntervalFromFilter(filter);
@@ -293,6 +299,12 @@ namespace SigOpsMetrics.API.Controllers
             // This is for bottom left but also requires GetWithFilter
             try
             {
+                // For health metrics, we want to show prior year, monthly
+                if (measure.EndsWith("plot"))
+                {
+                    filter.timePeriod = 4;
+                    filter.dateRange = 4;
+                }
                 var metricsData = new MetricsDataAccessLayer();
 
                 // Do this check here to prevent extra processing and database queries if the filter is not valid.

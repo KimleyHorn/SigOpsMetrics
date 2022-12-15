@@ -171,25 +171,29 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
   }
 
   updateLineXAxis() {
-    switch(this.filter.timePeriod) {
-      case 0: //qhr
-      this.line.x = "timeperiod";
-        break;
-      case 1: //hr
-      this.line.x = "hour";
-        break;
-      case 2: //dy
-      this.line.x = "date";
-        break;
-      case 3: //wk
-        this.line.x = "date";
-        break;
-      case 4: //mo
-        this.line.x = "month";
-        break;
-      case 5: //qu
-        this.line.x = "quarter";
-        break;
+    if (this.title === "Percent Health") {
+      this.line.x = "month";
+    } else {
+      switch (this.filter.timePeriod) {
+        case 0: //qhr
+          this.line.x = "timeperiod";
+          break;
+        case 1: //hr
+          this.line.x = "hour";
+          break;
+        case 2: //dy
+          this.line.x = "date";
+          break;
+        case 3: //wk
+          this.line.x = "date";
+          break;
+        case 4: //mo
+          this.line.x = "month";
+          break;
+        case 5: //qu
+          this.line.x = "quarter";
+          break;
+      }
     }
   }
 

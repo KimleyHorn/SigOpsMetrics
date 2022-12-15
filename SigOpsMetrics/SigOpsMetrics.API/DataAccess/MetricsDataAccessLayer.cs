@@ -631,7 +631,7 @@ namespace SigOpsMetrics.API.DataAccess
                     CorridorId = corridorId,
                     TimePeriod = x.Key.intervalColumnName,
                     CalculatedField = x.Average(xx => !xx.IsNull(calculatedDataColumnName) ? xx.Field<double>(calculatedDataColumnName) : 0),
-                    Delta = deltaColumn == null && upColumn == null ? 0 : x.Average(xx => xx.Field<double>(deltaStr))
+                    Delta = deltaColumn == null && upColumn == null ? 0 : x.Average(xx => !xx.IsNull(deltaStr) ? xx.Field<double>(deltaStr) : 0)
 
                 }).OrderBy(m => m.TimePeriod).ToList();
             }
