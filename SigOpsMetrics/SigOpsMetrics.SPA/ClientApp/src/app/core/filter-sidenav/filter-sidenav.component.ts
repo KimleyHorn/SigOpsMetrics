@@ -55,6 +55,15 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   //SubCorridor | SUBCORRIDOR
   subcorridors: Array<string> = [];
   selectedSubcorridor: string = "";
+
+  // Priority
+  priorities: Array<string> = [];
+  selectedPriority: string = "";
+
+  //Classification
+  classifications: Array<string> = [];
+  selectedClassification: string = "";
+
   // Data Aggregation
   timeOptions: number[] = [15, 30, 60];
   selectedDataAggregationOption: number;
@@ -103,6 +112,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   filterSubscription: Subscription;
   countiesSubscription: Subscription;
   citiesSubscription: Subscription;
+  prioritySubscription: Subscription;
+  classificationSubscription: Subscription;
 
   initialLoad: boolean = true;
   inErrorState: number = 1;
@@ -164,6 +175,17 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.cities = data;
     });
 
+    this.prioritySubscription = this.filterService.priorities.subscribe(
+      (data) => {
+        this.priorities = data;
+      }
+    );
+
+    this.classificationSubscription =
+      this.filterService.classifications.subscribe((data) => {
+        this.classifications = data;
+      });
+
     //clear removed items
     this.filterSubscription = this.filterService.filters.subscribe((filter) => {
       if (this.initialLoad) {
@@ -223,6 +245,12 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
               case "signalId":
                 this.selectedSignalId = "";
                 break;
+              case "priority":
+                this.selectedPriority = "";
+                break;
+              case "classification":
+                this.selectedClassification = "";
+                break;
               default:
                 break;
             }
@@ -243,6 +271,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.subcorridorsSubscription.unsubscribe();
     this.countiesSubscription.unsubscribe();
     this.citiesSubscription.unsubscribe();
+    this.prioritySubscription.unsubscribe();
+    this.classificationSubscription.unsubscribe();
     this.filterErrorSubscription.unsubscribe();
   }
 
@@ -264,6 +294,10 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.filterService.setValue("zone", "");
       this.selectedSubcorridor = "";
       this.filterService.setValue("zone_Group", "");
+      this.selectedPriority = "";
+      this.filterService.setValue("priority", "");
+      this.selectedClassification = "";
+      this.filterService.setValue("classification", "");
     }
     this.filterService.setValue(type, e.value);
   }
@@ -311,8 +345,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
         this.changeDetectorRef.detectChanges();
         this.startDate.select(start);
         this.endDate.select(end);
-        start.setHours(0,0,0,0);
-        end.setHours(23,59,59,999);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
         this.startTime.select(start);
         this.endTime.select(end);
         this._clearAggregateOption(value);
@@ -388,6 +422,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.selectedCity = "";
     this.selectedCorridor = "";
     this.selectedSubcorridor = "";
+    this.selectedPriority = "";
+    this.selectedClassification = "";
     this.selectedDataAggregationOption = null;
     this.selectedSignalId = null;
     this._resetAggregateField("disabled", true);
@@ -451,20 +487,22 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
     this.selectedCorridor = filterData.corridor;
     this.selectedSubcorridor = filterData.subcorridor;
     this.selectedSignalId = filterData.signalId;
+    this.selectedPriority = filterData.priority;
+    this.selectedClassification = filterData.classification;
   }
 
-  allDayChecked(e){
+  allDayChecked(e) {
     var start = new Date();
     var end = new Date();
-    if (e.checked === true){
-      start.setHours(0,0,0,0);
-      end.setHours(23,59,59,999);
+    if (e.checked === true) {
+      start.setHours(0, 0, 0, 0);
+      end.setHours(23, 59, 59, 999);
       this.startTime.select(start);
       this.endTime.select(end);
     }
   }
 
-  removeCheck(e){
+  removeCheck(e) {
     this.allDayCheckbox.checked = false;
   }
 }

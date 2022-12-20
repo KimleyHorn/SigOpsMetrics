@@ -9,7 +9,7 @@ export class Filter {
   daysOfWeek: string[] = null;
   startTime: Date = null;
   endTime: Date = null;
-  zone_Group: string = 'Central Metro';
+  zone_Group: string = "Central Metro";
   //zone_Group: string = 'All RTOP';
   zone: string = null; //aka district
   agency: string = null;
@@ -18,9 +18,11 @@ export class Filter {
   city: string = null;
   corridor: string = null;
   signalId: string = "";
+  priority: string = "";
+  classification: string = "";
+
   constructor() {
     // let _dt = new Date();
     // this.month = (_dt.getMonth() + 1) + "/" + _dt.getFullYear();
   }
-
 }

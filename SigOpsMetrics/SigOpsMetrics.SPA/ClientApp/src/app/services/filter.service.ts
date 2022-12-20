@@ -7,7 +7,7 @@ import { map } from 'rxjs/operators';
 import { FormatService } from './format.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class FilterService {
   private _errorState: number = 1; // 1 = primary, 2 = warn, 3 = disabled
@@ -22,11 +22,15 @@ export class FilterService {
   baseUrl: string;
   public signalGroups: Array<any> = [];
 
-  private _signals: BehaviorSubject<SignalInfo[]> = new BehaviorSubject<SignalInfo[]>([]);
+  private _signals: BehaviorSubject<SignalInfo[]> = new BehaviorSubject<
+    SignalInfo[]
+  >([]);
   public signals = this._signals.asObservable();
   public signalData: SignalInfo[];
 
-  private _zoneGroups: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private _zoneGroups: BehaviorSubject<string[]> = new BehaviorSubject<
+    string[]
+  >([]);
   public zoneGroups = this._zoneGroups.asObservable();
   public zoneGroupData: string[];
 
@@ -34,157 +38,258 @@ export class FilterService {
   public zones = this._zones.asObservable();
   public zoneData: string[];
 
-  private _corridors: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private _corridors: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(
+    []
+  );
   public corridors = this._corridors.asObservable();
   public corridorData: string[];
 
-  private _subcorridors: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private _subcorridors: BehaviorSubject<string[]> = new BehaviorSubject<
+    string[]
+  >([]);
   public subcorridors = this._subcorridors.asObservable();
   public subcorridorData: string[];
 
-  private _agencies: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private _agencies: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(
+    []
+  );
   public agencies = this._agencies.asObservable();
   public agencyData: string[];
 
-  private _counties: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private _counties: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(
+    []
+  );
   public counties = this._counties.asObservable();
   public countyData: string[];
 
-  private _cities: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
+  private _cities: BehaviorSubject<string[]> = new BehaviorSubject<string[]>(
+    []
+  );
   public cities = this._cities.asObservable();
   public cityData: string[];
 
-  constructor(private http: HttpClient, @Inject('BASE_URL') baseUrlInject: string, private _formatService: FormatService) {
+  private _priorities: BehaviorSubject<string[]> = new BehaviorSubject<
+    string[]
+  >([]);
+  public priorities = this._priorities.asObservable();
+  public priorityData: string[];
+
+  private _classifications: BehaviorSubject<string[]> = new BehaviorSubject<
+    string[]
+  >([]);
+  public classifications = this._classifications.asObservable();
+  public classificationData: string[];
+
+  constructor(
+    private http: HttpClient,
+    @Inject("BASE_URL") baseUrlInject: string,
+    private _formatService: FormatService
+  ) {
     this.checkExistingFilter();
     this.baseUrl = baseUrlInject;
     this._filters.next(this.filter);
-    this.getSignalGroupsFromDb().subscribe(data => this.signalGroups = data);
+    this.getSignalGroupsFromDb().subscribe(
+      (data) => (this.signalGroups = data)
+    );
 
     this._loadData(this.filter);
   }
 
   //Region
   public getSignalGroupsFromDb() {
-    return this.http.get<any[]>(this.baseUrl + 'signals/zonegroups');
+    return this.http.get<any[]>(this.baseUrl + "signals/zonegroups");
   }
   //District
   public getDistrictsFromDb() {
-    return this.http.get<any[]>(this.baseUrl + 'signals/zones');
+    return this.http.get<any[]>(this.baseUrl + "signals/zones");
   }
   //Managing Agency
   public getAgenciesFromDb() {
-    return this.http.get<any[]>(this.baseUrl + 'signals/agencies');
+    return this.http.get<any[]>(this.baseUrl + "signals/agencies");
   }
 
   public getCountiesFromDb() {
-    return this.http.get<any[]>(this.baseUrl + 'signals/counties');
+    return this.http.get<any[]>(this.baseUrl + "signals/counties");
   }
 
   public getCitiesFromDb() {
-    return this.http.get<any[]>(this.baseUrl + 'signals/cities');
+    return this.http.get<any[]>(this.baseUrl + "signals/cities");
   }
 
-  getSignals(){
-    return this.http.get<SignalInfo[]>(this.baseUrl + 'signals/all').pipe(
-      map(response => {
-        this.signalData = response;
-        return response;
-      })
-    ).subscribe(response => this._signals.next(response));
+  getSignals() {
+    return this.http
+      .get<SignalInfo[]>(this.baseUrl + "signals/all")
+      .pipe(
+        map((response) => {
+          this.signalData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._signals.next(response));
   }
 
-  getZoneGroups(){
-    return this.http.get<string[]>(this.baseUrl + 'signals/zonegroups').pipe(
-      map(response => {
-        this.zoneGroupData = response;
-        return response;
-      })
-    ).subscribe(response => this._zoneGroups.next(response));
+  getZoneGroups() {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/zonegroups")
+      .pipe(
+        map((response) => {
+          this.zoneGroupData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._zoneGroups.next(response));
   }
 
-  getZones(){
-    return this.http.get<string[]>(this.baseUrl + 'signals/zones').pipe(
-      map(response => {
-        this.zoneData = response;
-        return response;
-      })
-    ).subscribe(response => this._zones.next(response));;
+  getZones() {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/zones")
+      .pipe(
+        map((response) => {
+          this.zoneData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._zones.next(response));
   }
 
-  getZonesByZoneGroup(zoneGroup: string){
-    return this.http.get<string[]>(this.baseUrl + 'signals/zonesbyzonegroup/' + zoneGroup).pipe(
-      map(response => {
-        this.zoneData = response;
-        return response;
-      })
-    ).subscribe(response => this._zones.next(response));;
+  getZonesByZoneGroup(zoneGroup: string) {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/zonesbyzonegroup/" + zoneGroup)
+      .pipe(
+        map((response) => {
+          this.zoneData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._zones.next(response));
   }
 
-  getCorridors(){
-    return this.http.get<string[]>(this.baseUrl + 'signals/corridors').pipe(
-      map(response => {
-        this.corridorData = response;
-        return response;
-      })
-    ).subscribe(response => this._corridors.next(response));;
+  getCorridors() {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/corridors")
+      .pipe(
+        map((response) => {
+          this.corridorData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._corridors.next(response));
   }
 
-  getCorridorsByFilter(){
-    return this.http.get<string[]>(this.baseUrl + 'signals/corridorsbyfilter' + "?zoneGroup=" + this.filter.zone_Group + "&zone=" +
-                                   this.filter.zone + "&agency=" + this.filter.agency + "&county=" + this.filter.county + "&city=" + this.filter.city).pipe(
-      map(response => {
-        this.corridorData = response;
-        return response.sort();
-      })
-    ).subscribe(response => this._corridors.next(response));;
+  getCorridorsByFilter() {
+    return this.http
+      .get<string[]>(
+        this.baseUrl +
+          "signals/corridorsbyfilter" +
+          "?zoneGroup=" +
+          this.filter.zone_Group +
+          "&zone=" +
+          this.filter.zone +
+          "&agency=" +
+          this.filter.agency +
+          "&county=" +
+          this.filter.county +
+          "&city=" +
+          this.filter.city
+      )
+      .pipe(
+        map((response) => {
+          this.corridorData = response;
+          return response.sort();
+        })
+      )
+      .subscribe((response) => this._corridors.next(response));
   }
 
-  getSubcorridors(){
-    return this.http.get<string[]>(this.baseUrl + 'signals/subcorridors').pipe(
-      map(response => {
-        this.subcorridorData = response;
-        return response;
-      })
-    ).subscribe(response => this._subcorridors.next(response));
+  getSubcorridors() {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/subcorridors")
+      .pipe(
+        map((response) => {
+          this.subcorridorData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._subcorridors.next(response));
   }
 
-  getSubcorridorsByCorridor(corridor: string){
-    return this.http.get<string[]>(this.baseUrl + 'signals/subcorridorsbycorridor/' +  encodeURIComponent(corridor)).pipe(
-      map(response => {
-        this.subcorridorData = response;
-        return response;
-      })
-    ).subscribe(response => this._subcorridors.next(response));;
+  getSubcorridorsByCorridor(corridor: string) {
+    return this.http
+      .get<string[]>(
+        this.baseUrl +
+          "signals/subcorridorsbycorridor/" +
+          encodeURIComponent(corridor)
+      )
+      .pipe(
+        map((response) => {
+          this.subcorridorData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._subcorridors.next(response));
   }
 
-  getAgencies(){
-    return this.http.get<string[]>(this.baseUrl + 'signals/agencies').pipe(
-      map(response => {
-        this.agencyData = response;
-        return response;
-      })
-    ).subscribe(response => this._agencies.next(response));;
+  getAgencies() {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/agencies")
+      .pipe(
+        map((response) => {
+          this.agencyData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._agencies.next(response));
   }
 
   getCounties() {
-    return this.http.get<string[]>(this.baseUrl + 'signals/counties').pipe(
-      map(response => {
-        this.countyData = response;
-        return response;
-      })
-    ).subscribe(response => this._counties.next(response));;
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/counties")
+      .pipe(
+        map((response) => {
+          this.countyData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._counties.next(response));
   }
 
   getCities() {
-    return this.http.get<string[]>(this.baseUrl + 'signals/cities').pipe(
-      map(response => {
-        this.cityData = response;
-        return response;
-      })
-    ).subscribe(response => this._cities.next(response));;
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/cities")
+      .pipe(
+        map((response) => {
+          this.cityData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._cities.next(response));
   }
 
-  private _loadData(filter: Filter){
+  getPriorities() {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/priorities")
+      .pipe(
+        map((response) => {
+          this.priorityData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._priorities.next(response));
+  }
+
+  getClassifications() {
+    return this.http
+      .get<string[]>(this.baseUrl + "signals/classifications")
+      .pipe(
+        map((response) => {
+          this.classificationData = response;
+          return response;
+        })
+      )
+      .subscribe((response) => this._classifications.next(response));
+  }
+
+  private _loadData(filter: Filter) {
     this.getZoneGroups();
     this.getZonesByZoneGroup(filter.zone_Group);
     this.getCorridorsByFilter();
@@ -193,9 +298,11 @@ export class FilterService {
     this.getSignals();
     this.getCounties();
     this.getCities();
+    this.getPriorities();
+    this.getClassifications();
   }
 
-  public setValue(key: string, value: any){
+  public setValue(key: string, value: any) {
     if (value) {
       switch (key) {
         case "zone_Group":
@@ -215,41 +322,50 @@ export class FilterService {
     this.getCorridorsByFilter(); // Always filter the corridor dropdown based on other selected filters.
   }
 
-  public updateFilter(){
+  public updateFilter() {
     this._filters.next(this.filter);
     this.isFiltering.next(false);
   }
 
-  public resetFilter(){
+  public resetFilter() {
     this.filter = new Filter();
     this._loadData(this.filter);
     //this.updateFilter();
     //this.isFiltering.next(false);
   }
 
-  public filterData(data: any, corridors: [] = []){
+  public filterData(data: any, corridors: [] = []) {
     let filteredData = data;
 
     for (let key of Object.keys(this.filter)) {
-      if(this.filter[key] && this.filter[key] !== null && key !== 'month'){
+      if (this.filter[key] && this.filter[key] !== null && key !== "month") {
         switch (key) {
-          case 'zone_Group':
-            filteredData = filteredData.filter(dataItem => {
+          case "zone_Group":
+            filteredData = filteredData.filter((dataItem) => {
               let cor;
 
-              if(corridors.length === 0){
-                cor = this.corridorData.filter(cor => cor === dataItem['corridor'])[0];
+              if (corridors.length === 0) {
+                cor = this.corridorData.filter(
+                  (cor) => cor === dataItem["corridor"]
+                )[0];
               } else {
-                cor = corridors.filter(cor => cor === dataItem['corridor'])[0];
+                cor = corridors.filter(
+                  (cor) => cor === dataItem["corridor"]
+                )[0];
               }
 
-              if(dataItem['corridor'] === cor || dataItem['corridor'] === this.filter[key]){
+              if (
+                dataItem["corridor"] === cor ||
+                dataItem["corridor"] === this.filter[key]
+              ) {
                 return dataItem;
               }
             });
             break;
           default:
-            filteredData = filteredData.filter(dataItem => dataItem[key] === this.filter[key]);
+            filteredData = filteredData.filter(
+              (dataItem) => dataItem[key] === this.filter[key]
+            );
             break;
         }
       }
@@ -258,20 +374,19 @@ export class FilterService {
     return filteredData;
   }
 
-  public getWeightedAverageData(data: any[]){
-    let arrAvg = data.map(a => a.avg);
-    let arrDelta = data.map(a => a.delta);
-    let arrWeight = data.map(a => a.weight);
+  public getWeightedAverageData(data: any[]) {
+    let arrAvg = data.map((a) => a.avg);
+    let arrDelta = data.map((a) => a.delta);
+    let arrWeight = data.map((a) => a.weight);
     let wa = weightedAverage(arrAvg, arrWeight);
     let waDelta = weightedAverage(arrDelta, arrWeight);
 
     let metric = {
       avg: wa,
       delta: waDelta,
-    }
+    };
     // Display N/A for "Change from prior period" when using a custom date range
-    if (this.filter.dateRange == 5)
-    {
+    if (this.filter.dateRange == 5) {
       metric.delta = null;
     }
 
@@ -283,13 +398,13 @@ export class FilterService {
   }
 
   private checkExistingFilter() {
-    let localStorageFilter = localStorage.getItem('filter');
+    let localStorageFilter = localStorage.getItem("filter");
     if (localStorageFilter) {
       this.filter = JSON.parse(localStorageFilter);
     }
   }
 
-  public updateFilterErrorState(state: number){
+  public updateFilterErrorState(state: number) {
     this._errorStateObs.next(state);
   }
 }
