@@ -327,6 +327,46 @@ namespace SigOpsMetrics.API.Controllers
                 return null;
             }
         }
+        
+        /// <summary>
+        /// Return list of all priorities in system.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("priorities")]
+        public async Task<IEnumerable<string>> GetPriorities()
+        {
+            try
+            {
+                return await SignalsDataAccessLayer.GetPrioritiesSQL(SqlConnectionReader);
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/priorities", ex);
+                return null;
+            }
+        }
+        
+        /// <summary>
+        /// Return list of all classifications in system.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("classifications")]
+        public async Task<IEnumerable<string>> GetClassifications()
+        {
+            try
+            {
+                return await SignalsDataAccessLayer.GetClassificationsSQL(SqlConnectionReader);
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "signals/cities", ex);
+                return null;
+            }
+        }
 
         /// <summary>
         /// Endpoint for performing daily data pull of corridors_latest.xls into sql table.

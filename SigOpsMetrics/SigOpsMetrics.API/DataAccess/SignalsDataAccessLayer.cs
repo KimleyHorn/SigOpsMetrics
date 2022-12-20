@@ -510,6 +510,68 @@ namespace SigOpsMetrics.API.DataAccess
 
             return cities;
         }
+        
+        public static async Task<IEnumerable<string>> GetPrioritiesSQL(MySqlConnection sqlConnection)
+        {
+            var priorities = new List<string>();
+            try
+            {
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+                cmd.CommandText =
+                    "SELECT DISTINCT(Priority) FROM signals WHERE Priority IS NOT NULL and Priority <> '' and signalid <> -1 and include = 1 order by Priority ASC";
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    priorities.Add(reader.GetString(0).Trim());
+                }
+            }
+            catch (Exception ex)
+            {
+                await WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetCitiesSQL", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return priorities;
+        } 
+        
+        public static async Task<IEnumerable<string>> GetClassificationsSQL(MySqlConnection sqlConnection)
+        {
+            var classifications = new List<string>();
+            try
+            {
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+                cmd.CommandText =
+                    "SELECT DISTINCT(Classification) FROM signals WHERE Classification IS NOT NULL and Classification <> '' and signalid <> -1 and include = 1 order by Classification ASC";
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    classifications.Add(reader.GetString(0).Trim());
+                }
+            }
+            catch (Exception ex)
+            {
+                await WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetCitiesSQL", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return classifications;
+        }
 
         public static async Task WriteToSignals(MySqlConnection sqlConnection, ExcelWorksheet ws)
         {
@@ -535,6 +597,8 @@ namespace SigOpsMetrics.API.DataAccess
                 tbl.Columns.Add("County", typeof(string));
                 tbl.Columns.Add("City", typeof(string));
                 tbl.Columns.Add("TeamsGuid", typeof(string));
+                tbl.Columns.Add("Priority", typeof(string));
+                tbl.Columns.Add("Classification", typeof(string));
 
                 var startRow = 2;
                 for (var rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
@@ -615,7 +679,7 @@ namespace SigOpsMetrics.API.DataAccess
             await using (var cmd = new MySqlCommand())
             {
                 var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
+                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, filter.priority, filter.classification, cmd);
                 var sqlText = $"SELECT SignalID, Corridor, Zone_Group FROM {AppConfig.DatabaseName}.signals WHERE Include = 1 {where}";
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = sqlText;
@@ -644,7 +708,7 @@ namespace SigOpsMetrics.API.DataAccess
             await using (var cmd = new MySqlCommand())
             {
                 var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
+                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, filter.priority, filter.classification, cmd);
                 var sqlText = $"select distinct(signalid) from {AppConfig.DatabaseName}.signals where include = 1" + where;
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = sqlText;
@@ -667,7 +731,7 @@ namespace SigOpsMetrics.API.DataAccess
             await using (var cmd = new MySqlCommand())
             {
                 var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
+                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, filter.priority, filter.classification, cmd);
                 var sqlText = $"select distinct(corridor) from {AppConfig.DatabaseName}.signals where include = 1" + where;
                 if (filter.zone_Group == "All")
                 {
@@ -693,7 +757,7 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
         private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,
-            string county, string city, string corridor, string subcorridor, string signalId, MySqlCommand cmd)
+            string county, string city, string corridor, string subcorridor, string signalId, string priority, string classification, MySqlCommand cmd)
         {
             if (!signalId.IsStringNullOrBlank())
             {
@@ -704,7 +768,7 @@ namespace SigOpsMetrics.API.DataAccess
             if ((zoneGroup.IsStringNullOrBlank() || zoneGroup == "All") && zone.IsStringNullOrBlank() &&
                 agency.IsStringNullOrBlank() &&
                 county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() &&
-                subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank())
+                subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank() && priority.IsStringNullOrBlank() && classification.IsStringNullOrBlank()) 
             {
                 return string.Empty;
             }
@@ -751,6 +815,18 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 cmd.Parameters.AddWithValue("subcorridor", subcorridor);
                 where += "subcorridor = @subcorridor and ";
+            }
+
+            if (!priority.IsStringNullOrBlank())
+            {
+                cmd.Parameters.AddWithValue("priority", priority);
+                where += "Priority = @priority and ";
+            }
+
+            if (!classification.IsStringNullOrBlank())
+            {
+                cmd.Parameters.AddWithValue("classification", classification);
+                where += "Classification = @classification and ";
             }
 
             //chop off the last 'and'

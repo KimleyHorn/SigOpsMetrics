@@ -117,7 +117,7 @@ namespace SigOpsMetrics.API.DataAccess
                 await using (var cmd = new MySqlCommand())
                 {
                     var where = CreateWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                        filter.city, filter.corridor, filter.subcorridor, filter.signalId, cmd);
+                        filter.city, filter.corridor, filter.signalId, cmd);
                     var sqlText = $"SELECT CameraID, Zone_Group, Corridor FROM {AppConfig.DatabaseName}.cameras WHERE Include = 1 {where}";
                     cmd.Connection = sqlConnection;
                     cmd.CommandText = sqlText;
@@ -149,7 +149,7 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
         private static string CreateWhereClause(string zoneGroup, string zone, string agency,
-            string county, string city, string corridor, string subcorridor, string cameraId, MySqlCommand cmd)
+            string county, string city, string corridor, string cameraId, MySqlCommand cmd)
         {
             if (!cameraId.IsStringNullOrBlank())
             {
@@ -160,7 +160,7 @@ namespace SigOpsMetrics.API.DataAccess
             if ((zoneGroup.IsStringNullOrBlank() || zoneGroup == "All") && zone.IsStringNullOrBlank() &&
                 agency.IsStringNullOrBlank() &&
                 county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() &&
-                subcorridor.IsStringNullOrBlank() && cameraId.IsStringNullOrBlank())
+                cameraId.IsStringNullOrBlank())
             {
                 return string.Empty;
             }
@@ -202,12 +202,6 @@ namespace SigOpsMetrics.API.DataAccess
                 cmd.Parameters.AddWithValue("corridor", corridor);
                 where += "Corridor = @corridor and ";
             }
-
-            //if (!subcorridor.IsStringNullOrBlank())
-            //{
-            //    cmd.Parameters.AddWithValue("subcorridor", subcorridor);
-            //    where += "subcorridor = @subcorridor and ";
-            //}
 
             //chop off the last 'and'
             where = where.Substring(0, where.Length - 4);

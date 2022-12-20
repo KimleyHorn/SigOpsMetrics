@@ -22,10 +22,10 @@ export class FilterChipListComponent implements OnInit {
           let name;
           //set the labels for the chips and format any necessary data
           switch (key) {
-            case 'month':
-              name = 'Month';
+            case "month":
+              name = "Month";
               break;
-            case 'dateRange':
+            case "dateRange":
               name = "Date Range";
 
               switch (value) {
@@ -45,32 +45,32 @@ export class FilterChipListComponent implements OnInit {
                   value = "Prior Year";
                   break;
                 default:
-                  value = "Custom"
+                  value = "Custom";
                   break;
               }
 
               break;
-            case 'customStart':
-              name = 'Start Date';
-              value = this._datePipe.transform(value, 'MM/dd/yyyy');
+            case "customStart":
+              name = "Start Date";
+              value = this._datePipe.transform(value, "MM/dd/yyyy");
               break;
-            case 'customEnd':
-              name = 'End Date';
-              value = this._datePipe.transform(value, 'MM/dd/yyyy');
+            case "customEnd":
+              name = "End Date";
+              value = this._datePipe.transform(value, "MM/dd/yyyy");
               break;
-            case 'daysOfWeek':
-              name = 'Day(s) of Week';
+            case "daysOfWeek":
+              name = "Day(s) of Week";
               break;
-            case 'startTime':
-              name = 'Start Time';
-              value = this._datePipe.transform(value, 'hh:mm a');
+            case "startTime":
+              name = "Start Time";
+              value = this._datePipe.transform(value, "hh:mm a");
               break;
-            case 'endTime':
-              name = 'End Time';
-              value = this._datePipe.transform(value, 'hh:mm a');
+            case "endTime":
+              name = "End Time";
+              value = this._datePipe.transform(value, "hh:mm a");
               break;
-            case 'timePeriod':
-              name = 'Data Aggregation';
+            case "timePeriod":
+              name = "Data Aggregation";
 
               switch (value) {
                 case 1:
@@ -89,31 +89,43 @@ export class FilterChipListComponent implements OnInit {
                   value = "Quarterly";
                   break;
                 default:
-                  value = "15 mins"
+                  value = "15 mins";
                   break;
               }
 
               break;
-            case 'zone_Group':
-              name = 'Region';
+            case "zone_Group":
+              name = "Region";
               break;
-            case 'zone':
-              name = 'District';
+            case "zone":
+              name = "District";
               break;
-            case 'agency':
-              name = 'Managing Agency';
+            case "agency":
+              name = "Managing Agency";
               break;
-            case 'county':
-              name = 'County';
+            case "county":
+              name = "County";
               break;
-            case 'city':
-              name = 'City';
+            case "city":
+              name = "City";
               break;
-            case 'corridor':
-              name = 'Corridor';
+            case "corridor":
+              name = "Corridor";
+              break;
+            case "city":
+              name = "City";
+              break;
+            case "corridor":
+              name = "Corridor";
+              break;
+            case "priority":
+              name = "Priority";
+              break;
+            case "classification":
+              name = "Classification";
               break;
             default:
-              name = 'Custom';
+              name = "Custom";
               break;
           }
 

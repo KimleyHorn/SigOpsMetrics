@@ -126,5 +126,17 @@ namespace SigOpsMetrics.API.Classes.DTOs
         /// </summary>
         /// <example>null</example>
         public string subcorridor { get; set; }
+        
+        /// <summary>
+        /// Priority filter
+        /// </summary>
+        /// <example>null</example>
+        public string priority { get; set; }
+
+        /// <summary>
+        /// Classification filter
+        /// </summary>
+        /// <example>null</example>
+        public string classification { get; set; }
     }
 }
