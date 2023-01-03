@@ -510,7 +510,7 @@ namespace SigOpsMetrics.API.DataAccess
 
             return cities;
         }
-        
+
         public static async Task<IEnumerable<string>> GetPrioritiesSQL(MySqlConnection sqlConnection)
         {
             var priorities = new List<string>();
@@ -540,8 +540,8 @@ namespace SigOpsMetrics.API.DataAccess
             }
 
             return priorities;
-        } 
-        
+        }
+
         public static async Task<IEnumerable<string>> GetClassificationsSQL(MySqlConnection sqlConnection)
         {
             var classifications = new List<string>();
@@ -575,81 +575,71 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task WriteToSignals(MySqlConnection sqlConnection, ExcelWorksheet ws)
         {
-            try
+            var tbl = new DataTable();
+            tbl.Columns.Add("SignalID", typeof(string));
+            tbl.Columns.Add("Zone_Group", typeof(string));
+            tbl.Columns.Add("Zone", typeof(string));
+            tbl.Columns.Add("Corridor", typeof(string));
+            tbl.Columns.Add("Subcorridor", typeof(string));
+            tbl.Columns.Add("Agency", typeof(string));
+            tbl.Columns.Add("Main_Street_Name", typeof(string));
+            tbl.Columns.Add("Side_Street_Name", typeof(string));
+            tbl.Columns.Add("Milepost", typeof(string));
+            tbl.Columns.Add("Asof", typeof(DateTime));
+            tbl.Columns.Add("Duplicate", typeof(string));
+            tbl.Columns.Add("Include", typeof(string));
+            tbl.Columns.Add("Modified", typeof(DateTime));
+            tbl.Columns.Add("Note", typeof(string));
+            tbl.Columns.Add("Latitude", typeof(decimal));
+            tbl.Columns.Add("Longitude", typeof(decimal));
+            tbl.Columns.Add("County", typeof(string));
+            tbl.Columns.Add("City", typeof(string));
+            tbl.Columns.Add("TeamsGuid", typeof(string));
+            tbl.Columns.Add("Priority", typeof(string));
+            tbl.Columns.Add("Classification", typeof(string));
+
+            var startRow = 2;
+            for (var rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
             {
-                var tbl = new DataTable();
-                tbl.Columns.Add("SignalID", typeof(string));
-                tbl.Columns.Add("Zone_Group", typeof(string));
-                tbl.Columns.Add("Zone", typeof(string));
-                tbl.Columns.Add("Corridor", typeof(string));
-                tbl.Columns.Add("Subcorridor", typeof(string));
-                tbl.Columns.Add("Agency", typeof(string));
-                tbl.Columns.Add("Main_Street_Name", typeof(string));
-                tbl.Columns.Add("Side_Street_Name", typeof(string));
-                tbl.Columns.Add("Milepost", typeof(string));
-                tbl.Columns.Add("Asof", typeof(DateTime));
-                tbl.Columns.Add("Duplicate", typeof(string));
-                tbl.Columns.Add("Include", typeof(string));
-                tbl.Columns.Add("Modified", typeof(DateTime));
-                tbl.Columns.Add("Note", typeof(string));
-                tbl.Columns.Add("Latitude", typeof(decimal));
-                tbl.Columns.Add("Longitude", typeof(decimal));
-                tbl.Columns.Add("County", typeof(string));
-                tbl.Columns.Add("City", typeof(string));
-                tbl.Columns.Add("TeamsGuid", typeof(string));
-                tbl.Columns.Add("Priority", typeof(string));
-                tbl.Columns.Add("Classification", typeof(string));
-
-                var startRow = 2;
-                for (var rowNum = startRow; rowNum <= ws.Dimension.End.Row; rowNum++)
+                var wsRow = ws.Cells[rowNum, 1, rowNum, ws.Dimension.End.Column];
+                var row = tbl.Rows.Add();
+                foreach (var cell in wsRow)
                 {
-                    var wsRow = ws.Cells[rowNum, 1, rowNum, ws.Dimension.End.Column];
-                    var row = tbl.Rows.Add();
-                    foreach (var cell in wsRow)
+                    if (!string.IsNullOrEmpty(cell.Text))
                     {
-                        if (!string.IsNullOrEmpty(cell.Text))
+                        if (cell.Text == "#REF!")
                         {
-                            if (cell.Text == "#REF!")
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            switch (cell.Start.Column)
-                            {
-                                case 12: //Include
-                                    row[cell.Start.Column - 1] =
-                                        cell.Text.ToUpper() == "TRUE" || cell.Text == "1" ? 1 : 0;
-                                    break;
-                                case 10: //Asof
-                                case 13: //Modified
-                                    row[cell.Start.Column - 1] = DateTime.Parse(cell.Text).ToString("MM/dd/yyyy");
-                                    break;
-                                default:
-                                    row[cell.Start.Column - 1] = cell.Text;
-                                    break;
-                            }
+                        switch (cell.Start.Column)
+                        {
+                            case 12: //Include
+                                row[cell.Start.Column - 1] =
+                                    cell.Text.ToUpper() == "TRUE" || cell.Text == "1" ? 1 : 0;
+                                break;
+                            case 10: //Asof
+                            case 13: //Modified
+                                row[cell.Start.Column - 1] = DateTime.Parse(cell.Text).ToString("MM/dd/yyyy");
+                                break;
+                            default:
+                                row[cell.Start.Column - 1] = cell.Text;
+                                break;
                         }
                     }
                 }
-
-                sqlConnection.ConnectionString += ";AllowLoadLocalInfile=True";
-                await sqlConnection.OpenAsync();
-                using (var cmd = new MySqlCommand())
-                {
-                    cmd.Connection = sqlConnection;
-                    cmd.CommandText = $"TRUNCATE TABLE {AppConfig.DatabaseName}.signals";
-                    cmd.ExecuteNonQuery();
-
-                    var bulkCopy = new MySqlBulkCopy(sqlConnection);
-                    bulkCopy.DestinationTableName = $"{AppConfig.DatabaseName}.signals";
-                    bulkCopy.WriteToServer(tbl);
-                }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+
+            sqlConnection.ConnectionString += ";AllowLoadLocalInfile=True";
+            await sqlConnection.OpenAsync();
+            await using var cmd = new MySqlCommand();
+            cmd.Connection = sqlConnection;
+            cmd.CommandText = $"TRUNCATE TABLE {AppConfig.DatabaseName}.signals";
+            cmd.ExecuteNonQuery();
+
+            var bulkCopy = new MySqlBulkCopy(sqlConnection);
+            bulkCopy.DestinationTableName = $"{AppConfig.DatabaseName}.signals";
+            await bulkCopy.WriteToServerAsync(tbl);
         }
 
         public static async Task<FilteredItems> GetCorridorsOrSignalsByFilter(MySqlConnection sqlConnection,
@@ -768,7 +758,7 @@ namespace SigOpsMetrics.API.DataAccess
             if ((zoneGroup.IsStringNullOrBlank() || zoneGroup == "All") && zone.IsStringNullOrBlank() &&
                 agency.IsStringNullOrBlank() &&
                 county.IsStringNullOrBlank() && city.IsStringNullOrBlank() && corridor.IsStringNullOrBlank() &&
-                subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank() && priority.IsStringNullOrBlank() && classification.IsStringNullOrBlank()) 
+                subcorridor.IsStringNullOrBlank() && signalId.IsStringNullOrBlank() && priority.IsStringNullOrBlank() && classification.IsStringNullOrBlank())
             {
                 return string.Empty;
             }

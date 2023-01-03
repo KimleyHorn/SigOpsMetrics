@@ -373,7 +373,7 @@ namespace SigOpsMetrics.API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("datapull/{key}")]
-        public async Task DataPull(string key)
+        public async Task<IActionResult> DataPull(string key)
         {
             try
             {
@@ -382,13 +382,17 @@ namespace SigOpsMetrics.API.Controllers
                     Task<ExcelWorksheet> worksheet = GetSpreadsheet();
                     var ws = await worksheet;
                     await SignalsDataAccessLayer.WriteToSignals(SqlConnectionWriter, ws);
+                    return Ok();
                 }
+
+                return Unauthorized("Invalid Key");
             }
             catch (Exception ex)
             {
                 await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "DataPull", ex);
+                return BadRequest(ex);
             }
         }
 
