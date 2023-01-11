@@ -50,7 +50,9 @@ namespace SigOpsMetrics.API.DataAccess
                             Latitude = reader.IsDBNull(14) ? 0 : reader.GetDouble(14),
                             Longitude = reader.IsDBNull(15) ? 0 : reader.GetDouble(15),
                             County = reader.IsDBNull(16) ? "" : reader.GetString(16).Trim(),
-                            City = reader.IsDBNull(17) ? "" : reader.GetString(17).Trim()
+                            City = reader.IsDBNull(17) ? "" : reader.GetString(17).Trim(),
+                            Priority = reader.IsDBNull(19) ? "" : reader.GetString(19).Trim(),
+                            Classification = reader.IsDBNull(20) ? "" : reader.GetString(20).Trim(),
                         };
                         signals.Add(row);
                     }

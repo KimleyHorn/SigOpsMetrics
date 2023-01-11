@@ -22,5 +22,7 @@ namespace SigOpsMetrics.API.Classes.DTOs
         public string City { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+        public string Priority { get; set; }
+        public string Classification {get; set; }
     }
 }

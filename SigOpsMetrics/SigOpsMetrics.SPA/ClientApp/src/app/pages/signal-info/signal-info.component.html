@@ -206,6 +206,54 @@
     <td mat-cell *matCellDef="let element"> {{element.longitude}}</td>
   </ng-container>
 
+  <ng-container matColumnDef="county">
+    <th mat-header-cell *matHeaderCellDef>
+      <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
+        <mat-form-field class="{{filterSelectList[16].style}}" appearance="outline" style="color: white; width: 80px;">
+          <mat-label>County</mat-label>
+          <input matInput formControlName="{{filterSelectList[16].columnProp}}">
+        </mat-form-field>
+      </form>
+    </th>
+    <td mat-cell *matCellDef="let element"> {{element.county}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="city">
+    <th mat-header-cell *matHeaderCellDef>
+      <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
+        <mat-form-field class="{{filterSelectList[17].style}}" appearance="outline" style="color: white; width: 110px;">
+          <mat-label>City</mat-label>
+          <input matInput formControlName="{{filterSelectList[17].columnProp}}">
+        </mat-form-field>
+      </form>
+    </th>
+    <td mat-cell *matCellDef="let element"> {{element.city}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="priority">
+    <th mat-header-cell *matHeaderCellDef>
+      <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
+        <mat-form-field class="{{filterSelectList[18].style}}" appearance="outline" style="color: white; width: 80px;">
+          <mat-label>Priority</mat-label>
+          <input matInput formControlName="{{filterSelectList[18].columnProp}}">
+        </mat-form-field>
+      </form>
+    </th>
+    <td mat-cell *matCellDef="let element"> {{element.priority}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="classification">
+    <th mat-header-cell *matHeaderCellDef>
+      <form style="display: flex;margin-bottom: 5px;" [formGroup]="formControl">
+        <mat-form-field class="{{filterSelectList[19].style}}" appearance="outline" style="color: white; width: 110px;">
+          <mat-label>Classification</mat-label>
+          <input matInput formControlName="{{filterSelectList[19].columnProp}}">
+        </mat-form-field>
+      </form>
+    </th>
+    <td mat-cell *matCellDef="let element"> {{element.classification}}</td>
+  </ng-container>
+
   <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
   <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 </table>

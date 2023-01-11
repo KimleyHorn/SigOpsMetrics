@@ -15,4 +15,8 @@ export class SignalInfo {
   note: string;
   latitude: number;
   longitude: number;
+  county: string;
+  city: string;
+  priority: string;
+  classification: string;
 }
