@@ -1,0 +1,19 @@
+<div class="row no-gutters">
+  <div class="col-2 d-flex justify-content-start ">
+    <h4 class="my-auto">{{ title }}</h4>
+  </div>
+  <div class="col">
+    <plotly-plot
+        [data]='lineGraph.data'
+        [layout]='layout'
+        [useResizeHandler]='true'
+        [config]='{"displayModeBar": false,
+                  "responsive": true}'
+        >
+      </plotly-plot>
+  </div>
+</div>
+
+
+
+

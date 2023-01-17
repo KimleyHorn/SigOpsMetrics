@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
@@ -18,6 +20,137 @@ namespace SigOpsMetrics.API.DataAccess
     public class MetricsDataAccessLayer : BaseDataAccessLayer
     {
         private const string ApplicationName = "SigOpsMetrics.API";
+
+        public async Task<Dictionary<string, List<SummaryTrendDTO>>> GetSummaryTrend(string source, FilterDTO filter, MySqlConnection sqlConnectionReader,
+            MySqlConnection sqlConnectionWriter)
+        {
+            var timer = Stopwatch.StartNew();
+            var dt = DateTime.Today;
+            
+            var fullStart = new DateTime(dt.Year - 1, dt.Month, 1);
+            var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
+            var allZoneGroup = filter.zone_Group == "All";
+
+            var response = new Dictionary<string, List<SummaryTrendDTO>>
+            {
+                { "tp", null },
+                { "aogd", null},
+                { "prd", null},
+                { "qsd", null},
+                { "sfd", null},
+                { "sfo", null},
+                { "tti", null},
+                { "pti", null},
+                { "vpd", null},
+                { "vphpa", null},
+                { "vphpp", null},
+                { "papd", null},
+                { "du", null},
+                { "pau", null},
+                { "cctv", null},
+                { "cu", null}
+            };
+
+            var keys = new List<string>(response.Keys);
+            var signalsWithCorridors = await SignalsDataAccessLayer.GetSignalsWithCorridors(sqlConnectionReader, filter);
+            switch (filter.zone_Group)
+            {
+                case "Western Metro":
+                    filter.zone_Group = "West Metro";
+                    break;
+                case "Eastern Metro":
+                    filter.zone_Group = "East Metro";
+                    break;
+            }
+            var cameras = await CamerasDataAccessLayer.GetCameras(sqlConnectionReader, filter);
+            // todo after .net 6 upgrade, see if foreachasync is faster
+            var tasks = keys.Select(measure => GetSummaryTrendDataAsync(measure, sqlConnectionReader, response,
+                fullStart, fullEnd, cameras, signalsWithCorridors, allZoneGroup));
+            await Task.WhenAll(tasks);
+            timer.Stop();
+            var time = timer.Elapsed;
+            return response;
+        }
+
+        private readonly SemaphoreSlim _sem = new SemaphoreSlim(50);
+        private async Task GetSummaryTrendDataAsync(string measure, IDbConnection connection, IDictionary<string, List<SummaryTrendDTO>> response,
+            DateTime fullStart, DateTime fullEnd, IEnumerable<Cctv> cameras, IEnumerable<Signal> signalsWithCorridors, bool allZoneGroup)
+        {
+            await _sem.WaitAsync();
+            try
+            {
+                // Persist Security Info must be set to true in connection string
+                var newConnection = new MySqlConnection(connection.ConnectionString);
+
+                // get average for every month in date range for given filter and add that to dictionary
+                var dateRangeWhere = CreateDateRangeClause("mo", measure, fullStart.ToString(), fullEnd.ToString());
+                switch (measure)
+                {
+                    case "cctv":
+                        var camerasList = cameras.ToList();
+                        if (camerasList.Any())
+                        {
+                            var ids = camerasList.Select(s => s.CameraId).Distinct().ToList();
+                            var fullWhereClause = AddCctvsToWhereClause(dateRangeWhere, ids);
+                            var data = await GetFromDatabase(newConnection, "sig", "mo", measure, fullWhereClause);
+                            var dateGroups = data.AsEnumerable().GroupBy(r => r["Month"]);
+                            var avgs = dateGroups.Select(x => new SummaryTrendDTO
+                            {
+                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure))),
+                                Month = DateTime.Parse(x.Key.ToString())
+                            });
+                            response[measure] = avgs.ToList();
+                        }
+                        else
+                        {
+                            response[measure] = new List<SummaryTrendDTO>();
+                        }
+                        break;
+                    default:
+                        var level = "sig";
+                        //Several table structures do not accommodate for Signals so they have to use Corridors instead.
+                        var idsForWhereClause = new List<string>();
+                        if (UseCorridorForWhereClause(measure))
+                        {
+                            idsForWhereClause = signalsWithCorridors.Select(s => s.Corridor).Distinct().ToList();
+                        }
+                        else
+                        {
+                            idsForWhereClause = signalsWithCorridors.Select(s => s.SignalId).Distinct().ToList();
+                        }
+
+                        if (idsForWhereClause.Any())
+                        {
+                            var fullWhere = AddSignalsToWhereClause(dateRangeWhere, idsForWhereClause, level);
+                            //Need to reset the level for Travel Time Index (tti) measures since they are not calculated at a signal level.
+                            level = measure != "tti" && measure != "pti" ? "sig" : "cor";
+
+                            // this returns a list of everything from the signal details tables.
+                            var results = await GetFromDatabase(newConnection, level, "mo", measure, fullWhere,
+                                allZoneGroup);
+
+                            var dates = results.AsEnumerable().GroupBy(r => r["Month"]).OrderBy(x => x.Key);
+
+                            var avg = dates.Select(x => new SummaryTrendDTO
+                            {
+                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure))),
+                                Month = DateTime.Parse(x.Key.ToString())
+                            });
+                            response[measure] = avg.ToList();
+                        }
+                        else
+                        {
+                            response[measure] = new List<SummaryTrendDTO>();
+                        }
+
+                        break;
+                }
+            }
+            finally
+            {
+                _sem.Release();
+            }
+        }
 
         public async Task<DataTable> GetFilteredDataTable(string source, string measure, FilterDTO filter, MySqlConnection sqlConnectionReader,
             MySqlConnection sqlConnectionWriter, bool signalOnly = false)
@@ -691,7 +824,7 @@ namespace SigOpsMetrics.API.DataAccess
 
             dt.Columns.Add("Corridor", typeof(string));                                         //0
             dt.Columns.Add("Zone_Group", typeof(string));                                       //1
-            //If the interval is quarter we need to format the "Quarter" column differently.
+                                                                                                //If the interval is quarter we need to format the "Quarter" column differently.
             DataColumn dc = new DataColumn(intervalColumnName, typeof(string));
             if (intervalColumnName == "Quarter")
             {
@@ -777,6 +910,10 @@ namespace SigOpsMetrics.API.DataAccess
                 case "ops_plot":
                 case "safety_plot":
                     return "Percent Health";
+                case "tti":
+                    return "tti";
+                case "pti":
+                    return "pti";
                 case "":
                     return "";
             }

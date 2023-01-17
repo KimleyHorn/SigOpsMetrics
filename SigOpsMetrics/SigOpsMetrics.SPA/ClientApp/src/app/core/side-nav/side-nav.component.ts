@@ -66,7 +66,7 @@ export class SideNavComponent implements OnInit {
   }
 
   filterRoute(r){
-    switch (r["text"]){
+    switch (r["text"]) {
       case "Operations":
         return environment.hasPageOperations;
       case "Maintenance":
@@ -79,6 +79,8 @@ export class SideNavComponent implements OnInit {
         return environment.hasPageReports;
       case "Health Metrics":
         return environment.hasPageHealthMetrics;
+      case "Summary Trend":
+        return environment.hasPageSummaryTrend;
     }
     return true;
   }
