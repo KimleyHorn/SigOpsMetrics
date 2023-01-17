@@ -915,6 +915,7 @@ namespace SigOpsMetrics.API.DataAccess
         {
             try
             {
+                month = DateTime.Parse(month).ToString("yyyy-MM-dd");
                 var where = $"where `Zone Group` = '{zoneGroup}' and `Month` = '{month}'";
                 if (zoneGroup == null)
                 {
