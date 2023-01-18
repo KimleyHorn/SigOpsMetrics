@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
+using Google.Cloud.Storage.V1;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SigOpsMetrics.API.Classes;
@@ -33,20 +34,20 @@ namespace SigOpsMetrics.API.Controllers
         /// Endpoint for performing daily data pull of cameras_latest.xls into sql table.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("datapull/{key}")]
-        public async Task<IActionResult> DataPull(string key)
+        [HttpGet("datapull/{key}/{destination}")]
+        public async Task<IActionResult> DataPull(string key, int destination)
         {
             try
             {
                 if (key != AppConfig.DataPullKey)
                 {
-                    await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter, 
+                    await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
             System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name,
                 "DataPull", new Exception($"Invalid Key: {key}"));
                     return BadRequest("Invalid Key");
                 }
 
-                var worksheet = GetSpreadsheet();
+                var worksheet = GetSpreadsheet((GenericEnums.DataPullSource)destination);
                 var ws = await worksheet;
                 await CamerasDataAccessLayer.WriteToCameras(SqlConnectionWriter, ws);
                 return Ok();
@@ -64,21 +65,32 @@ namespace SigOpsMetrics.API.Controllers
 
         #region Private Methods
 
-        private async Task<ExcelWorksheet> GetSpreadsheet()
+        private async Task<ExcelWorksheet> GetSpreadsheet(GenericEnums.DataPullSource destination)
         {
-            var client = CreateS3Client();
-
-            var request = new GetObjectRequest
-            {
-                BucketName = AppConfig.AWSBucketName,
-                Key = AppConfig.CamerasKey
-            };
-
             var ms = new MemoryStream();
-
-            using (var getObjectResponse = await client.GetObjectAsync(request))
+            switch (destination)
             {
-                await getObjectResponse.ResponseStream.CopyToAsync(ms);
+                case GenericEnums.DataPullSource.S3:
+                    {
+                        var client = CreateS3Client();
+
+                        var request = new GetObjectRequest
+                        {
+                            BucketName = AppConfig.AWSBucketName,
+                            Key = AppConfig.CamerasKey
+                        };
+
+                        using var getObjectResponse = await client.GetObjectAsync(request);
+                        await getObjectResponse.ResponseStream.CopyToAsync(ms);
+                        break;
+                    }
+                case GenericEnums.DataPullSource.Google:
+                    {
+                        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "castle-rock-service-account.json");
+                        var storage = await StorageClient.CreateAsync();
+                        storage.DownloadObject(AppConfig.GoogleBucketName, AppConfig.GoogleFolderName + "/" + AppConfig.CamerasKey, ms);
+                        break;
+                    }
             }
 
             var package = new ExcelPackage(ms);
