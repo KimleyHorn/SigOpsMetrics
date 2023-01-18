@@ -35,7 +35,7 @@ th.mat-header-cell:first-of-type {
 
 td.mat-cell:first-of-type {
   padding: 0px !important;
-} 
+}
 
 mat-form-field.mat-form-field {
   font-size: 13px;
@@ -92,6 +92,18 @@ mat-form-field.mat-form-field {
 .search-input-lng {
   width: 5.4%;
 }
+.search-input-county {
+  width: 5.4%;
+}
+.search-input-city {
+  width: 5.4%;
+}
+.search-input-pr {
+  width: 5.4%;
+}
+.search-input-cl {
+  width: 2.5%;
+}
 .btn-reset {
   padding: 0 4px;
   min-width: 4%;
@@ -102,7 +114,7 @@ mat-form-field.mat-form-field {
 .mat-row:nth-child(even){
   background-color:#FFFFFF;
 }
-      
+
 .mat-row:nth-child(odd){
   background-color :#ECECEC;
 }
