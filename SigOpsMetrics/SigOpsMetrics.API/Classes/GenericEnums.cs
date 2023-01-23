@@ -42,5 +42,11 @@ namespace SigOpsMetrics.API.Classes
             Custom
             
         }
+
+        public enum DataPullSource
+        {
+            S3,
+            Google
+        }
     }
 }

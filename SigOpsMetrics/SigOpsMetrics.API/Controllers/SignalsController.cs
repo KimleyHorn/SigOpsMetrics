@@ -13,6 +13,7 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using System.Data;
+using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Configuration;
 using SigOpsMetrics.API.DataAccess;
 using SigOpsMetrics.API.Classes.Internal;
@@ -327,7 +328,7 @@ namespace SigOpsMetrics.API.Controllers
                 return null;
             }
         }
-        
+
         /// <summary>
         /// Return list of all priorities in system.
         /// </summary>
@@ -347,7 +348,7 @@ namespace SigOpsMetrics.API.Controllers
                 return null;
             }
         }
-        
+
         /// <summary>
         /// Return list of all classifications in system.
         /// </summary>
@@ -372,14 +373,14 @@ namespace SigOpsMetrics.API.Controllers
         /// Endpoint for performing daily data pull of corridors_latest.xls into sql table.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("datapull/{key}")]
-        public async Task<IActionResult> DataPull(string key)
+        [HttpGet("datapull/{key}/{destination}")]
+        public async Task<IActionResult> DataPull(string key, int destination)
         {
             try
             {
                 if (key == AppConfig.DataPullKey)
                 {
-                    Task<ExcelWorksheet> worksheet = GetSpreadsheet();
+                    Task<ExcelWorksheet> worksheet = GetSpreadsheet((GenericEnums.DataPullSource)destination);
                     var ws = await worksheet;
                     await SignalsDataAccessLayer.WriteToSignals(SqlConnectionWriter, ws);
                     return Ok();
@@ -422,26 +423,38 @@ namespace SigOpsMetrics.API.Controllers
 
         #region Private Methods
 
-        private async Task<ExcelWorksheet> GetSpreadsheet()
+        private async Task<ExcelWorksheet> GetSpreadsheet(GenericEnums.DataPullSource destination)
         {
-            var client = CreateS3Client();
-
-            var request = new GetObjectRequest
-            {
-                BucketName = AppConfig.AWSBucketName,
-                Key = AppConfig.CorridorsKey
-            };
-
             var ms = new MemoryStream();
-
-            using (var getObjectResponse = await client.GetObjectAsync(request))
+            switch (destination)
             {
-                await getObjectResponse.ResponseStream.CopyToAsync(ms);
+                case GenericEnums.DataPullSource.S3:
+                    {
+                        var client = CreateS3Client();
+
+                        var request = new GetObjectRequest
+                        {
+                            BucketName = AppConfig.AWSBucketName,
+                            Key = AppConfig.CorridorsKey
+                        };
+
+                        using var getObjectResponse = await client.GetObjectAsync(request);
+                        await getObjectResponse.ResponseStream.CopyToAsync(ms);
+                        break;
+                    }
+                case GenericEnums.DataPullSource.Google:
+                    {
+                        Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", "castle-rock-service-account.json");
+                        var storage = await StorageClient.CreateAsync();
+                        storage.DownloadObject(AppConfig.GoogleBucketName, AppConfig.GoogleFolderName + "/" + AppConfig.CorridorsKey, ms);
+                        break;
+                    }
             }
 
             var package = new ExcelPackage(ms);
             return package.Workbook.Worksheets[0];
         }
+
         #endregion
 
     }
