@@ -31,7 +31,7 @@ namespace SigOpsMetrics.API.Controllers
         #region Endpoints
 
         /// <summary>
-        /// Endpoint for performing daily data pull of cameras_latest.xls into sql table.
+        /// Endpoint for performing daily data pull of cameras_latest.xls into sql table.  Destination 0 = S3, 1 = GCP
         /// </summary>
         /// <returns></returns>
         [HttpGet("datapull/{key}/{destination}")]

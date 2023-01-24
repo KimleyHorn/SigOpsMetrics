@@ -370,7 +370,7 @@ namespace SigOpsMetrics.API.Controllers
         }
 
         /// <summary>
-        /// Endpoint for performing daily data pull of corridors_latest.xls into sql table.
+        /// Endpoint for performing daily data pull of corridors_latest.xls into sql table. Destination 0 = S3, 1 = GCP
         /// </summary>
         /// <returns></returns>
         [HttpGet("datapull/{key}/{destination}")]
