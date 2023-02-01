@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { Colors } from 'src/app/models/colors';
 import { Filter } from 'src/app/models/filter';
 import { Graph } from 'src/app/models/graph';
+import { SignalInfo } from 'src/app/models/signal-info';
 import { FilterService } from 'src/app/services/filter.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { FilterService } from 'src/app/services/filter.service';
 })
 export class BarLineGraphComponent implements OnInit, OnChanges {
   private _filterSubscription: Subscription;
+  private _signalSubscription: Subscription;
   private _filterErrorStateSubscription: Subscription;
   private _color = new Colors();
 
@@ -34,6 +36,7 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
   bothLayout: any;
 
   filter: Filter;
+  signals: SignalInfo[];
 
   defaultColor: string = this._color.gray;
   primaryColor: string = this._color.blue;
@@ -68,6 +71,11 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       },
       hovermode: 'closest'
     };
+    
+    this._signalSubscription = this._filterService.signals.subscribe(signals => {
+      this.signals = signals;
+      this._selectTrace(this.filter.zone_Group);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges){
@@ -96,14 +104,13 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
           cors = new Set(this.data.filter(value => value['corridor'] !== null).map(data => data['corridor']));
         }
         this.corridors = Array.from(cors);
-
         this.barData = this.averageData;
       }
 
       //set the local filter variable
       this.filter = filter;
 
-      //set the color for the trace
+      //set the color for the trace... and loads the data
       this._selectTrace(filter.zone_Group);
     });
   }
@@ -121,9 +128,11 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
       let sortedData = this.barData.sort((n1, n2) => n1.avg - n2.avg);
       sortedData.forEach(sortItem => {
         let trace = {
-          name: sortItem.label,
+          name: (this.signals == null || this.signals.length === 0 || this.filter.corridor === null) ? sortItem.label : this._filterService.getSignalDescription(sortItem.label),
           x: [sortItem.avg],
-          y: [sortItem.label],
+          y: [(this.signals == null || this.signals.length === 0 || this.filter.corridor === null) ? sortItem.label : this._filterService.getSignalDescription(sortItem.label)],
+          // y: [sortItem.label],
+          // z: [this.lineData.filter( data => data["corridor"] === sortItem.label)],
           orientation: 'h',
           type: 'bar',
           hovertemplate: this.bar.hoverTemplate,
@@ -153,7 +162,8 @@ export class BarLineGraphComponent implements OnInit, OnChanges {
           name: corridor,
           x: lineData.map(value => new Date(value[this.line.x])),
           y: lineData.map(value => value[this.line.y]),
-          text: lineData.map(value => value[this.line.text]),
+          // z: lineData.map(value => value[this.line.z]),
+          text: (lineData.map(value => value['description']) === null) ? (lineData.map(value => value['description']) === null) : (lineData.map(value => value['corridor'])),
           hovertemplate: this.line.hoverTemplate,
           mode: 'lines',
           line: {

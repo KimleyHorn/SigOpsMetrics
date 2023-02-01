@@ -106,7 +106,7 @@ export class BarLineLineGraphComponent implements OnInit, OnChanges {
       //TODO: adjusted this filter to be based on the selected month
       this.barData = this.data1.filter(dataItem => new Date(dataItem['month']).getMonth() === this._currentMonth);
       this.corridors = new Set(this.data1.filter(value => value['corridor'] !== null).map(data => data['corridor']));
-
+      debugger;
       this._loadBarGraph();
       this._loadLineGraph1();
       this._loadLineGraph2();

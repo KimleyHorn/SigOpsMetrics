@@ -35,6 +35,7 @@ export class OperationsComponent implements OnInit {
     x: "month",
     y: "vph",
     text: "corridor",
+  
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +

@@ -128,6 +128,14 @@ export class FilterService {
       .subscribe((response) => this._signals.next(response));
   }
 
+  getSignalDescription(signalID) {
+    if (this.signalData == null || this.signalData.length === 0){
+        this.getSignals();
+    }
+    var signal = this.signalData.find( value => value.signalID === signalID);
+    return "<b>Signal: " + signal.signalID + "</b> <br> " + signal.mainStreetName + " @ " + signal.sideStreetName;
+  }
+
   getZoneGroups() {
     return this.http
       .get<string[]>(this.baseUrl + "signals/zonegroups")

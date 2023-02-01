@@ -11,6 +11,7 @@ import {
 import { MatCheckbox } from "@angular/material/checkbox";
 import { MatDatepicker } from "@angular/material/datepicker";
 import { Subscription } from "rxjs";
+import { Filter } from "src/app/models/filter";
 import { FilterService } from "../../services/filter.service";
 
 @Component({
