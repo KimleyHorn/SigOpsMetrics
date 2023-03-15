@@ -167,7 +167,7 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        [HttpPost("summaryTrends")]
+        [HttpPost("summarytrends")]
         public async Task<Dictionary<string, List<SummaryTrendDTO>>> GetSummaryTrendsWithFilter(string source, [FromBody] FilterDTO filter)
         {
             try

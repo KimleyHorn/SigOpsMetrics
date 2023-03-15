@@ -94,7 +94,7 @@ export class MetricsService {
 
   summaryTrend(metrics: Metrics, filter: Filter) {
     return this.http.post<any[]>(
-      this._baseUrl + "metrics/summaryTrends?source=" + metrics.source,
+      this._baseUrl + "metrics/summarytrends?source=" + metrics.source,
       filter,
       this._options
     );

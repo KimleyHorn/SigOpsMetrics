@@ -387,7 +387,7 @@ export class FilterService {
     };
     // Display N/A for "Change from prior period" when using a custom date range
     if (this.filter.dateRange == 5) {
-      metric.delta = null;
+    metric.delta = null;
     }
 
     return metric;
