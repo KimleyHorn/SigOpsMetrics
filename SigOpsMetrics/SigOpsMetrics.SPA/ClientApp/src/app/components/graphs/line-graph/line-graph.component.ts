@@ -37,7 +37,7 @@ export class LineGraphComponent implements OnInit {
   constructor(private formatService: FormatService) {}
 
   ngOnInit(): void {
-    if (this.data.length > 0) {
+    if (this.data && this.data.length > 0) {
       this.setLayout();
       this.loadLineGraph();
     } else {

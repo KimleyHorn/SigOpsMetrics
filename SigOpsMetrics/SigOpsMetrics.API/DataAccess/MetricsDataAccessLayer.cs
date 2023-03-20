@@ -25,31 +25,75 @@ namespace SigOpsMetrics.API.DataAccess
             MySqlConnection sqlConnectionWriter)
         {
             var timer = Stopwatch.StartNew();
-            var dt = DateTime.Today;
-            
-            var fullStart = new DateTime(dt.Year - 1, dt.Month, 1);
-            var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
+            //var dt = DateTime.Today;
+
+            //var fullStart = new DateTime(dt.Year - 1, dt.Month, 1);
+            //var fullEnd = new DateTime(dt.Year, dt.Month, DateTime.DaysInMonth(dt.Year, dt.Month));
+
+            //Quarterly data is formatted differently
+            var interval = GetIntervalFromFilter(filter);
+            var dates = GenerateDateFilter(filter);
+            string startDate;
+            string endDate;
+            if (interval == "qu")
+            {
+                startDate = dates.Item1.NearestQuarterEnd();
+                endDate = dates.Item2.NearestQuarterEnd();
+            }
+            else
+            {
+                startDate = dates.Item1.ToString();
+                endDate = dates.Item2.ToString();
+            }
+
             var allZoneGroup = filter.zone_Group == "All";
 
-            var response = new Dictionary<string, List<SummaryTrendDTO>>
+            var response = new Dictionary<string, List<SummaryTrendDTO>>();
+            if (interval != "hr" && interval != "qhr")
             {
-                { "tp", null },
-                { "aogd", null},
-                { "prd", null},
-                { "qsd", null},
-                { "sfd", null},
-                { "sfo", null},
-                { "tti", null},
-                { "pti", null},
-                { "vpd", null},
-                { "vphpa", null},
-                { "vphpp", null},
-                { "papd", null},
-                { "du", null},
-                { "pau", null},
-                { "cctv", null},
-                { "cu", null}
-            };
+                response = new Dictionary<string, List<SummaryTrendDTO>>
+                {
+                    { "tp", null },
+                    { "aogd", null},
+                    { "prd", null},
+                    { "qsd", null},
+                    { "sfd", null},
+                    { "sfo", null},
+                    { "tti", null},
+                    { "pti", null},
+                    { "vpd", null},
+                    { "vphpa", null},
+                    { "vphpp", null},
+                    { "papd", null},
+                    { "du", null},
+                    { "pau", null},
+                    { "cctv", null},
+                    { "cu", null}
+                };
+            }
+            else
+            {
+                response = new Dictionary<string, List<SummaryTrendDTO>>
+                {
+                    { "tp", null },
+                    { "aogh", null},
+                    { "prh", null},
+                    { "qsh", null},
+                    { "sfh", null},
+                    { "sfo", null},
+                    { "tti", null},
+                    { "pti", null},
+                    { "vph", null},
+                    { "vphpa", null},
+                    { "vphpp", null},
+                    { "paph", null},
+                    { "du", null},
+                    { "pau", null},
+                    { "cctv", null},
+                    { "cu", null}
+                };
+            }
+
 
             var keys = new List<string>(response.Keys);
             var signalsWithCorridors = await SignalsDataAccessLayer.GetSignalsWithCorridors(sqlConnectionReader, filter);
@@ -65,7 +109,7 @@ namespace SigOpsMetrics.API.DataAccess
             var cameras = await CamerasDataAccessLayer.GetCameras(sqlConnectionReader, filter);
             // todo after .net 6 upgrade, see if foreachasync is faster
             var tasks = keys.Select(measure => GetSummaryTrendDataAsync(measure, sqlConnectionReader, response,
-                fullStart, fullEnd, cameras, signalsWithCorridors, allZoneGroup));
+                DateTime.Parse(startDate), DateTime.Parse(endDate), interval, cameras, signalsWithCorridors, allZoneGroup));
             await Task.WhenAll(tasks);
             timer.Stop();
             var time = timer.Elapsed;
@@ -74,7 +118,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         private readonly SemaphoreSlim _sem = new SemaphoreSlim(50);
         private async Task GetSummaryTrendDataAsync(string measure, IDbConnection connection, IDictionary<string, List<SummaryTrendDTO>> response,
-            DateTime fullStart, DateTime fullEnd, IEnumerable<Cctv> cameras, IEnumerable<Signal> signalsWithCorridors, bool allZoneGroup)
+            DateTime fullStart, DateTime fullEnd, string interval, IEnumerable<Cctv> cameras, IEnumerable<Signal> signalsWithCorridors, bool allZoneGroup)
         {
             await _sem.WaitAsync();
             try
@@ -83,7 +127,7 @@ namespace SigOpsMetrics.API.DataAccess
                 var newConnection = new MySqlConnection(connection.ConnectionString);
 
                 // get average for every month in date range for given filter and add that to dictionary
-                var dateRangeWhere = CreateDateRangeClause("mo", measure, fullStart.ToString(), fullEnd.ToString());
+                var dateRangeWhere = CreateDateRangeClause(interval, measure, fullStart.ToString(), fullEnd.ToString());
                 switch (measure)
                 {
                     case "cctv":
@@ -92,11 +136,12 @@ namespace SigOpsMetrics.API.DataAccess
                         {
                             var ids = camerasList.Select(s => s.CameraId).Distinct().ToList();
                             var fullWhereClause = AddCctvsToWhereClause(dateRangeWhere, ids);
-                            var data = await GetFromDatabase(newConnection, "sig", "mo", measure, fullWhereClause);
-                            var dateGroups = data.AsEnumerable().GroupBy(r => r["Month"]);
+                            var data = await GetFromDatabase(newConnection, "sig", interval, measure, fullWhereClause);
+                            var i = GetIntervalColumnName(interval);
+                            var dateGroups = data.AsEnumerable().GroupBy(r => r[i]);
                             var avgs = dateGroups.Select(x => new SummaryTrendDTO
                             {
-                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure))),
+                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
                                 Month = DateTime.Parse(x.Key.ToString())
                             });
                             response[measure] = avgs.ToList();
@@ -105,6 +150,7 @@ namespace SigOpsMetrics.API.DataAccess
                         {
                             response[measure] = new List<SummaryTrendDTO>();
                         }
+
                         break;
                     default:
                         var level = "sig";
@@ -126,14 +172,14 @@ namespace SigOpsMetrics.API.DataAccess
                             level = measure != "tti" && measure != "pti" ? "sig" : "cor";
 
                             // this returns a list of everything from the signal details tables.
-                            var results = await GetFromDatabase(newConnection, level, "mo", measure, fullWhere,
+                            var results = await GetFromDatabase(newConnection, level, interval, measure, fullWhere,
                                 allZoneGroup);
-
-                            var dates = results.AsEnumerable().GroupBy(r => r["Month"]).OrderBy(x => x.Key);
+                            var i = GetIntervalColumnName(interval);
+                            var dates = results.AsEnumerable().GroupBy(r => r[i]).OrderBy(x => x.Key);
 
                             var avg = dates.Select(x => new SummaryTrendDTO
                             {
-                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure))),
+                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
                                 Month = DateTime.Parse(x.Key.ToString())
                             });
                             response[measure] = avg.ToList();
@@ -145,6 +191,10 @@ namespace SigOpsMetrics.API.DataAccess
 
                         break;
                 }
+            }
+            catch (Exception ex)
+            {
+                response[measure] = new List<SummaryTrendDTO>();
             }
             finally
             {
@@ -209,7 +259,7 @@ namespace SigOpsMetrics.API.DataAccess
                     level = signalOnly ? "sig" : level;
 
                     var corridors = await GetMetricByFilterWithSignalsAndCorridors(sqlConnectionReader, sqlConnectionWriter, source, measure, interval, startDate, endDate,
-                                                                                       signalsWithCorridors.ToList(), level, allZoneGroup);
+                                                                                       signalsWithCorridors.ToList(), level, allZoneGroup, signalOnly);
                     return corridors;
                 }
             }
@@ -465,7 +515,7 @@ namespace SigOpsMetrics.API.DataAccess
                 // group by corridor
                 //Setup a new datatable
                 var intervalColumnName = GetIntervalColumnName(interval);
-                var calculatedDataColumnName = GetCalculatedValueColumnName(measure);
+                var calculatedDataColumnName = GetCalculatedValueColumnName(measure, interval);
                 var measureColumnName = string.Empty; // GetMeasureColumnName(measure); // This needs refactoring because the column is not used in this functionality.
                 var tableName = ValidateTableName("cor", interval, measure);
                 var groupedDataTable = CreateDataTableByLevelAndIntervalAndMeasure(tableName, intervalColumnName, calculatedDataColumnName, measureColumnName);
@@ -573,7 +623,7 @@ namespace SigOpsMetrics.API.DataAccess
         /// <param name="all"></param>
         /// <returns></returns>
         public static async Task<DataTable> GetMetricByFilterWithSignalsAndCorridors(MySqlConnection reader, MySqlConnection writer, string source,
-        string measure, string interval, string start, string end, List<Signal> signals, string filterLevel, bool all = false)
+        string measure, string interval, string start, string end, List<Signal> signals, string filterLevel, bool all = false, bool signalsOnly = false)
         {
             var level = "sig";
             var dateRangeClause = CreateDateRangeClause(interval, measure, start, end);
@@ -600,14 +650,14 @@ namespace SigOpsMetrics.API.DataAccess
             //Need to check if we are returning data at a corridor level. If so convert the signals datatable to corridors.
             //Otherwise leave it as the signals table and return the data.
             //TTI does not get calculated/averaged and should just return the data as well.
-            if (ReturnDataAtSignalLevel(filterLevel, measure))
+            if (ReturnDataAtSignalLevel(filterLevel, measure) || signalsOnly)
             {
                 return results;
             }
 
             //Setup a new datatable
             var intervalColumnName = GetIntervalColumnName(interval);
-            var calculatedDataColumnName = GetCalculatedValueColumnName(measure);
+            var calculatedDataColumnName = GetCalculatedValueColumnName(measure, interval);
             var measureColumnName = string.Empty; // GetMeasureColumnName(measure); // This needs refactoring because the column is not used in this functionality.
             var tableName = ValidateTableName(filterLevel, interval, measure);
             var groupedDataTable = CreateDataTableByLevelAndIntervalAndMeasure(tableName, intervalColumnName, calculatedDataColumnName, measureColumnName);
@@ -870,12 +920,13 @@ namespace SigOpsMetrics.API.DataAccess
         /// </summary>
         /// <param name="measure"></param>
         /// <returns></returns>
-        private static string GetCalculatedValueColumnName(string measure)
+        private static string GetCalculatedValueColumnName(string measure, string interval)
         {
             //TODO: Figure out tsou
             switch (measure)
             {
                 case "aogd":
+                case "aogh":
                     return "aog";
                 case "cctv":
                 case "cu":
@@ -888,9 +939,15 @@ namespace SigOpsMetrics.API.DataAccess
                     return "over45";
                 case "papd":
                     return "papd";
+                case "paph":
+                    if (interval == "qhr")
+                        return "vol";
+                    return "paph";
                 case "prd":
+                case "prh":
                     return "pr";
                 case "qsd":
+                case "qsh":
                     return "qs_freq";
                 case "reported":
                     return "reported";
@@ -898,6 +955,7 @@ namespace SigOpsMetrics.API.DataAccess
                     return "resolved";
                 case "sfd":
                 case "sfo":
+                case "sfh":
                     return "sf_freq";
                 case "tp":
                 case "vphpa":

@@ -220,6 +220,14 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
     hoverTemplate: "<b>%{x}</b>" + ", <b>%{y:.1%}</b>" + "<extra></extra>",
     lineColor: this.colors.sigOpsRed,
   };
+
+  aogString = 'aogd';
+  prString = 'prd';
+  qsString = 'qsd';
+  sfString = 'sfd';
+  vpString = 'vpd';
+  papString = 'papd';
+
   constructor(
     private readonly filterService: FilterService,
     private readonly metricsService: MetricsService
@@ -231,6 +239,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
       (filter) => {
         this.data = undefined;
         this.filterState = filter;
+        this.setHourlyStrings();
         this.metricsSubscription = this.metricsService
           .summaryTrend(this.tpGraphMetrics, filter)
           .subscribe((response) => {
@@ -249,5 +258,25 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.filterSubscription.unsubscribe();
     this.metricsSubscription.unsubscribe();
+  }
+
+  private setHourlyStrings() {
+    if (this.filterState.timePeriod === 1 || this.filterState.timePeriod === 0) {
+      // update to hourly
+      this.aogString = 'aogh';
+      this.prString = 'prh';
+      this.qsString = 'qsh';
+      this.sfString = 'sfh';
+      this.vpString = 'vph';
+      this.papString = 'paph';
+    }
+    else {
+      this.aogString = 'aogd';
+      this.prString = 'prd';
+      this.qsString = 'qsd';
+      this.sfString = 'sfd';
+      this.vpString = 'vpd';
+      this.papString = 'papd';
+    }
   }
 }

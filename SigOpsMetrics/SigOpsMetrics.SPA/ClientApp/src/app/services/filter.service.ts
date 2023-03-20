@@ -393,6 +393,12 @@ export class FilterService {
     return metric;
   }
 
+  checkDateRange() {
+    if (this.filter.dateRange === 5) {
+      return true;
+    }
+    return false;
+  }
   public saveCurrentFilter() {
     localStorage.setItem("filter", JSON.stringify(this.filter));
   }

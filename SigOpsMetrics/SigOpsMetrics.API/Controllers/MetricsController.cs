@@ -167,6 +167,45 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
+        // Get straight average and delta with no grouping
+        [HttpPost("straightaverage")]
+        public async Task<AverageDTO> StraightAverage(string source, string measure, [FromBody] FilterDTO filter)
+        {
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
+                bool isCorridor = measure == "tti" || measure == "pti" || measure == "cctv";
+                var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
+
+                var avgColIndex = indexes.avgColIndex;
+                var deltaColIndex = indexes.deltaColIndex;
+                if (measure == "vphpa" || measure == "vphpp")
+                {
+                    avgColIndex = 2;
+                    deltaColIndex = 3;
+                }
+                var avg = (from row in retVal.AsEnumerable()
+                    select row[avgColIndex].ToDouble()).Average();
+                var delta = (from row in retVal.AsEnumerable()
+                    select row[deltaColIndex].ToDouble()).Average();
+
+                var dto = new AverageDTO
+                {
+                    avg = avg,
+                    delta = delta
+                };
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+    "metrics/straightaverage", ex);
+                return null;
+            }
+        }
+
         [HttpPost("summarytrends")]
         public async Task<Dictionary<string, List<SummaryTrendDTO>>> GetSummaryTrendsWithFilter(string source, [FromBody] FilterDTO filter)
         {

@@ -126,6 +126,18 @@ export class MetricsService {
     );
   }
 
+  straightAverage(metrics: Metrics, filter: Filter) {
+    return this.http.post<any>(
+      this._baseUrl +
+      "metrics/straightaverage?source=" +
+      metrics.source +
+      "&measure=" +
+      metrics.measure,
+      filter,
+      this._options
+    );
+  }
+
   averagesForMonth(zoneGroup: string, month: string) {
     return this.http.get<any[]>(
       this._baseUrl +

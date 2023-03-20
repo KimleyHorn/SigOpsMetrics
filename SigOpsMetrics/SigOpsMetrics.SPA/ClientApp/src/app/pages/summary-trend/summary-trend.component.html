@@ -1,15 +1,7 @@
-<app-filter-chip-list
-  [filtersToHide]="[
-    'dateRange',
-    'timePeriod',
-    'customStart',
-    'customEnd',
-    'startTime',
-    'endTime'
-  ]"
-></app-filter-chip-list>
+<app-filter-chip-list></app-filter-chip-list>
+
 <div *ngIf="data; else spinner">
-  <div class="container-fluid" style="padding-top: 10px">
+  <div class="container-fluid pt-2" >
     <div class="row">
       <div class="col">
         <mat-card class="h-100">
@@ -29,7 +21,7 @@
 
             <div class="container-fluid">
               <app-line-graph
-                [data]="data['aogd']"
+                [data]="data[aogString]"
                 [title]="aogTitle"
                 [line]="aogGraph"
                 [metrics]="aogGraphMetrics"
@@ -39,7 +31,7 @@
 
             <div class="container-fluid">
               <app-line-graph
-                [data]="data['prd']"
+                [data]="data[prString]"
                 [title]="prdTitle"
                 [line]="prdGraph"
                 [metrics]="prdGraphMetrics"
@@ -49,7 +41,7 @@
 
             <div class="container-fluid">
               <app-line-graph
-                [data]="data['qsd']"
+                [data]="data[qsString]"
                 [title]="qsdTitle"
                 [line]="qsdGraph"
                 [metrics]="qsdGraphMetrics"
@@ -59,7 +51,7 @@
 
             <div class="container-fluid">
               <app-line-graph
-                [data]="data['sfd']"
+                [data]="data[sfString]"
                 [title]="sfdTitle"
                 [line]="sfGraph"
                 [metrics]="sfdGraphMetrics"
@@ -107,7 +99,7 @@
           <mat-card-content>
             <div class="container-fluid">
               <app-line-graph
-                [data]="data['vpd']"
+                [data]="data[vpString]"
                 [title]="dtvTitle"
                 [line]="dtvGraph"
                 [metrics]="dtvGraphMetrics"
@@ -137,7 +129,7 @@
 
             <div class="container-fluid">
               <app-line-graph
-                [data]="data['papd']"
+                [data]="data[papString]"
                 [title]="paTitle"
                 [line]="paGraph"
                 [metrics]="paGraphMetrics"
