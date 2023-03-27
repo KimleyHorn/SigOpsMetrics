@@ -44,6 +44,7 @@ export class LineGraphComponent implements OnInit {
       this.setEmptyGridLayout();
     }
   }
+
   setEmptyGridLayout() {
     this.lineGraph = {
       data: [],
@@ -178,10 +179,11 @@ export class LineGraphComponent implements OnInit {
         },
         type: "scatter",
       };
+      var avg = this.getAverage(this.data);
       trace2 = {
         name: "",
         x: this.data.map((value) => new Date(value[this.line.x])),
-        y: this.data.map(() => this.data[0]["average"]),
+        y: this.data.map(() => avg),
         hovertemplate: this.baseLineHoverTemplate,
         mode: "lines",
         line: {
@@ -195,6 +197,15 @@ export class LineGraphComponent implements OnInit {
     graphData.push(trace);
 
     this.lineGraph.data = graphData;
+  }
+
+  // Get average for data array
+  private getAverage(data: any[]) {
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+      sum += data[i]["average"];
+    }
+    return sum / data.length;
   }
 
   private formatAnnotations() {

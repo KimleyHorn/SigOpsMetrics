@@ -109,7 +109,7 @@ namespace SigOpsMetrics.API.DataAccess
             var cameras = await CamerasDataAccessLayer.GetCameras(sqlConnectionReader, filter);
             // todo after .net 6 upgrade, see if foreachasync is faster
             var tasks = keys.Select(measure => GetSummaryTrendDataAsync(measure, sqlConnectionReader, response,
-                DateTime.Parse(startDate), DateTime.Parse(endDate), interval, cameras, signalsWithCorridors, allZoneGroup));
+                startDate, endDate, interval, cameras, signalsWithCorridors, allZoneGroup));
             await Task.WhenAll(tasks);
             timer.Stop();
             var time = timer.Elapsed;
@@ -118,7 +118,7 @@ namespace SigOpsMetrics.API.DataAccess
 
         private readonly SemaphoreSlim _sem = new SemaphoreSlim(50);
         private async Task GetSummaryTrendDataAsync(string measure, IDbConnection connection, IDictionary<string, List<SummaryTrendDTO>> response,
-            DateTime fullStart, DateTime fullEnd, string interval, IEnumerable<Cctv> cameras, IEnumerable<Signal> signalsWithCorridors, bool allZoneGroup)
+            string fullStart, string fullEnd, string interval, IEnumerable<Cctv> cameras, IEnumerable<Signal> signalsWithCorridors, bool allZoneGroup)
         {
             await _sem.WaitAsync();
             try
@@ -127,7 +127,7 @@ namespace SigOpsMetrics.API.DataAccess
                 var newConnection = new MySqlConnection(connection.ConnectionString);
 
                 // get average for every month in date range for given filter and add that to dictionary
-                var dateRangeWhere = CreateDateRangeClause(interval, measure, fullStart.ToString(), fullEnd.ToString());
+                var dateRangeWhere = CreateDateRangeClause(interval, measure, fullStart, fullEnd);
                 switch (measure)
                 {
                     case "cctv":
@@ -139,12 +139,31 @@ namespace SigOpsMetrics.API.DataAccess
                             var data = await GetFromDatabase(newConnection, "sig", interval, measure, fullWhereClause);
                             var i = GetIntervalColumnName(interval);
                             var dateGroups = data.AsEnumerable().GroupBy(r => r[i]);
-                            var avgs = dateGroups.Select(x => new SummaryTrendDTO
+                            var avg = new List<SummaryTrendDTO>();
+                            if (interval == "qu")
                             {
-                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
-                                Month = DateTime.Parse(x.Key.ToString())
-                            });
-                            response[measure] = avgs.ToList();
+                                foreach (var date in dateGroups)
+                                {
+                                    int year = int.Parse(date.Key.ToString().Split('.')[0]);
+                                    int quarter = int.Parse(date.Key.ToString().Split('.')[1]);
+                                    DateTime quarterStart = new DateTime(year, (quarter - 1) * 3 + 1, 1);
+                                    avg.Add(new SummaryTrendDTO
+                                    {
+                                        Average = date.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
+                                        Month = quarterStart
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                avg = dateGroups.Select(x => new SummaryTrendDTO
+                                {
+                                    Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
+                                    Month = DateTime.Parse(x.Key.ToString())
+                                }).ToList();
+                            }
+
+                            response[measure] = avg;
                         }
                         else
                         {
@@ -177,12 +196,31 @@ namespace SigOpsMetrics.API.DataAccess
                             var i = GetIntervalColumnName(interval);
                             var dates = results.AsEnumerable().GroupBy(r => r[i]).OrderBy(x => x.Key);
 
-                            var avg = dates.Select(x => new SummaryTrendDTO
+                            var avg = new List<SummaryTrendDTO>();
+                            if (interval == "qu")
                             {
-                                Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
-                                Month = DateTime.Parse(x.Key.ToString())
-                            });
-                            response[measure] = avg.ToList();
+                                foreach (var date in dates)
+                                {
+                                    int year = int.Parse(date.Key.ToString().Split('.')[0]);
+                                    int quarter = int.Parse(date.Key.ToString().Split('.')[1]);
+                                    DateTime quarterStart = new DateTime(year, (quarter - 1) * 3 + 1, 1);
+                                    avg.Add(new SummaryTrendDTO
+                                    {
+                                        Average = date.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
+                                        Month = quarterStart
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                avg = dates.Select(x => new SummaryTrendDTO
+                                {
+                                    Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
+                                    Month = DateTime.Parse(x.Key.ToString())
+                                }).ToList();
+                            }
+
+                            response[measure] = avg;
                         }
                         else
                         {

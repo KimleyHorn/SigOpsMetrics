@@ -11,7 +11,7 @@
       </ng-container>
 
       <ng-container matColumnDef="value">
-        <td mat-cell *matCellDef="let data" class="dashboard-value">{{ data.value }}</td>
+        <td mat-cell *matCellDef="let data" class="dashboard-value" [innerHTML]="data.value"></td>
       </ng-container>
 
       <ng-container matColumnDef="unit">
