@@ -7,80 +7,144 @@ import { Metrics } from '../models/metrics';
 import { FilterService } from './filter.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class MetricsService {
   private _baseUrl: string = environment.API_PATH;
   private _dt: Date = new Date();
   private _filter: Filter = new Filter();
-  private _options = { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) };
+  private _options = {
+    headers: new HttpHeaders({ "Content-Type": "application/json" }),
+  };
 
-  constructor(private http: HttpClient, private _filterService: FilterService) { }
+  constructor(
+    private http: HttpClient,
+    private _filterService: FilterService
+  ) {}
 
-  private _setDefaultMetric(metrics){
-    if(metrics.source === undefined){
+  private _setDefaultMetric(metrics) {
+    if (metrics.source === undefined) {
       metrics.source = "main";
     }
 
-    if(metrics.level === undefined){
+    if (metrics.level === undefined) {
       metrics.level = "cor";
     }
 
-    if(metrics.interval === undefined){
+    if (metrics.interval === undefined) {
       metrics.interval = "mo";
     }
 
     return metrics;
   }
 
-  getMetrics(metrics: Metrics){
+  getMetrics(metrics: Metrics) {
     metrics = this._setDefaultMetric(metrics);
 
-    return this.http.get<any[]>(this._baseUrl + 'metrics?source=' + metrics.source
-                                                    + '&level=' + metrics.level
-                                                    + "&interval=" + metrics.interval
-                                                    + "&measure=" + metrics.measure
-                                                    + "&start="+ metrics.start
-                                                    + "&end="+ metrics.end);
+    return this.http.get<any[]>(
+      this._baseUrl +
+        "metrics?source=" +
+        metrics.source +
+        "&level=" +
+        metrics.level +
+        "&interval=" +
+        metrics.interval +
+        "&measure=" +
+        metrics.measure +
+        "&start=" +
+        metrics.start +
+        "&end=" +
+        metrics.end
+    );
   }
 
-  getSignalMetrics(metrics: Metrics){
+  getSignalMetrics(metrics: Metrics) {
     metrics = this._setDefaultMetric(metrics);
 
-    return this.http.get<any[]>(this._baseUrl + 'metrics/signals?source=' + metrics.source
-                                                    + '&level=' + metrics.level
-                                                    + "&interval=" + metrics.interval
-                                                    + "&measure=" + metrics.measure
-                                                    + "&start="+ metrics.start
-                                                    + "&end="+ metrics.end
-                                                    + "&metric=" + metrics.field);
+    return this.http.get<any[]>(
+      this._baseUrl +
+        "metrics/signals?source=" +
+        metrics.source +
+        "&level=" +
+        metrics.level +
+        "&interval=" +
+        metrics.interval +
+        "&measure=" +
+        metrics.measure +
+        "&start=" +
+        metrics.start +
+        "&end=" +
+        metrics.end +
+        "&metric=" +
+        metrics.field
+    );
   }
 
-  filterMetrics(metrics: Metrics, filter: Filter){
-    return this.http.post<any[]>(this._baseUrl + 'metrics/filter?source=' + metrics.source
-                                                + "&measure=" + metrics.measure,
-                                              filter,
-                                              this._options);
+  filterMetrics(metrics: Metrics, filter: Filter) {
+    return this.http.post<any[]>(
+      this._baseUrl +
+        "metrics/filter?source=" +
+        metrics.source +
+        "&measure=" +
+        metrics.measure,
+      filter,
+      this._options
+    );
   }
 
-  averageMetrics(metrics: Metrics, filter: Filter){
-    return this.http.post<any[]>(this._baseUrl + 'metrics/average?source=' + metrics.source
-    + "&measure=" + metrics.measure
-    + "&dashboard=" + metrics.dashboard,
-    filter,
-    this._options);
+  summaryTrend(metrics: Metrics, filter: Filter) {
+    return this.http.post<any[]>(
+      this._baseUrl + "metrics/summarytrends?source=" + metrics.source,
+      filter,
+      this._options
+    );
+  }
+
+  averageMetrics(metrics: Metrics, filter: Filter) {
+    return this.http.post<any[]>(
+      this._baseUrl +
+        "metrics/average?source=" +
+        metrics.source +
+        "&measure=" +
+        metrics.measure +
+        "&dashboard=" +
+        metrics.dashboard,
+      filter,
+      this._options
+    );
   }
 
   filterSignalMetrics(metrics: Metrics, filter: Filter) {
-    return this.http.post<any[]>(this._baseUrl + 'metrics/signals/filter/average?source=' + metrics.source
-                                                + "&measure=" + metrics.measure,
-                                              filter,
-                                              this._options);
+    return this.http.post<any[]>(
+      this._baseUrl +
+        "metrics/signals/filter/average?source=" +
+        metrics.source +
+        "&measure=" +
+        metrics.measure,
+      filter,
+      this._options
+    );
   }
 
-  averagesForMonth(zoneGroup: string, month: string){
-    return this.http.get<any[]>(this._baseUrl + 'metrics/monthaverages?zoneGroup=' + zoneGroup
-    + '&month=' + month)
+  straightAverage(metrics: Metrics, filter: Filter) {
+    return this.http.post<any>(
+      this._baseUrl +
+      "metrics/straightaverage?source=" +
+      metrics.source +
+      "&measure=" +
+      metrics.measure,
+      filter,
+      this._options
+    );
   }
 
+  averagesForMonth(zoneGroup: string, month: string) {
+    return this.http.get<any[]>(
+      this._baseUrl +
+        "metrics/monthaverages?zoneGroup=" +
+        zoneGroup +
+        "&month=" +
+        month
+    );
+  }
 }

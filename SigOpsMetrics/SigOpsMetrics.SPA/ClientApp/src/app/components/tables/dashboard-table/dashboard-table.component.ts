@@ -49,12 +49,13 @@ export class DashboardTableComponent implements OnInit {
     metrics.measure = td.measure;
     metrics.dashboard = true;
 
-    //Since the interception happens before this, set it to N/A here to be safe
-    this.tableData.filter(item => item.name === td.name)[0].value = "N/A";
+    //Since the interception happens before this, set it loading icon
+    this.tableData.filter(item => item.name === td.name)[0].value = "<div class='spinner-grow' role='status'></div>";
 
-    this._metricsSubscription = this._metricsService.averageMetrics(metrics, this.filter).subscribe(response => {
-      if(response.length > 0){
-        let formattedVal = this._formatService.formatData(response[0].avg, td.format, td.precision, true);
+    this._metricsSubscription = this._metricsService.straightAverage(metrics, this.filter).subscribe(response => {
+
+      if (response) {
+        let formattedVal = this._formatService.formatData(response.avg, td.format, td.precision, true);
         var dataItem = this.tableData.filter(item => item.name === td.name)[0];
         if (dataItem.format === 'percent') {
           this.tableData.filter(item => item.name === td.name)[0]["unit"] = '%';
@@ -64,6 +65,9 @@ export class DashboardTableComponent implements OnInit {
       } else {
         this.tableData.filter(item => item.name === td.name)[0].value = "N/A";
       }
+    },
+      error => {
+        this.tableData.filter(item => item.name === td.name)[0].value = "N/A";
     });
   }
 }

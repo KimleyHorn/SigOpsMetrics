@@ -16,6 +16,7 @@ export class BaseDashboardComponent implements OnInit {
   private _filterSubscription: Subscription;
   private _metricsSubscription: Subscription;
   private _averageSubscription: Subscription;
+  private _straightAvgSubscription: Subscription;
 
   @Input() graphMetrics: Metrics;
   @Input() metricLabel: string = '';
@@ -36,6 +37,9 @@ export class BaseDashboardComponent implements OnInit {
   filteredData: any;
   filterState: any;
 
+  avg: any;
+  delta: any;
+
   constructor(private _filterService: FilterService,
     private _metricsService: MetricsService,
     private _formatService: FormatService) { }
@@ -53,7 +57,14 @@ export class BaseDashboardComponent implements OnInit {
           this.averageData = response;
           this._loadData();
           this._averageSubscription.unsubscribe();
-        })
+        });
+
+        this._straightAvgSubscription = this._metricsService.straightAverage(this.graphMetrics, filter).subscribe(res => {
+          this.avg = res.avg;
+          this.delta = res.delta;
+          this.loadAvg();
+          this._straightAvgSubscription.unsubscribe();
+        });
       });
     }
 
@@ -73,28 +84,25 @@ export class BaseDashboardComponent implements OnInit {
         } else {
           this.corridors = new Set(this.filteredData.filter(value => value['corridor'] !== null).map(data => data['corridor']));
         }
-        let metricData = this._filterService.getWeightedAverageData(this.averageData);
 
-        if(metricData !== undefined){
-          if(this.graphMetrics.formatType === "percent"){
-            this.metricValue = this._formatService.formatPercent(metricData.avg, this.graphMetrics.formatDecimals);
-          }else{
-            this.metricValue = this._formatService.formatNumber(metricData.avg, this.graphMetrics.formatDecimals);
-          }
-          // Display N/A for "Change from prior period" when using a custom date range
-          if (metricData.delta === null)
-          {
-            this.changeValue = null;
-          }
-          else
-          {
-            this.changeValue = this._formatService.formatPercent(metricData.delta,2);
-          }
+    } // else {
+    //   this.filteredData = [];
+    //   this.averageData = [];
+    // }
+  }
 
-        }
-      } // else {
-      //   this.filteredData = [];
-      //   this.averageData = [];
-      // }
+  private loadAvg() {
+    if (this.graphMetrics.formatType === "percent") {
+      this.metricValue = this._formatService.formatPercent(this.avg, this.graphMetrics.formatDecimals);
+    } else {
+      this.metricValue = this._formatService.formatNumber(this.avg, this.graphMetrics.formatDecimals);
+    }
+        // Display N/A for "Change from prior period" when using a custom date range
+    if (this._filterService.checkDateRange() === true) {
+      this.changeValue = null;
+    }
+      else {
+        this.changeValue = this._formatService.formatPercent(this.delta, 2);
+      }
     }
 }
