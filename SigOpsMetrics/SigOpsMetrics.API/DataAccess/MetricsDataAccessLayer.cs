@@ -281,7 +281,7 @@ namespace SigOpsMetrics.API.DataAccess
                 if (camerasList.Any())
                 {
                     var dt = await GetCctvMetricByFilter(sqlConnectionReader, sqlConnectionWriter, source, measure, interval, startDate, endDate, camerasList,
-                        string.IsNullOrWhiteSpace(filter.corridor), allZoneGroup);
+                        string.IsNullOrWhiteSpace(filter.corridor), allZoneGroup, signalOnly);
                     return dt;
                 }
             }
@@ -539,7 +539,7 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
         public static async Task<DataTable> GetCctvMetricByFilter(MySqlConnection reader, MySqlConnection writer, string source,
-            string measure, string interval, string start, string end, List<Cctv> cameras, bool groupByCorridor, bool all = false)
+            string measure, string interval, string start, string end, List<Cctv> cameras, bool groupByCorridor, bool all = false, bool signalOnly = false)
         {
             try
             {
@@ -547,7 +547,7 @@ namespace SigOpsMetrics.API.DataAccess
                 var idsForWhereClause = cameras.Select(s => s.CameraId).Distinct().ToList();
                 var fullWhereClause = AddCctvsToWhereClause(dateRangeClause, idsForWhereClause);
                 var data = await GetFromDatabase(reader, "sig", interval, measure, fullWhereClause);
-                if (!groupByCorridor)
+                if (!groupByCorridor || signalOnly)
                     return data;
 
                 // group by corridor

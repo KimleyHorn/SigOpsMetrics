@@ -175,7 +175,7 @@ namespace SigOpsMetrics.API.Controllers
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
-                bool isCorridor = measure == "tti" || measure == "pti" || measure == "cctv";
+                bool isCorridor = measure == "tti" || measure == "pti";
                 var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
 
                 var avgColIndex = indexes.avgColIndex;
