@@ -718,34 +718,61 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<FilteredItems> GetCorridorsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
         {
-            var retVal = new List<string>();
-            var filterType = GenericEnums.FilteredItemType.Corridor;
-            await using (var cmd = new MySqlCommand())
-            {
-                var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
-                    filter.city, filter.corridor, filter.subcorridor, filter.signalId, filter.priority, filter.classification, cmd);
-                var sqlText = $"select distinct(corridor) from {AppConfig.DatabaseName}.signals where include = 1" + where;
-                if (filter.zone_Group == "All")
-                {
-                    sqlText = $"SELECT DISTINCT(Zone_Group) FROM {AppConfig.DatabaseName}.signals WHERE Zone_Group IS NOT NULL";
-                }
-                else
-                {
-                    sqlText = $"select distinct(corridor) from {AppConfig.DatabaseName}.signals where include = 1" + where;
-                }
+            var corridorsFromSignalsTable = await GetCorridorsFromSignalsTable(sqlConnection, filter);
+            var corridorsFromCamerasTable = await GetCorridorsFromCamerasTable(sqlConnection, filter);
+            var corridors = corridorsFromSignalsTable.Union(corridorsFromCamerasTable).ToList();
+            return new FilteredItems { FilterType = GenericEnums.FilteredItemType.Corridor, Items = corridors };
+        }
 
-                await sqlConnection.OpenAsync();
-                cmd.Connection = sqlConnection;
-                cmd.CommandText = sqlText;
-                await using var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    retVal.Add(reader.GetString(0).Replace("'", "''").Trim());
-                }
+        private static async Task<List<string>> GetCorridorsFromSignalsTable(MySqlConnection sqlConnection, FilterDTO filter)
+        {
+            var retVal = new List<string>();
+            await using var cmd = new MySqlCommand();
+            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
+                filter.city, filter.corridor, filter.subcorridor, filter.signalId, filter.priority, filter.classification, cmd);
+            var sqlText = $"select distinct(corridor) from {AppConfig.DatabaseName}.signals where include = 1" + where;
+            if (filter.zone_Group == "All")
+            {
+                sqlText = $"SELECT DISTINCT(Zone_Group) FROM {AppConfig.DatabaseName}.signals WHERE Zone_Group IS NOT NULL";
             }
 
+            await sqlConnection.OpenAsync();
+            cmd.Connection = sqlConnection;
+            cmd.CommandText = sqlText;
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                if (!reader.IsDBNull(0))
+                    retVal.Add(reader.GetString(0).Replace("'", "''").Trim());
+            }
             await sqlConnection.CloseAsync();
-            return new FilteredItems { FilterType = filterType, Items = retVal };
+            return retVal;
+        }
+
+        private static async Task<List<string>> GetCorridorsFromCamerasTable(MySqlConnection sqlConnection,
+            FilterDTO filter)
+        {
+            var retVal = new List<string>();
+            await using var cmd = new MySqlCommand();
+            var where = CreateSignalsWhereClause(filter.zone_Group, filter.zone, filter.agency, filter.county,
+                filter.city, filter.corridor, filter.subcorridor, filter.signalId, filter.priority, filter.classification, cmd);
+            var sqlText = $"select distinct(corridor) from {AppConfig.DatabaseName}.cameras where include = 1" + where;
+            if (filter.zone_Group == "All")
+            {
+                sqlText = $"SELECT DISTINCT(Zone_Group) FROM {AppConfig.DatabaseName}.cameras WHERE Zone_Group IS NOT NULL";
+            }
+
+            await sqlConnection.OpenAsync();
+            cmd.Connection = sqlConnection;
+            cmd.CommandText = sqlText;
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (reader.Read())
+            {
+                if (!reader.IsDBNull(0))
+                    retVal.Add(reader.GetString(0).Replace("'", "''").Trim());
+            }
+            await sqlConnection.CloseAsync();
+            return retVal;
         }
 
         private static string CreateSignalsWhereClause(string zoneGroup, string zone, string agency,

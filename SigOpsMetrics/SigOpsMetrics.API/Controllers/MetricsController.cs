@@ -193,7 +193,7 @@ namespace SigOpsMetrics.API.Controllers
                 var dto = new AverageDTO
                 {
                     avg = avg,
-                    delta = delta
+                    delta = Math.Round(delta, 3)
                 };
                 return dto;
             }

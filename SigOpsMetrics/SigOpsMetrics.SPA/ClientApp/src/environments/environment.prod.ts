@@ -9,6 +9,13 @@ export const environment = {
   hasPageTeamsTasks: true,
   hasPageReports: true,
   hasPageHealthMetrics: true,
+  hasPageSummaryTrend: true,
   hasBtnContactUs: true,
-  hasBtnGdotApplications: true
+  hasBtnGdotApplications: true,
+  ttiGoal: 1.2,
+  ptiGoal: 1.3,
+  duGoal: 0.95,
+  ppuGoal: 0.95,
+  cctvGoal: 0.95,
+  cuGoal: 0.95,
 };
