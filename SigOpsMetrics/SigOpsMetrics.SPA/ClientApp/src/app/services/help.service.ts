@@ -20,7 +20,7 @@ export class HelpService {
         {
           name: "Arrivals on Green",
           htmlText:
-            "<p>Arrivals on Green (AOG) is a measure of coordination. A high percentage of arrivals on green would be the result of good offsets and should be correlated with fewer stops and less delay.</p><p>AOG is calculated as the total number of vehicles arriving on green light divided by the total number of arrivals. It is based on primary street through-phases, limited to peak periods (6am-10am, 3pm-7pm) on Tuesdays, Wednesdays and Thursdays.</p><p>The calculation uses detector data from Advance Count or Exit detectors, as configured in ATSPM. For advance detectors, the time of arrival at the intersection is adjusted for the setback distance and speed limit, both of which are configured in ATSPM.</p>",
+            "<p>Arrivals on Green (AOG) is a measure of coordination. A high percentage of arrivals on green would be the result of good offsets and should be correlated with fewer stops and less delay.</p><p>AOG is calculated as the total number of vehicles arriving on green light divided by the total number of arrivals. It is based on primary street through-phases, limited to peak periods (6am-10am, 3pm-7pm) on Tuesdays, Wednesdays and Thursdays.</p><p>The calculation uses detector data from Advance Count detectors, as configured in ATSPM. For advance detectors, the time of arrival at the intersection is adjusted for the setback distance and speed limit, both of which are configured in ATSPM.</p>",
         },
         {
           name: "Progression Ratio",
