@@ -1,6 +1,8 @@
-<app-filter-chip-list></app-filter-chip-list>
-<div class="container-fluid">
-  <div class="row">
+<div class="container-fluid d-flex flex-column h-100 pb-2 pt-0 pl-0">
+  <div class="row mb-2 no-gutters">
+    <app-filter-chip-list class="pb-1"></app-filter-chip-list>
+  </div>
+  <div class="row flex-grow-1 pl-3">
     <div class="col-lg-6">
       <div class="row margin-bottom">
         <div class="col">
@@ -26,7 +28,7 @@
     </div>
 
     <div class="col-lg-6">
-      <mat-card class="map-card">
+      <mat-card class="map-card h-100">
         <app-scatter-map
           [mapSettings]="selectedSettings">
         </app-scatter-map>

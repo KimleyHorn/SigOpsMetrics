@@ -78,7 +78,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
   sfdTitle = "Peak Period Split Failure";
   sfdGraphMetrics = new Metrics({
     measure: "sfd",
-    formatDecimals: 2,
+    formatDecimals: 1,
     formatType: "percent",
   });
   sfGraph: Graph = {
@@ -91,7 +91,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
   sfoTitle = "Off-Peak Split Failure";
   sfoGraphMetrics = new Metrics({
     measure: "sfo",
-    formatDecimals: 2,
+    formatDecimals: 1,
     formatType: "percent",
   });
 

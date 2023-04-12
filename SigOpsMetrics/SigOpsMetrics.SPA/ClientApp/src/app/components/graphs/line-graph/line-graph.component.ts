@@ -139,10 +139,24 @@ export class LineGraphComponent implements OnInit {
     this.setLayout();
 
     let graphData: any[] = [];
-    var trace: { name;x;y;hovertemplate: string;mode: string;line: { color: string };type: string;fill: string } |
-               { name;x;y;hovertemplate: string;mode: string;line: { color: string };type: string };
-    var trace2: { name: string;x;y;hovertemplate: string;mode: string;line: { color: string };type: string };
+
+    var avg = this.getAverage(this.data);
+    var trace;
+    var trace2;
     if (this.metrics.goal) {
+      trace2 = {
+        name: "",
+        x: this.data.map((value) => new Date(value[this.line.x])),
+        y: this.data.map(() => avg),
+        hovertemplate: this.baseLineHoverTemplate,
+        mode: "lines",
+        line: {
+          color: this.defaultColor,
+        },
+        fillcolor: this.hexToRgbA(this.line.lineColor),
+        type: "scatter",
+        fill: "tonexty",
+      };
       this.baseLineHoverTemplate = `Goal: ${this.baseLineHoverTemplate}`;
       trace = {
         name: this.data[0].average,
@@ -153,20 +167,22 @@ export class LineGraphComponent implements OnInit {
         line: {
           color: this.line.lineColor,
         },
+        fillcolor: this.hexToRgbA(this.line.lineColor),
         type: "scatter",
         fill: "tonexty",
       };
-      trace2 = {
+      var traceGoal = {
         name: "",
         x: this.data.map((value) => new Date(value[this.line.x])),
         y: this.data.map(() => this.metrics.goal),
         hovertemplate: this.baseLineHoverTemplate,
         mode: "lines",
         line: {
-          color: this.defaultColor,
+          color: this.color.darkGray,
         },
         type: "scatter",
       };
+      graphData.push(traceGoal);
     } else {
       trace = {
         name: this.data[0].average,
@@ -179,7 +195,6 @@ export class LineGraphComponent implements OnInit {
         },
         type: "scatter",
       };
-      var avg = this.getAverage(this.data);
       trace2 = {
         name: "",
         x: this.data.map((value) => new Date(value[this.line.x])),
@@ -197,6 +212,24 @@ export class LineGraphComponent implements OnInit {
     graphData.push(trace);
 
     this.lineGraph.data = graphData;
+  }
+
+  //Convert hex color to rgba
+  private hexToRgbA(hex: string) {
+    var c;
+    if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+      c = hex.substring(1).split("");
+      if (c.length == 3) {
+        c = [c[0], c[0], c[1], c[1], c[2], c[2]];
+      }
+      c = "0x" + c.join("");
+      return (
+        "rgba(" +
+        [(c >> 16) & 255, (c >> 8) & 255, c & 255].join(",") +
+        ",0.3)"
+      );
+    }
+    throw new Error("Bad Hex");
   }
 
   // Get average for data array

@@ -27,7 +27,7 @@ export class OperationsComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Throughput (peak veh/hr): <b>%{x}</b>" +
+      "<br>Throughput (peak veh/hr): <b>%{x:,.0f}</b>" +
       "<extra></extra>",
   };
   tpLine: Graph = {
@@ -38,7 +38,7 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Throughput (peak veh/hr): <b>%{y}</b>" +
+      "<br>Throughput (peak veh/hr): <b>%{y:,.0f}</b>" +
       "<extra></extra>",
   };
 
@@ -50,7 +50,7 @@ export class OperationsComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Traffic Volume [veh/day]: <b>%{x}</b>" +
+      "<br>Traffic Volume [veh/day]: <b>%{x:,.0f}</b>" +
       "<extra></extra>",
   };
   dtvLine: Graph = {
@@ -61,7 +61,7 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Traffic Volume [veh/day]: <b>%{y}</b>" +
+      "<br>Traffic Volume [veh/day]: <b>%{y:,.0f}</b>" +
       "<extra></extra>",
   };
 
@@ -81,7 +81,7 @@ export class OperationsComponent implements OnInit {
     x: "aog",
     y: "corridor",
     hoverTemplate:
-      "<b>%{y}</b>" + "<br>Selected Month <b>%{x}</b>" + "<extra></extra>",
+      "<b>%{y}</b>" + "<br>Selected Month <b>%{x:.1%}</b>" + "<extra></extra>",
   };
   aogdLine: Graph = {
     title: "Weekly Trend",
@@ -91,7 +91,7 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Arrivals on Green: <b>%{y}</b>" +
+      "<br>Arrivals on Green: <b>%{y:.1%}</b>" +
       "<extra></extra>",
   };
   aoghLine: Graph = {
@@ -113,7 +113,7 @@ export class OperationsComponent implements OnInit {
     x: "pr",
     y: "corridor",
     hoverTemplate:
-      "<b>%{y}</b>" + "<br>Progression Ratio: <b>%{x}</b>" + "<extra></extra>",
+      "<b>%{y}</b>" + "<br>Progression Ratio: <b>%{x:.2f}</b>" + "<extra></extra>",
   };
   prdLine: Graph = {
     title: "Weekly Trend",
@@ -123,7 +123,7 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Progression Ratio: <b>%{x}</b>" +
+      "<br>Progression Ratio: <b>%{y:.2f}</b>" +
       "<extra></extra>",
   };
 
@@ -140,7 +140,7 @@ export class OperationsComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Queue Spillback Rate: <b>%{x}</b>" +
+      "<br>Queue Spillback Rate: <b>%{x:.1%}</b>" +
       "<extra></extra>",
   };
   qsdLine: Graph = {
@@ -151,19 +151,19 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Queue Spillback Rate: <b>%{y}</b>" +
+      "<br>Queue Spillback Rate: <b>%{y:.1%}</b>" +
       "<extra></extra>",
   };
 
   //split failure rate inputs
   psfGraphMetrics: Metrics = new Metrics({
     measure: "sfd",
-    formatDecimals: 2,
+    formatDecimals: 1,
     formatType: "percent",
   });
   osfGraphMetrics: Metrics = new Metrics({
     measure: "sfo",
-    formatDecimals: 2,
+    formatDecimals: 1,
     formatType: "percent",
   });
   sfTitle: string = "Split Failures Rate [%]";
@@ -173,7 +173,7 @@ export class OperationsComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Split Failures Rate[%]: <b>%{x}</b>" +
+      "<br>Split Failures Rate[%]: <b>%{x:.1%}</b>" +
       "<extra></extra>",
   };
   sfLine: Graph = {
@@ -184,7 +184,7 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Split Failures Rate[%]: <b>%{y}</b>" +
+      "<br>Split Failures Rate[%]: <b>%{y:.1%}</b>" +
       "<extra></extra>",
   };
 
@@ -197,7 +197,7 @@ export class OperationsComponent implements OnInit {
     x: "tti",
     y: "corridor",
     hoverTemplate:
-      "<b>%{y}</b>" + "<br>Travel Time Index: <b>%{y}</b>" + "<extra></extra>",
+      "<b>%{y}</b>" + "<br>Travel Time Index: <b>%{x:.2f}</b>" + "<extra></extra>",
   };
   ttiLine: Graph = {
     title: "Monthly Trend",
@@ -207,7 +207,7 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Travel Time Index: <b>%{y}</b>" +
+      "<br>Travel Time Index: <b>%{y:.2f}</b>" +
       "<extra></extra>",
   };
 
@@ -221,7 +221,7 @@ export class OperationsComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Planning Time Index: <b>%{y}</b>" +
+      "<br>Planning Time Index: <b>%{x:.2f}</b>" +
       "<extra></extra>",
   };
   ptiLine: Graph = {
@@ -232,7 +232,7 @@ export class OperationsComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Planning Time Index: <b>%{y}</b>" +
+      "<br>Planning Time Index: <b>%{y:.2f}</b>" +
       "<extra></extra>",
   };
 

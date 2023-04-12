@@ -19,5 +19,6 @@ export class SideNavService {
 
   public toggle(): void{
     this._isExpanded.next(!this._isExpanded.value);
+    window.dispatchEvent(new Event("resize"));
   }
 }
