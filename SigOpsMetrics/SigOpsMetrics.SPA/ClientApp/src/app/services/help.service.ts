@@ -20,7 +20,7 @@ export class HelpService {
         {
           name: "Arrivals on Green",
           htmlText:
-            "<p>Arrivals on Green (AOG) is a measure of coordination. A high percentage of arrivals on green would be the result of good offsets and should be correlated with fewer stops and less delay.</p><p>AOG is calculated as the total number of vehicles arriving on green light divided by the total number of arrivals. It is based on primary street through-phases, limited to peak periods (6am-10am, 3pm-7pm) on Tuesdays, Wednesdays and Thursdays.</p><p>The calculation uses detector data from Advance Count or Exit detectors, as configured in ATSPM. For advance detectors, the time of arrival at the intersection is adjusted for the setback distance and speed limit, both of which are configured in ATSPM.</p>",
+            "<p>Arrivals on Green (AOG) is a measure of coordination. A high percentage of arrivals on green would be the result of good offsets and should be correlated with fewer stops and less delay.</p><p>AOG is calculated as the total number of vehicles arriving on green light divided by the total number of arrivals. It is based on primary street through-phases, limited to peak periods (6am-10am, 3pm-7pm) on Tuesdays, Wednesdays and Thursdays.</p><p>The calculation uses detector data from Advance Count detectors, as configured in ATSPM. For advance detectors, the time of arrival at the intersection is adjusted for the setback distance and speed limit, both of which are configured in ATSPM.</p>",
         },
         {
           name: "Progression Ratio",
@@ -35,7 +35,7 @@ export class HelpService {
         {
           name: "Split Failures",
           htmlText:
-            "<p>Split failure is another measure of unmet demand. It identifies cycles where a phase has unserved demand. A phase is flagged for split failure when the average occupancy of the stop bar detectors on the phase are greater than 80% during the green phase and greater than 80% during the first five seconds of the red phase, which means there was demand at the stop bar both before and after the green interval. The intersection is flagged as a split failure on that cycle if at least one phase meets the criteria for split failure during that phase.</p><p>This metrics only uses Stop Bar Presence detection, and is only run for side street and left turn phases, i.e., all phases other than main street through phases.</p>",
+            "<p>Split failure is another measure of unmet demand. It identifies cycles where a phase has unserved demand. A phase is flagged for split failure when the average occupancy of the stop bar detectors on the phase are greater than 80% during the green phase and greater than 80% during the first five seconds of the red phase, which means there was demand at the stop bar both before and after the green interval. The intersection is flagged as a split failure on that cycle if at least one phase meets the criteria for split failure during that phase.</p><p>This metrics only uses Stop Bar Presence detection, and is only run for side street and left turn phases, i.e., all phases other than main street through phases. Peak periods are defined as 6 - 10 AM and 3 - 8 PM.</p>",
         },
         {
           name: "Travel Time Index",
