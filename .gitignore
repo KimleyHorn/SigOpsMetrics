@@ -230,3 +230,4 @@ _Pvt_Extensions
 # FAKE - F# Make
 .fake/
 /SigOpsMetrics/SigOpsMetrics.API/castle-rock-service-account.json
+/SigOpsMetrics/.idea/.idea.SigOpsMetrics/.idea

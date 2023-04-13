@@ -97,15 +97,6 @@ namespace SigOpsMetrics.API.DataAccess
 
             var keys = new List<string>(response.Keys);
             var signalsWithCorridors = await SignalsDataAccessLayer.GetSignalsWithCorridors(sqlConnectionReader, filter);
-            switch (filter.zone_Group)
-            {
-                case "Western Metro":
-                    filter.zone_Group = "West Metro";
-                    break;
-                case "Eastern Metro":
-                    filter.zone_Group = "East Metro";
-                    break;
-            }
             var cameras = await CamerasDataAccessLayer.GetCameras(sqlConnectionReader, filter);
             // todo after .net 6 upgrade, see if foreachasync is faster
             var tasks = keys.Select(measure => GetSummaryTrendDataAsync(measure, sqlConnectionReader, response,
@@ -267,15 +258,6 @@ namespace SigOpsMetrics.API.DataAccess
             var allZoneGroup = filter.zone_Group == "All";
             if (measure == "cctv")
             {
-                switch (filter.zone_Group)
-                {
-                    case "Western Metro":
-                        filter.zone_Group = "West Metro";
-                        break;
-                    case "Eastern Metro":
-                        filter.zone_Group = "East Metro";
-                        break;
-                }
                 var cameras = await CamerasDataAccessLayer.GetCameras(sqlConnectionReader, filter);
                 var camerasList = cameras.ToList();
                 if (camerasList.Any())
