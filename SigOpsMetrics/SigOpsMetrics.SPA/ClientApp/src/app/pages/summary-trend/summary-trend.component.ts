@@ -207,7 +207,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
     lineColor: this.colors.sigOpsRed,
   };
 
-  cuTitle = "Detector Uptime";
+  cuTitle = "Comm Uptime";
   cuGraphMetrics = new Metrics({
     measure: "cu",
     formatDecimals: 1,
