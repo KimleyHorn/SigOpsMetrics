@@ -1,13 +1,13 @@
 import { enableProdMode } from '@angular/core';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AppConfig } from './app/app.config';
 
 import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 export function getBaseUrl() {
   //custom - point to API
-  return environment.API_PATH;
-  //return document.getElementsByTagName('base')[0].href;
+  return AppConfig.settings.API_PATH;
 }
 
 const providers = [

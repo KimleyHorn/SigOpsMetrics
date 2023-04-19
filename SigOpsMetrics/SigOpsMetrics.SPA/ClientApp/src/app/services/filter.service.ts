@@ -5,6 +5,7 @@ import { BehaviorSubject } from 'rxjs';
 import { SignalInfo } from '../models/signal-info';
 import { map } from 'rxjs/operators';
 import { FormatService } from './format.service';
+import { AppConfig } from '../app.config';
 
 @Injectable({
   providedIn: "root",
@@ -19,7 +20,7 @@ export class FilterService {
   public filters = this._filters.asObservable();
   public isFiltering: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-  baseUrl: string;
+  baseUrl: string = AppConfig.settings.API_PATH;
   public signalGroups: Array<any> = [];
 
   private _signals: BehaviorSubject<SignalInfo[]> = new BehaviorSubject<
@@ -82,11 +83,9 @@ export class FilterService {
 
   constructor(
     private http: HttpClient,
-    @Inject("BASE_URL") baseUrlInject: string,
     private _formatService: FormatService
   ) {
     this.checkExistingFilter();
-    this.baseUrl = baseUrlInject;
     this._filters.next(this.filter);
     this.getSignalGroupsFromDb().subscribe(
       (data) => (this.signalGroups = data)

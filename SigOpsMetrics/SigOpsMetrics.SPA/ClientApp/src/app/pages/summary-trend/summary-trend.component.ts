@@ -12,8 +12,7 @@ import { Metrics } from "src/app/models/metrics";
 import { FilterService } from "src/app/services/filter.service";
 import { MetricsService } from "src/app/services/metrics.service";
 import { Colors } from "src/app/models/colors";
-import { environment } from "src/environments/environment";
-
+import { AppConfig } from "src/app/app.config";
 @Component({
   selector: "app-summary-trend",
   templateUrl: "./summary-trend.component.html",
@@ -99,7 +98,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
   ttiGraphMetrics = new Metrics({
     measure: "tti",
     formatDecimals: 2,
-    goal: environment.ttiGoal,
+    goal: AppConfig.settings.ttiGoal,
   });
   ttiGraph: Graph = {
     x: "month",
@@ -112,7 +111,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
   ptiGraphMetrics = new Metrics({
     measure: "pti",
     formatDecimals: 2,
-    goal: environment.ptiGoal,
+    goal: AppConfig.settings.ptiGoal,
   });
   ptiGraph: Graph = {
     x: "month",
@@ -170,7 +169,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
     measure: "du",
     formatDecimals: 1,
     formatType: "percent",
-    goal: environment.duGoal,
+    goal: AppConfig.settings.duGoal,
   });
   duGraph: Graph = {
     x: "month",
@@ -184,7 +183,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
     measure: "pau",
     formatDecimals: 1,
     formatType: "percent",
-    goal: environment.ppuGoal,
+    goal: AppConfig.settings.ppuGoal,
   });
   pauGraph: Graph = {
     x: "month",
@@ -198,7 +197,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
     measure: "cctv",
     formatDecimals: 1,
     formatType: "percent",
-    goal: environment.cctvGoal,
+    goal: AppConfig.settings.cctvGoal,
   });
   cctvGraph: Graph = {
     x: "month",
@@ -212,7 +211,7 @@ export class SummaryTrendComponent implements OnInit, AfterViewInit, OnDestroy {
     measure: "cu",
     formatDecimals: 1,
     formatType: "percent",
-    goal: environment.cuGoal,
+    goal: AppConfig.settings.cuGoal,
   });
   cuGraph: Graph = {
     x: "month",

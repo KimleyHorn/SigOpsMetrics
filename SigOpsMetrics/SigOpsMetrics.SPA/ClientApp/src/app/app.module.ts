@@ -29,6 +29,7 @@ import { MetricCardComponent } from './components/cards/metric-card/metric-card.
 import { CircleProgressComponent } from './components/graphs/circle-progress/circle-progress.component';
 import { BarLineGraphComponent } from './components/graphs/bar-line-graph/bar-line-graph.component';
 import { BarLineLineGraphComponent } from './components/graphs/bar-line-line-graph/bar-line-line-graph.component';
+import { LineGraphComponent } from './components/graphs/line-graph/line-graph.component';
 import { GraphDashboardComponent } from './components/dashboards/graph-dashboard/graph-dashboard.component';
 import { GraphNoCardDashboardComponent } from './components/dashboards/graph-no-card-dashboard/graph-no-card-dashboard.component';
 import { DatePipe } from '@angular/common';
@@ -47,8 +48,9 @@ import { HelpPanelComponent } from './components/panels/help-panel/help-panel.co
 import { ExcelExportComponent } from './components/excel-export/excel-export.component';
 import { GlobalHttpInterceptorService } from './services/global-http-interceptor.service';
 import { NgCircleProgressModule } from 'ng-circle-progress';
-
-
+import { SummaryTrendComponent } from './pages/summary-trend/summary-trend.component';
+import { APP_INITIALIZER } from '@angular/core';
+import { AppConfig } from './app.config';
 
 const routes: Routes = [
   { path: '', component: DashboardComponent, pathMatch: 'full', data: { text: 'Dashboard', icon: 'insert_chart' } },
@@ -58,11 +60,14 @@ const routes: Routes = [
   { path: 'teams-tasks', component: TeamsTasksComponent, data: { text: 'TEAMS Tasks', icon: 'build' } },
   { path: 'reports', component: ReportsComponent, data: { text: 'Reports', icon: 'receipt' } },
   { path: 'health-metrics', component: HealthMetricsComponent, data: { text: 'Health Metrics', icon: 'healing' } },
+  { path: 'summary-trend', component: SummaryTrendComponent, data: { text: 'Summary Trend', icon: 'show_chart' } },
   { path: 'signal-info', component: SignalInfoComponent, data: { text: 'Signal Info', icon: 'info' } },
   { path: 'about', component: HelpComponent, data: { text: 'About', icon: 'help' } }
 ];
 
-
+export function initializeApp(appConfig: AppConfig) {
+  return () => appConfig.load();
+}
 
 @NgModule({
   declarations: [
@@ -72,6 +77,7 @@ const routes: Routes = [
     HeaderComponent,
     SignalInfoComponent,
     OperationsComponent,
+    SummaryTrendComponent,
     MaintenanceComponent,
     WatchdogComponent,
     TeamsTasksComponent,
@@ -82,6 +88,7 @@ const routes: Routes = [
     MetricCardComponent,
     CircleProgressComponent,
     BarLineGraphComponent,
+    LineGraphComponent,
     BarLineLineGraphComponent,
     GraphDashboardComponent,
     // GraphsDashboardComponent,
@@ -122,6 +129,7 @@ const routes: Routes = [
   providers: [
     DatePipe,
     ContactComponent,
+    AppConfig, { provide: APP_INITIALIZER, useFactory: initializeApp, deps: [AppConfig], multi: true },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: GlobalHttpInterceptorService,
