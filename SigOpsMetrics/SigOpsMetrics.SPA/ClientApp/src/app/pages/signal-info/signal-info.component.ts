@@ -1,10 +1,10 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { SignalsService } from '../../services/signals.service';
 import { SignalInfo } from '../../models/signal-info';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import {Sort} from '@angular/material/sort';
-import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
+import { FormGroup, UntypedFormBuilder, AbstractControl } from '@angular/forms'
 import { Title } from '@angular/platform-browser';
 import { formatDate } from '@angular/common';
 import { FilterService } from 'src/app/services/filter.service';
@@ -46,7 +46,7 @@ export class SignalInfoComponent implements OnInit, AfterViewInit {
 
   constructor(
     private signalsService: SignalsService,
-    formBuilder: FormBuilder,
+    formBuilder: UntypedFormBuilder,
     private titleService: Title,
     private filterService: FilterService
   ) {

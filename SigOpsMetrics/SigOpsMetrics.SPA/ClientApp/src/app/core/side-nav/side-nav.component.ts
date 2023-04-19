@@ -23,7 +23,7 @@ export class SideNavComponent implements OnInit {
 
   ngOnInit(): void {
     this.sideNavService.setSideNav(this.sideNav);
-    var routes = this.router.config.filter(item => item["text"] !== undefined && item["text"] !== "" && this.filterRoute(item));
+    var routes = this.router.config.filter(item => item.data["text"] !== undefined && item.data["text"] !== "" && this.filterRoute(item.data));
 
     this.menuItems = this.mapItems(routes);
 
@@ -50,8 +50,8 @@ export class SideNavComponent implements OnInit {
     var items: any[] = [];
     routes.forEach(route => {
       var item = {
-        text: route.text,
-        icon: route.icon,
+        text: route.data.text,
+        icon: route.data.icon,
         path: route.path ? route.path : ''
       };
 

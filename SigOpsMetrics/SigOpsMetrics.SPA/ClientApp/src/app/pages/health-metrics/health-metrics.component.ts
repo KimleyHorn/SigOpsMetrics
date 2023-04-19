@@ -8,11 +8,11 @@ import { MetricsService } from '../../services/metrics.service';
 import { HealthMaintenance } from '../../models/health-maintenance';
 import { HealthOperations } from '../../models/health-operations';
 import { HealthSafety } from '../../models/health-safety';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatTableDataSource } from '@angular/material/table';
+import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator';
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table';
 import {Sort} from '@angular/material/sort';
-import { FormGroup, FormBuilder, AbstractControl} from '@angular/forms'
-import { MatTabChangeEvent } from '@angular/material/tabs';
+import { FormGroup, UntypedFormBuilder, AbstractControl } from '@angular/forms'
+import { MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/legacy-tabs';
 import { Title } from '@angular/platform-browser';
 import { FilterService } from 'src/app/services/filter.service';
 
@@ -178,7 +178,7 @@ export class HealthMetricsComponent implements OnInit {
 
   constructor(
     private metricsService: MetricsService,
-    formBuilder: FormBuilder,
+    formBuilder: UntypedFormBuilder,
     private toggleService: ChartToggleService,
     public mapSettings: MapSettings,
     private titleService: Title,

@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
-import {DialogPosition, MatDialog} from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { LegacyDialogPosition as DialogPosition, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarConfig as MatSnackBarConfig } from '@angular/material/legacy-snack-bar';
 import { ContactFormService } from 'src/app/services/contact-form.service';
 
   @Component({
@@ -8,23 +8,23 @@ import { ContactFormService } from 'src/app/services/contact-form.service';
     templateUrl: "./contact-form.html",
     styleUrls: ['./contact-form.css']
   })
-  
+
   export class ContactComponent implements OnInit {
       model: any = {};
       dialogPosition: DialogPosition = {
         top: '50px',
         right: '2%'
       }
-    constructor(public dialog: MatDialog, private service: ContactFormService, private snackbar: MatSnackBar) {} 
+    constructor(public dialog: MatDialog, private service: ContactFormService, private snackbar: MatSnackBar) {}
 
     matbarConfig: MatSnackBarConfig = {
       horizontalPosition: 'end',
       verticalPosition: 'bottom',
       duration: 5000,
-      
+
     }
     ngOnInit(): void {}
-  
+
      processForm() {
       this.service.submitData(this.model).subscribe(data => {
         if (data == 1) {
@@ -43,6 +43,6 @@ import { ContactFormService } from 'src/app/services/contact-form.service';
         width: '450px',
         position: this.dialogPosition
       });
-    }  
+    }
 
   }

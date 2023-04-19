@@ -28,7 +28,6 @@
       {{ option.label }}
     </mat-radio-button>
   </mat-radio-group>
-
   <div *ngIf="this.selectedDateOption === 5">
     <mat-form-field
       appearance="outline"
@@ -36,6 +35,10 @@
       style="max-width: 45%"
     >
       <mat-label>Start Date</mat-label>
+      <!-- <input matInput placeholder="Start Date"
+        type="date" [(ngModel)]="startDate"
+        (dateChange)="updateFilter('customStart', $event)"
+      /> -->
       <input
         matInput
         [matDatepicker]="startDate"
@@ -74,40 +77,29 @@
     </ul> -->
 
     <div class="filter-break"></div>
-    <div>
-      <span class="header-label">Time Range
-      </span>
-      <mat-checkbox #allDayCheckbox
-      class="date-range-checkbox"
-      (change)="allDayChecked($event)"
-      checked='true'
-      color='primary'>
-        All day
-      </mat-checkbox>
+    <span class="header-label mb-0">Time Range </span>
+    <div class="d-flex flex-row ">
+      <mat-checkbox
+        #allDayCheckbox
+        class="date-range-checkbox"
+        (change)="allDayChecked($event)"
+        checked="true"
+      />
+      <div class="align-self-center date-range-checkbox">All day</div>
     </div>
     <mat-form-field
       appearance="outline"
       class="filter-form-field"
-      style="max-width: 45%"
+      style="max-width: 45%;"
     >
       <mat-label>Begin Time</mat-label>
       <input
+        type="time"
         matInput
-        [matDatepicker]="startTime"
-        (dateChange)="updateFilter('startTime', $event)"
+        [(ngModel)]="startTime"
+    name="startTime"
+    (ngModelChange)="updateFilter('startTime', { value: $event })"
       />
-      <mat-datepicker-toggle
-        matSuffix
-        [for]="startTime"
-      ></mat-datepicker-toggle>
-      <mat-datepicker #startTime type="time" [twelveHour]="true">
-        <mat-datepicker-actions>
-          <button mat-button matDatepickerCancel>Cancel</button>
-          <button mat-raised-button color="primary" matDatepickerApply (click)="removeCheck($event)">
-            Apply
-          </button>
-        </mat-datepicker-actions>
-      </mat-datepicker>
     </mat-form-field>
 
     <mat-form-field
@@ -118,18 +110,11 @@
       <mat-label>End Time</mat-label>
       <input
         matInput
-        [matDatepicker]="endTime"
-        (dateChange)="updateFilter('endTime', $event)"
+        type="time"
+[(ngModel)]="endTime"
+    name="endTime"
+    (ngModelChange)="updateFilter('endTime', { value: $event } )"
       />
-      <mat-datepicker-toggle matSuffix [for]="endTime"></mat-datepicker-toggle>
-      <mat-datepicker #endTime type="time" [twelveHour]="true">
-        <mat-datepicker-actions>
-          <button mat-button matDatepickerCancel>Cancel</button>
-          <button mat-raised-button color="primary" matDatepickerApply (click)="removeCheck($event)">
-            Apply
-          </button>
-        </mat-datepicker-actions>
-      </mat-datepicker>
     </mat-form-field>
 
     <div class="filter-break"></div>
@@ -211,9 +196,19 @@
           {{ district }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedDistrict" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedDistrict=null; updateFilter('zone', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
+      <button
+        mat-button
+        *ngIf="selectedDistrict"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="
+          selectedDistrict = null;
+          updateFilter('zone', { value: null });
+          $event.stopPropagation()
+        "
+      >
+        <mat-icon style="color: red">close</mat-icon>
       </button>
     </mat-form-field>
     <mat-form-field
@@ -230,9 +225,19 @@
           {{ agency }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedAgency" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedAgency=null; updateFilter('agency', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
+      <button
+        mat-button
+        *ngIf="selectedAgency"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="
+          selectedAgency = null;
+          updateFilter('agency', { value: null });
+          $event.stopPropagation()
+        "
+      >
+        <mat-icon style="color: red">close</mat-icon>
       </button>
     </mat-form-field>
     <mat-form-field
@@ -249,9 +254,19 @@
           {{ county }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedCounty" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedCounty=null; updateFilter('county', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
+      <button
+        mat-button
+        *ngIf="selectedCounty"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="
+          selectedCounty = null;
+          updateFilter('county', { value: null });
+          $event.stopPropagation()
+        "
+      >
+        <mat-icon style="color: red">close</mat-icon>
       </button>
     </mat-form-field>
     <mat-form-field
@@ -268,9 +283,19 @@
           {{ city }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedCity" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedCity=null; updateFilter('city', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
+      <button
+        mat-button
+        *ngIf="selectedCity"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="
+          selectedCity = null;
+          updateFilter('city', { value: null });
+          $event.stopPropagation()
+        "
+      >
+        <mat-icon style="color: red">close</mat-icon>
       </button>
     </mat-form-field>
     <mat-form-field
@@ -287,9 +312,19 @@
           {{ corridor }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedCorridor" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedCorridor=null; updateFilter('corridor', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
+      <button
+        mat-button
+        *ngIf="selectedCorridor"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="
+          selectedCorridor = null;
+          updateFilter('corridor', { value: null });
+          $event.stopPropagation()
+        "
+      >
+        <mat-icon style="color: red">close</mat-icon>
       </button>
     </mat-form-field>
     <mat-form-field
@@ -310,47 +345,19 @@
           {{ subcorridor }}
         </mat-option>
       </mat-select>
-      <button mat-button *ngIf="selectedSubcorridor" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedSubcorridor=null; updateFilter('subcorridor', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
-      </button>
-    </mat-form-field>
-    <mat-form-field
-      appearance="outline"
-      class="filter-form-field"
-      style="display: block"
-    >
-      <mat-label>Select Priority</mat-label>
-      <mat-select
-        (selectionChange)="updateFilter('priority', $event)"
-        [(ngModel)]="selectedPriority"
+      <button
+        mat-button
+        *ngIf="selectedSubcorridor"
+        matSuffix
+        mat-icon-button
+        aria-label="Clear"
+        (click)="
+          selectedSubcorridor = null;
+          updateFilter('subcorridor', { value: null });
+          $event.stopPropagation()
+        "
       >
-        <mat-option *ngFor="let priority of priorities" [value]="priority">
-          {{ priority }}
-        </mat-option>
-      </mat-select>
-      <button mat-button *ngIf="selectedPriority" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedPriority=null; updateFilter('priority', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
-      </button>
-    </mat-form-field>
-    <mat-form-field
-      appearance="outline"
-      class="filter-form-field"
-      style="display: block"
-    >
-      <mat-label>Select Classification</mat-label>
-      <mat-select
-        (selectionChange)="updateFilter('classification', $event)"
-        [(ngModel)]="selectedClassification"
-      >
-        <mat-option *ngFor="let classification of classifications" [value]="classification">
-          {{ classification }}
-        </mat-option>
-      </mat-select>
-      <button mat-button *ngIf="selectedClassification" matSuffix mat-icon-button aria-label="Clear"
-        (click)="selectedClassification=null; updateFilter('classification', { value: null }); $event.stopPropagation()">
-        <mat-icon style="color:red;">close</mat-icon>
+        <mat-icon style="color: red">close</mat-icon>
       </button>
     </mat-form-field>
   </div>

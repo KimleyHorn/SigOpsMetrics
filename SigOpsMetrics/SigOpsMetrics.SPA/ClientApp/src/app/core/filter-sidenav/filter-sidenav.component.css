@@ -1,8 +1,8 @@
 .mat-raised-button {
-    font-size:x-small;
-    max-width: 70px;
-    line-height: 15px;
-    white-space: pre-wrap !important;
+  font-size: x-small;
+  max-width: 70px;
+  line-height: 15px;
+  white-space: pre-wrap !important;
 }
 
 /* mat-radio-group {
@@ -22,65 +22,73 @@
     margin: 15px 0;
   } */
 
+.mat-mdc-checkbox
+  .mdc-checkbox
+  .mdc-checkbox__native-control:enabled:checked
+  ~ .mdc-checkbox__background {
+  background-color: #0070ed !important;
+  border-color: #0070ed !important;
+}
+
 .date-range-radio-button {
-    display:inline-block !important;
-    width:50% !important;
-    text-align: center !important;
-    font-size: smaller !important;
+  display: inline-block !important;
+  width: 50% !important;
+  text-align: center !important;
+  font-size: smaller !important;
 }
 /* .mat-radio-checked .mat-radio-label .mat-radio-container .mat-radio-inner-circle */
 .mat-radio-checked .mat-radio-inner-circle {
-    transform: scale(.75) !important;
-    background-color: #0070ed !important;
+  transform: scale(0.75) !important;
+  background-color: #0070ed !important;
 }
 
 .filter-break {
-    border-top: 1px lightgray solid;
-    margin: 10px 0px 10px 0px;
+  border-top: 1px lightgray solid;
+  margin: 10px 0px 10px 0px;
 }
 .header-label {
-    display:block;
-    font-size: 10px;
-    margin-bottom: 10px;
-    font-weight:bold;
-    color:gray;
+  display: block;
+  font-size: 10px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: gray;
 }
 
 .date-range-checkbox {
-  display:inline-block;
+  display: inline-block;
   text-align: center;
-  font-size:11px;
-  font-weight:bold;
-  color:gray;
+  font-size: 11px;
+  font-weight: bold;
+  color: gray;
 }
 
 .date-range-radio-group {
-    font-size:11px;
-    font-weight:bold;
-    color:gray;
+  font-size: 11px;
+  font-weight: bold;
+  color: gray;
 }
 
 .filter-form-field .mat-form-field-wrapper {
-    padding-bottom: 5px !important;
+  padding-bottom: 5px !important;
 }
 
 .mat-form-field {
-    font-size: smaller;
+  font-size: smaller;
 }
 
 .days-list {
-    display: inline;
-    max-width: 10px;
+  display: inline;
+  max-width: 10px;
 }
 .days-list-btn {
-    max-width: 40px;
-    margin: 0px;
-    padding: 0px 7px 0px 7px;
-    border-radius: 0px;
-    border-color: white;
-    background: grey;
+  max-width: 40px;
+  margin: 0px;
+  padding: 0px 7px 0px 7px;
+  border-radius: 0px;
+  border-color: white;
+  background: grey;
 }
 
 .mat-drawer-inner-container::-webkit-scrollbar {
-    display: none;
+  display: none;
 }

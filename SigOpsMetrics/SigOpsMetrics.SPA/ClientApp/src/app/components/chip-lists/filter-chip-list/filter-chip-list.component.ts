@@ -71,11 +71,11 @@ export class FilterChipListComponent implements OnInit {
                 break;
               case "startTime":
                 name = "Start Time";
-                value = this._datePipe.transform(value, "hh:mm a");
+                value = this.convertTimeFormat(value);
                 break;
               case "endTime":
                 name = "End Time";
-                value = this._datePipe.transform(value, "hh:mm a");
+                value = this.convertTimeFormat(value);
                 break;
               case "timePeriod":
                 name = "Data Aggregation";
@@ -167,5 +167,13 @@ export class FilterChipListComponent implements OnInit {
 
       this._filterService.updateFilter();
     }
+  }
+
+  convertTimeFormat(timeString: string): string {
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours, 10));
+    date.setMinutes(parseInt(minutes, 10));
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 }
