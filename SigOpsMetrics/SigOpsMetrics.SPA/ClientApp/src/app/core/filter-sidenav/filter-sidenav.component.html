@@ -345,19 +345,47 @@
           {{ subcorridor }}
         </mat-option>
       </mat-select>
-      <button
-        mat-button
-        *ngIf="selectedSubcorridor"
-        matSuffix
-        mat-icon-button
-        aria-label="Clear"
-        (click)="
-          selectedSubcorridor = null;
-          updateFilter('subcorridor', { value: null });
-          $event.stopPropagation()
-        "
+<button mat-button *ngIf="selectedSubcorridor" matSuffix mat-icon-button aria-label="Clear"
+        (click)="selectedSubcorridor=null; updateFilter('subcorridor', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
+      <mat-label>Select Priority</mat-label>
+      <mat-select
+        (selectionChange)="updateFilter('priority', $event)"
+        [(ngModel)]="selectedPriority"
       >
-        <mat-icon style="color: red">close</mat-icon>
+        <mat-option *ngFor="let priority of priorities" [value]="priority">
+          {{ priority }}
+        </mat-option>
+      </mat-select>
+      <button mat-button *ngIf="selectedPriority" matSuffix mat-icon-button aria-label="Clear"
+        (click)="selectedPriority=null; updateFilter('priority', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
+      </button>
+    </mat-form-field>
+    <mat-form-field
+      appearance="outline"
+      class="filter-form-field"
+      style="display: block"
+    >
+      <mat-label>Select Classification</mat-label>
+      <mat-select
+        (selectionChange)="updateFilter('classification', $event)"
+        [(ngModel)]="selectedClassification"
+      >
+        <mat-option *ngFor="let classification of classifications" [value]="classification">
+          {{ classification }}
+        </mat-option>
+      </mat-select>
+      <button mat-button *ngIf="selectedClassification" matSuffix mat-icon-button aria-label="Clear"
+        (click)="selectedClassification=null; updateFilter('classification', { value: null }); $event.stopPropagation()">
+        <mat-icon style="color:red;">close</mat-icon>
       </button>
     </mat-form-field>
   </div>
