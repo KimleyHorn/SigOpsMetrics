@@ -49,6 +49,9 @@ export class DashboardComponent  implements OnInit {
 
     this._metricSelectService.selectedMetric.subscribe(value => {
       switch (value) {
+        case "tp":
+          this.selectedSettings = this.mapSettings.tpMapSettings;
+          break;
         case "aogd":
           this.selectedSettings = this.mapSettings.aogdMapSettings;
           break;
