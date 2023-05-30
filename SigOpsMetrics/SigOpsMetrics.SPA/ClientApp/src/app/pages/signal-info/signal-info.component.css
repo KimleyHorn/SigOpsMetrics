@@ -3,37 +3,38 @@ table {
   border-spacing: 0 8px !important;
 }
 
-td.mat-cell {
+td.mat-mdc-cell {
  padding: 16px 4px 16px 4px;
- border-bottom: 1px solid #BABABA;
+ border-bottom: 1px solid #BABABA !important;
  border-right: 1px solid #BABABA;
  border-top: 1px solid #BABABA;
+ text-align: center;
 }
 
-td.mat-cell:first-child {
+td.mat-mdc-cell:first-child {
   border-left: 1px solid #BABABA;
 }
 
-td.mat-cell:last-child {
+td.mat-mdc-cell:last-child {
   border-right: 1px solid #BABABA;
-}
-
-th.mat-header-cell {
-  text-align: center !important;
-  background-color: #338FF2;
-  color: white;
-  border: 1px solid #BABABA;
 }
 
 .mat-sort-header-container {
   justify-content: center;
 }
 
-th.mat-header-cell:first-of-type {
+th.mat-mdc-header-cell:first-of-type {
   padding-left: 12px !important;
 }
 
-td.mat-cell:first-of-type {
+th.mat-mdc-header-cell {
+  text-align: center !important;
+  background-color: #338FF2;
+  color: white;
+  border: 1px solid #BABABA;
+}
+
+td.mat-mdc-cell:first-of-type {
   padding: 0px !important;
 }
 
@@ -111,11 +112,11 @@ mat-form-field.mat-form-field {
   margin-bottom: 16px;
 }
 
-.mat-row:nth-child(even){
+.mat-mdc-row:nth-child(even){
   background-color:#FFFFFF;
 }
 
-.mat-row:nth-child(odd){
+.mat-mdc-row:nth-child(odd){
   background-color :#ECECEC;
 }
 

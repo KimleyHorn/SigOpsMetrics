@@ -5,12 +5,13 @@ import { environment } from 'src/environments/environment';
 import { Filter } from '../models/filter';
 import { Metrics } from '../models/metrics';
 import { FilterService } from './filter.service';
+import { AppConfig } from '../app.config';
 
 @Injectable({
   providedIn: "root",
 })
 export class MetricsService {
-  private _baseUrl: string = environment.API_PATH;
+  private _baseUrl: string = AppConfig.settings.API_PATH;
   private _dt: Date = new Date();
   private _filter: Filter = new Filter();
   private _options = {

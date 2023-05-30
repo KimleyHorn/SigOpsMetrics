@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output } from "@angular/core";
-import { MatTabChangeEvent } from "@angular/material/tabs";
+import { MatLegacyTabChangeEvent as MatTabChangeEvent } from "@angular/material/legacy-tabs";
 import { Title } from "@angular/platform-browser";
 import { ChartToggleService } from "src/app/components/toggles/chart-toggle/chart-toggle.service";
 import { Graph } from "src/app/models/graph";

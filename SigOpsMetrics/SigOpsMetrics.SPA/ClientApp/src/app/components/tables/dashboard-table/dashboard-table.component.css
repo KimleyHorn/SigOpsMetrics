@@ -1,9 +1,11 @@
-.dashboard-value{
+.dashboard-value {
   text-align: right;
   font-weight: bold;
+  padding-right: 2px;
 }
 
 .dashboard-unit {
   text-align: center;
   font-weight: bold;
+  padding-left: 0px;
 }

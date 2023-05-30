@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { setUncaughtExceptionCaptureCallback } from 'process';
+//import { setUncaughtExceptionCaptureCallback } from 'process';
 import { MetricSelectService } from 'src/app/components/selects/metric-select/metric-select.service';
 import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';

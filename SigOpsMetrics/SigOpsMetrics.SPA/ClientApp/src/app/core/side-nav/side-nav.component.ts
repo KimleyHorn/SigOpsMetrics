@@ -3,7 +3,7 @@ import { MatSidenav } from "@angular/material/sidenav";
 import { Router } from "@angular/router";
 import { FilterService } from "src/app/services/filter.service";
 import { SideNavService } from "../side-nav/side-nav.service";
-import { environment } from "src/environments/environment";
+import { AppConfig } from "src/app/app.config";
 
 @Component({
   selector: 'app-side-nav',
@@ -23,7 +23,7 @@ export class SideNavComponent implements OnInit {
 
   ngOnInit(): void {
     this.sideNavService.setSideNav(this.sideNav);
-    var routes = this.router.config.filter(item => item["text"] !== undefined && item["text"] !== "" && this.filterRoute(item));
+    var routes = this.router.config.filter(item => item.data["text"] !== undefined && item.data["text"] !== "" && this.filterRoute(item.data));
 
     this.menuItems = this.mapItems(routes);
 
@@ -50,8 +50,8 @@ export class SideNavComponent implements OnInit {
     var items: any[] = [];
     routes.forEach(route => {
       var item = {
-        text: route.text,
-        icon: route.icon,
+        text: route.data.text,
+        icon: route.data.icon,
         path: route.path ? route.path : ''
       };
 
@@ -68,19 +68,19 @@ export class SideNavComponent implements OnInit {
   filterRoute(r){
     switch (r["text"]) {
       case "Operations":
-        return environment.hasPageOperations;
+        return AppConfig.settings.hasPageOperations;
       case "Maintenance":
-        return environment.hasPageMaintenance;
+        return AppConfig.settings.hasPageMaintenance;
       case "Watchdog":
-        return environment.hasPageWatchdog;
+        return AppConfig.settings.hasPageWatchdog;
       case "TEAMS Tasks":
-        return environment.hasPageTeamsTasks;
+        return AppConfig.settings.hasPageTeamsTasks;
       case "Reports":
-        return environment.hasPageReports;
+        return AppConfig.settings.hasPageReports;
       case "Health Metrics":
-        return environment.hasPageHealthMetrics;
+        return AppConfig.settings.hasPageHealthMetrics;
       case "Summary Trend":
-        return environment.hasPageSummaryTrend;
+        return AppConfig.settings.hasPageSummaryTrend;
     }
     return true;
   }

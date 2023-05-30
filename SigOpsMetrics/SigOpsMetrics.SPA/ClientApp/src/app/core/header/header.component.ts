@@ -2,7 +2,7 @@ import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 import { HelpService } from 'src/app/services/help.service';
 import { ContactComponent } from '../contact-form/contact-form';
 import { SideNavService } from '../side-nav/side-nav.service';
-import { environment } from 'src/environments/environment';
+import { AppConfig } from 'src/app/app.config';
 
 @Component({
   selector: 'app-header',
@@ -12,8 +12,8 @@ import { environment } from 'src/environments/environment';
   providers: [ContactComponent]
 })
 export class HeaderComponent implements OnInit {
-  showContactUs = environment.hasBtnContactUs;
-  showGdotApplications = environment.hasBtnGdotApplications;
+  showContactUs = AppConfig.settings.hasBtnContactUs;
+  showGdotApplications = AppConfig.settings.hasBtnGdotApplications;
   helpData: any = "";
   patchData: any;
   showPatchData: boolean = false;
