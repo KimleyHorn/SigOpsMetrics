@@ -15,4 +15,9 @@ export class Colors {
 
   gray: string = "#a9a9a9";
   darkGray: string = "000000de";
+
+  sigOpsBlue = "#1e7ce6";
+  sigOpsGreen = "#66cc66";
+  sigOpsRed = "#ed3833";
+  sigOpsYellow = "#fbd349";
 }

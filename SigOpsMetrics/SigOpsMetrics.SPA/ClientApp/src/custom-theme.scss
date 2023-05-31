@@ -1,14 +1,24 @@
 
 // Custom Theming for Angular Material
+@use '@angular/material' as mat;
 // For more information: https://material.angular.io/guide/theming
-@import '~@angular/material/theming';
-@import '~@matheo/datepicker/theming';
+
+//@use '@matheo/datepicker/theming' as datepicker;
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 // Be sure that you only ever include this mixin once!
-@include mat-core();
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy(mat.define-legacy-typography-config());`
+@include mat.all-legacy-component-typographies();
+@include mat.legacy-core();
 
 $mat-sigops-main: (
   50 : #e0eefd,
@@ -79,15 +89,15 @@ $mat-sigops-accent: (
 // Define the palettes for your theme using the Material Design palettes available in palette.scss
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue. Available color palettes: https://material.io/design/color/
-$SigOpsMetrics-primary: mat-palette($mat-sigops-main);
-$SigOpsMetrics-accent: mat-palette($mat-sigops-main, A200, A100, A400);
+$SigOpsMetrics-primary: mat.define-palette($mat-sigops-main);
+$SigOpsMetrics-accent: mat.define-palette($mat-sigops-main, A200, A100, A400);
 
 // The warn palette is optional (defaults to red).
-$SigOpsMetrics-warn: mat-palette($mat-red);
+$SigOpsMetrics-warn: mat.define-palette(mat.$red-palette);
 
 // Create the theme object. A theme consists of configurations for individual
 // theming systems such as "color" or "typography".
-$SigOpsMetrics-theme: mat-light-theme((
+$SigOpsMetrics-theme: mat.define-light-theme((
   color: (
     primary: $SigOpsMetrics-primary,
     accent: $SigOpsMetrics-accent,
@@ -98,11 +108,20 @@ $SigOpsMetrics-theme: mat-light-theme((
 // Include theme styles for core and each component used in your app.
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
-@include angular-material-theme($SigOpsMetrics-theme);
+@include mat.all-legacy-component-themes($SigOpsMetrics-theme);
 
 //Custom font - based on prototypes
-$custom-typography: mat-typography-config($font-family: '"ITC Avant Garde Std Md", sans-serif;');
-@include mat-core($custom-typography);
+$custom-typography: mat.define-legacy-typography-config($font-family: '"ITC Avant Garde Std Md", sans-serif;');
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy($custom-typography);`
+@include mat.all-legacy-component-typographies($custom-typography);
+@include mat.legacy-core();
 
 // .main-sidenav {
 //   background-color: #095494;

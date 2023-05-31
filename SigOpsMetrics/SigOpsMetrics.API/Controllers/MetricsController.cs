@@ -78,9 +78,9 @@ namespace SigOpsMetrics.API.Controllers
         {
             try
             {
-                    var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnectionReader, source, level, interval, measure,
-                        start, end, zoneGroup);
-                    return dt;
+                var dt = await MetricsDataAccessLayer.GetMetricByZoneGroup(SqlConnectionReader, source, level, interval, measure,
+                    start, end, zoneGroup);
+                return dt;
             }
             catch (Exception ex)
             {
@@ -153,7 +153,7 @@ namespace SigOpsMetrics.API.Controllers
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/filter", new Exception("Invalid filter."));
                 }
-                
+
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter);
 
                 return retVal;
@@ -163,6 +163,62 @@ namespace SigOpsMetrics.API.Controllers
                 await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
                     "metrics/filter", ex);
+                return null;
+            }
+        }
+
+        // Get straight average and delta with no grouping
+        [HttpPost("straightaverage")]
+        public async Task<AverageDTO> StraightAverage(string source, string measure, [FromBody] FilterDTO filter)
+        {
+            try
+            {
+                MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
+                var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
+                bool isCorridor = measure == "tti" || measure == "pti";
+                var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
+
+                var avgColIndex = indexes.avgColIndex;
+                var deltaColIndex = indexes.deltaColIndex;
+                if (measure == "vphpa" || measure == "vphpp")
+                {
+                    avgColIndex = 2;
+                    deltaColIndex = 3;
+                }
+                var avg = (from row in retVal.AsEnumerable()
+                    select row[avgColIndex].ToDouble()).Average();
+                var delta = (from row in retVal.AsEnumerable()
+                    select row[deltaColIndex].ToDouble()).Average();
+
+                var dto = new AverageDTO
+                {
+                    avg = avg,
+                    delta = Math.Round(delta, 3)
+                };
+                return dto;
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+    "metrics/straightaverage", ex);
+                return null;
+            }
+        }
+
+        [HttpPost("summarytrends")]
+        public async Task<Dictionary<string, List<SummaryTrendDTO>>> GetSummaryTrendsWithFilter(string source, [FromBody] FilterDTO filter)
+        {
+            try
+            {
+                var metricsData = new MetricsDataAccessLayer();
+                return await metricsData.GetSummaryTrend(source, filter, SqlConnectionReader, SqlConnectionWriter);
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+    "metrics/summaryTrends", ex);
                 return null;
             }
         }
@@ -294,7 +350,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="filter">Filter object from the SPA</param>
         /// <returns></returns>
         [HttpPost("average")]
-        public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody]FilterDTO filter)
+        public async Task<List<AverageDTO>> GetAverage(string source, string measure, bool dashboard, [FromBody] FilterDTO filter)
         {
             // This is for bottom left but also requires GetWithFilter
             try
@@ -323,14 +379,14 @@ namespace SigOpsMetrics.API.Controllers
                     isCorridor = false;
 
                 var groupedData = new List<AverageDTO>();
-                
+
                 var (idColIndex, avgColIndex, deltaColIndex) = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
 
                 if (retVal == null || retVal.Rows.Count == 0)
                 {
                     return groupedData.ToList();
                 }
-               
+
                 if (dashboard)
                 {
                     var avg = (from row in retVal.AsEnumerable()
@@ -357,7 +413,7 @@ namespace SigOpsMetrics.API.Controllers
                                        label = g.Key.label,
                                        avg = g.Average(x => x[avgColIndex].ToDouble()),
                                        delta = g.Average(x => x[deltaColIndex].ToDouble()),
-                                       weight = g.Count()/total
+                                       weight = g.Count() / total
                                    }).ToList();
                 }
                 else
@@ -370,7 +426,7 @@ namespace SigOpsMetrics.API.Controllers
                                        label = g.Key.label,
                                        avg = g.Average(x => x[avgColIndex].ToDouble()),
                                        delta = g.Average(x => x[deltaColIndex].ToDouble()),
-                                       weight = g.Count()/total
+                                       weight = g.Count() / total
                                    }).ToList();
                 }
                 return groupedData.ToList();
@@ -422,7 +478,7 @@ namespace SigOpsMetrics.API.Controllers
                 var s = await metricsData.GetAverageForMonth(SqlConnectionReader, "safety", zoneGroup, month);
                 var o = await metricsData.GetAverageForMonth(SqlConnectionReader, "ops", zoneGroup, month);
                 var m = await metricsData.GetAverageForMonth(SqlConnectionReader, "maint", zoneGroup, month);
-                return new List<double> { o,m,s };
+                return new List<double> { o, m, s };
             }
             catch (Exception ex)
             {

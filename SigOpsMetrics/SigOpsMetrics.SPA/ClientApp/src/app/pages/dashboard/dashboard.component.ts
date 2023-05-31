@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { setUncaughtExceptionCaptureCallback } from 'process';
+//import { setUncaughtExceptionCaptureCallback } from 'process';
 import { MetricSelectService } from 'src/app/components/selects/metric-select/metric-select.service';
 import { MapSettings } from 'src/app/models/map-settings';
 import { Metrics } from 'src/app/models/metrics';
@@ -32,7 +32,7 @@ export class DashboardComponent  implements OnInit {
     { name: "Traffic Volume", measure: "vpd", metric: "vpd", format:"number", precision: 0, unit: "vpd" },
     { name: "AM Peak Volume", measure: "vphpa", metric: "vph", format:"number", precision: 0, unit: "vph" },
     { name: "PM Peak Volume", measure: "vphpp", metric: "vph", format:"number", precision: 0, unit: "vph" },
-    { name: "Pedestrian Activitations", measure: "papd", metric: "papd", format:"number", precision: 0 },
+    { name: "Pedestrian Activations", measure: "papd", metric: "papd", format: "number", precision: 0 },
     { name: "Vehicle Detector Uptime", measure: "du", metric: "uptime", format:"percent", precision: 1 },
     { name: "Pedestrian Pushbutton Uptime", measure: "pau", metric: "uptime", format:"percent", precision: 1 },
     { name: "CCTV Uptime", measure: "cctv", metric: "uptime", format:"percent", precision: 1 },
@@ -44,11 +44,14 @@ export class DashboardComponent  implements OnInit {
   ngOnInit(){
     this.titleService.setTitle("SigOpsMetrics - Dashboard")
     this.selectedSettings = this.mapSettings.dtvMapSettings;
-    
+
     this.filterService.updateFilterErrorState(1);
 
     this._metricSelectService.selectedMetric.subscribe(value => {
       switch (value) {
+        case "tp":
+          this.selectedSettings = this.mapSettings.tpMapSettings;
+          break;
         case "aogd":
           this.selectedSettings = this.mapSettings.aogdMapSettings;
           break;

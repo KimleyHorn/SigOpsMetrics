@@ -1,0 +1,190 @@
+<app-filter-chip-list></app-filter-chip-list>
+
+<div *ngIf="data; else spinner">
+  <div class="container-fluid pt-2" >
+    <div class="row">
+      <div class="col">
+        <mat-card class="h-100">
+          <mat-card-header>
+            <mat-card-title>Performance</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['tp']"
+                [title]="tpTitle"
+                [line]="tpGraph"
+                [metrics]="tpGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data[aogString]"
+                [title]="aogTitle"
+                [line]="aogGraph"
+                [metrics]="aogGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data[prString]"
+                [title]="prdTitle"
+                [line]="prdGraph"
+                [metrics]="prdGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data[qsString]"
+                [title]="qsdTitle"
+                [line]="qsdGraph"
+                [metrics]="qsdGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data[sfString]"
+                [title]="sfdTitle"
+                [line]="sfGraph"
+                [metrics]="sfdGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['sfo']"
+                [title]="sfoTitle"
+                [line]="sfGraph"
+                [metrics]="sfoGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['tti']"
+                [title]="ttiTitle"
+                [line]="ttiGraph"
+                [metrics]="ttiGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['pti']"
+                [title]="ptiTitle"
+                [line]="ptiGraph"
+                [metrics]="ptiGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div class="col">
+        <mat-card class="h-100">
+          <mat-card-header>
+            <mat-card-title>Volumes and Equipment</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data[vpString]"
+                [title]="dtvTitle"
+                [line]="dtvGraph"
+                [metrics]="dtvGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['vphpa']"
+                [title]="amvTitle"
+                [line]="amvGraph"
+                [metrics]="amvGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['vphpp']"
+                [title]="pmvTitle"
+                [line]="pmvGraph"
+                [metrics]="pmvGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data[papString]"
+                [title]="paTitle"
+                [line]="paGraph"
+                [metrics]="paGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['du']"
+                [title]="duTitle"
+                [line]="duGraph"
+                [metrics]="duGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['pau']"
+                [title]="pauTitle"
+                [line]="pauGraph"
+                [metrics]="pauGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['cctv']"
+                [title]="cctvTitle"
+                [line]="cctvGraph"
+                [metrics]="cctvGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+
+            <div class="container-fluid">
+              <app-line-graph
+                [data]="data['cu']"
+                [title]="cuTitle"
+                [line]="cuGraph"
+                [metrics]="cuGraphMetrics"
+              >
+              </app-line-graph>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #spinner>
+  <div class="d-flex justify-content-center" >
+    <div class="spinner-grow" role="status"></div>
+  </div>
+</ng-template>

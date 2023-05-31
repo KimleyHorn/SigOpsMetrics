@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { MatTabChangeEvent } from "@angular/material/tabs";
+import { MatLegacyTabChangeEvent as MatTabChangeEvent } from "@angular/material/legacy-tabs";
 import { Title } from "@angular/platform-browser";
 import { ChartToggleService } from "src/app/components/toggles/chart-toggle/chart-toggle.service";
 import { Graph } from "src/app/models/graph";
@@ -25,7 +25,7 @@ export class MaintenanceComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Pedestrian Activations per Day [pa/day]: <b>%{x}</b>" +
+      "<br>Pedestrian Activations per Day [pa/day]: <b>%{x:,.0f}</b>" +
       "<extra></extra>",
   };
   papdLine: Graph = {
@@ -36,7 +36,7 @@ export class MaintenanceComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Pedestrian Activations per Day [pa/day]: <b>%{y}</b>" +
+      "<br>Pedestrian Activations per Day [pa/day]: <b>%{y:,.0f}</b>" +
       "<extra></extra>",
   };
   duGraphMetrics: Metrics = new Metrics({
@@ -50,7 +50,7 @@ export class MaintenanceComponent implements OnInit {
     x: "uptime",
     y: "corridor",
     hoverTemplate:
-      "<b>%{y}</b>" + "<br>Uptime: <b>%{x}</b>" + "<extra></extra>",
+      "<b>%{y}</b>" + "<br>Uptime: <b>%{x:.1%}</b>" + "<extra></extra>",
   };
   duLine: Graph = {
     title: "Weekly Trend",
@@ -60,7 +60,7 @@ export class MaintenanceComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Uptime: <b>%{y}</b>" +
+      "<br>Uptime: <b>%{y:.1%}</b>" +
       "<extra></extra>",
   };
   pauGraphMetrics: Metrics = new Metrics({
@@ -75,7 +75,7 @@ export class MaintenanceComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Pedestrian Pushbutton Uptime [%]: <b>%{x}</b>" +
+      "<br>Pedestrian Pushbutton Uptime [%]: <b>%{x:.1%}</b>" +
       "<extra></extra>",
   };
   pauLine: Graph = {
@@ -86,7 +86,7 @@ export class MaintenanceComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Pedestrian Pushbutton Uptime [%]: <b>%{y}</b>" +
+      "<br>Pedestrian Pushbutton Uptime [%]: <b>%{y:.1%}</b>" +
       "<extra></extra>",
   };
   cctvGraphMetrics: Metrics = new Metrics({
@@ -100,7 +100,7 @@ export class MaintenanceComponent implements OnInit {
     x: "uptime",
     y: "corridor",
     hoverTemplate:
-      "<b>%{y}</b>" + "<br>CCTV Uptime [%]: <b>%{x}</b>" + "<extra></extra>",
+      "<b>%{y}</b>" + "<br>CCTV Uptime [%]: <b>%{x:.1%}</b>" + "<extra></extra>",
   };
   cctvLine: Graph = {
     title: "Weekly Trend",
@@ -110,7 +110,7 @@ export class MaintenanceComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>CCTV Uptime [%]: <b>%{y}</b>" +
+      "<br>CCTV Uptime [%]: <b>%{y:.1%}</b>" +
       "<extra></extra>",
   };
   cuGraphMetrics: Metrics = new Metrics({
@@ -125,7 +125,7 @@ export class MaintenanceComponent implements OnInit {
     y: "corridor",
     hoverTemplate:
       "<b>%{y}</b>" +
-      "<br>Communication Uptime [%]: <b>%{x}</b>" +
+      "<br>Communication Uptime [%]: <b>%{x:.1%}</b>" +
       "<extra></extra>",
   };
   cuLine: Graph = {
@@ -136,7 +136,7 @@ export class MaintenanceComponent implements OnInit {
     hoverTemplate:
       "<b>%{text}</b>" +
       "<br><b>%{x}</b>" +
-      "<br>Communication Uptime [%]: <b>%{y}</b>" +
+      "<br>Communication Uptime [%]: <b>%{y:.1%}</b>" +
       "<extra></extra>",
   };
 

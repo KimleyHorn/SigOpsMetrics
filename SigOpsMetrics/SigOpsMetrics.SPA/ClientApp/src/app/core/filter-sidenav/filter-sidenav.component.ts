@@ -28,8 +28,8 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   // }
   @ViewChild("startDate", { static: false }) startDate: MatDatepicker<Date>;
   @ViewChild("endDate", { static: false }) endDate: MatDatepicker<Date>;
-  @ViewChild("startTime", { static: false }) startTime: MatDatepicker<Date>;
-  @ViewChild("endTime", { static: false }) endTime: MatDatepicker<Date>;
+  startTime: string;
+  endTime: string;
   @ViewChild("allDayCheckbox") allDayCheckbox: MatCheckbox;
 
   @Output("toggleFilter") toggleFilter: EventEmitter<any> = new EventEmitter();
@@ -299,6 +299,9 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
       this.selectedClassification = "";
       this.filterService.setValue("classification", "");
     }
+    if (type === "startTime" && e.value !== '00:00' || type === "endTime" && e.value !== '23:59') {
+      this.removeCheck();
+    }
     this.filterService.setValue(type, e.value);
   }
 
@@ -345,10 +348,7 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
         this.changeDetectorRef.detectChanges();
         this.startDate.select(start);
         this.endDate.select(end);
-        start.setHours(0, 0, 0, 0);
-        end.setHours(23, 59, 59, 999);
-        this.startTime.select(start);
-        this.endTime.select(end);
+        this.allDayChecked({ checked: true });
         this._clearAggregateOption(value);
         this.selectedAggregationOption = 2;
         break;
@@ -391,16 +391,12 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
 
   //clear the start time input
   private _resetStartTime() {
-    if (this.startTime) {
-      this.startTime.select(null);
-    }
+    this.startTime = '00:00';
   }
 
   //clear the end time input
   private _resetEndTime() {
-    if (this.endTime) {
-      this.endTime.select(null);
-    }
+    this.endTime = '23:59';
   }
 
   //reset all days of the week to be not selected
@@ -492,17 +488,15 @@ export class FilterSidenavComponent implements OnInit, AfterViewInit {
   }
 
   allDayChecked(e) {
-    var start = new Date();
-    var end = new Date();
     if (e.checked === true) {
-      start.setHours(0, 0, 0, 0);
-      end.setHours(23, 59, 59, 999);
-      this.startTime.select(start);
-      this.endTime.select(end);
+      this._resetStartTime();
+      this._resetEndTime();
+      this.updateFilter("startTime", { value: this.startTime });
+      this.updateFilter("endTime", { value: this.endTime });
     }
   }
 
-  removeCheck(e) {
+  removeCheck() {
     this.allDayCheckbox.checked = false;
   }
 }
