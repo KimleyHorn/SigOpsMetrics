@@ -10,13 +10,12 @@ namespace SigOpsMetricsCalcEngine
 
         public static async Task Main(string[] args)
         {
-            //TODO: Make defaults for date range the previous day
-            //If args are specified then use range
+
+
             var today = DateTime.Today;
             var dateList = new List<DateTime>();
             var startDate = today.AddDays(-1);
-            var testDate = today.AddDays(-5);
-            var testEndDate = today.AddDays(-2);
+
 
             if (USE_START_END_DATES)
             {
@@ -33,7 +32,6 @@ namespace SigOpsMetricsCalcEngine
                 dateList.Add(startDate);
             }
             await FlashEventCalc.ProcessFlashEvents(startDate);
-            //await FlashEventCalc.ProcessFlashEvents(testDate, testEndDate);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
 {
     public class FlashEventCalc
     {
-        // #GlobalVariables
+
         private static readonly string? AWSAccess = ConfigurationManager.AppSettings["S3_ACCESS_KEY"];
         private static readonly string? AWSsecret = ConfigurationManager.AppSettings["S3_SECRET_KEY"];
         private static readonly string? AWSBucketName = ConfigurationManager.AppSettings["S3_BUCKET_NAME"];
@@ -63,6 +63,8 @@ namespace SigOpsMetricsCalcEngine.Calcs
 
                     
                     var semaphore = new SemaphoreSlim(ThreadCount);
+
+                    //For debugging purposes to speed up data processing
                     //                    #if DEBUG
                     //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
 
@@ -121,20 +123,5 @@ namespace SigOpsMetricsCalcEngine.Calcs
             }
             #endregion
         }
-
-        #region Private Methods
-        private static async Task parquetTest()
-        {
-            //Input string for the file path of the parquet file for testing
-            string infile = @"C:\Users\brandon.hall\Downloads\atspm_10000_2023-06-04.parquet";
-            string outfile = @"C:\Users\brandon.hall\Downloads\atspm_10000_2023-06-04.csv";
-            Stream f = new FileStream(infile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var ms = new MemoryStream();
-            await f.CopyToAsync(ms);
-            //TODO: Fix this
-            var data = await ParquetConvert.DeserializeAsync<FlashEventModel>(ms);
-            Console.WriteLine("Hello World");
-        }
-        #endregion
     }
 }

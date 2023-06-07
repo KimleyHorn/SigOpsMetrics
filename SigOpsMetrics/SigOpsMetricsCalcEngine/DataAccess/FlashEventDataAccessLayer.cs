@@ -10,7 +10,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 {
     public static class FlashEventDataAccessLayer
     {
-        // #GlobalVariables
+
         private static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["TABLE_NAME"];
         private static readonly string? MySqlDBName = ConfigurationManager.AppSettings["DB_NAME"];
