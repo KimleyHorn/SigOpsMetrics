@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigOpsMetrics.SPA", "SigOpsMetrics.SPA\SigOpsMetrics.SPA.csproj", "{BF69D21E-B312-49AF-9093-94AFC065DC0C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SigOpsMetrics.API", "SigOpsMetrics.API\SigOpsMetrics.API.csproj", "{B2119E8E-30E2-46AA-9C42-A22EE59BAB38}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SigOpsMetricsCalcEngine", "SigOpsMetricsCalcEngine\SigOpsMetricsCalcEngine.csproj", "{4D47CF89-59A8-497D-993E-8F7ECB65F01E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +22,10 @@ Global
 		{B2119E8E-30E2-46AA-9C42-A22EE59BAB38}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B2119E8E-30E2-46AA-9C42-A22EE59BAB38}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B2119E8E-30E2-46AA-9C42-A22EE59BAB38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D47CF89-59A8-497D-993E-8F7ECB65F01E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D47CF89-59A8-497D-993E-8F7ECB65F01E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D47CF89-59A8-497D-993E-8F7ECB65F01E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D47CF89-59A8-497D-993E-8F7ECB65F01E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
