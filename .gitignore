@@ -231,3 +231,4 @@ _Pvt_Extensions
 .fake/
 /SigOpsMetrics/SigOpsMetrics.API/castle-rock-service-account.json
 /SigOpsMetrics/.idea/.idea.SigOpsMetrics/.idea
+*.config
