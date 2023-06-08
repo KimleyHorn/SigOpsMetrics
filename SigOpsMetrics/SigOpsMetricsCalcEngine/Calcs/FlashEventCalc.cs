@@ -31,9 +31,9 @@ namespace SigOpsMetricsCalcEngine.Calcs
         /// </summary>
         /// <param name="dateRange"></param>
         /// <returns>A List of Flash events that can be used to write to the flash_event_log server</returns>
-        public static async Task ProcessFlashEvents(DateTime startDate, DateTime endDate = default(DateTime))
+        public static async Task ProcessFlashEvents(DateTime startDate, DateTime endDate)
         {
-            //TODO: make parameters start and end dates and iterate through all dates until end date
+ 
             if (endDate == default(DateTime))
             {
                 endDate = startDate;
@@ -65,12 +65,12 @@ namespace SigOpsMetricsCalcEngine.Calcs
                     var semaphore = new SemaphoreSlim(ThreadCount);
 
                     //For debugging purposes to speed up data processing
-                    //                    #if DEBUG
-                    //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
+//#if DEBUG
+//                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
 
-                    //                    s3Objects.RemoveAll(obj => obj != elementToKeep);
+//                    s3Objects.RemoveAll(obj => obj != elementToKeep);
 
-                    //                    #endif
+//#endif
                     var tasks = s3Objects.Select(async obj =>
                     {
                         await semaphore.WaitAsync();

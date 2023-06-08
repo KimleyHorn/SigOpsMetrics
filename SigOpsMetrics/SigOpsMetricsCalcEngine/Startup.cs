@@ -10,28 +10,17 @@ namespace SigOpsMetricsCalcEngine
 
         public static async Task Main(string[] args)
         {
-
-
             var today = DateTime.Today;
-            var dateList = new List<DateTime>();
             var startDate = today.AddDays(-1);
-
+            var endDate = default(DateTime);
 
             if (USE_START_END_DATES)
             {
                 startDate = DateTime.Parse(ConfigurationManager.AppSettings["START_DATE"] ?? "0");
-                var endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
-                dateList = new List<DateTime>
-                {
-                    startDate,
-                    endDate
-                };
+                endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
             }
-            else
-            {
-                dateList.Add(startDate);
-            }
-            await FlashEventCalc.ProcessFlashEvents(startDate);
+
+            await FlashEventCalc.ProcessFlashEvents(startDate, endDate);
         }
     }
 }
