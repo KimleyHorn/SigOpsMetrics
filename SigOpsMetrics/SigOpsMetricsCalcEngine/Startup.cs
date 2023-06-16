@@ -6,7 +6,7 @@ namespace SigOpsMetricsCalcEngine
 {
     public class Startup
     {
-        private static readonly bool USE_START_END_DATES = bool.Parse(ConfigurationManager.AppSettings["USE_START_END_DATES"] ?? "false");
+        private static readonly bool UseStartEndDates = bool.Parse(ConfigurationManager.AppSettings["USE_START_END_DATES"] ?? "false");
 
         public static async Task Main(string[] args)
         {
@@ -14,13 +14,27 @@ namespace SigOpsMetricsCalcEngine
             var startDate = today.AddDays(-1);
             var endDate = default(DateTime);
 
-            if (USE_START_END_DATES)
+            if (UseStartEndDates)
             {
                 startDate = DateTime.Parse(ConfigurationManager.AppSettings["START_DATE"] ?? "0");
                 endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
             }
 
-            await FlashEventCalc.ProcessFlashEvents(startDate, endDate);
+            if (await FlashEventDataAccessLayer.ProcessFlashEventsOverload(startDate, endDate))
+            {
+                await FlashEventCalc.CalcFlashEvent();
+            }
+
+            //if (await PreemptEventDataAccessLayer.ProcessPreemptEventsOverload(startDate, endDate))
+            //{
+            //    await PreemptEventCalc.CalcPreemptEvent();
+            //}
         }
+
+
+
     }
+
+
+
 }
