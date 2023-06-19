@@ -44,7 +44,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         }
 
-        internal static async Task<bool> MySqlHelper(string MySqlTableName, DataTable dataTable)
+        internal static async Task<bool> MySqlWriter(string MySqlTableName, DataTable dataTable)
         {
             //Write a conditional statement that returns true if the data was written to the table successfully
             MySqlConnection.Open();
@@ -72,6 +72,19 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             Console.WriteLine(obj.Key + " Requested");
             return await client.GetObjectAsync(request);
         }
+
+        internal static async Task<MySqlDataReader> MySqlReader(string mySqlTableName, string mySqlDbName)
+        {
+            if (MySqlConnection.State == ConnectionState.Closed)
+            {
+                await MySqlConnection.OpenAsync();
+            }
+
+            await using var cmd = new MySqlCommand($"SELECT t.* FROM {mySqlDbName}.{mySqlTableName} t", MySqlConnection);
+            await using var reader = await cmd.ExecuteReaderAsync();
+            return reader;
+        }
+
         #endregion
         #region Error Logging
         public static async Task WriteToErrorLog(string applicationName,

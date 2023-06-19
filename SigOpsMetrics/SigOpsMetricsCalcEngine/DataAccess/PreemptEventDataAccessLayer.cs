@@ -1,23 +1,24 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Amazon.S3;
-using Amazon.S3.Model;
-using MySqlConnector;
 using Parquet;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
-    public class FlashEventDataAccessLayer :BaseDataAccessLayer
+    public class PreemptEventDataAccessLayer : BaseDataAccessLayer
     {
 
-        
-        private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"];
-        private static readonly string? MySqlFlashPairTableName = ConfigurationManager.AppSettings["FLASH_PAIR_TABLE_NAME"];
-
+        private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"];
+        private static readonly string? MySqlPreemptTableName = ConfigurationManager.AppSettings["PREEMPT_EVENT_TABLE_NAME"];
 
         #region Write to MySQL
-        public static async Task<bool> WriteFlashEventsToDb(IEnumerable<FlashEventModel> events)
+        public static async Task<bool> WritePreemptSignalsToDB(IEnumerable<PreemptSignalModel> preempts)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -25,25 +26,22 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             dataTable.Columns.Add("signalID", typeof(long));
             dataTable.Columns.Add("EventCode", typeof(long));
             dataTable.Columns.Add("EventParam", typeof(long));
-            dataTable.Columns.Add("DeviceID", typeof(long));
-            dataTable.Columns.Add("IndexLevel", typeof(long));
 
             // Populate the DataTable with events data
-            foreach (var eventData in events)
+            foreach (var eventData in preempts)
             {
                 dataTable.Rows.Add(
                     eventData.Timestamp,
                     eventData.SignalID,
                     eventData.EventCode,
-                    eventData.EventParam,
-                    eventData.DeviceID,
-                    eventData.__index_level_0__
+                    eventData.EventParam
+
                 );
             }
             // Open a connection to MySQL
             try
             {
-               return await MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
+                return await MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception e)
             {
@@ -53,65 +51,61 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
         }
 
-        public static async Task WriteFlashPairsToDb(IEnumerable<FlashPairModel> events)
+        public static async Task<bool> WritePreemptEventsToDB(IEnumerable<PreemptModel> preempts)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
-            dataTable.Columns.Add("Start", typeof(DateTime));
-            dataTable.Columns.Add("End", typeof(DateTime));
-            dataTable.Columns.Add("signalID", typeof(long));
-            dataTable.Columns.Add("duration", typeof(long));
-            dataTable.Columns.Add("startParam", typeof(long));
+            dataTable.Columns.Add("InputOn", typeof(DateTime));
+            dataTable.Columns.Add("EntryStart", typeof(DateTime));
+            dataTable.Columns.Add("TrackClear", typeof(DateTime));
+            dataTable.Columns.Add("InputOff", typeof(DateTime));
+            dataTable.Columns.Add("DwellService", typeof(DateTime));
+            dataTable.Columns.Add("ExitCall", typeof(DateTime));
+            dataTable.Columns.Add("SignalID", typeof(long));
+            dataTable.Columns.Add("Duration", typeof(long));
+            dataTable.Columns.Add("PreemptType", typeof(string));
+            dataTable.Columns.Add("ExternalCallOn", typeof(bool));
+            dataTable.Columns.Add("ExternalCallOff", typeof(bool));
 
 
             // Populate the DataTable with events data
-            foreach (var eventData in events)
+            foreach (var eventData in preempts)
             {
-                    dataTable.Rows.Add(
-                    eventData.FlashStart.Timestamp,
-                    eventData.FlashEnd.Timestamp,
-                    eventData.SignalId,
-                    TimeSpan.FromTicks(eventData.FlashDuration.Ticks).TotalSeconds,
-                    eventData.StartParam
-                );
+                dataTable.Rows.Add(
+                eventData.InputOn,
+                eventData.EntryStart,
+                eventData.TrackClear,
+                eventData.InputOff,
+                eventData.DwellService,
+                eventData.ExitCall,
+                eventData.SignalID,
+                TimeSpan.FromTicks(eventData.Duration.Ticks).TotalSeconds,
+                eventData.PreemptType,
+                eventData.ExternalCallOn,
+                eventData.ExternalCallOff
+            );
             }
             // Open a connection to MySQL
             try
             {
-                MySqlConnection.Open();
-
-                var bulkCopy = new MySqlBulkCopy(MySqlConnection)
-                {
-                    DestinationTableName = $"{MySqlDbName}.{MySqlFlashPairTableName}"
-                };
-
-                await bulkCopy.WriteToServerAsync(dataTable);
-
-                await MySqlConnection.CloseAsync();
+                return await MySqlWriter(MySqlPreemptTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error" + e.ToString());
+                Console.WriteLine("Error" + e);
                 var applicationName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
                 if (applicationName != null)
                     await WriteToErrorLog(applicationName, "toMySQL", e);
                 throw;
             }
         }
-            #endregion
+        #endregion
 
-        /// <summary>
-        /// This method will return a list of _events from AWS S3 and fit them to the FlashEventModel class for use in the rest of the solution
-        /// </summary>
-        /// <param name="startDate">The start date of the _events to be retrieved</param>
-        /// <param name="endDate">The end date of the _events to be retrieved</param>
-        /// <param name="signalIdList">A list of signal Ids to be retrieved</param>
-        /// <param name="eventCodes"></param>
-        /// <returns>A List of Flash _events that can be used to write to the flash_event_log server</returns>
+        #region Read from AmazonS3
 
-        public static async Task<List<FlashEventModel>> ProcessFlashEvents(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null, List<long?>? eventCodes = null)
+        public static async Task<List<PreemptSignalModel>> ProcessPreemptSignals(DateTime startDate, DateTime endDate,
+            List<long?>? signalIdList = null, List<long?>? eventCodes = null)
         {
-
             if (endDate == default)
             {
                 endDate = startDate;
@@ -149,7 +143,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                             using var ms = new MemoryStream();
                             await response.ResponseStream.CopyToAsync(ms);
 
-                            var flashData = await ParquetConvert.DeserializeAsync<FlashEventModel>(ms);
+                            var flashData = await ParquetConvert.DeserializeAsync<PreemptSignalModel>(ms);
                             return signalIdList != null && eventCodes == null
                                 ? flashData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
                                 : eventCodes != null && signalIdList == null
@@ -159,9 +153,10 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                                             eventCodes.Contains(x.EventCode) && signalIdList.Contains(x.SignalID))
                                         .ToList();
                         }
-                        catch {
-                            await WriteToErrorLog("SigOpsMetricsCalcEngine.BaseDataAccessLayer", $"ProcessFlashEvents at sensor {obj.Key}", new Exception("Error reading from S3"));
-                        return new List<FlashEventModel>();
+                        catch
+                        {
+                            await WriteToErrorLog("SigOpsMetricsCalcEngine.PreemptEventDataAccessLayer", $"ProcessPreemptEvents at sensor {obj.Key}", new Exception("Error reading from S3"));
+                            return new List<PreemptSignalModel>();
 
                         }
                         finally
@@ -171,14 +166,14 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     });
 
                     var results = await Task.WhenAll(tasks);
-                    foreach (var flashList in results)
+                    foreach (var preemptList in results)
                     {
-                        FlashEvents.AddRange(flashList);
+                        PreemptEvents.AddRange(preemptList);
                     }
                     startDate = startDate.AddDays(1);
 
                 }
-                return FlashEvents;
+                return PreemptEvents;
 
             }
 
@@ -187,23 +182,24 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
             catch (Exception e)
             {
-                await WriteToErrorLog("FlashEventDataAccessLayer", "ProcessFlashEvents", e);
+                await WriteToErrorLog("PreemptEventDataAccessLayer", "ProcessPreemptSignals", e);
                 throw;
             }
             #endregion
         }
-
-
-        public static async Task<bool> ProcessFlashEventsOverload(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null)
+        public static async Task<bool> ProcessPreemptSignalsOverload(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null)
         {
-            var t = await ProcessFlashEvents(startDate, endDate, eventCodes: new List<long?> { 173 }, signalIdList: signalIdList);
+            var t = await ProcessPreemptSignals(startDate, endDate, eventCodes: new List<long?> { 102,105,106,104,107,111,707,708 }, signalIdList: signalIdList);
 
-            return await WriteFlashEventsToDb(t);
-            
+            return await WritePreemptSignalsToDB(t);
+
         }
-        public static async Task<List<FlashEventModel>> ReadAllFromMySql()
+
+        #endregion
+
+        public static async Task<List<PreemptSignalModel>> ReadAllFromMySql()
         {
-            var events = new List<FlashEventModel>();
+            var events = new List<PreemptSignalModel>();
             try
             {
 
@@ -212,16 +208,14 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
                 while (await reader.ReadAsync())
                 {
-                    var flashEvent = new FlashEventModel
+                    var preemptEvent = new PreemptSignalModel
                     {
                         Timestamp = reader.GetDateTime("Timestamp"),
                         SignalID = reader.GetInt64("signalID"),
                         EventCode = reader.GetInt64("EventCode"),
-                        EventParam = reader.GetInt64("EventParam"),
-                        DeviceID = reader.GetInt64("DeviceID"),
-                        __index_level_0__ = reader.GetInt64("IndexLevel")
+                        EventParam = reader.GetInt64("EventParam")
                     };
-                    events.Add(flashEvent);
+                    events.Add(preemptEvent);
                 }
             }
             catch (Exception e)
@@ -233,7 +227,5 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
             return events;
         }
-
-
     }
 }

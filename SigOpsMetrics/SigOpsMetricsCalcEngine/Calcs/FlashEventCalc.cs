@@ -15,21 +15,6 @@ namespace SigOpsMetricsCalcEngine.Calcs
         private static List<FlashEventModel> _events = new();
 
 
-        FlashEventCalc()
-        {
-        }
-
-        /// <summary>
-        /// This method will return a list of _events from AWS S3 and fit them to the FlashEventModel class for use in the rest of the solution
-        /// </summary>
-        /// <param name="startDate">The start date of the _events to be retrieved</param>
-        /// <param name="endDate">The end date of the _events to be retrieved</param>
-        /// <param name="signalIdList">A list of signal Ids to be retrieved</param>
-        /// <returns>A List of Flash _events that can be used to write to the flash_event_log server</returns>
-
-
-
-
         public static async Task CalcFlashEvent()
         {
             if (_events.Count == 0)
