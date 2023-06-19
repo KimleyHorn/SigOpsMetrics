@@ -13,5 +13,6 @@
         public static string DatabaseName { get; set; }
         public static string GoogleBucketName { get; set; }
         public static string GoogleFolderName { get; set; }
+
     }
 }

@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Amazon.S3.Model;
 using MySqlConnector;
 using OfficeOpenXml;
 using SigOpsMetrics.API.Classes;
@@ -11,12 +12,14 @@ using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.Classes.Internal;
 
+
 #pragma warning disable 1591
 
 namespace SigOpsMetrics.API.DataAccess
 {
     public class SignalsDataAccessLayer : BaseDataAccessLayer
     {
+
         public static async Task<IEnumerable<SignalDTO>> GetAllSignalDataSQL(MySqlConnection sqlConnection)
         {
             var signals = new List<SignalDTO>();
@@ -715,6 +718,169 @@ namespace SigOpsMetrics.API.DataAccess
             await sqlConnection.CloseAsync();
             return new FilteredItems { FilterType = filterType, Items = retVal };
         }
+
+        public static async Task<List<FlashEventDTO>> GetAllFlashEvents(MySqlConnection sqlConnection)
+        {
+            var flashes = new List<FlashEventDTO>();
+            try
+            {
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log";
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    var row = new FlashEventDTO
+                    {
+                        Start = reader.GetDateTime(0),
+                        End = reader.GetDateTime(1),
+                        SignalID = reader.GetInt64(2),
+                        duration = reader.GetInt64(3),
+                        startParam = reader.GetInt64(4)
+
+                    };
+                    flashes.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                await WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetAllFlashEvents", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return flashes;
+
+        }
+
+        public static async Task<List<FlashEventDTO>> GetFlashEventsBySignalId(MySqlConnection sqlConnection,
+            List<long?> signalId)
+        {
+           var flashes = new List<FlashEventDTO>();
+           try
+           {
+               await sqlConnection.OpenAsync();
+               await using var cmd = new MySqlCommand();
+               cmd.Connection = sqlConnection;
+               var signalString = "(" + string.Join(",", signalId.Select(s => "'" + s + "'")) + ")";
+               cmd.CommandText =
+                   $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log WHERE SignalID IN {signalString}";
+               await using var reader = await cmd.ExecuteReaderAsync();
+               while (reader.Read())
+               {
+                   var row = new FlashEventDTO
+                   {
+                       Start = reader.GetDateTime(0),
+                       End = reader.GetDateTime(1),
+                       SignalID = reader.GetInt64(2),
+                       duration = reader.GetInt64(3),
+                       startParam = reader.GetInt64(4)
+
+                   };
+                   flashes.Add(row);
+               }
+           }
+           catch (Exception ex)
+           {
+               await WriteToErrorLog(sqlConnection,
+                   System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                   "GetAllSignalDataSQL", ex);
+           }
+           finally
+           {
+                await sqlConnection.CloseAsync();
+           }
+
+           return flashes;
+        }
+
+
+        public static async Task<List<FlashEventDTO>> GetAllPreemptEvents(MySqlConnection sqlConnection)
+        {
+            var flashes = new List<FlashEventDTO>();
+            try
+            {
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log";
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (reader.Read())
+                {
+                    var row = new FlashEventDTO
+                    {
+                        Start = reader.GetDateTime(0),
+                        End = reader.GetDateTime(1),
+                        SignalID = reader.GetInt64(2),
+                        duration = reader.GetInt64(3),
+                        startParam = reader.GetInt64(4)
+
+                    };
+                    flashes.Add(row);
+                }
+            }
+            catch (Exception ex)
+            {
+                await WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetAllFlashEvents", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return flashes;
+
+        }
+
+        public static async Task<List<FlashEventDTO>> GetPreemptEventsBySignalId(MySqlConnection sqlConnection,
+            List<long?> signalId)
+        {
+           var flashes = new List<FlashEventDTO>();
+           try
+           {
+               await sqlConnection.OpenAsync();
+               await using var cmd = new MySqlCommand();
+               cmd.Connection = sqlConnection;
+               var signalString = "(" + string.Join(",", signalId.Select(s => "'" + s + "'")) + ")";
+               cmd.CommandText =
+                   $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log WHERE SignalID IN {signalString}";
+               await using var reader = await cmd.ExecuteReaderAsync();
+               while (reader.Read())
+               {
+                   var row = new FlashEventDTO
+                   {
+                       Start = reader.GetDateTime(0),
+                       End = reader.GetDateTime(1),
+                       SignalID = reader.GetInt64(2),
+                       duration = reader.GetInt64(3),
+                       startParam = reader.GetInt64(4)
+
+                   };
+                   flashes.Add(row);
+               }
+           }
+           catch (Exception ex)
+           {
+               await WriteToErrorLog(sqlConnection,
+                   System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                   "GetAllSignalDataSQL", ex);
+           }
+           finally
+           {
+                await sqlConnection.CloseAsync();
+           }
+
+           return flashes;
+        }
+
+
 
         public static async Task<FilteredItems> GetCorridorsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
         {
