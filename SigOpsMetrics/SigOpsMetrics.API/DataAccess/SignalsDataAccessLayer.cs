@@ -824,7 +824,9 @@ namespace SigOpsMetrics.API.DataAccess
                         ExitCall = reader.GetDateTime(5),
                         SignalID = reader.GetInt64(6),
                         Duration = reader.GetTimeSpan(7),
-                        PreemptType = reader.GetString(8)
+                        PreemptType = reader.GetString(8),
+                        ExternalCallOn = reader.GetBoolean(9),
+                        ExternalCallOff = reader.GetBoolean(10)
 
                     };
                     flashes.Add(row);
