@@ -18,8 +18,8 @@ namespace SigOpsMetricsCalcEngine.Models
         public DateTime? ExitCall { get; set; }
         public long? SignalID { get; set; }
 
-        public bool ExternalCallOff { get; set; }
-        public bool ExternalCallOn { get; set; }
+        public bool? ExternalCallOff { get; set; }
+        public bool? ExternalCallOn { get; set; }
 
         public TimeSpan Duration { get; set; }
 
@@ -52,7 +52,7 @@ namespace SigOpsMetricsCalcEngine.Models
             PreemptType = "";
         }
 
-        public PreemptModel(DateTime? inputOn, DateTime? inputOff, DateTime? entryStart, DateTime? trackClear, DateTime? dwellService, DateTime? exitCall, long? signalID, string? preemptType, bool externalCallOff = false, bool externalCallOn = false)
+        public PreemptModel(DateTime? inputOn, DateTime? inputOff, DateTime? entryStart, DateTime? trackClear, DateTime? dwellService, DateTime? exitCall, long? signalId, string? preemptType, bool? externalCallOff = false, bool? externalCallOn = false)
         {
             InputOn = inputOn;
             InputOff = inputOff;
@@ -60,11 +60,16 @@ namespace SigOpsMetricsCalcEngine.Models
             TrackClear = trackClear;
             DwellService = dwellService;
             ExitCall = exitCall;
-            SignalID = signalID; 
+            SignalID = signalId; 
             SetDuration();
             ExternalCallOff = externalCallOff;
             ExternalCallOn = externalCallOn;
             PreemptType = preemptType;
+        }
+
+        public override string ToString()
+        {
+            return $"{PreemptType} preempt for Signal {SignalID} \nDuration: {Duration}\nStart time: {InputOn.Value}\nEnd time: {ExitCall.Value}\nExternal Preempt Call On: {ExternalCallOn}\nExternal Call Off: {ExternalCallOff}";
         }
     }
 }

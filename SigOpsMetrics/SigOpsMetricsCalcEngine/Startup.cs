@@ -20,15 +20,15 @@ namespace SigOpsMetricsCalcEngine
                 endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
             }
 
-            if (await FlashEventDataAccessLayer.ProcessFlashEventsOverload(startDate, endDate))
-            {
-                await FlashEventCalc.CalcFlashEvent();
-            }
-
-            //if (await PreemptEventDataAccessLayer.ProcessPreemptEventsOverload(startDate, endDate))
+            //if (await FlashEventDataAccessLayer.ProcessFlashEventsOverload(startDate, endDate))
             //{
-            //    await PreemptEventCalc.CalcPreemptEvent();
+            //    await FlashEventCalc.CalcFlashEvent();
             //}
+
+            if (await PreemptEventDataAccessLayer.ProcessPreemptSignalsOverload(startDate, endDate))
+            {
+                await PreemptEventCalc.CalcPreemptEvent();
+            }
         }
 
 

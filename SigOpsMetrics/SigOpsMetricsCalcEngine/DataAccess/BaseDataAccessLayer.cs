@@ -58,7 +58,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             Console.WriteLine("Bulk Copy Written");
             await MySqlConnection.CloseAsync();
             Console.WriteLine("Connection Closed");
-            Console.WriteLine("Flash Events written to Database");
+            Console.WriteLine("Written to Database");
             return true;
         }
 

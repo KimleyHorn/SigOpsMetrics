@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Amazon.S3;
+using MySqlConnector;
 using Parquet;
 using SigOpsMetricsCalcEngine.Models;
 
@@ -142,13 +143,12 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                             using var response = await MemoryStreamHelper(obj, client);
                             using var ms = new MemoryStream();
                             await response.ResponseStream.CopyToAsync(ms);
-
-                            var flashData = await ParquetConvert.DeserializeAsync<PreemptSignalModel>(ms);
+                            var preemptData = await ParquetConvert.DeserializeAsync<PreemptSignalModel>(ms);
                             return signalIdList != null && eventCodes == null
-                                ? flashData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
+                                ? preemptData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
                                 : eventCodes != null && signalIdList == null
-                                    ? flashData.Where(x => eventCodes.Contains(x.EventCode)).ToList()
-                                    : flashData.Where(x =>
+                                    ? preemptData.Where(x => eventCodes.Contains(x.EventCode)).ToList()
+                                    : preemptData.Where(x =>
                                             signalIdList != null && eventCodes != null &&
                                             eventCodes.Contains(x.EventCode) && signalIdList.Contains(x.SignalID))
                                         .ToList();
@@ -203,7 +203,13 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             try
             {
 
-                await using var reader = await MySqlReader(MySqlTableName, MySqlDbName);
+                if (MySqlConnection.State == ConnectionState.Closed)
+                {
+                    await MySqlConnection.OpenAsync();
+                }
+
+                await using var cmd = new MySqlCommand($"SELECT t.* FROM {MySqlDbName}.{MySqlTableName} t", MySqlConnection);
+                await using var reader = await cmd.ExecuteReaderAsync();
 
 
                 while (await reader.ReadAsync())
