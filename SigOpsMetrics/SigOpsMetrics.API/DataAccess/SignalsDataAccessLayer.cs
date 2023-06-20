@@ -800,9 +800,9 @@ namespace SigOpsMetrics.API.DataAccess
         }
 
 
-        public static async Task<List<FlashEventDTO>> GetAllPreemptEvents(MySqlConnection sqlConnection)
+        public static async Task<List<PreemptEventDTO>> GetAllPreemptEvents(MySqlConnection sqlConnection)
         {
-            var flashes = new List<FlashEventDTO>();
+            var flashes = new List<PreemptEventDTO>();
             try
             {
                 await sqlConnection.OpenAsync();
@@ -810,15 +810,21 @@ namespace SigOpsMetrics.API.DataAccess
                 cmd.Connection = sqlConnection;
                 cmd.CommandText = $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log";
                 await using var reader = await cmd.ExecuteReaderAsync();
+
+                //TODO: Fix this
                 while (reader.Read())
                 {
-                    var row = new FlashEventDTO
+                    var row = new PreemptEventDTO()
                     {
-                        Start = reader.GetDateTime(0),
-                        End = reader.GetDateTime(1),
-                        SignalID = reader.GetInt64(2),
-                        duration = reader.GetInt64(3),
-                        startParam = reader.GetInt64(4)
+                        InputOn = reader.GetDateTime(0),
+                        EntryStart = reader.GetDateTime(1),
+                        TrackClear = reader.GetDateTime(2),
+                        InputOff = reader.GetDateTime(3),
+                        DwellService = reader.GetDateTime(4),
+                        ExitCall = reader.GetDateTime(5),
+                        SignalID = reader.GetInt64(6),
+                        Duration = reader.GetTimeSpan(7),
+                        PreemptType = reader.GetString(8)
 
                     };
                     flashes.Add(row);
