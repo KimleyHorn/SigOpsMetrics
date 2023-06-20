@@ -69,7 +69,7 @@ namespace SigOpsMetricsCalcEngine.Models
 
         public override string ToString()
         {
-            return $"{PreemptType} preempt for Signal {SignalID} \nDuration: {Duration}\nStart time: {InputOn.Value}\nEnd time: {ExitCall.Value}\nExternal Preempt Call On: {ExternalCallOn}\nExternal Call Off: {ExternalCallOff}";
+            return $"{PreemptType} preempt for Signal {SignalID} \nDuration: {Duration}\nStart time: {InputOn.Value}\nEnd time: {ExitCall.Value}\nExternal Preempt Call On: {ExternalCallOn}\nExternal Call Off: {ExternalCallOff}\n";
         }
     }
 }

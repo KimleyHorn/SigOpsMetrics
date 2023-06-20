@@ -1,12 +1,5 @@
-﻿using Amazon;
-using Amazon.S3;
-using Amazon.S3.Model;
-using Parquet;
-using SigOpsMetricsCalcEngine.DataAccess;
+﻿using SigOpsMetricsCalcEngine.DataAccess;
 using SigOpsMetricsCalcEngine.Models;
-using System.Configuration;
-using Parquet.Schema;
-using Parquet.Thrift;
 
 namespace SigOpsMetricsCalcEngine.Calcs
 {
@@ -14,40 +7,50 @@ namespace SigOpsMetricsCalcEngine.Calcs
     {
         private static List<FlashEventModel> _events = new();
 
-
-        public static async Task CalcFlashEvent()
+        private static async Task GetEvents()
         {
-            if (_events.Count == 0)
+            if (BaseDataAccessLayer.FlashEvents.Count == 0)
             {
                 _events = await FlashEventDataAccessLayer.ReadAllFromMySql();
             }
-            var flashPairList = new List<FlashPairModel>();
-            var startFlash = _events.Where(x => x.EventParam is 4 or 7).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
-            var endFlash = _events.Where(x => x.EventParam == 2).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
-            foreach (var signal in startFlash)
+            else
             {
-                var signalId = signal.Key;
-                var startFlashEvents = signal.ToList();
-                var endFlashEvents = endFlash.FirstOrDefault(x => x.Key == signalId)?.ToList();
-                if (endFlashEvents == null) continue;
-                foreach (var startFlashEvent in startFlashEvents)
-                {
-                    //Grabs EventParam from startFlashEvent instead of first from group
-                    var startParam = startFlashEvent.EventParam;
+                _events = BaseDataAccessLayer.FlashEvents;
+            }
+        }
 
-                    var endFlashEvent = endFlashEvents.FirstOrDefault(x => x.Timestamp > startFlashEvent.Timestamp);
-                    
-                    if (endFlashEvent == null)
-                    {
-                        endFlashEvents.Remove(endFlashEvent!);
-                        continue;
-                    }
-                    
-                    var flashPair = new FlashPairModel(startFlashEvent, endFlashEvent, signalId, startParam);
-                    endFlashEvents.Remove(endFlashEvent);
-                    flashPairList.Add(flashPair);
-                    Console.WriteLine(flashPair.ToString());
-                }
+
+        public static async Task CalcFlashEvent()
+        {
+            await GetEvents();
+            var flashPairList = new List<FlashPairModel>();
+            var startFlash = _events.Where(x => x.EventParam is 7).OrderBy(x => x.Timestamp).ToList();
+            var endFlash = _events.Where(x => x.EventParam is 2).OrderBy(x => x.Timestamp).ToList();
+
+
+            //TODO: Add event handling for event codes 1, 3, 5, 6, 8
+            //var autoFlash = _events.Where(x => x.EventParam is 3).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
+            //var localManualFlash = _events.Where(x => x.EventParam is 4).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
+            //var faultMonitor = _events.Where(x => x.EventParam is 5).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
+            //var mmuFlash = _events.Where(x => x.EventParam is 6).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
+            //var preemptFlash = _events.Where(x => x.EventParam is 8).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
+            //var otherFlash = _events.Where(x => x.EventParam is 1).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
+            //if (endFlash == null)
+            //{
+            //    //TODO: Handle this condition
+            //}
+            foreach (var startSignal in startFlash)
+            {
+                var signalId = startSignal.SignalID;
+                var timestamp = startSignal.Timestamp;
+                
+                var endSignal = endFlash.FirstOrDefault(x => x.SignalID == signalId && x.Timestamp > timestamp);
+                var isOpen = endSignal == null;
+                var flashPair = new FlashPairModel(startSignal, endSignal!, signalId, startSignal.EventParam, isOpen);
+
+                endFlash.Remove(endSignal!);
+                flashPairList.Add(flashPair);
+                Console.WriteLine(flashPair.ToString());
             }
             await FlashEventDataAccessLayer.WriteFlashPairsToDb(flashPairList);
 

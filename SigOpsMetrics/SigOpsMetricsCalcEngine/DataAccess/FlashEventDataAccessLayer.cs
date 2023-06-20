@@ -62,18 +62,30 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             dataTable.Columns.Add("signalID", typeof(long));
             dataTable.Columns.Add("duration", typeof(long));
             dataTable.Columns.Add("startParam", typeof(long));
+            dataTable.Columns.Add("IsOpen", typeof(bool));
 
 
             // Populate the DataTable with events data
             foreach (var eventData in events)
             {
+                if (eventData.FlashEnd != null)
                     dataTable.Rows.Add(
-                    eventData.FlashStart.Timestamp,
-                    eventData.FlashEnd.Timestamp,
-                    eventData.SignalId,
-                    TimeSpan.FromTicks(eventData.FlashDuration.Ticks).TotalSeconds,
-                    eventData.StartParam
-                );
+                        eventData.FlashStart.Timestamp,
+                        eventData.FlashEnd.Timestamp,
+                        eventData.SignalId,
+                        TimeSpan.FromTicks(eventData.FlashDuration.Ticks).TotalSeconds,
+                        eventData.StartParam,
+                        eventData.IsOpen
+                    );
+                else if (eventData.FlashEnd == null)
+                    dataTable.Rows.Add(
+                                               eventData.FlashStart.Timestamp,
+                                                                      DBNull.Value,
+                                                                      eventData.SignalId,
+                                                                      TimeSpan.FromTicks(eventData.FlashDuration.Ticks).TotalSeconds,
+                                                                      eventData.StartParam,
+                                                                      eventData.IsOpen
+                                                                  );
             }
             // Open a connection to MySQL
             try

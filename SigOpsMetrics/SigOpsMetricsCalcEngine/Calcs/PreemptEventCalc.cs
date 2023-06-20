@@ -12,13 +12,23 @@ namespace SigOpsMetricsCalcEngine.Calcs
     {
 
         private static List<PreemptSignalModel> _events = new();
-
-        public static async Task CalcPreemptEvent()
+        private static async Task GetEvents()
         {
-            if (_events.Count == 0)
+            if (BaseDataAccessLayer.FlashEvents.Count == 0)
             {
                 _events = await PreemptEventDataAccessLayer.ReadAllFromMySql();
             }
+            else
+            {
+                _events = BaseDataAccessLayer.PreemptEvents;
+            }
+        }
+
+
+        public static async Task CalcPreemptEvent()
+        {
+            await GetEvents();
+
             var preemptList = new List<PreemptModel>();
             var inputOn = _events.Where(x => x.EventCode is 102).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
             var entryStart = _events.Where(x => x.EventCode is 105).OrderBy(x => x.Timestamp).GroupBy(x => x.SignalID).ToList();
