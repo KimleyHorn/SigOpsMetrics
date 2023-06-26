@@ -396,7 +396,7 @@ namespace SigOpsMetrics.API.DataAccess
                 }
             }
 
-            return (fullStart, fullEnd);
+            return (fullStart.ToUniversalTime(), fullEnd.ToUniversalTime());
         }
 
         public string GetIntervalFromFilter(FilterDTO filter)

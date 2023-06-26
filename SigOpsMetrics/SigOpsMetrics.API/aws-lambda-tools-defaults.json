@@ -8,7 +8,7 @@
   "profile": "SigOps",
   "region": "us-east-1",
   "configuration": "Release",
-  "framework": "netcoreapp3.1",
+  "framework": "net6.0",
   "function-handler": "SigOpsMetrics.API::SigOpsMetrics.API.LambdaEntryPoint::FunctionHandlerAsync",
-  "function-runtime": "dotnetcore3.1"
+  "function-runtime": "dotnet6"
 }
