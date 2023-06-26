@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace SigOpsMetricsCalcEngine.Models
 {
@@ -69,7 +70,23 @@ namespace SigOpsMetricsCalcEngine.Models
 
         public override string ToString()
         {
-            return $"{PreemptType} preempt for Signal {SignalID} \nDuration: {Duration}\nStart time: {InputOn.Value}\nEnd time: {ExitCall.Value}\nExternal Preempt Call On: {ExternalCallOn}\nExternal Call Off: {ExternalCallOff}\n";
+            return $"{PreemptType} Preempt for Signal {SignalID}, " + 
+                   $"Duration: {Duration}, " +
+                   $"Start time: {InputOn.Value}, " +
+                   $@"End time: {ExitCall.Value}," + 
+                   $@"External Preempt Call On: {ExternalCallOn}, " +
+                   $@"External Call Off: {ExternalCallOff}, ";
+        }
+        public JsonElement ToJSON()
+        {
+
+
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            var json = JsonSerializer.Serialize(this, options);
+            return JsonDocument.Parse(json).RootElement;
         }
     }
 }

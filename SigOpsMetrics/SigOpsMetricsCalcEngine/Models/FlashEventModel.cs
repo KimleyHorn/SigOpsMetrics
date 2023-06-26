@@ -2,25 +2,19 @@
 
 namespace SigOpsMetricsCalcEngine.Models
 {
-    public class FlashEventModel
+    public class FlashEventModel : BaseSignalModel
     {
 
-        public DateTime Timestamp { get; set; }
+        public new DateTime Timestamp { get; set; }
 #pragma warning disable IDE0079 // Remove unnecessary suppression
         [SuppressMessage("ReSharper", "InconsistentNaming")] public long? SignalID { get; set; }
-        public long? EventCode { get; set; }
-        public long? EventParam { get; set; }
-
-        [SuppressMessage("ReSharper", "InconsistentNaming")] public long? DeviceID { get; set; }
-
-#pragma warning disable IDE1006 // Naming Styles
-        [SuppressMessage("ReSharper", "InconsistentNaming")] public long? __index_level_0__ { get; set; }
-        #pragma warning restore IDE1006 // Naming Styles
-        #pragma warning restore IDE0079 // Remove unnecessary suppression
+        public new long? EventCode { get; set; }
+        public new long? EventParam { get; set; }
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 
         public override string ToString()
         {
-            return $"Flash Event for Sensor {SignalID}: {Timestamp} with Event Parameter {EventParam}";
+            return $"Flash Event Signal for Sensor {SignalID}: {Timestamp} with Event Parameter {EventParam}";
         }
 
 

@@ -8,7 +8,7 @@ using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
-    public class FlashEventDataAccessLayer :BaseDataAccessLayer
+    public class FlashEventDataAccessLayer : BaseDataAccessLayer
     {
 
         
@@ -25,8 +25,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             dataTable.Columns.Add("signalID", typeof(long));
             dataTable.Columns.Add("EventCode", typeof(long));
             dataTable.Columns.Add("EventParam", typeof(long));
-            dataTable.Columns.Add("DeviceID", typeof(long));
-            dataTable.Columns.Add("IndexLevel", typeof(long));
 
             // Populate the DataTable with events data
             foreach (var eventData in events)
@@ -35,9 +33,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     eventData.Timestamp,
                     eventData.SignalID,
                     eventData.EventCode,
-                    eventData.EventParam,
-                    eventData.DeviceID,
-                    eventData.__index_level_0__
+                    eventData.EventParam
+
                 );
             }
             // Open a connection to MySQL
@@ -70,21 +67,21 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             {
                 if (eventData.FlashEnd != null)
                     dataTable.Rows.Add(
-                        eventData.FlashStart.Timestamp,
-                        eventData.FlashEnd.Timestamp,
-                        eventData.SignalId,
+                        eventData.FlashStart,
+                        eventData.FlashEnd,
+                        eventData.SignalID,
                         TimeSpan.FromTicks(eventData.FlashDuration.Ticks).TotalSeconds,
                         eventData.StartParam,
                         eventData.IsOpen
                     );
                 else if (eventData.FlashEnd == null)
                     dataTable.Rows.Add(
-                                               eventData.FlashStart.Timestamp,
-                                                                      DBNull.Value,
-                                                                      eventData.SignalId,
-                                                                      TimeSpan.FromTicks(eventData.FlashDuration.Ticks).TotalSeconds,
-                                                                      eventData.StartParam,
-                                                                      eventData.IsOpen
+                        eventData.FlashStart, 
+                        DBNull.Value,
+                        eventData.SignalID,
+                        TimeSpan.FromTicks(eventData.FlashDuration.Ticks).TotalSeconds,
+                        eventData.StartParam,
+                        eventData.IsOpen
                                                                   );
             }
             // Open a connection to MySQL
@@ -110,7 +107,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 throw;
             }
         }
-            #endregion
+        #endregion
 
         /// <summary>
         /// This method will return a list of _events from AWS S3 and fit them to the FlashEventModel class for use in the rest of the solution
@@ -121,98 +118,38 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="eventCodes"></param>
         /// <returns>A List of Flash _events that can be used to write to the flash_event_log server</returns>
 
-        public static async Task<List<FlashEventModel>> ProcessFlashEvents(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null, List<long?>? eventCodes = null)
+      
+
+
+        public static async Task<bool> ProcessFlashEvents(DateTime startDate, DateTime endDate)
         {
+            await ConvertToFlash(SignalEvents,startDate, endDate);
+            return await WriteFlashEventsToDb(FlashEvents);
+        }
 
-            if (endDate == default)
+        public static Task ConvertToFlash(List<BaseSignalModel> signalList, DateTime startDate, DateTime endDate)
             {
-                endDate = startDate;
-            }
+                FlashEvents = new List<FlashEventModel>();
 
-            if (startDate > endDate)
-            {
-                throw new ArgumentException("Start date must be before end date");
-            }
-
-            try
-            {
-
-                using var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
-                while (startDate <= endDate)
+                foreach (var flash in signalList.Where(x => x.EventCode is 173 && x.Timestamp >= startDate && x.Timestamp <= endDate))
                 {
-                    var s3Objects = await GetListRequest(client, startDate);
-                    var semaphore = new SemaphoreSlim(ThreadCount);
 
-                    //For debugging purposes to speed up data processing
-                    //#if DEBUG
-                    //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
 
-                    //                    s3Objects.RemoveAll(obj => obj != elementToKeep);
-
-                    //#endif
-                    var tasks = s3Objects.Select(async obj =>
+                    FlashEvents.Add(new FlashEventModel
                     {
-                        await semaphore.WaitAsync();
-
-                        try
-                        {
-
-                            using var response = await MemoryStreamHelper(obj, client);
-                            using var ms = new MemoryStream();
-                            await response.ResponseStream.CopyToAsync(ms);
-
-                            var flashData = await ParquetConvert.DeserializeAsync<FlashEventModel>(ms);
-                            return signalIdList != null && eventCodes == null
-                                ? flashData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
-                                : eventCodes != null && signalIdList == null
-                                    ? flashData.Where(x => eventCodes.Contains(x.EventCode)).ToList()
-                                    : flashData.Where(x =>
-                                            signalIdList != null && eventCodes != null &&
-                                            eventCodes.Contains(x.EventCode) && signalIdList.Contains(x.SignalID))
-                                        .ToList();
-                        }
-                        catch {
-                            await WriteToErrorLog("SigOpsMetricsCalcEngine.BaseDataAccessLayer", $"ProcessFlashEvents at sensor {obj.Key}", new Exception("Error reading from S3"));
-                        return new List<FlashEventModel>();
-
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
+                        SignalID = flash.SignalID,
+                        Timestamp = flash.Timestamp,
+                        EventCode = flash.EventCode,
+                        EventParam = flash.EventParam
                     });
-
-                    var results = await Task.WhenAll(tasks);
-                    foreach (var flashList in results)
-                    {
-                        FlashEvents.AddRange(flashList);
-                    }
-                    startDate = startDate.AddDays(1);
-
                 }
-                return FlashEvents;
 
+                return Task.CompletedTask;
             }
 
-            #region Error Handling
 
 
-            catch (Exception e)
-            {
-                await WriteToErrorLog("FlashEventDataAccessLayer", "ProcessFlashEvents", e);
-                throw;
-            }
-            #endregion
-        }
 
-
-        public static async Task<bool> ProcessFlashEventsOverload(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null)
-        {
-            var t = await ProcessFlashEvents(startDate, endDate, eventCodes: new List<long?> { 173 }, signalIdList: signalIdList);
-
-            return await WriteFlashEventsToDb(t);
-            
-        }
         public static async Task<List<FlashEventModel>> ReadAllFromMySql()
         {
             var events = new List<FlashEventModel>();
@@ -230,8 +167,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                         SignalID = reader.GetInt64("signalID"),
                         EventCode = reader.GetInt64("EventCode"),
                         EventParam = reader.GetInt64("EventParam"),
-                        DeviceID = reader.GetInt64("DeviceID"),
-                        __index_level_0__ = reader.GetInt64("IndexLevel")
                     };
                     events.Add(flashEvent);
                 }
@@ -244,6 +179,45 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             finally { await MySqlConnection.CloseAsync(); }
 
             return events;
+        }        
+        public static async Task<List<string>> ReadAllEventsFromMySql(MySqlConnection? sqlConnection = null)
+        {
+
+            sqlConnection ??= MySqlConnection;
+            
+            var events = new List<FlashPairModel>();
+            try
+            {
+
+                await using var reader = await MySqlReader(MySqlFlashPairTableName, MySqlDbName, sqlConnection);
+
+
+                while (await reader.ReadAsync())
+                {
+                    var flashEvent = new FlashPairModel
+                    {
+                        FlashStart = reader.GetDateTime("Start"),
+                        FlashEnd = reader.GetDateTime("End"),
+                        SignalID = reader.GetInt64("SignalID"),
+                        FlashDuration = TimeSpan.FromSeconds(reader.GetInt64("duration")),
+                        StartParam = reader.GetInt64("EventParam"),
+                        IsOpen = reader.GetBoolean("IsOpen")
+                    };
+                    events.Add(flashEvent);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                await MySqlConnection.CloseAsync();
+            }
+
+            var flashString = events.Select(flashEvent => flashEvent.ToString()).ToList();
+            return flashString;
         }
 
 

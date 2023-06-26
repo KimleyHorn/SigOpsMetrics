@@ -19,7 +19,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         private static readonly string? MySqlPreemptTableName = ConfigurationManager.AppSettings["PREEMPT_EVENT_TABLE_NAME"];
 
         #region Write to MySQL
-        public static async Task<bool> WritePreemptSignalsToDB(IEnumerable<PreemptSignalModel> preempts)
+        public static async Task<bool> GetWritePreemptSignalsToDb(IEnumerable<PreemptSignalModel> preempts)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -52,7 +52,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
         }
 
-        public static async Task<bool> WritePreemptEventsToDB(IEnumerable<PreemptModel> preempts)
+        public static async Task<bool> GetWritePreemptEventsToDb(IEnumerable<PreemptModel> preempts)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -191,7 +191,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         {
             var t = await ProcessPreemptSignals(startDate, endDate, eventCodes: new List<long?> { 102,105,106,104,107,111,707,708 }, signalIdList: signalIdList);
 
-            return await WritePreemptSignalsToDB(t);
+            return await GetWritePreemptSignalsToDb(t);
 
         }
 

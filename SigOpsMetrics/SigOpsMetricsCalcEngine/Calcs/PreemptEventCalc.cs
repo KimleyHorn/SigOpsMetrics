@@ -142,7 +142,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
                     
                 }
             }
-            await PreemptEventDataAccessLayer.WritePreemptEventsToDB(preemptList);
+            await PreemptEventDataAccessLayer.GetWritePreemptEventsToDb(preemptList);
         }
 
     }

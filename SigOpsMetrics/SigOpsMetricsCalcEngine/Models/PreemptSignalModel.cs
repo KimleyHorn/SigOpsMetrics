@@ -1,18 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SigOpsMetricsCalcEngine.Models
+﻿namespace SigOpsMetricsCalcEngine.Models
 {
-    public class PreemptSignalModel
+    public class PreemptSignalModel : BaseSignalModel
     {
-        public DateTime? Timestamp { get; set; }
-        public long? SignalID { get; set; }
-        public long? EventCode { get; set; }
-        public long? EventParam { get; set; }
+        public new DateTime Timestamp { get; set; }
+        public new long? SignalID { get; set; }
+        public new long? EventCode { get; set; }
+        public new long? EventParam { get; set; }
 
 
+        public PreemptSignalModel(){
+            Timestamp = default;
+            base.SignalID = 0;
+            EventCode = 0;
+            EventParam = 0;
+        }
+
+        public PreemptSignalModel(DateTime timestamp, long signalId, long eventCode, long eventParam) {
+            Timestamp = timestamp;
+            base.SignalID = signalId;
+            EventCode = eventCode;
+            EventParam = eventParam;
+        }
     }
 }
