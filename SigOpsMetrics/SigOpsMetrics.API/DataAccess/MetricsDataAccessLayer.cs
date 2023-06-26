@@ -188,6 +188,7 @@ namespace SigOpsMetrics.API.DataAccess
                             var dates = results.AsEnumerable().GroupBy(r => r[i]).OrderBy(x => x.Key);
 
                             var avg = new List<SummaryTrendDTO>();
+                            var colName = GetCalculatedValueColumnName(measure, interval);
                             if (interval == "qu")
                             {
                                 foreach (var date in dates)
@@ -197,7 +198,8 @@ namespace SigOpsMetrics.API.DataAccess
                                     DateTime quarterStart = new DateTime(year, (quarter - 1) * 3 + 1, 1);
                                     avg.Add(new SummaryTrendDTO
                                     {
-                                        Average = date.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
+                                        Average = date.Where(z => z.Field<double?>(colName) != null)
+                                            .Average(z => z.Field<double>(colName)),
                                         Month = quarterStart
                                     });
                                 }
@@ -206,7 +208,8 @@ namespace SigOpsMetrics.API.DataAccess
                             {
                                 avg = dates.Select(x => new SummaryTrendDTO
                                 {
-                                    Average = x.Average(z => z.Field<double>(GetCalculatedValueColumnName(measure, interval))),
+                                    Average = x.Where(z => z.Field<double?>(colName) != null)
+                                        .Average(z => z.Field<double>(colName)),
                                     Month = DateTime.Parse(x.Key.ToString())
                                 }).ToList();
                             }
