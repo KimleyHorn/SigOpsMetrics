@@ -38,7 +38,7 @@ namespace SigOpsMetrics.API.DataAccess
 
                     if (!string.IsNullOrEmpty(data.IntersectionFilter))
                     {
-                        cmd.CommandText += " AND (Name LIKE @intersectionFilter OR SignalId LIKE @intersectionFilter)";
+                        cmd.CommandText += " AND (Name LIKE @intersectionFilter OR SignalID LIKE @intersectionFilter)";
                         cmd.Parameters.AddWithValue("intersectionFilter", "%" + data.IntersectionFilter + "%");
                     }
 

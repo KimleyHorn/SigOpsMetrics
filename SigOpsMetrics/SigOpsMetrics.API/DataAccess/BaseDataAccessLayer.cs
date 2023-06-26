@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
+using SigOpsMetrics.API.Controllers;
 
 namespace SigOpsMetrics.API.DataAccess
 {
@@ -193,6 +195,21 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 return "";
             }
+        }
+
+        public static async Task<MySqlDataReader> MySqlReader(string mySqlTableName, string mySqlDbName, MySqlConnection mySqlConnection)
+        {
+            
+
+
+            if (mySqlConnection.State == ConnectionState.Closed)
+            {
+                await mySqlConnection.OpenAsync();
+            }
+
+            await using var cmd = new MySqlCommand($"SELECT t.* FROM {mySqlDbName}.{mySqlTableName} t", mySqlConnection);
+            await using var reader = await cmd.ExecuteReaderAsync();
+            return reader;
         }
     }
 }

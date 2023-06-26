@@ -1,8 +1,9 @@
-﻿using System;
-
+﻿#nullable enable
+using System;
+using SigOpsMetricsCalcEngine.Models;
 namespace SigOpsMetrics.API.Classes.DTOs
 {
-    public class PreemptEventDTO
+    public class PreemptEventDTO : PreemptModel
     {
 
         public DateTime? InputOn { get; set; }
@@ -62,6 +63,10 @@ namespace SigOpsMetrics.API.Classes.DTOs
             Duration = duration;
             PreemptType = preemptType;
         }
-
+        /// <inheritdoc/>
+        public override string ToString()
+        {
+            return $"{PreemptType} preempt for Signal {base.SignalID} \nDuration: {Duration}\nStart time: {InputOn.Value}\nEnd time: {ExitCall.Value}\nExternal Preempt Call On: {ExternalCallOn}\nExternal Call Off: {ExternalCallOff}\n";
+        }
     }
 }

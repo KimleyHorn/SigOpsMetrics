@@ -11,6 +11,8 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.DataAccess;
+using SigOpsMetricsCalcEngine.DataAccess;
+using BaseDataAccessLayer = SigOpsMetrics.API.DataAccess.BaseDataAccessLayer;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -488,6 +490,8 @@ namespace SigOpsMetrics.API.Controllers
                 return new List<double> { -1, -1, -1 };
             }
         }
+
+      
 
         /// <summary>
         /// Checks if the database is setup to calculate data based on the filter passed in.

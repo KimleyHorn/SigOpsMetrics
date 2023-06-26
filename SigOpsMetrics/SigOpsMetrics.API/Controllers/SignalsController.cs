@@ -13,10 +13,14 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using System.Data;
+using System.Text.Json;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Configuration;
 using SigOpsMetrics.API.DataAccess;
 using SigOpsMetrics.API.Classes.Internal;
+using SigOpsMetricsCalcEngine.DataAccess;
+using SigOpsMetricsCalcEngine.Models;
+using BaseDataAccessLayer = SigOpsMetrics.API.DataAccess.BaseDataAccessLayer;
 
 namespace SigOpsMetrics.API.Controllers
 {
@@ -367,6 +371,55 @@ namespace SigOpsMetrics.API.Controllers
                     "signals/cities", ex);
                 return null;
             }
+        }
+
+        /// <summary>
+        /// Returns a list of all flash events in the system
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("flashevents")]
+        public async Task<IEnumerable<string>> GetFlashEvents()
+        {
+
+            try
+            {
+                return await SignalsDataAccessLayer.ReadAllFlashEventsFromMySql(SqlConnectionReader);
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                                       System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                                                          "signals/flashevents", ex);
+                return null;
+            }
+            
+
+        }
+
+
+
+        /// <summary>
+        /// Returns a list of all preempt events in the system
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("preemptevents")]
+        public async Task<IEnumerable<string>> GetPreemptEvents()
+        {
+
+            try
+            {
+                
+                return await SignalsDataAccessLayer.ReadAllPreemptEventsFromMySql(SqlConnectionReader);
+            }
+            catch (Exception ex)
+            {
+                //await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                //                       System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                //                                          "signals/preemptevents", ex);
+                return null;
+            }
+
+
         }
 
         /// <summary>

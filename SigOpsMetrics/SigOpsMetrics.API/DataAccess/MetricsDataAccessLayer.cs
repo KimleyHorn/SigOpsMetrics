@@ -1091,7 +1091,7 @@ namespace SigOpsMetrics.API.DataAccess
                 if (all)
                 {
                     var tableName = ValidateTableName(level, interval, measure);
-                    var type = level == "sig" ? "SignalId" : "Corridor";
+                    var type = level == "sig" ? "SignalID" : "Corridor";
                     await sqlConnection.OpenAsync();
                     await using (cmd)
                     {
@@ -1292,7 +1292,7 @@ namespace SigOpsMetrics.API.DataAccess
             switch (level)
             {
                 case "sig":
-                    // This will return the "Corridor" from the sig_mo_tp table which is actually links to the signals.SignalId field. 
+                    // This will return the "Corridor" from the sig_mo_tp table which is actually links to the signals.SignalID field. 
                     newWhere += string.IsNullOrEmpty(whereClause) ? " Corridor in (" : " and Corridor in (";
                     break;
                 case "cor":

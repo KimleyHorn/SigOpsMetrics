@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Data;
+using System.Threading.Tasks;
 using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Mvc;
@@ -29,5 +31,7 @@ namespace SigOpsMetrics.API.Controllers
         {
             return new AmazonS3Client(AppConfig.AWSAccessKey, AppConfig.AWSSecretKey, BucketRegion);
         }
+
+
     }
 }

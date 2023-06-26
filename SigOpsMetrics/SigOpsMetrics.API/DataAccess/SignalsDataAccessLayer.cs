@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
 using MySqlConnector;
@@ -11,6 +13,7 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.Classes.Internal;
+using SigOpsMetricsCalcEngine.Models;
 
 
 #pragma warning disable 1591
@@ -515,6 +518,154 @@ namespace SigOpsMetrics.API.DataAccess
 
             return cities;
         }
+        public static async Task<List<string>> ReadAllFlashEventsFromMySql(MySqlConnection sqlConnection)
+        {
+
+
+            var events = new List<FlashPairModel>();
+            try
+            {
+
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = $"SELECT t.* FROM mark1.flash_event_pair_log t";
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+
+                    if (!reader.IsDBNull(reader.GetOrdinal("End")))
+                    {
+                        var flashEvent = new FlashPairModel
+                        {
+                            FlashStart = reader.GetDateTime("Start"),
+                            FlashEnd = reader.GetDateTime("End"),
+                            SignalID = reader.GetInt64("SignalID"),
+                            FlashDuration = TimeSpan.FromSeconds(reader.GetInt64("duration")),
+                            StartParam = reader.GetInt64("startParam"),
+                            IsOpen = reader.GetBoolean("IsOpen")
+                        };
+                        events.Add(flashEvent);
+                    }
+                    else
+                    {
+                        var flashEvent = new FlashPairModel
+                        {
+                            FlashStart = reader.GetDateTime("Start"),
+                            FlashEnd = null,
+                            SignalID = reader.GetInt64("SignalID"),
+                            FlashDuration = TimeSpan.FromSeconds(reader.GetInt64("duration")),
+                            StartParam = reader.GetInt64("startParam"),
+                            IsOpen = reader.GetBoolean("IsOpen")
+                        };
+                        events.Add(flashEvent);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            var flashString = events.Select(flashEvent => flashEvent.ToString()).ToList();
+            return flashString;
+        }
+
+        public static async Task<List<string>> ReadAllPreemptEventsFromMySql(MySqlConnection sqlConnection)
+        {
+
+
+            var events = new List<PreemptModel>();
+            try
+            {
+
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+                cmd.CommandText = $"SELECT t.* FROM mark1.preempt_event_log t";
+
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    //if (await reader.IsDBNullAsync(reader.GetString("PreemptType")))
+                    //{
+                        var preempt = new PreemptEventDTO
+                        {
+                            InputOn = reader.GetDateTime("InputOn"),
+                            EntryStart = reader.GetDateTime("EntryStart"),
+                            TrackClear = reader.GetDateTime("TrackClear"),
+                            InputOff = reader.GetDateTime("InputOff"),
+                            DwellService = reader.GetDateTime("DwellService"),
+                            ExitCall = reader.GetDateTime("ExitCall"),
+                            SignalID = reader.GetInt64("SignalID"),
+                            Duration = TimeSpan.FromSeconds(reader.GetInt64("Duration")),
+                            PreemptType = "Generic",
+                            ExternalCallOn = reader.GetBoolean("ExternalCallOn"),
+                            ExternalCallOff = reader.GetBoolean("ExternalCallOff")
+                        };
+                        events.Add(preempt);
+                    //}
+
+                    //else if (reader.GetString("Railroad") is "Railroad")
+                    //{
+                    //    var preempt = new PreemptModel
+                    //    {
+                    //        InputOn = reader.GetDateTime("InputOn"),
+                    //        EntryStart = reader.GetDateTime("EntryStart"),
+                    //        TrackClear = reader.GetDateTime("TrackClear"),
+                    //        InputOff = reader.GetDateTime("InputOff"),
+                    //        DwellService = reader.GetDateTime("DwellService"),
+                    //        ExitCall = reader.GetDateTime("ExitCall"),
+                    //        SignalID = reader.GetInt64("SignalID"),
+                    //        Duration = TimeSpan.FromSeconds(reader.GetInt64("Duration")),
+                    //        //PreemptType = "Railroad",
+                    //        ExternalCallOn = reader.GetBoolean("ExternalCallOn"),
+                    //        ExternalCallOff = reader.GetBoolean("ExternalCallOff")
+                    //    };
+                    //    events.Add(preempt);
+                    //}
+                    //else
+                    //{
+                    //    var preempt = new PreemptModel
+                    //    {
+                    //        InputOn = reader.GetDateTime("InputOn"),
+                    //        EntryStart = reader.GetDateTime("EntryStart"),
+                    //        TrackClear = reader.GetDateTime("TrackClear"),
+                    //        InputOff = reader.GetDateTime("InputOff"),
+                    //        DwellService = reader.GetDateTime("DwellService"),
+                    //        ExitCall = reader.GetDateTime("ExitCall"),
+                    //        SignalID = reader.GetInt64("SignalID"),
+                    //        Duration = TimeSpan.FromSeconds(reader.GetInt64("Duration")),
+                    //        //PreemptType = "",
+                    //        ExternalCallOn = reader.GetBoolean("ExternalCallOn"),
+                    //        ExternalCallOff = reader.GetBoolean("ExternalCallOff")
+                    //    };
+                    //    events.Add(preempt);
+                    //        }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            var flashString = events.Select(preemptEvent => preemptEvent.ToString()).ToList();
+            return flashString;
+        }
+
+
 
         public static async Task<IEnumerable<string>> GetPrioritiesSQL(MySqlConnection sqlConnection)
         {
@@ -802,19 +953,18 @@ namespace SigOpsMetrics.API.DataAccess
 
         public static async Task<List<PreemptEventDTO>> GetAllPreemptEvents(MySqlConnection sqlConnection)
         {
-            var flashes = new List<PreemptEventDTO>();
+            var preempts = new List<PreemptEventDTO>();
             try
             {
                 await sqlConnection.OpenAsync();
                 await using var cmd = new MySqlCommand();
                 cmd.Connection = sqlConnection;
-                cmd.CommandText = $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log";
+                cmd.CommandText = $"SELECT * FROM {AppConfig.DatabaseName}.preempt_event_log";
                 await using var reader = await cmd.ExecuteReaderAsync();
 
-                //TODO: Fix this
                 while (reader.Read())
                 {
-                    var row = new PreemptEventDTO()
+                    var row = new PreemptEventDTO
                     {
                         InputOn = reader.GetDateTime(0),
                         EntryStart = reader.GetDateTime(1),
@@ -829,7 +979,7 @@ namespace SigOpsMetrics.API.DataAccess
                         ExternalCallOff = reader.GetBoolean(10)
 
                     };
-                    flashes.Add(row);
+                    preempts.Add(row);
                 }
             }
             catch (Exception ex)
@@ -843,14 +993,14 @@ namespace SigOpsMetrics.API.DataAccess
                 await sqlConnection.CloseAsync();
             }
 
-            return flashes;
+            return preempts;
 
         }
 
-        public static async Task<List<FlashEventDTO>> GetPreemptEventsBySignalId(MySqlConnection sqlConnection,
+        public static async Task<List<PreemptEventDTO>> GetPreemptEventsBySignalId(MySqlConnection sqlConnection,
             List<long?> signalId)
         {
-           var flashes = new List<FlashEventDTO>();
+           var preempts = new List<PreemptEventDTO>();
            try
            {
                await sqlConnection.OpenAsync();
@@ -862,17 +1012,23 @@ namespace SigOpsMetrics.API.DataAccess
                await using var reader = await cmd.ExecuteReaderAsync();
                while (reader.Read())
                {
-                   var row = new FlashEventDTO
-                   {
-                       Start = reader.GetDateTime(0),
-                       End = reader.GetDateTime(1),
-                       SignalID = reader.GetInt64(2),
-                       duration = reader.GetInt64(3),
-                       startParam = reader.GetInt64(4)
+                    var row = new PreemptEventDTO
+                    {
+                        InputOn = reader.GetDateTime(0),
+                        EntryStart = reader.GetDateTime(1),
+                        TrackClear = reader.GetDateTime(2),
+                        InputOff = reader.GetDateTime(3),
+                        DwellService = reader.GetDateTime(4),
+                        ExitCall = reader.GetDateTime(5),
+                        SignalID = reader.GetInt64(6),
+                        Duration = reader.GetTimeSpan(7),
+                        PreemptType = reader.GetString(8),
+                        ExternalCallOn = reader.GetBoolean(9),
+                        ExternalCallOff = reader.GetBoolean(10)
 
-                   };
-                   flashes.Add(row);
-               }
+                    };
+                    preempts.Add(row);
+                }
            }
            catch (Exception ex)
            {
@@ -885,7 +1041,7 @@ namespace SigOpsMetrics.API.DataAccess
                 await sqlConnection.CloseAsync();
            }
 
-           return flashes;
+           return preempts;
         }
 
 
