@@ -22,13 +22,18 @@ namespace SigOpsMetricsCalcEngine
 
             //TODO: Generalize signal pulling
 
-            await BaseDataAccessLayer.ProcessEvents(startDate, endDate);
+
+            await PreemptEventCalc.CalcPreemptEvent();
+
+            //if(!await BaseDataAccessLayer.CheckDB("flash_event_log", "mark1", startDate, endDate))
+            //    await FlashEventDataAccessLayer.ProcessFlashEvents(startDate, endDate);   
 
 
-            if (await FlashEventDataAccessLayer.ProcessFlashEvents(startDate, endDate))
-            {
-                await FlashEventCalc.CalcFlashEvent();
-            }
+            //if(!await BaseDataAccessLayer.CheckDB("preempt_log", "mark1", startDate, endDate))
+            //    await PreemptEventDataAccessLayer.ProcessPreemptEvents(startDate, endDate);
+
+
+
 
             //if (await PreemptEventDataAccessLayer.ProcessPreemptSignalsOverload(startDate, endDate))
             //{

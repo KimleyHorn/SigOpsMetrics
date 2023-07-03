@@ -40,7 +40,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             // Open a connection to MySQL
             try
             {
-               return await MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
+                return await MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception e)
             {
@@ -50,7 +50,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
         }
 
-        public static async Task WriteFlashPairsToDb(IEnumerable<FlashPairModel> events)
+        public static async Task<bool> WriteFlashPairsToDb(IEnumerable<FlashPairModel> events)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -87,20 +87,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             // Open a connection to MySQL
             try
             {
-                MySqlConnection.Open();
-
-                var bulkCopy = new MySqlBulkCopy(MySqlConnection)
-                {
-                    DestinationTableName = $"{MySqlDbName}.{MySqlFlashPairTableName}"
-                };
-
-                await bulkCopy.WriteToServerAsync(dataTable);
-
-                await MySqlConnection.CloseAsync();
+                return await MySqlWriter(MySqlFlashPairTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error" + e.ToString());
+                Console.WriteLine("Error" + e);
                 var applicationName = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name;
                 if (applicationName != null)
                     await WriteToErrorLog(applicationName, "toMySQL", e);
@@ -109,17 +100,15 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         }
         #endregion
 
+
+
+
         /// <summary>
         /// This method will return a list of _events from AWS S3 and fit them to the FlashEventModel class for use in the rest of the solution
         /// </summary>
         /// <param name="startDate">The start date of the _events to be retrieved</param>
         /// <param name="endDate">The end date of the _events to be retrieved</param>
-        /// <param name="signalIdList">A list of signal Ids to be retrieved</param>
-        /// <param name="eventCodes"></param>
         /// <returns>A List of Flash _events that can be used to write to the flash_event_log server</returns>
-
-      
-
 
         public static async Task<bool> ProcessFlashEvents(DateTime startDate, DateTime endDate)
         {

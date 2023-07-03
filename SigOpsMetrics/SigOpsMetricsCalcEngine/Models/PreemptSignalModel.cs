@@ -2,10 +2,10 @@
 {
     public class PreemptSignalModel : BaseSignalModel
     {
-        public new DateTime Timestamp { get; set; }
-        public new long? SignalID { get; set; }
-        public new long? EventCode { get; set; }
-        public new long? EventParam { get; set; }
+        //public new DateTime Timestamp { get; set; }
+        //public new long? SignalID { get; set; }
+        //public new long? EventCode { get; set; }
+        //public new long? EventParam { get; set; }
 
 
         public PreemptSignalModel(){

@@ -87,15 +87,26 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             return reader;
         }
 
-        internal static async Task CheckDB(string mySqlTableName, string mySqlDbName, DateTime startDate,
+        public static async Task<bool> CheckDB(string mySqlTableName, string mySqlDbName, DateTime startDate,
             DateTime endDate)
         {
-            var reader = await MySqlReader(mySqlTableName, mySqlDbName);
+            //var reader = await MySqlReader(mySqlTableName, mySqlDbName);
+
+            if (MySqlConnection.State == ConnectionState.Closed)
+            {
+                await MySqlConnection.OpenAsync();
+            }
+
+            await using var cmd = new MySqlCommand($"SELECT * FROM {mySqlDbName}.{mySqlTableName} WHERE Timestamp BETWEEN '{startDate}' AND '{endDate}'", MySqlConnection);
+            await using var reader = await cmd.ExecuteReaderAsync();
+
             if (!reader.HasRows)
             {
                 await CheckList(startDate, endDate);
-                return;
+                await reader.CloseAsync();
+                return false;
             }
+
 
             while (await reader.ReadAsync()) {
                 var flashEvent = new BaseSignalModel
@@ -108,7 +119,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             SignalEvents.Add(flashEvent);
             }
 
-
+            await MySqlConnection.CloseAsync();
+            return true;
 
         }
 
