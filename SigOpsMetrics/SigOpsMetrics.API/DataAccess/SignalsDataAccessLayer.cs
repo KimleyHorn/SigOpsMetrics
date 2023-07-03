@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using Amazon.S3.Model;
 using MySqlConnector;
 using OfficeOpenXml;
 using SigOpsMetrics.API.Classes;
@@ -870,85 +866,7 @@ namespace SigOpsMetrics.API.DataAccess
             return new FilteredItems { FilterType = filterType, Items = retVal };
         }
 
-        public static async Task<List<FlashEventDTO>> GetAllFlashEvents(MySqlConnection sqlConnection)
-        {
-            var flashes = new List<FlashEventDTO>();
-            try
-            {
-                await sqlConnection.OpenAsync();
-                await using var cmd = new MySqlCommand();
-                cmd.Connection = sqlConnection;
-                cmd.CommandText = $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log";
-                await using var reader = await cmd.ExecuteReaderAsync();
-                while (reader.Read())
-                {
-                    var row = new FlashEventDTO
-                    {
-                        Start = reader.GetDateTime(0),
-                        End = reader.GetDateTime(1),
-                        SignalID = reader.GetInt64(2),
-                        duration = reader.GetInt64(3),
-                        startParam = reader.GetInt64(4)
 
-                    };
-                    flashes.Add(row);
-                }
-            }
-            catch (Exception ex)
-            {
-                await WriteToErrorLog(sqlConnection,
-                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    "GetAllFlashEvents", ex);
-            }
-            finally
-            {
-                await sqlConnection.CloseAsync();
-            }
-
-            return flashes;
-
-        }
-
-        public static async Task<List<FlashEventDTO>> GetFlashEventsBySignalId(MySqlConnection sqlConnection,
-            List<long?> signalId)
-        {
-           var flashes = new List<FlashEventDTO>();
-           try
-           {
-               await sqlConnection.OpenAsync();
-               await using var cmd = new MySqlCommand();
-               cmd.Connection = sqlConnection;
-               var signalString = "(" + string.Join(",", signalId.Select(s => "'" + s + "'")) + ")";
-               cmd.CommandText =
-                   $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log WHERE SignalID IN {signalString}";
-               await using var reader = await cmd.ExecuteReaderAsync();
-               while (reader.Read())
-               {
-                   var row = new FlashEventDTO
-                   {
-                       Start = reader.GetDateTime(0),
-                       End = reader.GetDateTime(1),
-                       SignalID = reader.GetInt64(2),
-                       duration = reader.GetInt64(3),
-                       startParam = reader.GetInt64(4)
-
-                   };
-                   flashes.Add(row);
-               }
-           }
-           catch (Exception ex)
-           {
-               await WriteToErrorLog(sqlConnection,
-                   System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                   "GetAllSignalDataSQL", ex);
-           }
-           finally
-           {
-                await sqlConnection.CloseAsync();
-           }
-
-           return flashes;
-        }
 
 
         public static async Task<List<PreemptEventDTO>> GetAllPreemptEvents(MySqlConnection sqlConnection)
@@ -995,53 +913,6 @@ namespace SigOpsMetrics.API.DataAccess
 
             return preempts;
 
-        }
-
-        public static async Task<List<PreemptEventDTO>> GetPreemptEventsBySignalId(MySqlConnection sqlConnection,
-            List<long?> signalId)
-        {
-           var preempts = new List<PreemptEventDTO>();
-           try
-           {
-               await sqlConnection.OpenAsync();
-               await using var cmd = new MySqlCommand();
-               cmd.Connection = sqlConnection;
-               var signalString = "(" + string.Join(",", signalId.Select(s => "'" + s + "'")) + ")";
-               cmd.CommandText =
-                   $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_pair_log WHERE SignalID IN {signalString}";
-               await using var reader = await cmd.ExecuteReaderAsync();
-               while (reader.Read())
-               {
-                    var row = new PreemptEventDTO
-                    {
-                        InputOn = reader.GetDateTime(0),
-                        EntryStart = reader.GetDateTime(1),
-                        TrackClear = reader.GetDateTime(2),
-                        InputOff = reader.GetDateTime(3),
-                        DwellService = reader.GetDateTime(4),
-                        ExitCall = reader.GetDateTime(5),
-                        SignalID = reader.GetInt64(6),
-                        Duration = reader.GetTimeSpan(7),
-                        PreemptType = reader.GetString(8),
-                        ExternalCallOn = reader.GetBoolean(9),
-                        ExternalCallOff = reader.GetBoolean(10)
-
-                    };
-                    preempts.Add(row);
-                }
-           }
-           catch (Exception ex)
-           {
-               await WriteToErrorLog(sqlConnection,
-                   System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                   "GetAllSignalDataSQL", ex);
-           }
-           finally
-           {
-                await sqlConnection.CloseAsync();
-           }
-
-           return preempts;
         }
 
 

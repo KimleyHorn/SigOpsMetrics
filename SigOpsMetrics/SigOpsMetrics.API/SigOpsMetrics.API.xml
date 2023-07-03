@@ -116,7 +116,7 @@
             </summary>
             <returns></returns>
         </member>
-	    <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetPreemptEvents">
+	    <member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetPreemptEvents">
             <summary>
             Return a list of preempt events in the system
             </summary>

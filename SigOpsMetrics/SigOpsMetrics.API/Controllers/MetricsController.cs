@@ -251,6 +251,59 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
+
+
+        /// <summary>
+        /// Returns a list of all flash events in the system
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("flashevents")]
+        public async Task<List<FlashEventDTO>> GetFlashEvents([FromBody] FilterDTO filter)
+        {
+
+
+            try
+            {
+
+                var flashData = new MetricsDataAccessLayer();
+                return await flashData.GetFlashSignalsFromFilter(SqlConnectionReader, filter);
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                                       System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                                                          "signals/flashevents", ex);
+                return null;
+            }
+        }
+
+
+
+        /// <summary>
+        /// Returns a list of all preempt events in the system
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("preemptevents")]
+        public async Task<IEnumerable<PreemptEventDTO>> GetPreemptEvents([FromBody] FilterDTO filter)
+        {
+
+
+
+            try
+            {
+                var preData = new MetricsDataAccessLayer();
+                return await preData.GetPreemptEventsFromFilter(SqlConnectionReader, filter);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+
+
+        }
+
         /// <summary>
         /// Returns the average value per signal based on the supplied filter.
         /// </summary>

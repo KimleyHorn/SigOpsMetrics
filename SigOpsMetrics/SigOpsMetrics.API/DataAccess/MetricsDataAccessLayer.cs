@@ -396,6 +396,158 @@ namespace SigOpsMetrics.API.DataAccess
             return (fullStart, fullEnd);
         }
 
+        /// <summary>
+        /// Use the existing filter to get a list of flash signals from the sql database and return them as a list of FlashEventDTO
+        /// </summary>
+        /// <param name="sqlConnection"></param>
+        /// <param name="filter"></param>
+        /// <returns>A list of flasheventDTO's in JsonFormat</returns>
+        public async Task<List<FlashEventDTO>> GetFlashSignalsFromFilter(MySqlConnection sqlConnection,
+            FilterDTO filter)
+        {
+            //Create new list of flasheventDTO's
+            var flashes = new List<FlashEventDTO>();
+            try
+            {
+
+                //Open the connection
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+
+                //Create the command string
+                var signalString = "";
+                cmd.CommandText =
+                    $"SELECT * FROM {AppConfig.DatabaseName}.flash_event_log";
+
+                //Filter by signal if the FilterDTO has a signalId
+                if (filter.signalId != "null")
+                {
+                    signalString = "(" + string.Join(",", filter.signalId.Select(s => "'" + s + "'")) + ")";
+                }
+
+                //Switch case for date range and group
+                cmd.CommandText += (filter.signalId, filter.customStart, filter.customEnd) switch
+                {
+                    ("null", "null", "null") => "",
+                    (_, "null", "null") => $" WHERE SignalID = {signalString}",
+                    (_, _, "null") => $" WHERE SignalID = {signalString} AND Timestamp >= '{filter.customStart}'",
+                    (_, "null", _) => $" WHERE SignalID = {signalString} AND Timestamp <= '{filter.customEnd}'",
+                    ("null", _, _) => $" WHERE Timestamp BETWEEN '{filter.customStart}' AND '{filter.customEnd}'",
+                    (_, _, _) => $" WHERE SignalID = {signalString} AND Timestamp BETWEEN '{filter.customStart}' AND '{filter.customEnd}'",
+
+                };
+
+                //Execute the command
+                await using var reader = await cmd.ExecuteReaderAsync();
+
+                //Read the data and add it to the list of flasheventDTO's
+                while (reader.Read())
+                {
+                    var row = new FlashEventDTO
+                    {
+                        Timestamp = reader.IsDBNull(0) ? DateTime.MinValue : reader.GetDateTime(0),
+                        SignalID = reader.IsDBNull(1) ? 0 : reader.GetInt64(1),
+                        EventCode = reader.IsDBNull(2) ? 0 : reader.GetInt64(2),
+                        EventParam = reader.IsDBNull(3) ? 0 : reader.GetInt64(3)
+                       
+                    };
+                    flashes.Add(row);
+                }
+            
+            }
+            catch (Exception ex)
+            {
+                await WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetPreemptEventsFromFilter", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return flashes;
+        }
+
+        public async Task<List<PreemptEventDTO>> GetPreemptEventsFromFilter(MySqlConnection sqlConnection,
+            FilterDTO filter)
+        {
+
+            //Create a new list of preempteventDTO's
+            var preempts = new List<PreemptEventDTO>();
+            try
+            {
+                //Open the connection
+                await sqlConnection.OpenAsync();
+                await using var cmd = new MySqlCommand();
+                cmd.Connection = sqlConnection;
+                //Create the command string
+                var signalString = "";
+                cmd.CommandText =
+                    $"SELECT * FROM {AppConfig.DatabaseName}.preempt_event_log";
+
+                //Filter by signal
+                if (filter.signalId != "null")
+                {
+                    signalString = "(" + string.Join(",", filter.signalId.Select(s => "'" + s + "'")) + ")";
+                }
+
+
+                //Switch case for date range and signal ID
+                cmd.CommandText += (filter.signalId, filter.customStart, filter.customEnd) switch
+                {
+                    ("null", "null", "null") => "",
+                    (_, "null", "null") => $" WHERE SignalID = {signalString}",
+                    (_,_, "null") => $" WHERE SignalID = {signalString} AND InputOn >= '{filter.customStart}'",
+                    (_, "null", _) => $" WHERE SignalID = {signalString} AND InputOn <= '{filter.customEnd}'",
+                    ("null",_, _) => $" WHERE InputOn BETWEEN '{filter.customStart}' AND '{filter.customEnd}'",
+                    (_,_,_) => $" WHERE SignalID = {signalString} AND InputOn BETWEEN '{filter.customStart}' AND '{filter.customEnd}'",
+                    
+                };
+
+
+                //Execute the command
+                await using var reader = await cmd.ExecuteReaderAsync();
+
+                //Read the data and add it to the list of preempteventDTO's
+                while (reader.Read())
+                {
+                    var row = new PreemptEventDTO
+                    {
+                        InputOn = reader.IsDBNull(0) ? default : reader.GetDateTime(0),
+                        EntryStart = reader.IsDBNull(1) ? default : reader.GetDateTime(1),
+                        TrackClear = reader.IsDBNull(2) ? default : reader.GetDateTime(2),
+                        InputOff = reader.IsDBNull(3) ? default : reader.GetDateTime(3),
+                        DwellService = reader.IsDBNull(4) ? default : reader.GetDateTime(4),
+                        ExitCall = reader.IsDBNull(5) ? default : reader.GetDateTime(5),
+                        SignalID = reader.IsDBNull(6) ? 0 : reader.GetInt64(6),
+                        Duration = reader.IsDBNull(7)
+                            ? TimeSpan.Zero
+                            : TimeSpan.FromTicks(reader.GetInt64(7) * TimeSpan.TicksPerSecond),
+                        PreemptType = reader.IsDBNull(8) ? null : reader.GetString(8),
+                        ExternalCallOn = !reader.IsDBNull(9) && reader.GetBoolean(9),
+                        ExternalCallOff = !reader.IsDBNull(10) && reader.GetBoolean(10)
+                    };
+                    preempts.Add(row);
+                }
+            }
+
+            catch (Exception ex)
+            {
+                await WriteToErrorLog(sqlConnection,
+                    System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                    "GetPreemptEventsFromFilter", ex);
+            }
+            finally
+            {
+                await sqlConnection.CloseAsync();
+            }
+
+            return preempts;
+        }
+
+
         public string GetIntervalFromFilter(FilterDTO filter)
         {
             var aggregationType = (GenericEnums.DataAggregationType)filter.timePeriod;

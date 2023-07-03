@@ -373,54 +373,7 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        /// <summary>
-        /// Returns a list of all flash events in the system
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("flashevents")]
-        public async Task<IEnumerable<string>> GetFlashEvents()
-        {
 
-            try
-            {
-                return await SignalsDataAccessLayer.ReadAllFlashEventsFromMySql(SqlConnectionReader);
-            }
-            catch (Exception ex)
-            {
-                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
-                                       System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                                                          "signals/flashevents", ex);
-                return null;
-            }
-            
-
-        }
-
-
-
-        /// <summary>
-        /// Returns a list of all preempt events in the system
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("preemptevents")]
-        public async Task<IEnumerable<string>> GetPreemptEvents()
-        {
-
-            try
-            {
-                
-                return await SignalsDataAccessLayer.ReadAllPreemptEventsFromMySql(SqlConnectionReader);
-            }
-            catch (Exception ex)
-            {
-                //await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
-                //                       System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                //                                          "signals/preemptevents", ex);
-                return null;
-            }
-
-
-        }
 
         /// <summary>
         /// Endpoint for performing daily data pull of corridors_latest.xls into sql table. Destination 0 is AWS, 1 is GCP
