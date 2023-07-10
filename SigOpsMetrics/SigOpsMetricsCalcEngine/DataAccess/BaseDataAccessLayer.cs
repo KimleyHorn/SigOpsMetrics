@@ -6,6 +6,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using MySqlConnector;
 using Parquet;
+using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
@@ -18,15 +19,38 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static readonly RegionEndpoint? BucketRegion = RegionEndpoint.USEast1;
         internal static readonly string? FolderName = ConfigurationManager.AppSettings["FOLDER_NAME"];
         internal static readonly int ThreadCount = int.Parse(ConfigurationManager.AppSettings["THREAD_COUNT"] ?? "1");
-        internal static List<FlashEventModel> FlashEvents = new();
-        internal static List<PreemptSignalModel> PreemptEvents = new();
-        internal static List<BaseSignalModel> SignalEvents = new();
-        internal static readonly string? MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"];
+        public static List<BaseEventLogModel> FlashEvents = new();
+        public static List<BaseEventLogModel> PreemptEvents = new();
+        public static List<PreemptModel> PreemptPairs = new();
+        internal static List<BaseEventLogModel> SignalEvents = new();
+        internal static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "mark1";
         internal static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
         internal static MySqlConnection? MySqlConnection;
 
+
         static BaseDataAccessLayer() {
             MySqlConnection = new MySqlConnection(MySqlConnString);
+        }
+
+
+
+        //TODO Finish this method
+        //TODO Make sure that both flash events and preempt events are being added to the list
+        //inside of checkdb make sure that it pulls and dumps from both databases
+        //TODO Get rid of unused helper methods
+        public async Task<bool> RunFlash(DateTime startDate, DateTime endDate)
+        {
+            //Preempt event list to check for eventCodes from SignalEvents list
+            var flashEventList = new List<long?> {173};
+
+            //This checks to see if the events are already in the database or if they are already stored in memory
+            if (! CheckList(startDate, endDate, flashEventList) && !await CheckDB("flash_event_log", "Timestamp", MySqlDbName, startDate, endDate))
+            {
+                //If events within date range are not within the database or memory, then grab the events from Amazon S3
+                return await ProcessEvents(startDate, endDate, "flash_event_log", eventCodes: flashEventList);
+            }
+
+            return true;
         }
 
         #region Helper Methods
@@ -46,7 +70,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static async Task<bool> MySqlWriter(string mySqlTableName, DataTable dataTable)
         {
             //Write a conditional statement that returns true if the data was written to the table successfully
-            MySqlConnection.Open();
+            await MySqlConnection.OpenAsync();
             Console.WriteLine("Connection Opened");
             var bulkCopy = new MySqlBulkCopy(MySqlConnection)
             {
@@ -72,88 +96,52 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             return await client.GetObjectAsync(request);
         }
 
-        internal static async Task<MySqlDataReader> MySqlReader(string mySqlTableName, string mySqlDbName, MySqlConnection? mySqlConnection = null)
-        {
-            mySqlConnection ??= MySqlConnection;
-            
 
-            if (mySqlConnection.State == ConnectionState.Closed)
-            {
-                await mySqlConnection.OpenAsync();
-            }
-
-            await using var cmd = new MySqlCommand($"SELECT t.* FROM {mySqlDbName}.{mySqlTableName} t", MySqlConnection);
-            await using var reader = await cmd.ExecuteReaderAsync();
-            return reader;
-        }
-
-        public static async Task<bool> CheckDB(string mySqlTableName, string mySqlDbName, DateTime startDate,
+        public static async Task<bool> CheckDB(string mySqlTableName, string mySqlColName, string mySqlDbName, DateTime startDate,
             DateTime endDate)
         {
-            //var reader = await MySqlReader(mySqlTableName, mySqlDbName);
-
             if (MySqlConnection.State == ConnectionState.Closed)
             {
                 await MySqlConnection.OpenAsync();
             }
 
-            await using var cmd = new MySqlCommand($"SELECT * FROM {mySqlDbName}.{mySqlTableName} WHERE Timestamp BETWEEN '{startDate}' AND '{endDate}'", MySqlConnection);
+            await using var cmd = MySqlConnection.CreateCommand();
+            cmd.CommandText = $"SELECT * FROM {mySqlDbName}.{mySqlTableName} WHERE {mySqlColName} BETWEEN @StartDate AND @EndDate";
+            cmd.Parameters.AddWithValue("@StartDate", startDate);
+            cmd.Parameters.AddWithValue("@EndDate", endDate);
+
             await using var reader = await cmd.ExecuteReaderAsync();
+
+
 
             if (!reader.HasRows)
             {
-                await CheckList(startDate, endDate);
-                await reader.CloseAsync();
+                await MySqlConnection.CloseAsync();
                 return false;
             }
 
 
             while (await reader.ReadAsync()) {
-                var flashEvent = new BaseSignalModel
+                var signalEvent = new BaseEventLogModel
                 {
                     Timestamp = reader.GetDateTime("Timestamp"),
                     SignalID = reader.GetInt64("signalID"),
                     EventCode = reader.GetInt64("EventCode"),
                     EventParam = reader.GetInt64("EventParam")
                 };
-            SignalEvents.Add(flashEvent);
+            SignalEvents.Add(signalEvent);
             }
 
-            await MySqlConnection.CloseAsync();
+            await MySqlConnection.CloseAsync(); 
             return true;
 
         }
 
-        internal static async Task<List<BaseSignalModel>> CheckList(DateTime startDate,
-            DateTime endDate)
+        internal static bool CheckList(DateTime startDate,
+            DateTime endDate, List<long?> eventCodes)
         {
-            var dateSignal = SignalEvents.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate).ToList();
-
-            if (dateSignal.Count == 0)
-            {
-                await ProcessEvents(startDate, endDate);
-            }
-            return dateSignal;
-        }
-
-
-        //Abstraction 1 (Unfinished)
-        internal static async Task<MemoryStream> ResponseMaker(S3Object obj, AmazonS3Client client)
-        {
-            using var response = await MemoryStreamHelper(obj, client);
-            using var ms = new MemoryStream();
-            await response.ResponseStream.CopyToAsync(ms);
-            return ms;
-        }
-
-        //Abstraction 2 (Unfinished)
-        internal static List<BaseSignalModel> SignalFilter(List<long?>? signalIdList, List<long?>? eventCodes, List<BaseSignalModel> signalData)
-        {
-                return signalIdList != null && eventCodes == null
-        ? signalData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
-        : eventCodes != null && signalIdList == null
-            ? signalData.Where(x => eventCodes.Contains(x.EventCode)).ToList()
-            : signalData.Where(x => signalIdList != null && eventCodes != null && eventCodes.Contains(x.EventCode) && signalIdList.Contains(x.SignalID)).ToList();
+            var dateSignal = SignalEvents.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate && eventCodes.Contains(x.EventCode)).ToList();
+            return dateSignal.Count != 0;
         }
 
         #endregion
@@ -169,7 +157,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="eventCodes"></param>
         /// <returns>A List of Flash _events that can be used to write to the flash_event_log server</returns>
 
-        public static async Task ProcessEvents(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null, List<long?>? eventCodes = null)
+        public static async Task<bool> ProcessEvents(DateTime startDate, DateTime endDate, string mySqlTableName, List<long?>? signalIdList = null, List<long?>? eventCodes = null)
         {
 
             if (endDate == default)
@@ -211,32 +199,23 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
 
                             //Abstraction 2
-                            var signalData = await ParquetConvert.DeserializeAsync<BaseSignalModel>(ms);
+                            var signalData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms);
 
-
-
-                            switch (signalIdList, eventCodes)
+                            return (signalIdList, eventCodes) switch
                             {
-                                case (null, null):
-                                    return signalData.ToList();
-                                    
-                                case (null, not null):
-                                    throw new ArgumentException("Event Codes cannot be used without Signal Ids");
-
-                                case (not null, null):
-                                    return signalData.Where(x => signalIdList.Contains(x.SignalID)).ToList();
-                                   
-                                case (not null, not null):
-                                    return signalData.Where(x => signalIdList.Contains(x.SignalID) && eventCodes.Contains(x.EventCode)).ToList();
-                               
-                            }
-
-
+                                (null, null) => signalData.ToList(),
+                                (null, not null) => throw new ArgumentException(
+                                    "Event Codes cannot be used without Signal Ids"),
+                                (not null, null) => signalData.Where(x => signalIdList.Contains(x.SignalID)).ToList(),
+                                (not null, not null) => signalData.Where(x =>
+                                        signalIdList.Contains(x.SignalID) && eventCodes.Contains(x.EventCode))
+                                    .ToList()
+                            };
                         }
                         catch
                         {
                             //await WriteToErrorLog("SigOpsMetricsCalcEngine.BaseDataAccessLayer", $"ProcessFlashEvents at sensor {obj.Key}", new Exception("Error reading from S3"));
-                            return new List<BaseSignalModel>();
+                            return new List<BaseEventLogModel>();
 
                         }
                         finally
@@ -254,7 +233,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
                 }
 
-
+                return true;
             }
 
             #region Error Handling
@@ -266,6 +245,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 throw;
             }
             #endregion
+            
+
         }
 
 

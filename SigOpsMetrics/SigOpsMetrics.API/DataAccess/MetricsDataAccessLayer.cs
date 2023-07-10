@@ -460,7 +460,7 @@ namespace SigOpsMetrics.API.DataAccess
             {
                 await WriteToErrorLog(sqlConnection,
                     System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
-                    "GetPreemptEventsFromFilter", ex);
+                    "GetFlashSignalsFromFilter", ex);
             }
             finally
             {

@@ -514,70 +514,12 @@ namespace SigOpsMetrics.API.DataAccess
 
             return cities;
         }
-        public static async Task<List<string>> ReadAllFlashEventsFromMySql(MySqlConnection sqlConnection)
-        {
-
-
-            var events = new List<FlashPairModel>();
-            try
-            {
-
-                await sqlConnection.OpenAsync();
-                await using var cmd = new MySqlCommand();
-                cmd.Connection = sqlConnection;
-                cmd.CommandText = $"SELECT t.* FROM mark1.flash_event_pair_log t";
-
-                await using var reader = await cmd.ExecuteReaderAsync();
-                while (await reader.ReadAsync())
-                {
-
-                    if (!reader.IsDBNull(reader.GetOrdinal("End")))
-                    {
-                        var flashEvent = new FlashPairModel
-                        {
-                            FlashStart = reader.GetDateTime("Start"),
-                            FlashEnd = reader.GetDateTime("End"),
-                            SignalID = reader.GetInt64("SignalID"),
-                            FlashDuration = TimeSpan.FromSeconds(reader.GetInt64("duration")),
-                            StartParam = reader.GetInt64("startParam"),
-                            IsOpen = reader.GetBoolean("IsOpen")
-                        };
-                        events.Add(flashEvent);
-                    }
-                    else
-                    {
-                        var flashEvent = new FlashPairModel
-                        {
-                            FlashStart = reader.GetDateTime("Start"),
-                            FlashEnd = null,
-                            SignalID = reader.GetInt64("SignalID"),
-                            FlashDuration = TimeSpan.FromSeconds(reader.GetInt64("duration")),
-                            StartParam = reader.GetInt64("startParam"),
-                            IsOpen = reader.GetBoolean("IsOpen")
-                        };
-                        events.Add(flashEvent);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            finally
-            {
-                await sqlConnection.CloseAsync();
-            }
-
-            var flashString = events.Select(flashEvent => flashEvent.ToString()).ToList();
-            return flashString;
-        }
 
         public static async Task<List<string>> ReadAllPreemptEventsFromMySql(MySqlConnection sqlConnection)
         {
 
 
-            var events = new List<PreemptModel>();
+            var events = new List<PreemptEventDTO>();
             try
             {
 

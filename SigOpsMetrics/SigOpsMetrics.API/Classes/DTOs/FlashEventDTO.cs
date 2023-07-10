@@ -1,5 +1,4 @@
 ﻿using System;
-using SigOpsMetricsCalcEngine;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetrics.API.Classes.DTOs
@@ -7,7 +6,7 @@ namespace SigOpsMetrics.API.Classes.DTOs
     /// <summary>
     /// 
     /// </summary>
-    public class FlashEventDTO : BaseSignalModel
+    public class FlashEventDTO : BaseEventLogModel
     {
 
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using MySqlConnector;
 using Parquet;
+using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
@@ -19,7 +20,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         private static readonly string? MySqlPreemptTableName = ConfigurationManager.AppSettings["PREEMPT_EVENT_TABLE_NAME"];
 
         #region Write to MySQL
-        public static async Task<bool> GetWritePreemptSignalsToDb(IEnumerable<BaseSignalModel> preempts)
+        public static async Task<bool> WritePreemptSignalsToDb(IEnumerable<BaseEventLogModel> preempts)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -103,22 +104,23 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         public static async Task<bool> ProcessPreemptEvents(DateTime startDate, DateTime endDate)
         {
-            await ConvertToPreempt(SignalEvents, startDate, endDate);
+            ConvertToPreempt(startDate, endDate);
             //return await WritePreemptEventsToDb(PreemptEvents);
             return true;
         }
         #endregion
 
         #region Helper Methods
-        public static Task ConvertToPreempt(List<BaseSignalModel> signalList, DateTime startDate, DateTime endDate)
+        public static void ConvertToPreempt(DateTime startDate, DateTime endDate)
         {
-            PreemptEvents = new List<PreemptSignalModel>();
 
-            foreach (var signals in signalList.Where(x => x.EventCode is 173 && x.Timestamp >= startDate && x.Timestamp <= endDate))
+            foreach (var signals in SignalEvents.Where(x => x.EventCode is 
+                         102 or 105 or 106 or 104 or 107 or 111 or 707 or 708 
+                                                            && x.Timestamp >= startDate && x.Timestamp <= endDate))
             {
 
 
-                PreemptEvents.Add(new PreemptSignalModel
+                PreemptEvents.Add(new BaseEventLogModel
                 {
                     SignalID = signals.SignalID,
                     Timestamp = signals.Timestamp,
@@ -126,17 +128,12 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     EventParam = signals.EventParam
                 });
             }
-
-            return Task.CompletedTask;
         }
-
-
-
         #endregion
 
         #region Read from AmazonS3
 
-        public static async Task<List<BaseSignalModel>> ProcessPreemptSignals(DateTime startDate, DateTime endDate,
+        public static async Task<List<BaseEventLogModel>> ProcessPreemptSignals(DateTime startDate, DateTime endDate,
             List<long?>? signalIdList = null, List<long?>? eventCodes = null)
         {
             if (endDate == default)
@@ -175,7 +172,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                             using var response = await MemoryStreamHelper(obj, client);
                             using var ms = new MemoryStream();
                             await response.ResponseStream.CopyToAsync(ms);
-                            var preemptData = await ParquetConvert.DeserializeAsync<BaseSignalModel>(ms);
+                            var preemptData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms);
                             return signalIdList != null && eventCodes == null
                                 ? preemptData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
                                 : eventCodes != null && signalIdList == null
@@ -188,7 +185,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                         catch(Exception ex) 
                         {
                             await WriteToErrorLog("SigOpsMetricsCalcEngine.PreemptEventDataAccessLayer", $"ProcessPreemptEvents at sensor {obj.Key}", ex);
-                            return new List<BaseSignalModel>();
+                            return new List<BaseEventLogModel>();
 
                         }
                         finally
@@ -223,15 +220,15 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         {
             var t = await ProcessPreemptSignals(startDate, endDate, eventCodes: new List<long?> { 102,105,106,104,107,111,707,708 }, signalIdList: signalIdList);
 
-            return await GetWritePreemptSignalsToDb(t);
+            return await WritePreemptSignalsToDb(t);
 
         }
 
         #endregion
 
-        public static async Task<List<BaseSignalModel>> ReadAllFromMySql()
+        public static async Task<List<BaseEventLogModel>> ReadAllFromMySql()
         {
-            var events = new List<BaseSignalModel>();
+            var events = new List<BaseEventLogModel>();
             try
             {
 
@@ -246,7 +243,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
                 while (await reader.ReadAsync())
                 {
-                    var preemptEvent = new BaseSignalModel
+                    var preemptEvent = new BaseEventLogModel
                     {
                         Timestamp = reader.GetDateTime("Timestamp"),
                         SignalID = reader.GetInt64("signalID"),
@@ -265,5 +262,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
             return events;
         }
+
+
     }
 }

@@ -2,25 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using MySqlConnector;
 using OfficeOpenXml;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
-using SigOpsMetrics.API.Classes.Extensions;
-using System.Data;
-using System.Text.Json;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Configuration;
 using SigOpsMetrics.API.DataAccess;
 using SigOpsMetrics.API.Classes.Internal;
-using SigOpsMetricsCalcEngine.DataAccess;
-using SigOpsMetricsCalcEngine.Models;
-using BaseDataAccessLayer = SigOpsMetrics.API.DataAccess.BaseDataAccessLayer;
 
 namespace SigOpsMetrics.API.Controllers
 {

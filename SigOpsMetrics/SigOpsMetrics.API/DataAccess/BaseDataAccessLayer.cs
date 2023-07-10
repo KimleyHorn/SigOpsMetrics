@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using MySqlConnector;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
-using SigOpsMetrics.API.Controllers;
 
 namespace SigOpsMetrics.API.DataAccess
 {

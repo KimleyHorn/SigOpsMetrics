@@ -1,10 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Amazon.Lambda.APIGatewayEvents;
-using Amazon.Lambda.Core;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http.Features;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
 namespace SigOpsMetrics.API

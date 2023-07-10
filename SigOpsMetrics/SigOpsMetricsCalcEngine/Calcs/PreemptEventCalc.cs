@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Amazon.S3.Model;
-using SigOpsMetricsCalcEngine.DataAccess;
+﻿using SigOpsMetricsCalcEngine.DataAccess;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.Calcs
@@ -12,33 +6,20 @@ namespace SigOpsMetricsCalcEngine.Calcs
     internal class PreemptEventCalc
     {
 
-        private static List<BaseSignalModel> _events = new();
-        private static async Task GetEvents()
-        {
-            if (BaseDataAccessLayer.SignalEvents.Count == 0)
-            {
-                _events = await PreemptEventDataAccessLayer.ReadAllFromMySql();
-            }
-            else
-            {
-                _events = BaseDataAccessLayer.SignalEvents;
-            }
-        }
 
-
-        public static async Task CalcPreemptEvent()
+        public static async Task<bool> CalcPreemptEvent(List<BaseEventLogModel> baseSignal)
         {
-            await GetEvents();
+
 
             var preemptList = new List<PreemptModel>();
-            var inputOn = FilterByEventCode(102);
-            var entryStart = FilterByEventCode(105);
-            var trackClear = FilterByEventCode(106);
-            var externalCallOn = FilterByEventCode(707);
-            var externalCallOff = FilterByEventCode(708);
-            var inputOff = FilterByEventCode(104);
-            var dwellService = FilterByEventCode(107);
-            var exitCall = FilterByEventCode(111);
+            var inputOn = FilterByEventCode(baseSignal, 102);
+            var entryStart = FilterByEventCode(baseSignal,105);
+            var trackClear = FilterByEventCode(baseSignal, 106);
+            var externalCallOn = FilterByEventCode(baseSignal, 707);
+            var externalCallOff = FilterByEventCode(baseSignal, 708);
+            var inputOff = FilterByEventCode(baseSignal, 104);
+            var dwellService = FilterByEventCode(baseSignal, 107);
+            var exitCall = FilterByEventCode(baseSignal, 111);
             foreach (var signal in inputOn)
             {
 
@@ -92,26 +73,48 @@ namespace SigOpsMetricsCalcEngine.Calcs
                 catch (Exception e) 
                 {
                         Console.WriteLine(e);
+                        return false;
 
                 }
 
             }
 
-            await PreemptEventDataAccessLayer.WritePreemptEventsToDb(preemptList);
+            return await PreemptEventDataAccessLayer.WritePreemptEventsToDb(preemptList);
         }
         #region Helper Methods
 
 
-        private static List<BaseSignalModel> FilterByEventCode(long eventCode)
+        private static List<BaseEventLogModel> FilterByEventCode(List<BaseEventLogModel> events, long eventCode)
         {
-            return _events.Where(x => x.EventCode == eventCode).OrderBy(x => x.Timestamp).ToList();
+            return events.Where(x => x.EventCode == eventCode).OrderBy(x => x.Timestamp).ToList();
         }
 
-        private static BaseSignalModel? FirstOrDefaultList(IEnumerable<BaseSignalModel>? events, DateTime Timestamp, long? signalID)
+        private static BaseEventLogModel? FirstOrDefaultList(IEnumerable<BaseEventLogModel>? events, DateTime Timestamp, long? signalID)
         {
             return  events?.FirstOrDefault(x => x.Timestamp >= Timestamp && x.SignalID == signalID);
         }
 
         #endregion
+
+        public static async Task<bool> RunPreempt(DateTime startDate, DateTime endDate)
+        {
+            //Preempt event list to check for eventCodes from SignalEvents list
+            var preemptEventList = new List<long?> { 102, 105, 106, 104, 107, 111, 173, 707, 708 };
+
+            //This checks to see if the events are already in the database or if they are already stored in memory
+            if (BaseDataAccessLayer.CheckList(startDate, endDate, preemptEventList) ||
+                await BaseDataAccessLayer.CheckDB("preempt_log", "Timestamp", "mark1", startDate, endDate))
+                return await CalcPreemptEvent(BaseDataAccessLayer.PreemptEvents);
+            //If events within date range are not within the database or memory, then grab the events from Amazon S3
+            var t = await PreemptEventDataAccessLayer.ProcessPreemptSignals(startDate, endDate, eventCodes: preemptEventList);
+            PreemptEventDataAccessLayer.ConvertToPreempt(startDate, endDate);
+            await PreemptEventDataAccessLayer.WritePreemptSignalsToDb(t);
+
+            //Afterwards convert signal events to preempt events and add them to the preempt event list
+            //Calculate the preempt events based on preempt list
+            return await CalcPreemptEvent(BaseDataAccessLayer.PreemptEvents);
+        }
+
+
     }
 }

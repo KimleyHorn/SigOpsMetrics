@@ -8,6 +8,8 @@ namespace SigOpsMetricsCalcEngine
     {
         private static readonly bool UseStartEndDates = bool.Parse(ConfigurationManager.AppSettings["USE_START_END_DATES"] ?? "false");
 
+        private static readonly bool PreemptOrFlash =
+            bool.Parse(ConfigurationManager.AppSettings["PREEMPT_OR_FLASH"] ?? "false");
         public static async Task Main(string[] args)
         {
             var today = DateTime.Today;
@@ -20,25 +22,15 @@ namespace SigOpsMetricsCalcEngine
                 endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
             }
 
-            //TODO: Generalize signal pulling
-
-
-            await PreemptEventCalc.CalcPreemptEvent();
-
-            //if(!await BaseDataAccessLayer.CheckDB("flash_event_log", "mark1", startDate, endDate))
-            //    await FlashEventDataAccessLayer.ProcessFlashEvents(startDate, endDate);   
-
-
-            //if(!await BaseDataAccessLayer.CheckDB("preempt_log", "mark1", startDate, endDate))
-            //    await PreemptEventDataAccessLayer.ProcessPreemptEvents(startDate, endDate);
-
-
-
-
-            //if (await PreemptEventDataAccessLayer.ProcessPreemptSignalsOverload(startDate, endDate))
-            //{
-            //    await PreemptEventCalc.CalcPreemptEvent();
-            //}
+            if(PreemptOrFlash)
+                await PreemptEventCalc.RunPreempt(startDate, endDate);
+            else
+            {
+                BaseDataAccessLayer b = new();
+                await b.RunFlash(startDate, endDate);
+            }
+                
+            
         }
 
 

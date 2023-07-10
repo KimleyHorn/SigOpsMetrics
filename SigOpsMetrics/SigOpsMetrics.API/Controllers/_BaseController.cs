@@ -1,10 +1,6 @@
-﻿using System;
-using System.Data;
-using System.Threading.Tasks;
-using Amazon;
+﻿using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySqlConnector;

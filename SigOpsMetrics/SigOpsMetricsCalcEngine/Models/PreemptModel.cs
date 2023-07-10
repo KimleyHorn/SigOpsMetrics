@@ -77,16 +77,5 @@ namespace SigOpsMetricsCalcEngine.Models
                    $@"External Preempt Call On: {ExternalCallOn}, " +
                    $@"External Call Off: {ExternalCallOff}, ";
         }
-        public JsonElement ToJSON()
-        {
-
-
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            var json = JsonSerializer.Serialize(this, options);
-            return JsonDocument.Parse(json).RootElement;
-        }
     }
 }
