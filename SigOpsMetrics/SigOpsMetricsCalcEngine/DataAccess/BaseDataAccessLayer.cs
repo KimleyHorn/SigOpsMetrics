@@ -32,12 +32,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             MySqlConnection = new MySqlConnection(MySqlConnString);
         }
 
-
-
-        //TODO Finish this method
-        //TODO Make sure that both flash events and preempt events are being added to the list
         //inside of checkdb make sure that it pulls and dumps from both databases
-        //TODO Get rid of unused helper methods
+
         public async Task<bool> RunFlash(DateTime startDate, DateTime endDate)
         {
             //Preempt event list to check for eventCodes from SignalEvents list

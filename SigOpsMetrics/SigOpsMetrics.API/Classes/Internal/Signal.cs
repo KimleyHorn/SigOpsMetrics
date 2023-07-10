@@ -5,7 +5,7 @@ namespace SigOpsMetrics.API.Classes.Internal
     public class Signal
     {
         /// <summary>
-        /// SignalID
+        /// SignalId
         /// </summary>
         public string SignalId { get; set; }
 

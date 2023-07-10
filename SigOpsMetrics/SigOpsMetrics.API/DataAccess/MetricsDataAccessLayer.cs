@@ -1243,7 +1243,7 @@ namespace SigOpsMetrics.API.DataAccess
                 if (all)
                 {
                     var tableName = ValidateTableName(level, interval, measure);
-                    var type = level == "sig" ? "SignalID" : "Corridor";
+                    var type = level == "sig" ? "SignalId" : "Corridor";
                     await sqlConnection.OpenAsync();
                     await using (cmd)
                     {

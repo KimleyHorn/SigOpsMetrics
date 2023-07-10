@@ -23,7 +23,6 @@ namespace SigOpsMetricsCalcEngine.Calcs
             foreach (var signal in inputOn)
             {
 
-                //TODO change to Where
                 var signalId = signal.SignalID;
 
                 try
@@ -40,16 +39,16 @@ namespace SigOpsMetricsCalcEngine.Calcs
                     var externalOff = false;
 
                     var entryStartEvent =
-                        FirstOrDefaultList(entryStart, signal.Timestamp, signalId);
+                        entryStart.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
 
                     var externalCallOnEvent =
-                        FirstOrDefaultList(externalCallOn, signal.Timestamp, signalId);
+                        externalCallOn.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
                     var externalCallOffEvent =
-                        FirstOrDefaultList(externalCallOff, signal.Timestamp, signalId);
-                    var trackClearEvent = FirstOrDefaultList(trackClear, signal.Timestamp, signalId);
-                    var inputOffEvent = FirstOrDefaultList(inputOff, signal.Timestamp, signalId);
-                    var dwellServiceEvent = FirstOrDefaultList(dwellService, signal.Timestamp, signalId);
-                    var exitCallEvent = FirstOrDefaultList(exitCall, signal.Timestamp, signalId);
+                        externalCallOff.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var trackClearEvent = trackClear.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var inputOffEvent = inputOff.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var dwellServiceEvent = dwellService.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var exitCallEvent = exitCall.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
 
 
                     if (externalCallOnEvent != null)
@@ -72,7 +71,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
                 }
                 catch (Exception e) 
                 {
-                        Console.WriteLine(e);
+                        await BaseDataAccessLayer.WriteToErrorLog("PreemptEventCalc", "CalcPreemptEvents", e);
                         return false;
 
                 }
@@ -81,20 +80,12 @@ namespace SigOpsMetricsCalcEngine.Calcs
 
             return await PreemptEventDataAccessLayer.WritePreemptEventsToDb(preemptList);
         }
-        #region Helper Methods
-
 
         private static List<BaseEventLogModel> FilterByEventCode(List<BaseEventLogModel> events, long eventCode)
         {
             return events.Where(x => x.EventCode == eventCode).OrderBy(x => x.Timestamp).ToList();
         }
 
-        private static BaseEventLogModel? FirstOrDefaultList(IEnumerable<BaseEventLogModel>? events, DateTime Timestamp, long? signalID)
-        {
-            return  events?.FirstOrDefault(x => x.Timestamp >= Timestamp && x.SignalID == signalID);
-        }
-
-        #endregion
 
         public static async Task<bool> RunPreempt(DateTime startDate, DateTime endDate)
         {
