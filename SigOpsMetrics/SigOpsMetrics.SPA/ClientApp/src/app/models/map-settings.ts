@@ -59,7 +59,7 @@ export class MapSettings {
 
   //progression ratio
   prdMapField: string = "pr";
-  prdMapMetrics: Metrics = new Metrics({ measure: "prd", field: "pr", label: "Progression Ration", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
+  prdMapMetrics: Metrics = new Metrics({ measure: "prd", field: "pr", label: "Progression Ratio", formatDecimals: 2, source: this.mapSource, interval: this.mapInterval, level: this.mapLevel, isMapMetrics: true });
   prdMapRanges: number[][] = [[-1,-1],[0,0.4],[0.41,0.8],[0.81,1],[1.01,1.2],[1.2,10]];
   prdLegendLabels: string[] = ["Unavailable","0 - 0.4","0.41 - 0.8","0.81 - 1","1.01 - 1.2","1.2+"];
   prdLegendColors: string[] = [this.color.gray,this.color.red,this.color.redOrange,this.color.orange,this.color.yellow,this.color.yellowGreen];

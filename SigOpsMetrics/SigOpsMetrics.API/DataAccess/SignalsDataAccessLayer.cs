@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MySqlConnector;
 using OfficeOpenXml;
@@ -10,6 +9,8 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.Classes.Internal;
+using SigOpsMetricsCalcEngine.Models;
+
 
 #pragma warning disable 1591
 
@@ -17,6 +18,7 @@ namespace SigOpsMetrics.API.DataAccess
 {
     public class SignalsDataAccessLayer : BaseDataAccessLayer
     {
+
         public static async Task<IEnumerable<SignalDTO>> GetAllSignalDataSQL(MySqlConnection sqlConnection)
         {
             var signals = new List<SignalDTO>();
@@ -513,6 +515,8 @@ namespace SigOpsMetrics.API.DataAccess
             return cities;
         }
 
+
+
         public static async Task<IEnumerable<string>> GetPrioritiesSQL(MySqlConnection sqlConnection)
         {
             var priorities = new List<string>();
@@ -715,6 +719,8 @@ namespace SigOpsMetrics.API.DataAccess
             await sqlConnection.CloseAsync();
             return new FilteredItems { FilterType = filterType, Items = retVal };
         }
+
+
 
         public static async Task<FilteredItems> GetCorridorsByFilter(MySqlConnection sqlConnection, FilterDTO filter)
         {

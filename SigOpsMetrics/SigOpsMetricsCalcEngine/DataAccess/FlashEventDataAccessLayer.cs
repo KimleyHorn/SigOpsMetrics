@@ -1,36 +1,30 @@
-﻿
-using System.Configuration;
+﻿using System.Configuration;
 using System.Data;
-using System.Runtime.CompilerServices;
+using Amazon.S3;
+using Amazon.S3.Model;
 using MySqlConnector;
-using SigOpsMetricsCalcEngine.Calcs;
+using Parquet;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
-    public static class FlashEventDataAccessLayer
+    public class FlashEventDataAccessLayer : BaseDataAccessLayer
     {
 
-        private static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
-        private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["TABLE_NAME"];
-        private static readonly string? MySqlDBName = ConfigurationManager.AppSettings["DB_NAME"];
-        internal static MySqlConnection? MySqlConnection;
+        
+        private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"];
+        private static readonly string? MySqlFlashPairTableName = ConfigurationManager.AppSettings["FLASH_PAIR_TABLE_NAME"];
 
-        static FlashEventDataAccessLayer()
-        {
-            MySqlConnection = new MySqlConnection(MySqlConnString);
-        }
 
-        public static async Task WriteFlashEventsToDb(IEnumerable<FlashEventModel> events)
+        #region Write to MySQL
+        public static async Task<bool> WriteFlashEventsToDb(IEnumerable<BaseEventLogModel> events)
         {
             // Create a DataTable to hold the events data
-            DataTable dataTable = new DataTable();
+            var dataTable = new DataTable();
             dataTable.Columns.Add("Timestamp", typeof(DateTime));
             dataTable.Columns.Add("signalID", typeof(long));
             dataTable.Columns.Add("EventCode", typeof(long));
             dataTable.Columns.Add("EventParam", typeof(long));
-            dataTable.Columns.Add("DeviceID", typeof(long));
-            dataTable.Columns.Add("IndexLevel", typeof(long));
 
             // Populate the DataTable with events data
             foreach (var eventData in events)
@@ -39,76 +33,54 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     eventData.Timestamp,
                     eventData.SignalID,
                     eventData.EventCode,
-                    eventData.EventParam,
-                    eventData.DeviceID,
-                    eventData.__index_level_0__
+                    eventData.EventParam
+
                 );
             }
             // Open a connection to MySQL
             try
             {
-                MySqlConnection.Open();
-
-                var bulkCopy = new MySqlBulkCopy(MySqlConnection)
-                {
-                    DestinationTableName = $"{MySqlDBName}.{MySqlTableName}"
-                };
-
-                await bulkCopy.WriteToServerAsync(dataTable);
-
-                await MySqlConnection.CloseAsync();
-            }
-            catch (MySqlException e)
-            {
-                Console.WriteLine("Wrong Password");
-                await WriteToErrorLog(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name, "toMySQL", e);
-                throw;
-            }
-            catch (TimeoutException e)
-            {
-                Console.WriteLine("Connection Timeout");
-                await WriteToErrorLog(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name, "toMySQL", e);
-                throw;
+                return await MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error" + e.ToString());
-                await WriteToErrorLog(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name, "toMySQL", e);
+                Console.WriteLine("Error" + e);
+                //await WriteToErrorLog(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name, "toMySQL", e);
                 throw;
             }
         }
+        #endregion
 
-        public static async Task WriteToErrorLog(string applicationName,
-            string functionName, Exception ex)
-        {
-            await WriteToErrorLog(applicationName, functionName, ex.Message,
-                ex.InnerException?.ToString());
-        }
 
-        public static async Task WriteToErrorLog(string applicationName,
-            string functionName, string exception, string innerException)
-        {
-            try
+
+
+
+        public static Task ConvertToFlash(List<BaseEventLogModel> signalList, DateTime startDate, DateTime endDate)
             {
-                if (MySqlConnection.State == ConnectionState.Closed)
+                SignalEvents = new List<BaseEventLogModel>();
+
+                foreach (var flash in signalList.Where(x => x.EventCode is 173 && x.Timestamp >= startDate && x.Timestamp <= endDate))
                 {
-                    await MySqlConnection.OpenAsync();
+
+
+                    FlashEvents.Add(new BaseEventLogModel
+                    {
+                        SignalID = flash.SignalID,
+                        Timestamp = flash.Timestamp,
+                        EventCode = flash.EventCode,
+                        EventParam = flash.EventParam
+                    });
                 }
-                await using var cmd = new MySqlCommand();
 
-                cmd.Connection = MySqlConnection;
-                cmd.CommandText =
-                    $"insert into {MySqlDBName}.errorlog (applicationname, functionname, exception, innerexception) values ('{applicationName}', '{functionName}', '{exception.Substring(0, exception.Length > 500 ? 500 : exception.Length)}', '{innerException}') ";
-                await cmd.ExecuteNonQueryAsync();
+                return Task.CompletedTask;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            finally { await MySqlConnection.CloseAsync(); }
 
-        }
+
+
+
+     
+
+
 
     }
 }

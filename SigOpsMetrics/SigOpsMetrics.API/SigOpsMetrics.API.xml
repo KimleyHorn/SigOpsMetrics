@@ -110,6 +110,18 @@
             </summary>
             <returns></returns>
         </member>
+	    <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetFlashEvents">
+            <summary>
+            Return a list of flash events in the system
+            </summary>
+            <returns></returns>
+        </member>
+	    <member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetPreemptEvents">
+            <summary>
+            Return a list of preempt events in the system
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetSubCorridorsByCorridor(System.String)">
             <summary>
             Return a list of subcorridors by corridor in the system

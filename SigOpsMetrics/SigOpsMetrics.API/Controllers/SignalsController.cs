@@ -2,17 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Amazon.S3.Model;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using MySqlConnector;
 using OfficeOpenXml;
 using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
-using SigOpsMetrics.API.Classes.Extensions;
-using System.Data;
 using Google.Cloud.Storage.V1;
 using Microsoft.Extensions.Configuration;
 using SigOpsMetrics.API.DataAccess;
@@ -368,6 +363,8 @@ namespace SigOpsMetrics.API.Controllers
                 return null;
             }
         }
+
+
 
         /// <summary>
         /// Endpoint for performing daily data pull of corridors_latest.xls into sql table. Destination 0 is AWS, 1 is GCP

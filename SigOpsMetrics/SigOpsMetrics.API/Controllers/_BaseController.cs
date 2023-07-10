@@ -1,8 +1,6 @@
-﻿using System;
-using Amazon;
+﻿using Amazon;
 using Amazon.S3;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySqlConnector;
@@ -29,5 +27,7 @@ namespace SigOpsMetrics.API.Controllers
         {
             return new AmazonS3Client(AppConfig.AWSAccessKey, AppConfig.AWSSecretKey, BucketRegion);
         }
+
+
     }
 }

@@ -12,6 +12,7 @@ using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.DataAccess;
 
+
 namespace SigOpsMetrics.API.Controllers
 {
     /// <summary>
@@ -247,6 +248,59 @@ namespace SigOpsMetrics.API.Controllers
                     "metrics/signals/filter", ex);
                 return null;
             }
+        }
+
+
+
+        /// <summary>
+        /// Returns a list of all flash events in the system
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("flashevents")]
+        public async Task<List<FlashEventDTO>> GetFlashEvents([FromBody] FilterDTO filter)
+        {
+
+
+            try
+            {
+
+                var flashData = new MetricsDataAccessLayer();
+                return await flashData.GetFlashSignalsFromFilter(SqlConnectionReader, filter);
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer.WriteToErrorLog(SqlConnectionWriter,
+                                       System.Reflection.Assembly.GetEntryAssembly().GetName().Name,
+                                                          "signals/flashevents", ex);
+                return null;
+            }
+        }
+
+
+
+        /// <summary>
+        /// Returns a list of all preempt events in the system
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost("preemptevents")]
+        public async Task<IEnumerable<PreemptEventDTO>> GetPreemptEvents([FromBody] FilterDTO filter)
+        {
+
+
+
+            try
+            {
+                var preData = new MetricsDataAccessLayer();
+                return await preData.GetPreemptEventsFromFilter(SqlConnectionReader, filter);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+
+
         }
 
         /// <summary>
@@ -488,6 +542,8 @@ namespace SigOpsMetrics.API.Controllers
                 return new List<double> { -1, -1, -1 };
             }
         }
+
+      
 
         /// <summary>
         /// Checks if the database is setup to calculate data based on the filter passed in.
