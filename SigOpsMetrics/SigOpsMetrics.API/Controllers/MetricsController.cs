@@ -168,7 +168,13 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        // Get straight average and delta with no grouping
+        /// <summary>
+        /// Get straight average and delta with no grouping
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="measure"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         [HttpPost("straightaverage")]
         public async Task<AverageDTO> StraightAverage(string source, string measure, [FromBody] FilterDTO filter)
         {
@@ -176,16 +182,12 @@ namespace SigOpsMetrics.API.Controllers
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
-                bool isCorridor = measure == "tti" || measure == "pti";
+                bool isCorridor = measure is "tti" or "pti";
                 var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
 
                 var avgColIndex = indexes.avgColIndex;
                 var deltaColIndex = indexes.deltaColIndex;
-                if (measure == "vphpa" || measure == "vphpp")
-                {
-                    avgColIndex = 2;
-                    deltaColIndex = 3;
-                }
+
                 var avg = (from row in retVal.AsEnumerable()
                     select row[avgColIndex].ToDouble()).Average();
                 var delta = (from row in retVal.AsEnumerable()

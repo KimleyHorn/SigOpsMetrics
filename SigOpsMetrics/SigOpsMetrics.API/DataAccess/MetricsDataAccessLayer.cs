@@ -606,8 +606,8 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     case "vphpa":
                     case "vphpp":
-                        avgColIndex = 3;
-                        deltaColIndex = 4;
+                        avgColIndex = 2;
+                        deltaColIndex = 3;
                         break;
                     case "pau":
                     case "cu":
