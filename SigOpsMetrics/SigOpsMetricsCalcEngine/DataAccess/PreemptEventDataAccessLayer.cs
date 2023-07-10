@@ -113,13 +113,10 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         #region Helper Methods
         public static void ConvertToPreempt(DateTime startDate, DateTime endDate)
         {
-
             foreach (var signals in SignalEvents.Where(x => x.EventCode is 
-                         102 or 105 or 106 or 104 or 107 or 111 or 707 or 708 
+                                                                102 or 105 or 106 or 104 or 107 or 111 or 707 or 708 
                                                             && x.Timestamp >= startDate && x.Timestamp <= endDate))
             {
-
-
                 PreemptEvents.Add(new BaseEventLogModel
                 {
                     SignalID = signals.SignalID,
@@ -149,7 +146,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             try
             {
 
-                using var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
+                var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
                 while (startDate <= endDate)
                 {
                     var s3Objects = await GetListRequest(client, startDate);

@@ -7,9 +7,9 @@ namespace SigOpsMetricsCalcEngine
     public class Startup
     {
         private static readonly bool UseStartEndDates = bool.Parse(ConfigurationManager.AppSettings["USE_START_END_DATES"] ?? "false");
+        private static readonly bool RunPreempt = bool.Parse(ConfigurationManager.AppSettings["RUN_PREEMPT"] ?? "false");
+        private static readonly bool RunFlash = bool.Parse(ConfigurationManager.AppSettings["RUN_FLASH"] ?? "false");
 
-        private static readonly bool PreemptOrFlash =
-            bool.Parse(ConfigurationManager.AppSettings["PREEMPT_OR_FLASH"] ?? "false");
         public static async Task Main(string[] args)
         {
             var today = DateTime.Today;
@@ -22,21 +22,14 @@ namespace SigOpsMetricsCalcEngine
                 endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
             }
 
-            if(PreemptOrFlash)
+            // TODO: as more calcs are added, lets go to S3 once and get all the data added to BaseDataAcessLayer.SignalEvents, then process them afterwards
+            if (RunPreempt) 
                 await PreemptEventCalc.RunPreempt(startDate, endDate);
-            else
+            if (RunFlash)
             {
                 BaseDataAccessLayer b = new();
                 await b.RunFlash(startDate, endDate);
             }
-                
-            
         }
-
-
-
     }
-
-
-
 }
