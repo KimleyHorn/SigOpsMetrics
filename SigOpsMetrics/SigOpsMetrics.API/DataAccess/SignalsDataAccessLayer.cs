@@ -9,8 +9,6 @@ using SigOpsMetrics.API.Classes;
 using SigOpsMetrics.API.Classes.DTOs;
 using SigOpsMetrics.API.Classes.Extensions;
 using SigOpsMetrics.API.Classes.Internal;
-using SigOpsMetricsCalcEngine.Models;
-
 
 #pragma warning disable 1591
 

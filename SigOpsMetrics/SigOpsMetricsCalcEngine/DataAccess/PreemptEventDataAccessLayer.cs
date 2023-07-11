@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 using Amazon.S3;
 using MySqlConnector;
 using Parquet;
+using SigOpsMetrics.Models;
 using SigOpsMetricsCalcEngine.Calcs;
-using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
