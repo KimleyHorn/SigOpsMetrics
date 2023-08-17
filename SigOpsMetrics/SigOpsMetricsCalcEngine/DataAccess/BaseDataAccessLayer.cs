@@ -28,9 +28,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static MySqlConnection? MySqlConnection;
 
 
-        static BaseDataAccessLayer() {
-            MySqlConnection = new MySqlConnection(MySqlConnString);
-        }
 
         //inside of checkdb make sure that it pulls and dumps from both databases
 

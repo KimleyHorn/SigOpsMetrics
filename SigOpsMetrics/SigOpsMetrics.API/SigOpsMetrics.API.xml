@@ -122,6 +122,37 @@
             </summary>
             <returns></returns>
         </member>
+
+		<member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetTasksOver45">
+			<summary>
+                Returns a list of tasks overdue by 45 days or more by the filter specified
+			</summary>
+			<returns></returns>
+		</member>
+
+
+		<member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetTasksOutstanding">
+			<summary>
+                Returns a list of tasks outstanding by the filter specified
+			</summary>
+			<returns></returns>
+		</member>
+
+
+		<member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetTasksReported">
+			<summary>
+                Returns a list of tasks reported by the filter specified
+			</summary>
+			<returns></returns>
+		</member>
+
+		<member name="M:SigOpsMetrics.API.Controllers.MetricsController.GetTasksResolved">
+			<summary>
+                Returns a list of tasks resolved by the filter specified
+			</summary>
+			<returns></returns>
+		</member>
+
         <member name="M:SigOpsMetrics.API.Controllers.SignalsController.GetSubCorridorsByCorridor(System.String)">
             <summary>
             Return a list of subcorridors by corridor in the system
@@ -146,5 +177,7 @@
             </summary>
             <param name="builder"></param>
         </member>
+
+		
     </members>
 </doc>

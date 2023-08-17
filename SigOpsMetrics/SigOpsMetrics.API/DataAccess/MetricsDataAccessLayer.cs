@@ -1047,7 +1047,7 @@ namespace SigOpsMetrics.API.DataAccess
             //If we keep these in the same position then we can easily update them regardless of interval and measure
             //This order is based off the cor_mo_tp structure
 
-            dt.Columns.Add("Corridor", typeof(string));                                         //0
+            dt.Columns.Add("SignalID", typeof(string));                                         //0
             dt.Columns.Add("Zone_Group", typeof(string));                                       //1
                                                                                                 //If the interval is quarter we need to format the "Quarter" column differently.
             DataColumn dc = new DataColumn(intervalColumnName, typeof(string));
@@ -1250,7 +1250,7 @@ namespace SigOpsMetrics.API.DataAccess
                     await sqlConnection.OpenAsync();
                     await using (cmd)
                     {
-                        cmd.CommandText = $"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.Corridor ELSE s.Zone_Group END AS ActualZoneGroup from {AppConfig.DatabaseName}.{tableName} t left join (select {type} AS SignalType, Zone_Group FROM {AppConfig.DatabaseName}.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.Corridor {whereClause}";
+                        cmd.CommandText = $"select t.*, CASE WHEN s.Zone_Group IS NULL THEN t.SignalID ELSE s.Zone_Group END AS ActualZoneGroup from {AppConfig.DatabaseName}.{tableName} t left join (select {type} AS SignalType, Zone_Group FROM {AppConfig.DatabaseName}.signals GROUP BY {type}, Zone_Group) s ON s.SignalType = t.SignalID {whereClause}";
                         cmd.Connection = sqlConnection;
                         await using var reader = await cmd.ExecuteReaderAsync();
                         tb.Load(reader);
@@ -1446,6 +1446,7 @@ namespace SigOpsMetrics.API.DataAccess
 
             switch (level)
             {
+                //TODO This was changed from Corridor to SignalID.  This may cause issues with the other measures.
                 case "sig":
                     // This will return the "Corridor" from the sig_mo_tp table which is actually links to the signals.SignalID field. 
                     newWhere += string.IsNullOrEmpty(whereClause) ? " Corridor in (" : " and Corridor in (";

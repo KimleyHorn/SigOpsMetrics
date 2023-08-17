@@ -185,7 +185,9 @@ namespace SigOpsMetrics.API.DataAccess
         {
             string levels = "cor,progress,sig,sub,tsos";
             string intervals = "dy,hr,mo,qhr,qu,summary,wk,report,camera,detector";
-            string measures = "aogd,cctv,cu,du,outstanding,papd,pau,prd,qsd,reported,resolved,sfd,sfo,tasks,tp,tpri,tsou,tsub,ttyp,vpd,vphpa,vphpp,aogh,paph,prh,qsh,sfh,vph,bi,bih,bpsi,cri,flash,hourly_udc,kabco,maint,maint_plot,mttr,ops,ops_plot,over45,pd,pti,ptih,rsi,safety,safety_plot,spd,spdh,tti,ttih,udc_trend,udc_trend_table,data,content,content_test,alert_notes";
+            string measures = "aogd,cctv,cu,du,outstanding,papd,pau,prd,qsd,reported,resolved,sfd,sfo,tasks,tp,tpri,tsou,tsub,ttyp,vpd,vphpa,vphpp,aogh,paph,prh,qsh,sfh,vph,bi,bih,bpsi,cri,flash,hourly_udc,kabco,maint,maint_plot,mttr,ops,ops_plot,over45,pd,pti,ptih,rsi,safety,safety_plot,spd,spdh,tti,ttih,udc_trend,udc_trend_table,data,content,content_test,alert_notes,new_over45,new_outstanding,new_reported,new_resolved";
+
+            //string measures = "aogd,cctv,cu,du,papd,pau,prd,qsd,sfd,sfo,tasks,tp,tpri,tsou,tsub,ttyp,vpd,vphpa,vphpp,aogh,paph,prh,qsh,sfh,vph,bi,bih,bpsi,cri,flash,hourly_udc,kabco,maint,maint_plot,mttr,ops,ops_plot,pd,pti,ptih,rsi,safety,safety_plot,spd,spdh,tti,ttih,udc_trend,udc_trend_table,data,content,content_test,alert_notes,new_over45,new_outstanding,new_reported,new_resolved";
 
             if (levels.Contains(level) && intervals.Contains(interval) && measures.Contains(measure))
             {

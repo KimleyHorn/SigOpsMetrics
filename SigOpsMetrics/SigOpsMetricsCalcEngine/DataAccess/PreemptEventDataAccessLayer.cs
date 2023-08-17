@@ -134,18 +134,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             List<long?>? signalIdList = null, List<long?>? eventCodes = null)
         {
             if (endDate == default)
-            {
                 endDate = startDate;
-            }
-
             if (startDate > endDate)
-            {
                 throw new ArgumentException("Start date must be before end date");
-            }
-
             try
             {
-
                 var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
                 while (startDate <= endDate)
                 {

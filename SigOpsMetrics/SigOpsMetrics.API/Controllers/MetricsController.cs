@@ -133,6 +133,7 @@ namespace SigOpsMetrics.API.Controllers
         /// <param name="measure">See Measure Definitions above for possible values (e.g., vpd, aogd). Note that not all measures are calculated for all combinations of level and interval.</param>
         /// <param name="filter">Filter object</param>
         /// <returns></returns>
+        //! This is where teams metrics will be pulled from
         [HttpPost("filter")]
         public async Task<DataTable> GetWithFilter(string source, string measure, [FromBody] FilterDTO filter)
         {
@@ -302,6 +303,7 @@ namespace SigOpsMetrics.API.Controllers
 
 
         }
+
 
         /// <summary>
         /// Returns the average value per signal based on the supplied filter.
