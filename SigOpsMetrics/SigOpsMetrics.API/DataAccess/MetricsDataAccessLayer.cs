@@ -814,7 +814,23 @@ namespace SigOpsMetrics.API.DataAccess
                 idsForWhereClause = signals.Select(s => s.SignalId).Distinct().ToList();
             }
 
-            var fullWhereClause = AddSignalsToWhereClause(dateRangeClause, idsForWhereClause, level);
+            var fullWhereClause = "";
+            switch (measure)
+            {
+                case "over45":
+                    throw new NotImplementedException();
+                case "resolved": 
+                    throw new NotImplementedException();
+                case "reported":
+                    throw new NotImplementedException();
+                case "outstanding":
+                    fullWhereClause = AddTeamsSignalsToWhereClause(dateRangeClause, idsForWhereClause, level);
+                    break;
+                default:
+                    fullWhereClause = AddSignalsToWhereClause(dateRangeClause, idsForWhereClause, level);
+                    break;
+            }
+            
 
             //Need to reset the level for Travel Time Index (tti) measures since they are not calculated at a signal level.
             level = measure != "tti" && measure != "pti" ? "sig" : "cor";
@@ -1446,10 +1462,35 @@ namespace SigOpsMetrics.API.DataAccess
 
             switch (level)
             {
-                //TODO This was changed from Corridor to SignalID.  This may cause issues with the other measures.
                 case "sig":
                     // This will return the "Corridor" from the sig_mo_tp table which is actually links to the signals.SignalID field. 
                     newWhere += string.IsNullOrEmpty(whereClause) ? " Corridor in (" : " and Corridor in (";
+                    break;
+                case "cor":
+                    // This will return the actual Corridor name from the signals table.
+                    newWhere += string.IsNullOrEmpty(whereClause) ? " signals.Corridor in (" : " and signals.Corridor in (";
+                    break;
+            }
+
+            if (itemIDs.Any())
+            {
+                string separator = "','";
+                newWhere += $"'{String.Join(separator, itemIDs)}')";
+            }
+
+            return newWhere;
+        }
+
+        private static string AddTeamsSignalsToWhereClause(string whereClause, List<string> itemIDs, string level)
+        {
+            var newWhere = string.IsNullOrEmpty(whereClause) ? " where " : whereClause;
+
+            switch (level)
+            {
+                //TODO This was changed from Corridor to SignalID.  This may cause issues with the other measures.
+                case "sig":
+                    // This will return the "Corridor" from the sig_mo_tp table which is actually links to the signals.SignalID field. 
+                    newWhere += string.IsNullOrEmpty(whereClause) ? " SignalID in (" : " and SignalID in (";
                     break;
                 case "cor":
                     // This will return the actual Corridor name from the signals table.
