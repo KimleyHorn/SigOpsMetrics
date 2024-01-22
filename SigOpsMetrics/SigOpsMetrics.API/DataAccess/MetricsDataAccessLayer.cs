@@ -278,7 +278,7 @@ namespace SigOpsMetrics.API.DataAccess
                 if (signalsWithCorridors.Any())
                 {
                     //If signalOnly = true then force the level as signals otherwise check to see if the filter has a corridor assigned.
-                    var level = string.IsNullOrWhiteSpace(filter.corridor) ? "cor" : "sig";
+                    var level = string.IsNullOrWhiteSpace(filter.corridor) && string.IsNullOrWhiteSpace(filter.signalId) ? "cor" : "sig";
                     level = signalOnly ? "sig" : level;
 
                     var corridors = await GetMetricByFilterWithSignalsAndCorridors(sqlConnectionReader, sqlConnectionWriter, source, measure, interval, startDate, endDate,
@@ -606,8 +606,8 @@ namespace SigOpsMetrics.API.DataAccess
                 {
                     case "vphpa":
                     case "vphpp":
-                        avgColIndex = 3;
-                        deltaColIndex = 4;
+                        avgColIndex = 2;
+                        deltaColIndex = 3;
                         break;
                     case "pau":
                     case "cu":

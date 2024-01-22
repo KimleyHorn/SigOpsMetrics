@@ -103,6 +103,7 @@ export class ScatterMapComponent implements OnInit {
 
   //caculate the zoom
   private _zoom(data){
+    if (data.length === 1) return 12;
     let latitudes = data.map(dataItem => dataItem['latitude']);
     let longitudes = data.map(dataItem => dataItem['longitude']);
     let minLat = Math.min(...latitudes);

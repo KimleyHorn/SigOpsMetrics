@@ -168,7 +168,13 @@ namespace SigOpsMetrics.API.Controllers
             }
         }
 
-        // Get straight average and delta with no grouping
+        /// <summary>
+        /// Get straight average and delta with no grouping
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="measure"></param>
+        /// <param name="filter"></param>
+        /// <returns></returns>
         [HttpPost("straightaverage")]
         public async Task<AverageDTO> StraightAverage(string source, string measure, [FromBody] FilterDTO filter)
         {
@@ -176,16 +182,12 @@ namespace SigOpsMetrics.API.Controllers
             {
                 MetricsDataAccessLayer metricsData = new MetricsDataAccessLayer();
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter, true);
-                bool isCorridor = measure == "tti" || measure == "pti";
+                bool isCorridor = measure is "tti" or "pti";
                 var indexes = metricsData.GetAvgDeltaIDColumnIndexes(filter, measure, isCorridor);
 
                 var avgColIndex = indexes.avgColIndex;
                 var deltaColIndex = indexes.deltaColIndex;
-                if (measure == "vphpa" || measure == "vphpp")
-                {
-                    avgColIndex = 2;
-                    deltaColIndex = 3;
-                }
+
                 var avg = (from row in retVal.AsEnumerable()
                     select row[avgColIndex].ToDouble()).Average();
                 var delta = (from row in retVal.AsEnumerable()
@@ -259,11 +261,8 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("flashevents")]
         public async Task<List<FlashEventDTO>> GetFlashEvents([FromBody] FilterDTO filter)
         {
-
-
             try
             {
-
                 var flashData = new MetricsDataAccessLayer();
                 return await flashData.GetFlashSignalsFromFilter(SqlConnectionReader, filter);
             }
@@ -285,22 +284,16 @@ namespace SigOpsMetrics.API.Controllers
         [HttpPost("preemptevents")]
         public async Task<IEnumerable<PreemptEventDTO>> GetPreemptEvents([FromBody] FilterDTO filter)
         {
-
-
-
             try
             {
                 var preData = new MetricsDataAccessLayer();
                 return await preData.GetPreemptEventsFromFilter(SqlConnectionReader, filter);
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 return null;
             }
-
-
         }
 
         /// <summary>
@@ -429,7 +422,7 @@ namespace SigOpsMetrics.API.Controllers
 
                 var isCorridor = true;
                 var retVal = await metricsData.GetFilteredDataTable(source, measure, filter, SqlConnectionReader, SqlConnectionWriter);
-                if (retVal != null && !string.IsNullOrWhiteSpace(filter.corridor))
+                if (retVal != null && (!string.IsNullOrWhiteSpace(filter.corridor) || !string.IsNullOrWhiteSpace(filter.signalId)))
                     isCorridor = false;
 
                 var groupedData = new List<AverageDTO>();

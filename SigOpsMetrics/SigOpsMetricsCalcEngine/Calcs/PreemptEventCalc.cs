@@ -1,5 +1,5 @@
-﻿using SigOpsMetricsCalcEngine.DataAccess;
-using SigOpsMetricsCalcEngine.Models;
+﻿using SigOpsMetrics.Models;
+using SigOpsMetricsCalcEngine.DataAccess;
 
 namespace SigOpsMetricsCalcEngine.Calcs
 {

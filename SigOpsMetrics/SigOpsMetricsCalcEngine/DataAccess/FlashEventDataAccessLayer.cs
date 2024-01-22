@@ -4,7 +4,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using MySqlConnector;
 using Parquet;
-using SigOpsMetricsCalcEngine.Models;
+using SigOpsMetrics.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
