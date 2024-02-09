@@ -22,14 +22,14 @@ namespace SigOpsMetricsCalcEngine
                 endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
             }
 
-            // TODO: as more calcs are added, lets go to S3 once and get all the data added to BaseDataAcessLayer.SignalEvents, then process them afterwards
-            if (RunPreempt) 
-                await PreemptEventCalc.RunPreempt(startDate, endDate);
-            if (RunFlash)
-            {
+            // TODO: as more calcs are added, lets go to S3 once and get all the data added to BaseDataAccessLayer.SignalEvents, then process them afterwards
+            //if (RunPreempt) 
+                //await PreemptEventCalc.RunPreempt(startDate, endDate);
+            //if (RunFlash)
+            //{
                 BaseDataAccessLayer b = new();
                 await b.RunFlash(startDate, endDate);
-            }
+            //}
         }
     }
 }

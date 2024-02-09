@@ -89,6 +89,10 @@ namespace SigOpsMetricsCalcEngine.Calcs
 
         public static async Task<bool> RunPreempt(DateTime startDate, DateTime endDate)
         {
+
+            var dateList = Enumerable.Range(0, (int)(endDate - startDate).TotalDays + 1)
+                                           .Select(offset => startDate.AddDays(offset))
+                                           .ToList();
             //Preempt event list to check for eventCodes from SignalEvents list
             var preemptEventList = new List<long?> { 102, 105, 106, 104, 107, 111, 173, 707, 708 };
 
@@ -97,7 +101,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
                 await BaseDataAccessLayer.CheckDB("preempt_log", "Timestamp", "mark1", startDate, endDate))
                 return await CalcPreemptEvent(BaseDataAccessLayer.PreemptEvents);
             //If events within date range are not within the database or memory, then grab the events from Amazon S3
-            var t = await PreemptEventDataAccessLayer.ProcessPreemptSignals(startDate, endDate, eventCodes: preemptEventList);
+            var t = await PreemptEventDataAccessLayer.ProcessPreemptSignals(dateList, eventCodes: preemptEventList);
             PreemptEventDataAccessLayer.ConvertToPreempt(startDate, endDate);
             await PreemptEventDataAccessLayer.WritePreemptSignalsToDb(t);
 

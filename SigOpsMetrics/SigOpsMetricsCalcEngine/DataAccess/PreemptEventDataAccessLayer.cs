@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Linq;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using System.Threading.Tasks;
 using Amazon.S3;
@@ -213,6 +214,82 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
             #endregion
         }
+
+
+        public static async Task<List<BaseEventLogModel>> ProcessPreemptSignals(List<DateTime> validDates,
+            List<long?>? signalIdList = null, List<long?>? eventCodes = null)
+        {
+
+            try
+            {
+
+                var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
+                foreach(var date in validDates)
+                {
+                    var s3Objects = await GetListRequest(client, date);
+                    var semaphore = new SemaphoreSlim(ThreadCount);
+
+                    //For debugging purposes to speed up data processing
+                    //#if DEBUG
+                    //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
+
+                    //                    s3Objects.RemoveAll(obj => obj != elementToKeep);
+
+                    //#endif
+                    var tasks = s3Objects.Select(async obj =>
+                    {
+                        await semaphore.WaitAsync();
+
+                        try
+                        {
+
+                            using var response = await MemoryStreamHelper(obj, client);
+                            using var ms = new MemoryStream();
+                            await response.ResponseStream.CopyToAsync(ms);
+                            var preemptData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms);
+                            return signalIdList != null && eventCodes == null
+                                ? preemptData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
+                                : eventCodes != null && signalIdList == null
+                                    ? preemptData.Where(x => eventCodes.Contains(x.EventCode)).ToList()
+                                    : preemptData.Where(x =>
+                                            signalIdList != null && eventCodes != null &&
+                                            eventCodes.Contains(x.EventCode) && signalIdList.Contains(x.SignalID))
+                                        .ToList();
+                        }
+                        catch (Exception ex)
+                        {
+                            await WriteToErrorLog("SigOpsMetricsCalcEngine.PreemptEventDataAccessLayer", $"ProcessPreemptEvents at sensor {obj.Key}", ex);
+                            return new List<BaseEventLogModel>();
+
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    });
+
+                    var results = await Task.WhenAll(tasks);
+                    foreach (var preemptList in results)
+                    {
+                        SignalEvents.AddRange(preemptList);
+                    }
+
+                }
+                return SignalEvents;
+
+            }
+
+            #region Error Handling
+
+
+            catch (Exception e)
+            {
+                await WriteToErrorLog("PreemptEventDataAccessLayer", "ProcessPreemptSignals", e);
+                throw;
+            }
+            #endregion
+        }
+
         public static async Task<bool> ProcessPreemptSignalsOverload(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null)
         {
             var t = await ProcessPreemptSignals(startDate, endDate, eventCodes: new List<long?> { 102,105,106,104,107,111,707,708 }, signalIdList: signalIdList);
