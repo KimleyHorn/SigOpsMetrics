@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
+﻿using System.Configuration;
 using System.Data;
-using System.Linq;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text;
-using System.Threading.Tasks;
 using Amazon.S3;
 using MySqlConnector;
 using Parquet;
-using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
@@ -118,7 +111,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                                                                 102 or 105 or 106 or 104 or 107 or 111 or 707 or 708 
                                                             && x.Timestamp >= startDate && x.Timestamp <= endDate))
             {
-                PreemptEvents.Add(new BaseEventLogModel
+                AddPreempt(new BaseEventLogModel
                 {
                     SignalID = signals.SignalID,
                     Timestamp = signals.Timestamp,

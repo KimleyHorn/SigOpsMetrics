@@ -1,11 +1,13 @@
-﻿using SigOpsMetricsCalcEngine.DataAccess;
+﻿using System.Configuration;
+using SigOpsMetricsCalcEngine.DataAccess;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.Calcs
 {
     internal class PreemptEventCalc
     {
-
+        private static readonly string MySqlTableName = ConfigurationManager.AppSettings["PREEMPT_EVENT_TABLE_NAME"] ?? "preempt_event_log";
+        private static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "test";
 
         public static async Task<bool> CalcPreemptEvent(List<BaseEventLogModel> baseSignal)
         {
@@ -89,25 +91,40 @@ namespace SigOpsMetricsCalcEngine.Calcs
 
         public static async Task<bool> RunPreempt(DateTime startDate, DateTime endDate)
         {
+            //var dateList = Enumerable.Range(0, (int)(endDate - startDate).TotalDays + 1)
+            //                               .Select(offset => startDate.AddDays(offset))
+            //                               .ToList();
+            if (endDate < startDate)
+                throw new ArgumentException("Start date must be before end date");
 
-            var dateList = Enumerable.Range(0, (int)(endDate - startDate).TotalDays + 1)
-                                           .Select(offset => startDate.AddDays(offset))
-                                           .ToList();
+
+            await BaseDataAccessLayer.CheckDB(MySqlTableName, "Timestamp", MySqlDbName, startDate, endDate);
+
             //Preempt event list to check for eventCodes from SignalEvents list
             var preemptEventList = new List<long?> { 102, 105, 106, 104, 107, 111, 173, 707, 708 };
+            var validDates = BaseDataAccessLayer.FillData(startDate, endDate, preemptEventList);
 
+
+            if (BaseDataAccessLayer.HasGaps(validDates))
+            {
+                Console.WriteLine("Gaps in data");
+                var t = await PreemptEventDataAccessLayer.ProcessPreemptSignals(validDates, eventCodes: preemptEventList);
+                PreemptEventDataAccessLayer.ConvertToPreempt(startDate, endDate);
+                return await PreemptEventDataAccessLayer.WritePreemptSignalsToDb(t);
+
+            }
             //This checks to see if the events are already in the database or if they are already stored in memory
             if (BaseDataAccessLayer.CheckList(startDate, endDate, preemptEventList) ||
                 await BaseDataAccessLayer.CheckDB("preempt_log", "Timestamp", "mark1", startDate, endDate))
-                return await CalcPreemptEvent(BaseDataAccessLayer.PreemptEvents);
+                return await CalcPreemptEvent(BaseDataAccessLayer.PreemptEvents());
             //If events within date range are not within the database or memory, then grab the events from Amazon S3
-            var t = await PreemptEventDataAccessLayer.ProcessPreemptSignals(dateList, eventCodes: preemptEventList);
-            PreemptEventDataAccessLayer.ConvertToPreempt(startDate, endDate);
-            await PreemptEventDataAccessLayer.WritePreemptSignalsToDb(t);
+            //var t = await PreemptEventDataAccessLayer.ProcessPreemptSignals(validDates, eventCodes: preemptEventList);
+            //PreemptEventDataAccessLayer.ConvertToPreempt(startDate, endDate);
+            //await PreemptEventDataAccessLayer.WritePreemptSignalsToDb(t);
 
             //Afterwards convert signal events to preempt events and add them to the preempt event list
             //Calculate the preempt events based on preempt list
-            return await CalcPreemptEvent(BaseDataAccessLayer.PreemptEvents);
+            return await CalcPreemptEvent(BaseDataAccessLayer.PreemptEvents());
         }
 
 

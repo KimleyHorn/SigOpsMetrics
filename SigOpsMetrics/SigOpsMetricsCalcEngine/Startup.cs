@@ -23,13 +23,11 @@ namespace SigOpsMetricsCalcEngine
             }
 
             // TODO: as more calcs are added, lets go to S3 once and get all the data added to BaseDataAccessLayer.SignalEvents, then process them afterwards
-            //if (RunPreempt) 
-                //await PreemptEventCalc.RunPreempt(startDate, endDate);
-            //if (RunFlash)
-            //{
-                BaseDataAccessLayer b = new();
-                await b.RunFlash(startDate, endDate);
-            //}
+            if (RunFlash)
+                await FlashEventCalc.RunFlash(startDate, endDate);
+            if (RunPreempt)
+                await PreemptEventCalc.RunPreempt(startDate, endDate);
+            
         }
     }
 }

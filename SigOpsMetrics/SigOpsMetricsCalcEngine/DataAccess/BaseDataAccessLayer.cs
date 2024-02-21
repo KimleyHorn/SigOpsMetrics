@@ -1,12 +1,10 @@
 ﻿using System.Configuration;
 using System.Data;
-using System.Diagnostics;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using MySqlConnector;
 using Parquet;
-using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
@@ -19,9 +17,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static readonly RegionEndpoint? BucketRegion = RegionEndpoint.USEast1;
         internal static readonly string? FolderName = ConfigurationManager.AppSettings["FOLDER_NAME"];
         internal static readonly int ThreadCount = int.Parse(ConfigurationManager.AppSettings["THREAD_COUNT"] ?? "1");
-        public static List<BaseEventLogModel> FlashEvents = new();
-        public static List<BaseEventLogModel> PreemptEvents = new();
-        public static List<PreemptModel> PreemptPairs = new();
+        private static List<BaseEventLogModel> _flashEvents = new();
+        private static List<BaseEventLogModel> _preemptEvents = new();
         internal static List<BaseEventLogModel> SignalEvents = new();
         internal static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "mark1";
         internal static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
@@ -32,49 +29,30 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             MySqlConnection = new MySqlConnection(MySqlConnString);
         }
 
-        
 
-        public async Task<bool> RunFlash(DateTime firstStart, DateTime endDate)
+        #region Getters and Setters
+
+        public static List<BaseEventLogModel> FlashEvents()
         {
-            await CheckDB("flash_event_log", "Timestamp", MySqlDbName, firstStart, endDate);
-
-            if (endDate < firstStart)
-            {
-                throw new ArgumentException("Start date must be before end date");
-            }
-            //Preempt event list to check for eventCodes from SignalEvents list
-            var flashEventList = new List<long?> {173};
-            var validDates = FillData(firstStart, endDate, flashEventList);
-            if (HasGaps(validDates))
-            {
-                Console.WriteLine("Gaps in data");
-                return await ProcessEvents(validDates,"flash_event_log", eventCodes: flashEventList);
-                
-                return true;
-            }
-
-            var startDate = await GetLastDay("flash_event_log", "Timestamp", MySqlDbName);
-
-            if (startDate == default)
-            {
-                startDate = firstStart;
-            }
-
-            if (startDate > endDate)
-            {
-                //TODO: fix this error
-                throw new ArgumentException("Start date must be before end date");
-            }
-            //This checks to see if the events are already in the database or if they are already stored in memory
-            //if (!CheckList(startDate, endDate, flashEventList) &&
-            //    !await CheckDB("flash_event_log", "Timestamp", MySqlDbName, startDate, endDate))
-            //{
-            //    //If events within date range are not within the database or memory, then grab the events from Amazon S3
-            //    return await ProcessEvents(startDate, endDate, "flash_event_log", eventCodes: flashEventList);
-            //}
-
-            return await ProcessEvents(FillData(startDate, endDate, flashEventList),"flash_event_log", eventCodes: flashEventList);
+            return _flashEvents;
         }
+
+        public static void AddFlash(BaseEventLogModel f)
+        { 
+            _flashEvents.Add(f);
+        }
+
+        public static void AddPreempt(BaseEventLogModel f)
+        {
+            _preemptEvents.Add(f);
+        }
+
+        public static List<BaseEventLogModel> PreemptEvents()
+        {
+            return _preemptEvents;
+        }
+
+        #endregion
 
         #region Helper Methods
 
@@ -208,7 +186,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             return latestTimestamp;
         }
 
-        static bool HasGaps(List<DateTime> dateTimes)
+        public static bool HasGaps(List<DateTime> dateTimes)
         {
             // Sort the list of DateTimes
             dateTimes.Sort();

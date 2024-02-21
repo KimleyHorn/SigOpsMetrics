@@ -1,9 +1,5 @@
 ﻿using System.Configuration;
 using System.Data;
-using Amazon.S3;
-using Amazon.S3.Model;
-using MySqlConnector;
-using Parquet;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
@@ -13,7 +9,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"];
-        private static readonly string? MySqlFlashPairTableName = ConfigurationManager.AppSettings["FLASH_PAIR_TABLE_NAME"];
+
+
 
 
         #region Write to MySQL
@@ -63,7 +60,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 {
 
 
-                    FlashEvents.Add(new BaseEventLogModel
+                    AddFlash(new BaseEventLogModel
                     {
                         SignalID = flash.SignalID,
                         Timestamp = flash.Timestamp,
