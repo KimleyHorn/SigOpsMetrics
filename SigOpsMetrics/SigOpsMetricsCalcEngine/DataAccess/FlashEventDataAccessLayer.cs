@@ -4,14 +4,17 @@ using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
-    public class FlashEventDataAccessLayer : BaseDataAccessLayer
+    public class FlashEventDataAccessLayer : BaseDataAccessLayer, IDataAccess
     {
 
         
-        private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"];
+        private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"] ?? "flash_event_log";
+        internal static readonly List<long?> EventList = [173];
 
-
-
+        public FlashEventDataAccessLayer(List<BaseEventLogModel> b)
+        {
+            SignalEvents = b;
+        }
 
         #region Write to MySQL
         public static async Task<bool> WriteFlashEventsToDb(IEnumerable<BaseEventLogModel> events)
@@ -52,32 +55,30 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
 
 
-        public static Task ConvertToFlash(List<BaseEventLogModel> signalList, DateTime startDate, DateTime endDate)
-            {
-                SignalEvents = new List<BaseEventLogModel>();
+        public async Task<List<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
+        {
 
-                foreach (var flash in signalList.Where(x => x.EventCode is 173 && x.Timestamp >= startDate && x.Timestamp <= endDate))
-                {
-
-
-                    AddFlash(new BaseEventLogModel
-                    {
-                        SignalID = flash.SignalID,
-                        Timestamp = flash.Timestamp,
-                        EventCode = flash.EventCode,
-                        EventParam = flash.EventParam
-                    });
-                }
-
-                return Task.CompletedTask;
-            }
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                         .Select(offset => startDate.AddDays(offset)).ToList();
+            var validData = await FilterData(allDates, EventList, MySqlTableName ?? " ");
+            return validData;
+        }
 
 
+        #region Driver Method
+        /// <summary>
+        /// Driver method for the flash event processing
+        /// </summary>
+        /// <param name="validSignals">A list of signals that will be written to the MySQL database</param>
+        /// <returns> true if the database is written to or if there are no signals to write to the database</returns>
+        public async Task<bool> Process(List<BaseEventLogModel> validSignals)
+        {
+            if (validSignals.Count == 0)
+                return true;
+            return await WriteFlashEventsToDb(validSignals);
 
-
-     
-
-
+        }
+        #endregion
 
     }
 }

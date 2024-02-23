@@ -1,61 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SigOpsMetricsCalcEngine.DataAccess;
+﻿using SigOpsMetricsCalcEngine.DataAccess;
+using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.Calcs
 {
     internal class FlashEventCalc
     {
-
-        private static readonly string MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"]  ?? "flash_event_log";
-        private static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "test";
-
-
-
-        public static async Task<bool> RunFlash(DateTime firstStart, DateTime endDate)
+        /// <summary>
+        /// Run the flash event calculation
+        /// </summary>
+        /// <param name="startDate">The first date to grab signals from</param>
+        /// <param name="endDate">The last date to grab signals from</param>
+        /// <param name="b"></param>
+        /// <returns>True if all operations succeed</returns>
+        public static async Task<bool> RunFlash(List<DateTime> validDates, List<BaseEventLogModel> b)
         {
-            if (endDate < firstStart)
-                throw new ArgumentException("Start date must be before end date");
-            
 
-            await BaseDataAccessLayer.CheckDB(MySqlTableName, "Timestamp", MySqlDbName, firstStart, endDate);
+            /* Pseudocode (Process 1) for Flash Events
+             * Process 1 takes care of the flash events in the case that there are gaps in the data. Can also be used for normal processing
+             * Filter()
+             *  Step 1: Check to see which days in the date range have data
+             *  CheckDB()
+             *  Step 2: Compare the dates in the date range to the dates in the database
+             *  FillData()
+             *
+             * ProcessEvents()
+             *  Step 3: Pull the data from S3 for the dates that are not in the database
+             *  ProcessEvents()
+             *  Step 4: Write Flash events to the database
+             */
+            var flashFilter = new FlashEventDataAccessLayer(b);
+            var isFiltered = await flashFilter.Filter(validDates.FirstOrDefault(), validDates.LastOrDefault());
 
-           
-            //Preempt event list to check for eventCodes from SignalEvents list
-            var flashEventList = new List<long?> { 173 };
-            var validDates = BaseDataAccessLayer.FillData(firstStart, endDate, flashEventList);
-            if (BaseDataAccessLayer.HasGaps(validDates))
+            if (isFiltered.Count > 0)
             {
-                Console.WriteLine("Gaps in data");
-                return await BaseDataAccessLayer.ProcessEvents(validDates, "flash_event_log", eventCodes: flashEventList);
-
+                return await flashFilter.Process(isFiltered);
             }
 
-            var startDate = await BaseDataAccessLayer.GetLastDay("flash_event_log", "Timestamp", MySqlDbName);
-
-            if (startDate == default)
-            {
-                startDate = firstStart;
-            }
-
-            if (startDate > endDate)
-            {
-                //TODO: fix this error
-                throw new ArgumentException("Start date must be before end date");
-            }
-            //This checks to see if the events are already in the database or if they are already stored in memory
-            //if (!CheckList(startDate, endDate, flashEventList) &&
-            //    !await CheckDB("flash_event_log", "Timestamp", MySqlDbName, startDate, endDate))
-            //{
-            //    //If events within date range are not within the database or memory, then grab the events from Amazon S3
-            //    return await ProcessEvents(startDate, endDate, "flash_event_log", eventCodes: flashEventList);
-            //}
-
-            return await BaseDataAccessLayer.ProcessEvents(BaseDataAccessLayer.FillData(startDate, endDate, flashEventList), "flash_event_log", eventCodes: flashEventList);
+            return true;
         }
 
     }

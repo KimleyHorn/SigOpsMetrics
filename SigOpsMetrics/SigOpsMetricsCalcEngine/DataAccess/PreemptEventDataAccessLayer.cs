@@ -1,17 +1,102 @@
 ﻿using System.Configuration;
 using System.Data;
-using Amazon.S3;
 using MySqlConnector;
-using Parquet;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
-    public class PreemptEventDataAccessLayer : BaseDataAccessLayer
+    public class PreemptEventDataAccessLayer : BaseDataAccessLayer, IDataAccess
     {
 
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"];
         private static readonly string? MySqlPreemptTableName = ConfigurationManager.AppSettings["PREEMPT_EVENT_TABLE_NAME"];
+        internal static readonly List<long?> EventList = [102, 105, 106, 104, 107, 111, 707, 708];
+        private static List<PreemptModel> preemptList = new List<PreemptModel>();
+
+        public PreemptEventDataAccessLayer(List<BaseEventLogModel> b)
+        {
+            SignalEvents = b;
+        }
+        private static List<BaseEventLogModel> FilterByEventCode(List<BaseEventLogModel> events, long eventCode)
+        {
+            return events.Where(x => x.EventCode == eventCode).OrderBy(x => x.Timestamp).ToList();
+        }
+
+
+
+        public static async Task<bool> CalcPreemptEvent(List<BaseEventLogModel> baseSignal)
+        {
+
+
+            
+            var inputOn = FilterByEventCode(baseSignal, 102);
+            var entryStart = FilterByEventCode(baseSignal, 105);
+            var trackClear = FilterByEventCode(baseSignal, 106);
+            var externalCallOn = FilterByEventCode(baseSignal, 707);
+            var externalCallOff = FilterByEventCode(baseSignal, 708);
+            var inputOff = FilterByEventCode(baseSignal, 104);
+            var dwellService = FilterByEventCode(baseSignal, 107);
+            var exitCall = FilterByEventCode(baseSignal, 111);
+            foreach (var signal in inputOn)
+            {
+
+                var signalId = signal.SignalID;
+
+                try
+                {
+                    //Grabs EventParam from startFlashEvent instead of first from group
+                    var preemptType = signal.EventParam switch
+                    {
+                        3 => "EVP",
+                        7 => "Flush Preempt",
+                        1 => "Railroad",
+                        _ => "Default"
+                    };
+                    var externalOn = false;
+                    var externalOff = false;
+
+                    var entryStartEvent =
+                        entryStart.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+
+                    var externalCallOnEvent =
+                        externalCallOn.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var externalCallOffEvent =
+                        externalCallOff.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var trackClearEvent = trackClear.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var inputOffEvent = inputOff.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var dwellServiceEvent = dwellService.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+                    var exitCallEvent = exitCall.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
+
+
+                    if (externalCallOnEvent != null)
+                    {
+                        externalOn = true;
+                    }
+
+                    if (externalCallOffEvent != null)
+                    {
+                        externalOff = true;
+                    }
+
+                    var preempt = new PreemptModel(signal.Timestamp, inputOffEvent?.Timestamp,
+                        entryStartEvent?.Timestamp, trackClearEvent?.Timestamp, dwellServiceEvent?.Timestamp,
+                        exitCallEvent?.Timestamp, signalId, preemptType, externalOff, externalOn);
+
+                    preemptList.Add(preempt);
+
+                    Console.WriteLine(preempt.ToString());
+                }
+                catch (Exception e)
+                {
+                    await BaseDataAccessLayer.WriteToErrorLog("PreemptEventCalc", "CalcPreemptEvents", e);
+                    return false;
+
+                }
+
+            }
+
+            return await PreemptEventDataAccessLayer.WritePreemptEventsToDb(preemptList);
+        }
 
         #region Write to MySQL
         public static async Task<bool> WritePreemptSignalsToDb(IEnumerable<BaseEventLogModel> preempts)
@@ -96,200 +181,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
         }
 
-        public static async Task<bool> ProcessPreemptEvents(DateTime startDate, DateTime endDate)
-        {
-            ConvertToPreempt(startDate, endDate);
-            //return await WritePreemptEventsToDb(PreemptEvents);
-            return true;
-        }
-        #endregion
-
-        #region Helper Methods
-        public static void ConvertToPreempt(DateTime startDate, DateTime endDate)
-        {
-            foreach (var signals in SignalEvents.Where(x => x.EventCode is 
-                                                                102 or 105 or 106 or 104 or 107 or 111 or 707 or 708 
-                                                            && x.Timestamp >= startDate && x.Timestamp <= endDate))
-            {
-                AddPreempt(new BaseEventLogModel
-                {
-                    SignalID = signals.SignalID,
-                    Timestamp = signals.Timestamp,
-                    EventCode = signals.EventCode,
-                    EventParam = signals.EventParam
-                });
-            }
-        }
-        #endregion
-
-        #region Read from AmazonS3
-
-        public static async Task<List<BaseEventLogModel>> ProcessPreemptSignals(DateTime startDate, DateTime endDate,
-            List<long?>? signalIdList = null, List<long?>? eventCodes = null)
-        {
-            if (endDate == default)
-            {
-                endDate = startDate;
-            }
-
-            if (startDate > endDate)
-            {
-                throw new ArgumentException("Start date must be before end date");
-            }
-
-            try
-            {
-
-                var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
-                while (startDate <= endDate)
-                {
-                    var s3Objects = await GetListRequest(client, startDate);
-                    var semaphore = new SemaphoreSlim(ThreadCount);
-
-                    //For debugging purposes to speed up data processing
-                    //#if DEBUG
-                    //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
-
-                    //                    s3Objects.RemoveAll(obj => obj != elementToKeep);
-
-                    //#endif
-                    var tasks = s3Objects.Select(async obj =>
-                    {
-                        await semaphore.WaitAsync();
-
-                        try
-                        {
-
-                            using var response = await MemoryStreamHelper(obj, client);
-                            using var ms = new MemoryStream();
-                            await response.ResponseStream.CopyToAsync(ms);
-                            var preemptData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms);
-                            return signalIdList != null && eventCodes == null
-                                ? preemptData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
-                                : eventCodes != null && signalIdList == null
-                                    ? preemptData.Where(x => eventCodes.Contains(x.EventCode)).ToList()
-                                    : preemptData.Where(x =>
-                                            signalIdList != null && eventCodes != null &&
-                                            eventCodes.Contains(x.EventCode) && signalIdList.Contains(x.SignalID))
-                                        .ToList();
-                        }
-                        catch(Exception ex) 
-                        {
-                            await WriteToErrorLog("SigOpsMetricsCalcEngine.PreemptEventDataAccessLayer", $"ProcessPreemptEvents at sensor {obj.Key}", ex);
-                            return new List<BaseEventLogModel>();
-
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    });
-
-                    var results = await Task.WhenAll(tasks);
-                    foreach (var preemptList in results)
-                    {
-                        SignalEvents.AddRange(preemptList);
-                    }
-                    startDate = startDate.AddDays(1);
-
-                }
-                return SignalEvents;
-
-            }
-
-            #region Error Handling
-
-
-            catch (Exception e)
-            {
-                await WriteToErrorLog("PreemptEventDataAccessLayer", "ProcessPreemptSignals", e);
-                throw;
-            }
-            #endregion
-        }
-
-
-        public static async Task<List<BaseEventLogModel>> ProcessPreemptSignals(List<DateTime> validDates,
-            List<long?>? signalIdList = null, List<long?>? eventCodes = null)
-        {
-
-            try
-            {
-
-                var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
-                foreach(var date in validDates)
-                {
-                    var s3Objects = await GetListRequest(client, date);
-                    var semaphore = new SemaphoreSlim(ThreadCount);
-
-                    //For debugging purposes to speed up data processing
-                    //#if DEBUG
-                    //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
-
-                    //                    s3Objects.RemoveAll(obj => obj != elementToKeep);
-
-                    //#endif
-                    var tasks = s3Objects.Select(async obj =>
-                    {
-                        await semaphore.WaitAsync();
-
-                        try
-                        {
-
-                            using var response = await MemoryStreamHelper(obj, client);
-                            using var ms = new MemoryStream();
-                            await response.ResponseStream.CopyToAsync(ms);
-                            var preemptData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms);
-                            return signalIdList != null && eventCodes == null
-                                ? preemptData.Where(x => signalIdList.Contains(x.SignalID)).ToList()
-                                : eventCodes != null && signalIdList == null
-                                    ? preemptData.Where(x => eventCodes.Contains(x.EventCode)).ToList()
-                                    : preemptData.Where(x =>
-                                            signalIdList != null && eventCodes != null &&
-                                            eventCodes.Contains(x.EventCode) && signalIdList.Contains(x.SignalID))
-                                        .ToList();
-                        }
-                        catch (Exception ex)
-                        {
-                            await WriteToErrorLog("SigOpsMetricsCalcEngine.PreemptEventDataAccessLayer", $"ProcessPreemptEvents at sensor {obj.Key}", ex);
-                            return new List<BaseEventLogModel>();
-
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    });
-
-                    var results = await Task.WhenAll(tasks);
-                    foreach (var preemptList in results)
-                    {
-                        SignalEvents.AddRange(preemptList);
-                    }
-
-                }
-                return SignalEvents;
-
-            }
-
-            #region Error Handling
-
-
-            catch (Exception e)
-            {
-                await WriteToErrorLog("PreemptEventDataAccessLayer", "ProcessPreemptSignals", e);
-                throw;
-            }
-            #endregion
-        }
-
-        public static async Task<bool> ProcessPreemptSignalsOverload(DateTime startDate, DateTime endDate, List<long?>? signalIdList = null)
-        {
-            var t = await ProcessPreemptSignals(startDate, endDate, eventCodes: new List<long?> { 102,105,106,104,107,111,707,708 }, signalIdList: signalIdList);
-
-            return await WritePreemptSignalsToDb(t);
-
-        }
 
         #endregion
 
@@ -331,5 +222,20 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         }
 
 
+        public async Task<List<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
+        {
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                         .Select(offset => startDate.AddDays(offset)).ToList();
+            var validData = await FilterData(allDates, EventList, MySqlTableName ?? " ");
+            return validData;
+        }
+
+        public async Task<bool> Process(List<BaseEventLogModel> validSignals)
+        {
+            if (validSignals.Count == 0)
+                return true;
+            await CalcPreemptEvent(validSignals);
+            return await WritePreemptSignalsToDb(validSignals) && await WritePreemptEventsToDb(preemptList);
+        }
     }
 }

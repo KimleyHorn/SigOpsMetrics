@@ -19,7 +19,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static readonly int ThreadCount = int.Parse(ConfigurationManager.AppSettings["THREAD_COUNT"] ?? "1");
         private static List<BaseEventLogModel> _flashEvents = new();
         private static List<BaseEventLogModel> _preemptEvents = new();
-        internal static List<BaseEventLogModel> SignalEvents = new();
+        internal  List<BaseEventLogModel> SignalEvents = new();
         internal static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "mark1";
         internal static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
         internal static MySqlConnection? MySqlConnection;
@@ -98,7 +98,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         }
 
 
-        public static async Task<bool> CheckDB(string mySqlTableName, string mySqlColName, string mySqlDbName, DateTime startDate,
+        public async Task<bool> CheckDB(string mySqlTableName, string mySqlColName, string mySqlDbName, DateTime startDate,
             DateTime endDate)
         {
             if (MySqlConnection.State == ConnectionState.Closed)
@@ -138,7 +138,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         }
 
-        internal static bool CheckList(DateTime startDate,
+        internal  bool CheckList(DateTime startDate,
             DateTime endDate, List<long?> eventCodes)
         {
             var dateSignal = SignalEvents.Where(x => x.Timestamp >= startDate && x.Timestamp <= endDate && eventCodes.Contains(x.EventCode)).ToList();
@@ -146,19 +146,39 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         }
 
 
-        internal static List<DateTime> FillData(DateTime startDate, DateTime endDate, List<long?> eventCodes)
+        internal  async Task<List<DateTime>> FillData(DateTime startDate, DateTime endDate, List<long?> eventCodes, string mySqlTableName)
         {
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                                      .Select(offset => startDate.AddDays(offset));
+            await CheckDB(mySqlTableName, "Timestamp", MySqlDbName, startDate, endDate);
 
-            var dateList = allDates
+            var filteredSignals = allDates
                 .Where(date => !SignalEvents.Any(signalEvent => date.Equals(signalEvent.Timestamp) && eventCodes.Contains(signalEvent.EventCode)))
                 .ToList();
 
-            return dateList;
+            //var filteredSignals = SignalEvents
+            //    .Where(signal => allDates.Any(date => signal.Timestamp.Equals(date))).ToList();
+
+
+            return filteredSignals;
+        }
+        internal async Task<List<BaseEventLogModel>> FilterData(List<DateTime> dates, List<long?>? eventCodes, string mySqlTableName)
+        {
+
+            await CheckDB(mySqlTableName, "Timestamp", MySqlDbName, dates.FirstOrDefault(), dates.LastOrDefault());
+
+            //var filteredSignals = allDates
+            //    .Where(date => !SignalEvents.Any(signalEvent => date.Equals(signalEvent.Timestamp) && eventCodes.Contains(signalEvent.EventCode)))
+            //    .ToList();
+            
+            var filteredSignals = SignalEvents
+                .Where(signal => eventCodes.Contains(signal.EventCode)).ToList();
+
+
+            return filteredSignals;
         }
 
-        internal static async Task<DateTime> GetLastDay(string mySqlTableName, string mySqlColName, string mySqlDbName)
+        internal  async Task<DateTime> GetLastDay(string mySqlTableName, string mySqlColName, string mySqlDbName)
         {
             if (MySqlConnection.State == ConnectionState.Closed)
             {
@@ -186,7 +206,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             return latestTimestamp;
         }
 
-        public static bool HasGaps(List<DateTime> dateTimes)
+        public bool HasGaps(List<DateTime> dateTimes)
         {
             // Sort the list of DateTimes
             dateTimes.Sort();
@@ -214,106 +234,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         #region Signal Processing
 
-        /// <summary>
-        /// This method will return a list of _events from AWS S3 and fit them to the FlashEventModel class for use in the rest of the solution
-        /// </summary>
-        /// <param name="startDate">The start date of the _events to be retrieved</param>
-        /// <param name="endDate">The end date of the _events to be retrieved</param>
-        /// <param name="signalIdList">A list of signal Ids to be retrieved</param>
-        /// <param name="eventCodes"></param>
-        /// <returns>A List of Flash _events that can be used to write to the flash event server</returns>
-
-        public static async Task<bool> ProcessEvents(DateTime startDate, DateTime endDate, string mySqlTableName, List<long?>? signalIdList = null, List<long?>? eventCodes = null)
-        {
-
-            if (endDate == default)
-            {
-                endDate = startDate;
-            }
-
-            if (startDate > endDate)
-            {
-                throw new ArgumentException("Start date must be before end date");
-            }
-
-            try
-            {
-
-                using var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
-                while (startDate <= endDate)
-                {
-                    var s3Objects = await GetListRequest(client, startDate);
-                    var semaphore = new SemaphoreSlim(ThreadCount);
-
-                    //For debugging purposes to speed up data processing
-                    //#if DEBUG
-                    //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
-
-                    //                    s3Objects.RemoveAll(obj => obj != elementToKeep);
-
-                    //#endif
-                    var tasks = s3Objects.Select(async obj =>
-                    {
-                        await semaphore.WaitAsync();
-
-                        try
-                        {
-                            //Abstraction 1
-                            using var response = await MemoryStreamHelper(obj, client);
-                            using var ms = new MemoryStream();
-                            await response.ResponseStream.CopyToAsync(ms);
-
-
-                            //Abstraction 2
-                            var signalData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms);
-
-                            return (signalIdList, eventCodes) switch
-                            {
-                                (null, null) => signalData.ToList(),
-                                (null, not null) => throw new ArgumentException(
-                                    "Event Codes cannot be used without Signal Ids"),
-                                (not null, null) => signalData.Where(x => signalIdList.Contains(x.SignalID)).ToList(),
-                                (not null, not null) => signalData.Where(x =>
-                                        signalIdList.Contains(x.SignalID) && eventCodes.Contains(x.EventCode))
-                                    .ToList()
-                            };
-                        }
-                        catch
-                        {
-                            //await WriteToErrorLog("SigOpsMetricsCalcEngine.BaseDataAccessLayer", $"ProcessFlashEvents at sensor {obj.Key}", new Exception("Error reading from S3"));
-                            return new List<BaseEventLogModel>();
-
-                        }
-                        finally
-                        {
-                            semaphore.Release();
-                        }
-                    });
-
-                    var results = await Task.WhenAll(tasks);
-                    foreach (var sigList in results)
-                    {
-                        SignalEvents.AddRange(sigList);
-                    }
-                    startDate = startDate.AddDays(1);
-
-                }
-
-                return true;
-            }
-
-            #region Error Handling
-
-
-            catch (Exception e)
-            {
-                await WriteToErrorLog("FlashEventDataAccessLayer", "ProcessFlashEvents", e);
-                throw;
-            }
-            #endregion
-            
-
-        }
 
         /// <summary>
         /// The Process Events method will take a list of valid dates and a list of signal Ids and event codes and return a list of events that can be used to write to the flash events server
@@ -323,8 +243,9 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="eventCodes"></param>
         /// <returns>A List of Flash _events that can be used to write to the flash event server</returns>
         /// <exception cref="ArgumentException"></exception>
-        public static async Task<bool> ProcessEvents(List<DateTime> validDates, string mySqlTableName, List<long?>? signalIdList = null, List<long?>? eventCodes = null)
+        public async Task<bool> ProcessEvents(List<DateTime> validDates, List<long?>? signalIdList = null, List<long?>? eventCodes = null)
         {
+
             try
             {
                 using var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
@@ -332,14 +253,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 {
                     var s3Objects = await GetListRequest(client, date);
                     var semaphore = new SemaphoreSlim(ThreadCount);
-
-                    //For debugging purposes to speed up data processing
-                    //#if DEBUG
-                    //                    var elementToKeep = s3Objects[0]; // Choose the element you want to keep
-
-                    //                    s3Objects.RemoveAll(obj => obj != elementToKeep);
-
-                    //#endif
                     var tasks = s3Objects.Select(async obj =>
                     {
                         await semaphore.WaitAsync();
