@@ -1,6 +1,6 @@
-﻿using System.Configuration;
-using SigOpsMetricsCalcEngine.Calcs;
+﻿using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.DataAccess;
+using System.Configuration;
 
 namespace SigOpsMetricsCalcEngine
 {
@@ -11,13 +11,15 @@ namespace SigOpsMetricsCalcEngine
         private static readonly bool RunFlash = bool.Parse(ConfigurationManager.AppSettings["RUN_FLASH"] ?? "false");
         private static readonly string DemoSqlTable = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"] ?? "preempt_log";
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
+        private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
 
-        public static async Task Main(string[] args)
+        public static async Task Main()
         {
             var today = DateTime.Today;
             var startDate = today.AddDays(-1);
             var endDate = default(DateTime);
-            var signalCodes = new List<long?>{173,102,105,106,104,107,111,707,708};
+            var signalCodeArray = SignalCodeValue.Split(',');
+            var signalCodes = signalCodeArray.Select(long.Parse).Select(dummy => (long?)dummy).ToList();
 
             if (UseStartEndDates)
             {
@@ -31,7 +33,7 @@ namespace SigOpsMetricsCalcEngine
             if (validDates.Count > MaxDays)
             {
                 var truncatedDates = validDates.GetRange(0, MaxDays);
-                for (var i = 0; i < validDates.Count; i+= MaxDays)
+                for (var i = 0; i < validDates.Count; i += MaxDays)
                 {
                     await b.ProcessEvents(truncatedDates);
                     if (RunFlash)
@@ -39,18 +41,13 @@ namespace SigOpsMetricsCalcEngine
                     if (RunPreempt)
                         await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
                     truncatedDates = validDates.GetRange(i, MaxDays);
-
                 }
-                
-                
             }
-            
-            // TODO: as more calcs are added, lets go to S3 once and get all the data added to BaseDataAccessLayer.SignalEvents, then process them afterwards
+
             if (RunFlash)
                 await FlashEventCalc.RunFlash(validDates, b.SignalEvents);
             if (RunPreempt)
                 await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents);
-            
         }
     }
 }

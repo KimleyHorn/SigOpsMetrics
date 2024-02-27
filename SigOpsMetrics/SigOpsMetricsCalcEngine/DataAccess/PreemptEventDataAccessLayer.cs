@@ -1,34 +1,43 @@
-﻿using System.Configuration;
+﻿using SigOpsMetricsCalcEngine.Models;
+using System.Configuration;
 using System.Data;
-using MySqlConnector;
-using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
     public class PreemptEventDataAccessLayer : BaseDataAccessLayer, IDataAccess
     {
-
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"];
         private static readonly string? MySqlPreemptTableName = ConfigurationManager.AppSettings["PREEMPT_EVENT_TABLE_NAME"];
         internal static readonly List<long?> EventList = [102, 105, 106, 104, 107, 111, 707, 708];
-        private static List<PreemptModel> preemptList = new List<PreemptModel>();
+        private static List<PreemptModel> _preemptList = [];
 
-        public PreemptEventDataAccessLayer(List<BaseEventLogModel> b)
+        /// <summary>
+        /// Constructor for PreemptEventDataAccessLayer class that takes a list of BaseEventLogModel
+        /// </summary>
+        /// <param name="sigModels">A list of BaseEventLogModels that is passed from the BaseDataAccessLayer</param>
+        public PreemptEventDataAccessLayer(List<BaseEventLogModel> sigModels)
         {
-            SignalEvents = b;
+            SignalEvents = sigModels;
         }
+
+        /// <summary>
+        /// A helper method that filters a list of BaseEventLogModels by event code so they can be processed into PreemptModels
+        /// </summary>
+        /// <param name="events">The input list of BaseEventLogModels</param>
+        /// <param name="eventCode">The event code to filter by</param>
+        /// <returns>A filtered list of BaseEventLogModels</returns>
         private static List<BaseEventLogModel> FilterByEventCode(List<BaseEventLogModel> events, long eventCode)
         {
             return events.Where(x => x.EventCode == eventCode).OrderBy(x => x.Timestamp).ToList();
         }
 
-
-
+        /// <summary>
+        /// Converts a list of BaseEventLogModels into a list of PreemptModels
+        /// </summary>
+        /// <param name="baseSignal">A list of BaseEventLogModels to be filtered and converted to a preempt</param>
+        /// <returns>True if the operation succeeds, false otherwise</returns>
         public static async Task<bool> CalcPreemptEvent(List<BaseEventLogModel> baseSignal)
         {
-
-
-            
             var inputOn = FilterByEventCode(baseSignal, 102);
             var entryStart = FilterByEventCode(baseSignal, 105);
             var trackClear = FilterByEventCode(baseSignal, 106);
@@ -39,7 +48,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             var exitCall = FilterByEventCode(baseSignal, 111);
             foreach (var signal in inputOn)
             {
-
                 var signalId = signal.SignalID;
 
                 try
@@ -67,7 +75,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     var dwellServiceEvent = dwellService.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
                     var exitCallEvent = exitCall.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
 
-
                     if (externalCallOnEvent != null)
                     {
                         externalOn = true;
@@ -82,23 +89,28 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                         entryStartEvent?.Timestamp, trackClearEvent?.Timestamp, dwellServiceEvent?.Timestamp,
                         exitCallEvent?.Timestamp, signalId, preemptType, externalOff, externalOn);
 
-                    preemptList.Add(preempt);
+                    _preemptList.Add(preempt);
 
                     Console.WriteLine(preempt.ToString());
                 }
                 catch (Exception e)
                 {
-                    await BaseDataAccessLayer.WriteToErrorLog("PreemptEventCalc", "CalcPreemptEvents", e);
+                    await WriteToErrorLog("PreemptEventCalc", "CalcPreemptEvents", e);
                     return false;
-
                 }
-
             }
 
-            return await PreemptEventDataAccessLayer.WritePreemptEventsToDb(preemptList);
+            return true;
         }
 
         #region Write to MySQL
+
+        /// <summary>
+        /// A method that writes all the filtered BaseEventLogModels to the MySQL database
+        /// </summary>
+        /// <param name="preempts">An enumerable of BaseEventLogModels that will be written to the MySQL database</param>
+        /// <returns>True if the operation is successful, false otherwise</returns>
+        /// <exception cref="InvalidOperationException">An exception thrown when the MySQL writer fails</exception>
         public static async Task<bool> WritePreemptSignalsToDb(IEnumerable<BaseEventLogModel> preempts)
         {
             // Create a DataTable to hold the events data
@@ -127,11 +139,16 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             catch (Exception e)
             {
                 Console.WriteLine("Error" + e);
-                //await WriteToErrorLog(System.Reflection.Assembly.GetEntryAssembly()?.GetName().Name, "toMySQL", e);
                 throw;
             }
         }
 
+        /// <summary>
+        /// a method that writes converted preempt events to the preempt event table in the MySQL database
+        /// </summary>
+        /// <param name="preempts">A list of preempt event models</param>
+        /// <returns>True if the operation is successful, false otherwise</returns>
+        /// <exception cref="InvalidOperationException">An exception thrown when the MySQL writer fails</exception>
         public static async Task<bool> WritePreemptEventsToDb(IEnumerable<PreemptModel> preempts)
         {
             // Create a DataTable to hold the events data
@@ -147,7 +164,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             dataTable.Columns.Add("PreemptType", typeof(string));
             dataTable.Columns.Add("ExternalCallOn", typeof(bool));
             dataTable.Columns.Add("ExternalCallOff", typeof(bool));
-
 
             // Populate the DataTable with events data
             foreach (var eventData in preempts)
@@ -181,61 +197,33 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
         }
 
+        #endregion Write to MySQL
 
-        #endregion
-
-        public static async Task<List<BaseEventLogModel>> ReadAllFromMySql()
-        {
-            var events = new List<BaseEventLogModel>();
-            try
-            {
-
-                if (MySqlConnection.State == ConnectionState.Closed)
-                {
-                    await MySqlConnection.OpenAsync();
-                }
-
-                await using var cmd = new MySqlCommand($"SELECT t.* FROM {MySqlDbName}.{MySqlTableName} t", MySqlConnection);
-                await using var reader = await cmd.ExecuteReaderAsync();
-
-
-                while (await reader.ReadAsync())
-                {
-                    var preemptEvent = new BaseEventLogModel
-                    {
-                        Timestamp = reader.GetDateTime("Timestamp"),
-                        SignalID = reader.GetInt64("signalID"),
-                        EventCode = reader.GetInt64("EventCode"),
-                        EventParam = reader.GetInt64("EventParam")
-                    };
-                    events.Add(preemptEvent);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            finally { await MySqlConnection.CloseAsync(); }
-
-            return events;
-        }
-
-
+        /// <summary>
+        /// A method that filters a list of BaseEventLogModels by valid dates
+        /// </summary>
+        /// <param name="startDate">The first date the filter looks at</param>
+        /// <param name="endDate">The last date the filter looks at</param>
+        /// <returns>A filtered list of BaseEventLogModels</returns>
         public async Task<List<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
         {
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                          .Select(offset => startDate.AddDays(offset)).ToList();
-            var validData = await FilterData(allDates, EventList, MySqlTableName ?? " ");
+            var validData = await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp");
             return validData;
         }
 
+        /// <summary>
+        /// The driver method for preempt event processing inherited from the IDataAccess interface
+        /// </summary>
+        /// <param name="validSignals">A list of signals filtered by date and event code</param>
+        /// <returns>True if the operations succeed, false otherwise</returns>
         public async Task<bool> Process(List<BaseEventLogModel> validSignals)
         {
             if (validSignals.Count == 0)
                 return true;
             await CalcPreemptEvent(validSignals);
-            return await WritePreemptSignalsToDb(validSignals) && await WritePreemptEventsToDb(preemptList);
+            return await WritePreemptSignalsToDb(validSignals) && await WritePreemptEventsToDb(_preemptList);
         }
     }
 }

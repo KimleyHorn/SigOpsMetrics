@@ -1,10 +1,7 @@
-﻿
-namespace SigOpsMetricsCalcEngine.Models
+﻿namespace SigOpsMetricsCalcEngine.Models
 {
     public class PreemptModel
     {
-
-
         public DateTime? InputOn { get; set; }
         public DateTime? InputOff { get; set; }
         public DateTime? EntryStart { get; set; }
@@ -55,7 +52,7 @@ namespace SigOpsMetricsCalcEngine.Models
             TrackClear = trackClear;
             DwellService = dwellService;
             ExitCall = exitCall;
-            SignalID = signalId; 
+            SignalID = signalId;
             SetDuration();
             ExternalCallOff = externalCallOff;
             ExternalCallOn = externalCallOn;
@@ -64,10 +61,10 @@ namespace SigOpsMetricsCalcEngine.Models
 
         public override string ToString()
         {
-            return $"{PreemptType} Preempt for Signal {SignalID}, " + 
+            return $"{PreemptType} Preempt for Signal {SignalID}, " +
                    $"Duration: {Duration}, " +
                    $"Start time: {InputOn?.Date}, " +
-                   $@"End time: {ExitCall?.Date}," + 
+                   $@"End time: {ExitCall?.Date}," +
                    $@"External Preempt Call On: {ExternalCallOn}, " +
                    $@"External Call Off: {ExternalCallOff}, ";
         }
