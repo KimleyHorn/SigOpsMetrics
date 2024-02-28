@@ -1,6 +1,7 @@
 ﻿using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.DataAccess;
 using System.Configuration;
+using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine
 {
@@ -13,7 +14,7 @@ namespace SigOpsMetricsCalcEngine
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
         private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
 
-        public static async Task Main()
+        public static async Task Main(string[] args)
         {
             var today = DateTime.Today;
             var startDate = today.AddDays(-1);
@@ -29,25 +30,38 @@ namespace SigOpsMetricsCalcEngine
 
             var b = new BaseDataAccessLayer();
             var validDates = await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
-
+            
             if (validDates.Count > MaxDays)
             {
-                var truncatedDates = validDates.GetRange(0, MaxDays);
+                
                 for (var i = 0; i < validDates.Count; i += MaxDays)
                 {
+                    var remainingDays = validDates.Count - i;
+                    var actualDays = Math.Min(MaxDays, remainingDays);
+                    var truncatedDates = validDates.GetRange(i, actualDays);
                     await b.ProcessEvents(truncatedDates);
                     if (RunFlash)
                         await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
                     if (RunPreempt)
                         await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
-                    truncatedDates = validDates.GetRange(i, MaxDays);
+                    b.SignalEvents = [];
+
                 }
             }
+            else if (validDates.Count == 0)
+            {
+                Console.WriteLine("No valid dates found");
+            }
+            else
+            {
+                await b.ProcessEvents(validDates);
+                if (RunFlash)
+                    await FlashEventCalc.RunFlash(validDates, b.SignalEvents);
+                if (RunPreempt)
+                    await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents);
+            }
 
-            if (RunFlash)
-                await FlashEventCalc.RunFlash(validDates, b.SignalEvents);
-            if (RunPreempt)
-                await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents);
+
         }
     }
 }

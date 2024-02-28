@@ -140,7 +140,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 await using var cmd = MySqlConnection.CreateCommand();
                 cmd.CommandText = $"SELECT * FROM {mySqlDbName}.{mySqlTableName} WHERE {mySqlColName} BETWEEN @StartDate AND @EndDate";
                 cmd.Parameters.AddWithValue("@StartDate", startDate);
-                cmd.Parameters.AddWithValue("@EndDate", endDate);
+                cmd.Parameters.AddWithValue("@EndDate", endDate.AddDays(1));
 
                 await using var reader = await cmd.ExecuteReaderAsync();
 
@@ -188,7 +188,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             await CheckDB(mySqlTableName, "Timestamp", MySqlDbName, startDate, endDate);
 
             var filteredSignals = allDates
-                .Where(date => !SignalEvents.Any(signalEvent => date.Equals(signalEvent.Timestamp) && eventCodes.Contains(signalEvent.EventCode)))
+                .Where(date => !SignalEvents.Any(signalEvent => date.Day.Equals(signalEvent.Timestamp.Day) && eventCodes.Contains(signalEvent.EventCode)))
                 .ToList();
             return filteredSignals;
         }
@@ -231,7 +231,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 foreach (var date in validDates)
                 {
                     var s3Objects = await GetListRequest(client, date);
-                    var semaphore = new SemaphoreSlim(ThreadCount);
+                    var semaphore = new SemaphoreSlim(ThreadCount, maxCount:ThreadCount);
                     var tasks = s3Objects.Select(async obj =>
                     {
                         await semaphore.WaitAsync();
