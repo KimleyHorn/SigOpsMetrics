@@ -24,7 +24,17 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         static BaseDataAccessLayer()
         {
-            MySqlConnection = new MySqlConnection(MySqlConnString);
+            try
+            {
+                MySqlConnection = new MySqlConnection(MySqlConnString);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                MySqlConnection = new MySqlConnection(null);
+
+            }
+
         }
 
         #region Helper Methods
@@ -55,7 +65,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static async Task<bool> MySqlWriter(string mySqlTableName, DataTable dataTable)
         {
             //Write a conditional statement that returns true if the data was written to the table successfully
-
             try
             {
                 await MySqlConnection.OpenAsync();
@@ -84,7 +93,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             catch (NullReferenceException n)
             {
                 Console.WriteLine(n + " MySqlConnection object null");
-                throw;
+                return false;
             }
             catch (Exception e)
             {
@@ -92,6 +101,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 throw;
             }
             return true;
+        }
+
+        internal static async Task<bool> CSVWriter()
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -138,7 +152,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     await MySqlConnection.OpenAsync();
 
                 await using var cmd = MySqlConnection.CreateCommand();
-                cmd.CommandText = $"SELECT * FROM {mySqlDbName}.{mySqlTableName} WHERE {mySqlColName} BETWEEN @StartDate AND @EndDate";
+                cmd.CommandText =
+                    $"SELECT * FROM {mySqlDbName}.{mySqlTableName} WHERE {mySqlColName} BETWEEN @StartDate AND @EndDate";
                 cmd.Parameters.AddWithValue("@StartDate", startDate);
                 cmd.Parameters.AddWithValue("@EndDate", endDate.AddDays(1));
 
@@ -163,6 +178,12 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 }
 
                 await MySqlConnection.CloseAsync();
+            }
+            catch (MySqlException t)
+            {
+                Console.WriteLine("MySQL connection timed out please check on connection health");
+                Console.WriteLine(t);
+                return false;
             }
             catch (Exception e)
             {
@@ -211,6 +232,35 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             return filteredSignals;
         }
 
+        /// <summary>
+        /// The method that is used to filter base log event models into flash events and preempt events. This method is flexible and can be used for any event type that is based off of the base log event model
+        /// </summary>
+        /// <param name="dates">A list of valid dates to filter by</param>
+        /// <param name="eventCodes">A list of event codes to filter by</param>
+        /// <param name="parquetTable">The location of the table that the method is checking</param>
+        /// <param name="mySqlColName">The column name that contains dates on the MySQL table</param>
+        /// <returns>A list of BaseEventLogModels to be added to the MySql table</returns>
+        internal async Task<List<BaseEventLogModel>> FilterParquetData(List<DateTime> dates, List<long?>? eventCodes, string parquetTable, string mySqlColName)
+        {
+            await CheckDB(parquetTable, mySqlColName, MySqlDbName, dates.FirstOrDefault(), dates.LastOrDefault());
+
+            var filteredSignals = SignalEvents
+                .Where(signal => eventCodes != null && eventCodes.Contains(signal.EventCode)).ToList();
+
+            return filteredSignals;
+        }
+
+        /// <summary>
+        /// A helper method that filters a list of BaseEventLogModels by event code so they can be processed into PreemptModels
+        /// </summary>
+        /// <param name="events">The input list of BaseEventLogModels</param>
+        /// <param name="eventCode">The event code to filter by</param>
+        /// <returns>A filtered list of BaseEventLogModels</returns>
+        public static List<BaseEventLogModel> FilterByEventCode(List<BaseEventLogModel> events, long eventCode)
+        {
+            return events.Where(x => x.EventCode == eventCode).OrderBy(x => x.Timestamp).ToList();
+        }
+
         #endregion Helper Methods
 
         #region Signal Processing
@@ -231,7 +281,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 foreach (var date in validDates)
                 {
                     var s3Objects = await GetListRequest(client, date);
-                    var semaphore = new SemaphoreSlim(ThreadCount, maxCount:ThreadCount);
+                    var semaphore = new SemaphoreSlim(ThreadCount, maxCount: ThreadCount);
                     var tasks = s3Objects.Select(async obj =>
                     {
                         await semaphore.WaitAsync();
@@ -302,6 +352,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         public static async Task WriteToErrorLog(string applicationName,
      string functionName, Exception ex)
         {
+            if (MySqlConnection == new MySqlConnection(null))
+            {
+                Console.WriteLine("Connection is null");
+                return;
+            }
             await WriteToErrorLog(applicationName, functionName, ex.Message,
                 ex.InnerException?.ToString());
         }

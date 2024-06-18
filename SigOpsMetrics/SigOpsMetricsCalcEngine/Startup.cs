@@ -1,6 +1,7 @@
 ﻿using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.DataAccess;
 using System.Configuration;
+using System.Diagnostics;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine
@@ -10,6 +11,7 @@ namespace SigOpsMetricsCalcEngine
         private static readonly bool UseStartEndDates = bool.Parse(ConfigurationManager.AppSettings["USE_START_END_DATES"] ?? "false");
         private static readonly bool RunPreempt = bool.Parse(ConfigurationManager.AppSettings["RUN_PREEMPT"] ?? "false");
         private static readonly bool RunFlash = bool.Parse(ConfigurationManager.AppSettings["RUN_FLASH"] ?? "false");
+        private static readonly bool RunCycle = bool.Parse(ConfigurationManager.AppSettings["RUN_CYCLE"] ?? "false");
         private static readonly string DemoSqlTable = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"] ?? "preempt_log";
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
         private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
@@ -18,9 +20,9 @@ namespace SigOpsMetricsCalcEngine
         {
             var today = DateTime.Today;
             var startDate = today.AddDays(-1);
-            var endDate = default(DateTime);
+            var endDate = today;
             var signalCodeArray = SignalCodeValue.Split(',');
-            var signalCodes = signalCodeArray.Select(long.Parse).Select(dummy => (long?)dummy).ToList();
+            var signalCodes = signalCodeArray.Select(long.Parse).Select(x => (long?)x).ToList();
 
             if (UseStartEndDates)
             {
@@ -44,6 +46,8 @@ namespace SigOpsMetricsCalcEngine
                         await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
                     if (RunPreempt)
                         await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
+                    if (RunCycle)
+                          await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
                     b.SignalEvents = [];
 
                 }
@@ -59,9 +63,9 @@ namespace SigOpsMetricsCalcEngine
                     await FlashEventCalc.RunFlash(validDates, b.SignalEvents);
                 if (RunPreempt)
                     await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents);
+                if (RunCycle)
+                    await CycleTimeCalc.RunCycle(validDates, b.SignalEvents);
             }
-
-
         }
     }
 }

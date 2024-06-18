@@ -20,16 +20,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             SignalEvents = sigModels;
         }
 
-        /// <summary>
-        /// A helper method that filters a list of BaseEventLogModels by event code so they can be processed into PreemptModels
-        /// </summary>
-        /// <param name="events">The input list of BaseEventLogModels</param>
-        /// <param name="eventCode">The event code to filter by</param>
-        /// <returns>A filtered list of BaseEventLogModels</returns>
-        private static List<BaseEventLogModel> FilterByEventCode(List<BaseEventLogModel> events, long eventCode)
-        {
-            return events.Where(x => x.EventCode == eventCode).OrderBy(x => x.Timestamp).ToList();
-        }
 
         /// <summary>
         /// Converts a list of BaseEventLogModels into a list of PreemptModels

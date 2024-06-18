@@ -18,7 +18,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
 
             if (isFiltered.Count > 0)
                 return await preemptFilter.Process(isFiltered);
-            return true;
+            return false;
         }
     }
 }

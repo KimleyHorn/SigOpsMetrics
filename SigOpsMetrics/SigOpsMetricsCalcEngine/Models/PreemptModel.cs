@@ -1,6 +1,8 @@
-﻿namespace SigOpsMetricsCalcEngine.Models
+﻿using Amazon.S3.Model;
+
+namespace SigOpsMetricsCalcEngine.Models
 {
-    public class PreemptModel
+    public class PreemptModel : IMetricModel
     {
         public DateTime? InputOn { get; set; }
         public DateTime? InputOff { get; set; }
@@ -9,6 +11,29 @@
         public DateTime? DwellService { get; set; }
         public DateTime? ExitCall { get; set; }
         public long? SignalID { get; set; }
+        public DateTime? StartTime
+        {
+            get
+            {
+                return InputOff;
+            }
+            set {
+                InputOff = value;
+            }
+            
+        }
+
+        public DateTime? EndTime
+        {
+            get
+            {
+                return ExitCall;
+            }
+            set
+            {
+                ExitCall = value;
+            }
+        }
 
         public bool? ExternalCallOff { get; set; }
         public bool? ExternalCallOn { get; set; }
