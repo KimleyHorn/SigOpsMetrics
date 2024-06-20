@@ -232,3 +232,4 @@ _Pvt_Extensions
 /SigOpsMetrics/SigOpsMetrics.API/castle-rock-service-account.json
 /SigOpsMetrics/.idea/.idea.SigOpsMetrics/.idea
 *.config
+/SigOpsMetrics/SigOpsMetrics.SPA/SigOpsMetrics.SPA.sln

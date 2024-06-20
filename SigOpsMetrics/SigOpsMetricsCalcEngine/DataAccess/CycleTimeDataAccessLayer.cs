@@ -11,11 +11,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 {
     internal class CycleTimeDataAccessLayer : BaseDataAccessLayer, IDataAccess
     {
-        internal static readonly List<long?> EventList = [131];
+        internal static readonly List<long?> EventList = [131,132];
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["CYCLE_TIME_TABLE_NAME"] ?? "cycle_time_log";
 
         private static readonly string? FilePath =
-            ConfigurationManager.AppSettings["FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Cycle_Times;";
+            ConfigurationManager.AppSettings["FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Cycle_Times";
 
         public CycleTimeDataAccessLayer(List<BaseEventLogModel> sigModels)
         {

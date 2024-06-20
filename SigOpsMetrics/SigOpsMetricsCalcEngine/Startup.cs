@@ -12,9 +12,11 @@ namespace SigOpsMetricsCalcEngine
         private static readonly bool RunPreempt = bool.Parse(ConfigurationManager.AppSettings["RUN_PREEMPT"] ?? "false");
         private static readonly bool RunFlash = bool.Parse(ConfigurationManager.AppSettings["RUN_FLASH"] ?? "false");
         private static readonly bool RunCycle = bool.Parse(ConfigurationManager.AppSettings["RUN_CYCLE"] ?? "false");
+        private static readonly bool RunRamp = bool.Parse(ConfigurationManager.AppSettings["RUN_RAMP"] ?? "false");
         private static readonly string DemoSqlTable = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"] ?? "preempt_log";
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
         private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
+        private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
 
         public static async Task Main(string[] args)
         {
@@ -31,7 +33,21 @@ namespace SigOpsMetricsCalcEngine
             }
 
             var b = new BaseDataAccessLayer();
-            var validDates = await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
+                            
+            var validDates = new List<DateTime>();
+            if(!RunRamp) 
+                await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
+
+            if (RunCycle)
+            {
+                validDates = IsItWednesday(endDate, NumWednesday);
+            }
+
+            if (RunRamp)
+            {
+                validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+             .Select(offset => startDate.AddDays(offset)).ToList();
+            }
             
             if (validDates.Count > MaxDays)
             {
@@ -41,13 +57,22 @@ namespace SigOpsMetricsCalcEngine
                     var remainingDays = validDates.Count - i;
                     var actualDays = Math.Min(MaxDays, remainingDays);
                     var truncatedDates = validDates.GetRange(i, actualDays);
-                    await b.ProcessEvents(truncatedDates);
+                    if(RunRamp == RunFlash && RunRamp == RunCycle)
+                        await b.ProcessEvents(truncatedDates);
                     if (RunFlash)
                         await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
                     if (RunPreempt)
                         await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
                     if (RunCycle)
-                          await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
+                        await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
+                    if (RunRamp)
+                    {
+                        
+                        await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
+                    }
+                        
+                    
+                          
                     b.SignalEvents = [];
 
                 }
@@ -66,6 +91,21 @@ namespace SigOpsMetricsCalcEngine
                 if (RunCycle)
                     await CycleTimeCalc.RunCycle(validDates, b.SignalEvents);
             }
+        }
+
+        public static List<DateTime> IsItWednesday(DateTime lastDay, int numWed)
+        {
+            var wednesday = new List<DateTime>();
+            var day = lastDay;
+            while (wednesday.Count < numWed)
+            {
+                if (day.DayOfWeek == DayOfWeek.Wednesday)
+                {
+                    wednesday.Add(day);
+                }
+                day = day.AddDays(-1);
+            }
+            return wednesday;
         }
     }
 }
