@@ -18,7 +18,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
             //var isFiltered = await rampFilter.Filter(validDates.FirstOrDefault(), validDates.LastOrDefault());
             //if (isFiltered.Count > 0)
                 return await rampFilter.Process();
-            return false;
+            //return false;
         }
     }
 }

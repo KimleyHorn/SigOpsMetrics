@@ -57,19 +57,19 @@ namespace SigOpsMetricsCalcEngine
                     var remainingDays = validDates.Count - i;
                     var actualDays = Math.Min(MaxDays, remainingDays);
                     var truncatedDates = validDates.GetRange(i, actualDays);
-                    if(RunRamp == RunFlash && RunRamp == RunCycle)
-                        await b.ProcessEvents(truncatedDates);
+                    //Figure out how to if/only if run cycle is true due to different spot for data in code
+                    //if(RunRamp == RunFlash && RunRamp == RunCycle)
+                    //    await b.ProcessEvents(truncatedDates);
+                    await b.ProcessEvents(truncatedDates);
                     if (RunFlash)
                         await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
                     if (RunPreempt)
                         await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
                     if (RunCycle)
-                        await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
+                         await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
                     if (RunRamp)
-                    {
-                        
                         await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
-                    }
+                    
                         
                     
                           

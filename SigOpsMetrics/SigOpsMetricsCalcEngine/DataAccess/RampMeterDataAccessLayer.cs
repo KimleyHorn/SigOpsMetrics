@@ -1,10 +1,11 @@
 ﻿using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
-using System.Data;
+
 using System.Globalization;
 using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using Parquet;
+using Parquet.Data;
 using Parquet.Schema;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
@@ -14,7 +15,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
     {
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["CYCLE_TIME_TABLE_NAME"] ?? "ramp_meter_log";
         internal static readonly List<long?> EventList = [131];
-        private static readonly string? FilePath = ConfigurationManager.AppSettings["FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Ramp_Meters";
+        private static readonly string? FilePath = ConfigurationManager.AppSettings["RAMP_FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Ramp_Meters";
         private static readonly string? InputPath = ConfigurationManager.AppSettings["INPUT_PATH"] ?? string.Empty;
         /// <summary>
         /// Constructor for the RampMeterDataAccessLayer that takes in a list of signals
@@ -85,38 +86,100 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 return false;
             }
         }
+        #endregion
 
-
-        #endregion Write to MySQL
-        public async Task<bool> UnpackParquetFileAsync(string inputDirectoryPath, string outputDirectoryPath)
+        public async Task<bool> UnpackParquetFilesAsync(string inputDirectoryPath, string outputDirectoryPath, string outputFileName)
         {
-            
-
-            if (!File.Exists(inputDirectoryPath))
+            if (!Directory.Exists(inputDirectoryPath))
             {
-                Console.WriteLine("File does not exist: " + inputDirectoryPath);
+                Console.WriteLine("Directory does not exist: " + inputDirectoryPath);
                 return false;
             }
 
-
-            string outputFilePath = outputDirectoryPath;
-
-            await using Stream fileStream = File.OpenRead(inputDirectoryPath);
-            var options = new ParquetOptions {TreatByteArrayAsString = true};
-            var parquetReader = await ParquetReader.CreateAsync(fileStream, options);
-
-            await using var writer = new StreamWriter(outputFilePath);
-
-            // Write CSV headers
-            await writer.WriteLineAsync("timestamp,signalID,eventcode,eventparam");
-            // Read all rows from the Parquet file
-            foreach (var row in await parquetReader.ReadEntireRowGroupAsync(0))
+            if (!Directory.Exists(outputDirectoryPath))
             {
-                writer.WriteLine(row.ToString());
+                Directory.CreateDirectory(outputDirectoryPath);
             }
-            Console.WriteLine("Data successfully written to CSV file: " + outputFilePath);
+
+            string outputFilePath = Path.Combine(outputDirectoryPath, outputFileName);
+
+            var files = Directory.GetFiles(inputDirectoryPath, "ramp_meter_events_*.parquet")
+                                 .OrderBy(f => f)
+                                 .Take(10)
+                                 .ToList();
+
+            if (!files.Any())
+            {
+                Console.WriteLine("No matching files found in directory: " + inputDirectoryPath);
+                return false;
+            }
+
+            try
+            {
+                await using var writer = new StreamWriter(outputFilePath);
+
+                bool headersWritten = false;
+
+                foreach (var inputFilePath in files)
+                {
+                    try
+                    {
+                        await using Stream fileStream = File.OpenRead(inputFilePath);
+                        var options = new ParquetOptions { TreatByteArrayAsString = true };
+                        using var parquetReader = await ParquetReader.CreateAsync(fileStream, options);
+
+                        // Write CSV headers if not already written
+                        if (!headersWritten)
+                        {
+                            var columns = parquetReader.Schema.Fields.Select(f => f.Name).ToArray();
+                            await writer.WriteLineAsync(string.Join(",", columns));
+                            headersWritten = true;
+                        }
+
+                        // Read all rows from the Parquet file
+                        for (int i = 0; i < parquetReader.RowGroupCount; i++)
+                        {
+                            using var rowGroupReader = parquetReader.OpenRowGroupReader(i);
+                            var dataFields = parquetReader.Schema.GetDataFields();
+                            var columnData = new DataColumn[dataFields.Length];
+
+                            for (int j = 0; j < dataFields.Length; j++)
+                                columnData[j] = await rowGroupReader.ReadColumnAsync(dataFields[j]);
+
+                            int rowCount = columnData[0].Data.Length;
+
+                            for (int row = 0; row < rowCount; row++)
+                            {
+                                var rowValues = columnData.Select(c =>
+                                {
+                                    if (c.Field.Name == "timestamp" && c.Data.GetValue(row) is DateTime timestamp)
+                                    {
+                                        return timestamp.ToString("yyyy-MM-dd HH:mm:ss");
+                                    }
+                                    return c.Data.GetValue(row)?.ToString();
+                                }).ToArray();
+                                await writer.WriteLineAsync(string.Join(",", rowValues));
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Failed to process file {inputFilePath}: {ex.Message}");
+                        return false;
+                    }
+                }
+
+                Console.WriteLine("Data successfully written to CSV file: " + outputFilePath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to create or write to output file: {ex.Message}");
+                return false;
+            }
+
             return true;
         }
+
 
 
         /// <summary>
@@ -134,14 +197,14 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         }
 
 
-        public async Task<bool> Process(List<BaseEventLogModel> isFiltered = null)
+        public async Task<bool> Process(List<BaseEventLogModel>? isFiltered = null)
         {
             try
             {
                 //if (isFiltered.Count == 0)
                 //    return false;
                 //return await WriteRampMetersToCSV(FilePath ?? " ", isFiltered);
-                return await UnpackParquetFileAsync(InputPath ?? " ", FilePath ?? " ");
+                return await UnpackParquetFilesAsync(InputPath ?? " ", FilePath ?? " ", "testOutput.csv");
             }
             catch (Exception e)
             {

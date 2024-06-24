@@ -55,12 +55,13 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 csvContent.AppendLine("Timestamp,SignalID,EventCode,EventParam");
 
                 // Write each event log entry
-                foreach (var log in events)
+                var baseEventLogModels = events.ToList();
+                foreach (var log in baseEventLogModels)
                 {
                     var line = $"{log.Timestamp:yyyy-MM-ddHH:mm:ss.fff},{log.SignalID},{log.EventCode},{log.EventParam}";
                     csvContent.AppendLine(line);
                 }
-                var fileDate = events.First().Timestamp;
+                var fileDate = baseEventLogModels.First().Timestamp;
                 var filePath = dirPath + @$"\CycleTimeRawData_{fileDate:yyyy-MM-dd}.csv";
                 // Write the content to the specified file. This will create a new file if it doesn't exist,
                 // or overwrite the existing file.

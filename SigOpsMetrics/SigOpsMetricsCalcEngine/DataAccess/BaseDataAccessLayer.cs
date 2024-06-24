@@ -103,11 +103,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             return true;
         }
 
-        internal static async Task<bool> CSVWriter()
-        {
-            throw new NotImplementedException();
-        }
-
         /// <summary>
         /// A helper method that will return a GetObjectResponse from a given S3Object
         /// </summary>
