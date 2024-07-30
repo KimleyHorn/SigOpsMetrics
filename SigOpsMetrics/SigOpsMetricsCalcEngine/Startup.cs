@@ -17,6 +17,52 @@ namespace SigOpsMetricsCalcEngine
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
         private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
         private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
+        internal static string metroCentral = $"C:\\Development\\SigOpsMetrics\\SigOpsMetrics\\SigOpsMetricsCalcEngine\\Regions\\SigOpsMC.csv";
+
+
+        static List<List<long?>> GetSignalList(string filePath)
+        {
+            var result = new List<List<long?>>();
+
+            using (var reader = new StreamReader(filePath))
+            {
+                string line;
+
+                // Skip the first row
+                if ((line = reader.ReadLine()) == null)
+                    return result; // Return empty if file is empty or only has one row
+
+                // Process the rest of the rows
+                while ((line = reader.ReadLine()) != null)
+                {
+                    var values = line.Split(',');
+                    var longValues = new List<long?>();
+
+                    foreach (var value in values)
+                    {
+                        if (long.TryParse(value, out long longValue))
+                        {
+                            longValues.Add(longValue);
+                        }
+                        else
+                        {
+                            // Handle the error if needed, e.g., log it or skip
+                            Console.WriteLine($"Unable to parse '{value}' as a long?.");
+                        }
+                    }
+
+                    result.Add(longValues);
+                }
+            }
+
+            return result;
+        }
+
+        static bool ContainsNumber(List<List<long?>> doubleIndexedArray, long? number)
+        {
+            // Flatten the double-indexed array and check if it contains the number
+            return doubleIndexedArray.Any(innerList => innerList.Contains(number));
+        }
 
         public static async Task Main(string[] args)
         {
@@ -25,22 +71,22 @@ namespace SigOpsMetricsCalcEngine
             var endDate = today;
             var signalCodeArray = SignalCodeValue.Split(',');
             var signalCodes = signalCodeArray.Select(long.Parse).Select(x => (long?)x).ToList();
+            var regionCodes = new List<long?>();
 
             if (UseStartEndDates)
             {
                 startDate = DateTime.Parse(ConfigurationManager.AppSettings["START_DATE"] ?? "0");
                 endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
-            }
 
+            }
             var b = new BaseDataAccessLayer();
-                            
-            var validDates = new List<DateTime>();
-            if(!RunRamp) 
-                await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
+
+            var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+             .Select(offset => startDate.AddDays(offset)).ToList();
 
             if (RunCycle)
             {
-                validDates = IsItWednesday(endDate, NumWednesday);
+                regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
             }
 
             if (RunRamp)
@@ -60,7 +106,7 @@ namespace SigOpsMetricsCalcEngine
                     //Figure out how to if/only if run cycle is true due to different spot for data in code
                     //if(RunRamp == RunFlash && RunRamp == RunCycle)
                     //    await b.ProcessEvents(truncatedDates);
-                    await b.ProcessEvents(truncatedDates);
+                    await b.ProcessEvents(truncatedDates, signalIdList: regionCodes);
                     if (RunFlash)
                         await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
                     if (RunPreempt)
@@ -70,9 +116,6 @@ namespace SigOpsMetricsCalcEngine
                     if (RunRamp)
                         await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
                     
-                        
-                    
-                          
                     b.SignalEvents = [];
 
                 }

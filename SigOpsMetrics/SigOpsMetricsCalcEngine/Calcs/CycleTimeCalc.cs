@@ -6,10 +6,12 @@ using System.Threading.Tasks;
 using SigOpsMetricsCalcEngine.DataAccess;
 using SigOpsMetricsCalcEngine.Models;
 
+
 namespace SigOpsMetricsCalcEngine.Calcs
 {
     internal class CycleTimeCalc
     {
+
 
         public CycleTimeCalc() { }
 
