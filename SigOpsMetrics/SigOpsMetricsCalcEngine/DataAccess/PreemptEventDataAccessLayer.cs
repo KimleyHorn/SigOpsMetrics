@@ -28,6 +28,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <returns>True if the operation succeeds, false otherwise</returns>
         public static async Task<bool> CalcPreemptEvent(List<BaseEventLogModel> baseSignal)
         {
+            //Definitely use this logic as a go by to see how to grab data list
             var inputOn = FilterByEventCode(baseSignal, 102);
             var entryStart = FilterByEventCode(baseSignal, 105);
             var trackClear = FilterByEventCode(baseSignal, 106);

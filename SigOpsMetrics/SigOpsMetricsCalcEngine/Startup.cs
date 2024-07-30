@@ -2,6 +2,7 @@
 using SigOpsMetricsCalcEngine.DataAccess;
 using System.Configuration;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine
@@ -13,13 +14,17 @@ namespace SigOpsMetricsCalcEngine
         private static readonly bool RunFlash = bool.Parse(ConfigurationManager.AppSettings["RUN_FLASH"] ?? "false");
         private static readonly bool RunCycle = bool.Parse(ConfigurationManager.AppSettings["RUN_CYCLE"] ?? "false");
         private static readonly bool RunRamp = bool.Parse(ConfigurationManager.AppSettings["RUN_RAMP"] ?? "false");
+        private static readonly bool RunPhase = bool.Parse(ConfigurationManager.AppSettings["RUN_PHASE"] ?? "false");
         private static readonly string DemoSqlTable = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"] ?? "preempt_log";
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
         private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
         private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
 
+
+
         public static async Task Main(string[] args)
         {
+
             var today = DateTime.Today;
             var startDate = today.AddDays(-1);
             var endDate = today;
@@ -33,10 +38,19 @@ namespace SigOpsMetricsCalcEngine
             }
 
             var b = new BaseDataAccessLayer();
-                            
+
             var validDates = new List<DateTime>();
-            if(!RunRamp) 
-                await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
+
+            if (RunPhase)
+            {
+              //Creates list of dates from whatever startDate is set to through the previous 7 days
+              endDate = startDate.AddDays(-7);
+              var dateList = CreateDateList(startDate, endDate);
+              validDates.AddRange(dateList);
+            }
+
+            //if (!RunRamp)
+            //    await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
 
             if (RunCycle)
             {
@@ -48,10 +62,10 @@ namespace SigOpsMetricsCalcEngine
                 validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
              .Select(offset => startDate.AddDays(offset)).ToList();
             }
-            
+
             if (validDates.Count > MaxDays)
             {
-                
+
                 for (var i = 0; i < validDates.Count; i += MaxDays)
                 {
                     var remainingDays = validDates.Count - i;
@@ -66,13 +80,14 @@ namespace SigOpsMetricsCalcEngine
                     if (RunPreempt)
                         await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
                     if (RunCycle)
-                         await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
+                        await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
                     if (RunRamp)
                         await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
-                    
-                        
-                    
-                          
+                    if (RunPhase)
+                        //configure some way how returning data w/o mem issues 
+                        //Pass 
+                        await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents);
+
                     b.SignalEvents = [];
 
                 }
@@ -90,6 +105,8 @@ namespace SigOpsMetricsCalcEngine
                     await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents);
                 if (RunCycle)
                     await CycleTimeCalc.RunCycle(validDates, b.SignalEvents);
+                if (RunPhase)
+                    await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents);
             }
         }
 
@@ -106,6 +123,15 @@ namespace SigOpsMetricsCalcEngine
                 day = day.AddDays(-1);
             }
             return wednesday;
+        }
+
+        public static IEnumerable<DateTime> CreateDateList(DateTime startDateTime, DateTime endDateTime)
+        {
+            while (endDateTime <= startDateTime)
+            {
+                yield return endDateTime;
+                endDateTime = endDateTime.AddDays(1);
+            }
         }
     }
 }
