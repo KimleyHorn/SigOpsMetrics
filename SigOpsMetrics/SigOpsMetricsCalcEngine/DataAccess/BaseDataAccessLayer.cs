@@ -49,21 +49,29 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <returns>A list of S3 objects from a given day</returns>
         private static async Task<List<S3Object>> GetListRequest(AmazonS3Client client, DateTime startDate, List<long?> AllowedSignalIds = null)
         {
-            var listRequest = new ListObjectsV2Request
+            var allObjects = new List<S3Object>();
+            string continuationToken = null;
+
+            do
             {
-                BucketName = AwsBucketName,
-                Prefix = $"{FolderName}/date={startDate:yyyy-MM-dd}/{FolderName}_"
-            };
+                var listRequest = new ListObjectsV2Request
+                {
+                    BucketName = AwsBucketName,
+                    Prefix = $"{FolderName}/date={startDate:yyyy-MM-dd}/{FolderName}_",
+                    ContinuationToken = continuationToken
+                };
 
-            var res = await client.ListObjectsV2Async(listRequest);
+                var res = await client.ListObjectsV2Async(listRequest);
 
-            // Ensure that res and res.S3Objects are not null
-            if (res == null || res.S3Objects == null)
-            {
-                return new List<S3Object>();
-            }
+                if (res == null || res.S3Objects == null)
+                {
+                    break;
+                }
 
-            var allObjects = res.S3Objects.ToList();
+                allObjects.AddRange(res.S3Objects);
+                continuationToken = res.NextContinuationToken;
+
+            } while (!string.IsNullOrEmpty(continuationToken));
 
             // If AllowedSignalIds is null, initialize it as an empty list to prevent null reference exceptions
             AllowedSignalIds ??= new List<long?>();
@@ -335,10 +343,9 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                                 (null, null) => signalData.ToList(),
                                 (null, not null) => throw new ArgumentException(
                                     "Event Codes cannot be used without Signal Ids"),
-                                (not null, null) => signalData.Where(x => signalIdList.Contains(x.SignalID)).ToList(),
-                                (not null, not null) => signalData.Where(x =>
-                                        signalIdList.Contains(x.SignalID) && eventCodes.Contains(x.EventCode))
-                                    .ToList()
+                                (not null, not null) => signalData.Where(x => eventCodes.Contains(x.EventCode))
+                                    .ToList(),
+                                (not null, null) => signalData.ToList()
                             };
                         }
                         catch

@@ -15,7 +15,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["CYCLE_TIME_TABLE_NAME"] ?? "cycle_time_log";
 
         private static readonly string? FilePath =
-            ConfigurationManager.AppSettings["FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Cycle_Times";
+            ConfigurationManager.AppSettings["FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Cycle_Time_CSVs";
 
         public CycleTimeDataAccessLayer(List<BaseEventLogModel> sigModels)
         {
