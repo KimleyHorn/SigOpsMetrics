@@ -6,6 +6,7 @@ using Parquet;
 using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
 using System.Data;
+using System.Text.RegularExpressions;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
@@ -44,17 +45,51 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// </summary>
         /// <param name="client">An AmazonS3Client that is created to handle the requests from the S3 server</param>
         /// <param name="startDate">The date associated with the request from the S3 server</param>
+        /// <param name="AllowedSignalIds">A list of signal ids to include in the list request if needed. Only to be used if needing to get a specific signal or region</param>
         /// <returns>A list of S3 objects from a given day</returns>
-        private static async Task<List<S3Object>> GetListRequest(AmazonS3Client client, DateTime startDate)
+        private static async Task<List<S3Object>> GetListRequest(AmazonS3Client client, DateTime startDate, List<long?> AllowedSignalIds = null)
         {
             var listRequest = new ListObjectsV2Request
             {
                 BucketName = AwsBucketName,
                 Prefix = $"{FolderName}/date={startDate:yyyy-MM-dd}/{FolderName}_"
             };
+
             var res = await client.ListObjectsV2Async(listRequest);
-            return res.S3Objects.ToList();
+
+            // Ensure that res and res.S3Objects are not null
+            if (res == null || res.S3Objects == null)
+            {
+                return new List<S3Object>();
+            }
+
+            var allObjects = res.S3Objects.ToList();
+
+            // If AllowedSignalIds is null, initialize it as an empty list to prevent null reference exceptions
+            AllowedSignalIds ??= new List<long?>();
+
+            // Regular expression to extract the signal ID from the filename
+            var regex = new Regex(@"atspm_(\d+)_\d{4}-\d{2}-\d{2}\.parquet");
+
+            // Filter objects based on allowed signal IDs
+            var filteredObjects = allObjects.Where(obj =>
+            {
+                if (obj.Key == null)
+                {
+                    return false; // Skip if the object's Key is null
+                }
+
+                var match = regex.Match(obj.Key);
+                if (match.Success && int.TryParse(match.Groups[1].Value, out int signalId))
+                {
+                    return AllowedSignalIds.Contains(signalId);
+                }
+                return false;
+            }).ToList();
+
+            return filteredObjects;
         }
+
 
         /// <summary>
         /// A helper method that handles writing the entire DataTable to a MySQL table using MySqlBulkCopy
@@ -275,7 +310,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 using var client = new AmazonS3Client(AwsAccess, AwsSecret, BucketRegion);
                 foreach (var date in validDates)
                 {
-                    var s3Objects = await GetListRequest(client, date);
+                    List<S3Object> s3Objects;
+                    if(signalIdList != null) 
+                        s3Objects = await GetListRequest(client, date, signalIdList);
+                    else
+                        s3Objects = await GetListRequest(client, date);
                     var semaphore = new SemaphoreSlim(ThreadCount, maxCount: ThreadCount);
                     var tasks = s3Objects.Select(async obj =>
                     {
