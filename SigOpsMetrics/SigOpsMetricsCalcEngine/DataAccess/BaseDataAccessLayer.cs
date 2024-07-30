@@ -22,6 +22,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "mark1";
         internal static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
         internal static MySqlConnection MySqlConnection;
+        internal static string test = "test"; 
 
         static BaseDataAccessLayer()
         {
