@@ -2,6 +2,7 @@
 using SigOpsMetricsCalcEngine.DataAccess;
 using System.Configuration;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using SigOpsMetricsCalcEngine.Models;
 
@@ -19,7 +20,7 @@ namespace SigOpsMetricsCalcEngine
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
         private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
         private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
-        internal static string metroCentral = $"C:\\Development\\SigOpsMetrics\\SigOpsMetrics\\SigOpsMetricsCalcEngine\\Regions\\SigOpsMC.csv";
+        internal static string metroCentral = $"C:\\Users\\alex.valentin\\Downloads\\SigOpsMC.csv";
 
 
         static List<List<long?>> GetSignalList(string filePath)
@@ -75,6 +76,9 @@ namespace SigOpsMetricsCalcEngine
             var signalCodeArray = SignalCodeValue.Split(',');
             var signalCodes = signalCodeArray.Select(long.Parse).Select(x => (long?)x).ToList();
             var regionCodes = new List<long?>();
+            var validDates = new List<DateTime>();
+
+            var phaseInformation = new List<string>();
 
             if (UseStartEndDates)
             {
@@ -82,17 +86,23 @@ namespace SigOpsMetricsCalcEngine
                 endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
 
             }
+
             var b = new BaseDataAccessLayer();
 
-            var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-             .Select(offset => startDate.AddDays(offset)).ToList();
+            if (RunCycle || RunRamp)
+            {
+                validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                             .Select(offset => startDate.AddDays(offset)).ToList();
+            }
 
             if (RunPhase)
             {
-              //Creates list of dates from whatever startDate is set to through the previous 7 days
-              endDate = startDate.AddDays(-7);
-              var dateList = CreateDateList(startDate, endDate);
-              validDates.AddRange(dateList);
+                //Creates list of dates from whatever startDate is set to through the previous 7 days
+                endDate = startDate.AddDays(-7);
+                var dateList = CreateDateList(startDate, endDate);
+                validDates.AddRange(dateList);
+
+                regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
             }
 
             //if (!RunRamp)
@@ -132,7 +142,8 @@ namespace SigOpsMetricsCalcEngine
                     if (RunPhase)
                         //configure some way how returning data w/o mem issues 
                         //Pass 
-                        await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents);
+                        phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents, regionCodes));
+                    
 
                     b.SignalEvents = [];
 
@@ -152,7 +163,7 @@ namespace SigOpsMetricsCalcEngine
                 if (RunCycle)
                     await CycleTimeCalc.RunCycle(validDates, b.SignalEvents);
                 if (RunPhase)
-                    await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents);
+                    phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents, regionCodes));
             }
         }
 
