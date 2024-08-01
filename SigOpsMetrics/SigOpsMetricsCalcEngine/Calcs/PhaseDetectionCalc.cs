@@ -1,58 +1,56 @@
-﻿using System.Text;
+﻿using System.Collections.Concurrent;
+using System.Text;
 using Amazon.Runtime.Internal.Transform;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using SigOpsMetricsCalcEngine.Models;
+using ConfigurationManager = System.Configuration.ConfigurationManager;
 
 namespace SigOpsMetricsCalcEngine.Calcs;
 
 public class PhaseDetectionCalc
 {
-    public static List<string> StringDataCollection = new List<string>();
-    public static List<PhaseDetectionModel> DowntimeCollection = new List<PhaseDetectionModel>();
+    private static List<string> _stringDataCollection = new List<string>();
+    private static List<PhaseDetectionModel> _downtimeCollection = new List<PhaseDetectionModel>();
 
-    private static string _fileDirectory = "C:\\Users\\alex.valentin\\source\\repos\\SigOpsMetricsCSV";
+    private static readonly string _fileDirectory = ConfigurationManager.AppSettings["PHASE_OUTPUT_DIRECTORY"];
     public static async Task<List<string>> RunPhase(List<DateTime> validDates, List<BaseEventLogModel> sigModels, List<long?> regionCodes)
     {
-        var filteredData = new List<BaseEventLogModel>();
-        var signalData = new List<BaseEventLogModel>();
-
         foreach (var date in validDates)
         {
+            var tasks = new List<Task>();
+            var lockObject = new object();
+
             foreach (var signalId in regionCodes)
             {
-                signalData = sigModels.Where(x => (x.SignalID == signalId) &&
-                                                  (x.Timestamp.Hour >= 7 && x.Timestamp.Hour <= 17)).ToList();
-                filteredData = PhaseDetectionDataAccessLayer.FilterMissedOrOmitted(signalData, signalId);
-                var percentDowntime = CalculateDowntime(signalData.Count, filteredData.Count);
-                AddToCollections(date, signalId, percentDowntime);
+                tasks.Add(Task.Run(() =>
+                {
+                    var signalData = sigModels.Where(x =>
+                        x.SignalID == signalId &&
+                        x.Timestamp.Hour >= 7 &&
+                        x.Timestamp.Hour <= 17).ToList();
+
+                    var filteredData = PhaseDetectionDataAccessLayer.FilterMissedOrOmitted(signalData, signalId);
+
+                    lock (lockObject)
+                    {
+                        var percentDowntime = CalculateDowntime(signalData.Count, filteredData.Count);
+                        AddToCollections(date, signalId, percentDowntime);
+                    }
+                }));
             }
+            Task.WaitAll(tasks.ToArray());
+            SortDowntimeCollection();
             WritePhaseDetectionToCSV(date);
-            DowntimeCollection = new List<PhaseDetectionModel>();
+            _downtimeCollection = new List<PhaseDetectionModel>();
         }
-        return StringDataCollection;
+        SortStringCollection();
+        return _stringDataCollection;
     }
 
-    public static float? CalculateDowntime(int? signalData, int? filteredData)
-    {
-        if (!signalData.HasValue) throw new DivideByZeroException();
-        var percentDowntime = 100 - (filteredData * 100f / signalData);
-        return percentDowntime;
-    }
-
-    public static void AddToCollections(DateTime date, long? signalId, float? percentDowntime)
-    {
-        DowntimeCollection.Add(new PhaseDetectionModel
-        {
-            Date = date,
-            Downtime = percentDowntime,
-            SignalID = signalId
-        });
-        StringDataCollection.Add($"Date: {date.ToShortDateString()} - SignalID: {signalId} - Downtime: {percentDowntime}%");
-    }
-
-    public static async void WritePhaseDetectionToCSV(DateTime date)
+    #region WriteToCSV
+    private static async void WritePhaseDetectionToCSV(DateTime date)
     {
         try
         {
@@ -66,7 +64,7 @@ public class PhaseDetectionCalc
             csvContent.AppendLine("Date,SignalID,Downtime");
 
             //Writing Objects to CSV
-            foreach (var signalInfo in DowntimeCollection.Where(x => x.Date == date))
+            foreach (var signalInfo in _downtimeCollection.Where(x => x.Date == date))
             {
                 var line = $"{signalInfo.Date.ToShortDateString()},{signalInfo.SignalID},{signalInfo.Downtime}%";
                 csvContent.AppendLine(line);
@@ -79,7 +77,7 @@ public class PhaseDetectionCalc
         catch (UnauthorizedAccessException ex)
         {
             Console.WriteLine("Error: Access to the path is denied. " + ex.Message);
-            
+
         }
         catch (DirectoryNotFoundException ex)
         {
@@ -94,4 +92,47 @@ public class PhaseDetectionCalc
             Console.WriteLine("Error: An unexpected error occurred. " + ex.Message);
         }
     }
+    #endregion
+
+    #region Sorting
+    private static void SortDowntimeCollection()
+    {
+        _downtimeCollection = _downtimeCollection.OrderBy(x => x.SignalID).ToList();
+    }
+
+    private static void SortStringCollection()
+    {
+        _stringDataCollection = _stringDataCollection.OrderBy(x => ExtractIDFromString(x)).ToList();
+    }
+
+    private static int ExtractIDFromString(string str)
+    {
+        int idIndex = str.IndexOf("SignalID: ") + "SignalID: ".Length;
+        int endIndex = str.IndexOf(" - Downtime:", idIndex);
+        string idString = str.Substring(idIndex, endIndex - idIndex);
+        return int.Parse(idString);
+    }
+    #endregion
+
+
+    #region DataHelp
+    private static float? CalculateDowntime(int? signalData, int? filteredData)
+    {
+        if (!signalData.HasValue) throw new DivideByZeroException();
+        var percentDowntime = 100 - (filteredData * 100f / signalData);
+        return percentDowntime;
+    }
+
+    private static void AddToCollections(DateTime date, long? signalId, float? percentDowntime)
+    {
+        _downtimeCollection.Add(new PhaseDetectionModel
+        {
+            Date = date,
+            Downtime = percentDowntime,
+            SignalID = signalId
+        });
+        _stringDataCollection.Add($"Date: {date.ToShortDateString()} - SignalID: {signalId} - Downtime: {percentDowntime}%");
+    }
+    #endregion
+
 }
