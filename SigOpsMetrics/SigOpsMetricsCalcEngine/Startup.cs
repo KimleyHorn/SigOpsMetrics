@@ -2,6 +2,7 @@
 using SigOpsMetricsCalcEngine.DataAccess;
 using System.Configuration;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using SigOpsMetricsCalcEngine.Models;
 
@@ -9,57 +10,68 @@ namespace SigOpsMetricsCalcEngine
 {
     public class Startup
     {
-        private static readonly bool UseStartEndDates = bool.Parse(ConfigurationManager.AppSettings["USE_START_END_DATES"] ?? "false");
-        private static readonly bool RunPreempt = bool.Parse(ConfigurationManager.AppSettings["RUN_PREEMPT"] ?? "false");
-        private static readonly bool RunFlash = bool.Parse(ConfigurationManager.AppSettings["RUN_FLASH"] ?? "false");
-        private static readonly bool RunCycle = bool.Parse(ConfigurationManager.AppSettings["RUN_CYCLE"] ?? "false");
-        private static readonly bool RunRamp = bool.Parse(ConfigurationManager.AppSettings["RUN_RAMP"] ?? "false");
-        private static readonly bool RunPhase = bool.Parse(ConfigurationManager.AppSettings["RUN_PHASE"] ?? "false");
-        private static readonly string DemoSqlTable = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"] ?? "preempt_log";
+        private static bool RunPreempt;
+        private static bool RunFlash;
+        private static bool RunCycle;
+        private static bool RunRamp;
+        private static bool RunPhase;
+        //private static readonly string DemoSqlTable = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"] ?? "preempt_log";
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
-        private static readonly string SignalCodeValue = ConfigurationManager.AppSettings["SIGNAL_CODES"] ?? "";
-        private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
-        internal static string metroCentral = $"C:\\Development\\SigOpsMetrics\\SigOpsMetrics\\SigOpsMetricsCalcEngine\\Regions\\SigOpsMC.csv";
+        //private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
+        internal static string metroCentral = @"SigOpsMC.csv";
 
 
         static List<List<long?>> GetSignalList(string filePath)
-        {
+        { 
+            var assembly = Assembly.GetExecutingAssembly();
             var result = new List<List<long?>>();
+            using var stream = assembly.GetManifestResourceStream(filePath);
+            using var reader = new StreamReader(metroCentral);
+            string line;
 
-            using (var reader = new StreamReader(filePath))
+            // Skip the first row
+            if ((line = reader.ReadLine()) == null)
+                return result; // Return empty if file is empty or only has one row
+
+            // Process the rest of the rows
+            while ((line = reader.ReadLine()) != null)
             {
-                string line;
+                var values = line.Split(',');
+                var longValues = new List<long?>();
 
-                // Skip the first row
-                if ((line = reader.ReadLine()) == null)
-                    return result; // Return empty if file is empty or only has one row
-
-                // Process the rest of the rows
-                while ((line = reader.ReadLine()) != null)
+                foreach (var value in values)
                 {
-                    var values = line.Split(',');
-                    var longValues = new List<long?>();
-
-                    foreach (var value in values)
+                    if (long.TryParse(value, out long longValue))
                     {
-                        if (long.TryParse(value, out long longValue))
-                        {
-                            longValues.Add(longValue);
-                        }
-                        else
-                        {
-                            // Handle the error if needed, e.g., log it or skip
-                            Console.WriteLine($"Unable to parse '{value}' as a long?.");
-                        }
+                        longValues.Add(longValue);
                     }
-
-                    result.Add(longValues);
+                    else
+                    {
+                        // Handle the error if needed, e.g., log it or skip
+                        Console.WriteLine($"Unable to parse '{value}' as a long?.");
+                    }
                 }
+
+                result.Add(longValues);
             }
 
             return result;
         }
 
+        private static DateTime ConsoleInput(string dateType)
+        {
+            Console.Write($"Enter a {dateType} date (MM/DD/YYYY): ");
+            var start = Console.ReadLine();
+            DateTime parsedDate;
+            var isValidDate = DateTime.TryParse(start, out parsedDate) && parsedDate < DateTime.Today;
+            while (!isValidDate)
+            {
+                Console.WriteLine("Please try again with a valid date");
+                start = Console.ReadLine();
+                isValidDate = DateTime.TryParse(start, out parsedDate);
+            }
+            return parsedDate;
+        }
         static bool ContainsNumber(List<List<long?>> doubleIndexedArray, long? number)
         {
             // Flatten the double-indexed array and check if it contains the number
@@ -69,38 +81,72 @@ namespace SigOpsMetricsCalcEngine
         public static async Task Main(string[] args)
         {
 
-            var today = DateTime.Today;
-            var startDate = today.AddDays(-1);
-            var endDate = today;
-            var signalCodeArray = SignalCodeValue.Split(',');
-            var signalCodes = signalCodeArray.Select(long.Parse).Select(x => (long?)x).ToList();
+            Console.WriteLine("Welcome to SigOpsTools Calculation Engine v 0.1!");
+            Console.WriteLine("This tool will currently calculate the following metrics for you:");
+            Console.WriteLine("Cycle Time");
+            Console.WriteLine("Phase Detection");
+
+
+            //TODO: Change all if statements to correspond with console statements
+            var startDate = ConsoleInput("start");
+            var endDate = ConsoleInput("end");
             var regionCodes = new List<long?>();
-
-            if (UseStartEndDates)
-            {
-                startDate = DateTime.Parse(ConfigurationManager.AppSettings["START_DATE"] ?? "0");
-                endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"] ?? "0");
-
-            }
             var b = new BaseDataAccessLayer();
 
             var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
              .Select(offset => startDate.AddDays(offset)).ToList();
 
+            Console.WriteLine("Which Region would you like to run calculations on?");
+            Console.WriteLine("1. Metro Central");
+            Console.WriteLine("2.All");
+            var region = Console.ReadLine();
+            //Which region would you like to run this for?
+            switch (region)
+            {
+                case "1":
+                    regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
+                    Console.WriteLine("Configuring to Metro Central...");
+                    break;
+                case "2":
+                    Console.WriteLine("Configuring to All signals...");
+                    break;
+                default:
+                    Console.WriteLine("Invalid input. Please try again.");
+                    break;
+
+            }
+                
+            //TODO As other parts of the code are updated, add the other options here
+            //TODO The first option added will be incident data between dates for a region
+            //Which type of calculation would you like to run?
+            Console.WriteLine("Which type of calculation would you like to run?");
+            Console.WriteLine("1. Cycle Time");
+            Console.WriteLine("2. Phase Detection");
+            //Console.WriteLine("3. Preempt");
+            //Console.WriteLine("4. Flash");
+            //Console.WriteLine("5. Ramp Meter");
+            //Console.WriteLine("6. Incident");
+            //Console.WriteLine("7. All");
+
+            
+            var calcType = Console.ReadLine();
+            switch (calcType)
+            {
+                case "1":
+                    RunCycle = true;
+                    break;
+                case "2":
+                    RunPhase = true;
+                    break;
+                default:
+                    Console.WriteLine("Invalid input. Please try again.");
+                    break;
+            }
             if (RunPhase)
             {
-              //Creates list of dates from whatever startDate is set to through the previous 7 days
               endDate = startDate.AddDays(-7);
               var dateList = CreateDateList(startDate, endDate);
               validDates.AddRange(dateList);
-            }
-
-            //if (!RunRamp)
-            //    await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
-
-            if (RunCycle)
-            {
-                regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
             }
 
             if (RunRamp)
@@ -117,9 +163,6 @@ namespace SigOpsMetricsCalcEngine
                     var remainingDays = validDates.Count - i;
                     var actualDays = Math.Min(MaxDays, remainingDays);
                     var truncatedDates = validDates.GetRange(i, actualDays);
-                    //Figure out how to if/only if run cycle is true due to different spot for data in code
-                    //if(RunRamp == RunFlash && RunRamp == RunCycle)
-                    //    await b.ProcessEvents(truncatedDates);
                     await b.ProcessEvents(truncatedDates, signalIdList: regionCodes);
                     if (RunFlash)
                         await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
@@ -130,8 +173,6 @@ namespace SigOpsMetricsCalcEngine
                     if (RunRamp)
                         await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
                     if (RunPhase)
-                        //configure some way how returning data w/o mem issues 
-                        //Pass 
                         await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents);
 
                     b.SignalEvents = [];
