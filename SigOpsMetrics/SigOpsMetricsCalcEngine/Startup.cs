@@ -150,9 +150,6 @@ namespace SigOpsMetricsCalcEngine
 
             if (RunPhase)
             {
-              endDate = startDate.AddDays(-7);
-              var dateList = CreateDateList(startDate, endDate);
-              validDates.AddRange(dateList);
                 //Creates list of dates from whatever startDate is set to through the previous 7 days
                 endDate = startDate.AddDays(-7);
                 var dateList = CreateDateList(startDate, endDate);
