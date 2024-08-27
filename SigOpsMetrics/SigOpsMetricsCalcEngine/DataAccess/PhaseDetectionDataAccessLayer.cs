@@ -25,17 +25,21 @@ public class PhaseDetectionDataAccessLayer : BaseDataAccessLayer
     /// Filters the list of BaseEventLogModel. Designed to filter data down to the timeframe,
     /// will then check whether the eventCode is 0. If the eventCode is 0, it will find the next
     /// signal event where the signal and phase matches the previous signal event. If the next signal event is 46,
-    /// the original signal as well as the subsequent will be excluded.
+    /// the original signal as well as the subsequent will be excluded. All 46 codes will be excluded.
+    /// 
     /// --> Will return a list of the "total uptime" signals on the day
     /// </summary>
-    /// <param name="events"></param>
+    /// <param name="events"> List of signal events passed in as a sigModel list in the PhaseDetectionCalc </param>
+    ///
     /// <returns></returns>
-    public static List<BaseEventLogModel> FilterMissedOrOmitted(List<BaseEventLogModel> events)
+    public static List<BaseEventLogModel> FilterMissedOrOmitted(List<BaseEventLogModel> events, long? signalID)
     {
-        return events.Where(x =>
+        //Brig up issues with parameter
+        var filteredSignals = new List<BaseEventLogModel>();
+        filteredSignals = events.Where(x =>
         {
             var ignoreSignals = new List<BaseEventLogModel>();
-            if (ignoreSignals.Contains(x)) return false;
+            if (ignoreSignals.Contains(x) || x.EventCode == 46) return false;
             if (x.Timestamp.Hour >= 7 && x.Timestamp.Hour <= 17)
             {
                 if (x.EventCode.Equals(0))
@@ -52,5 +56,6 @@ public class PhaseDetectionDataAccessLayer : BaseDataAccessLayer
             }
             return false;
         }).ToList();
+        return filteredSignals;
     }
 }

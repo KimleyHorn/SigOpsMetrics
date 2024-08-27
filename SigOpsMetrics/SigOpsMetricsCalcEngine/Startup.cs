@@ -142,11 +142,31 @@ namespace SigOpsMetricsCalcEngine
                     Console.WriteLine("Invalid input. Please try again.");
                     break;
             }
+            if (RunCycle || RunRamp)
+            {
+                validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                             .Select(offset => startDate.AddDays(offset)).ToList();
+            }
+
             if (RunPhase)
             {
               endDate = startDate.AddDays(-7);
               var dateList = CreateDateList(startDate, endDate);
               validDates.AddRange(dateList);
+                //Creates list of dates from whatever startDate is set to through the previous 7 days
+                endDate = startDate.AddDays(-7);
+                var dateList = CreateDateList(startDate, endDate);
+                validDates.AddRange(dateList);
+
+                regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
+            }
+
+            //if (!RunRamp)
+            //    await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
+
+            if (RunCycle)
+            {
+                regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
             }
 
             if (RunRamp)
@@ -173,7 +193,10 @@ namespace SigOpsMetricsCalcEngine
                     if (RunRamp)
                         await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
                     if (RunPhase)
-                        await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents);
+                        //configure some way how returning data w/o mem issues 
+                        //Pass 
+                        phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents, regionCodes));
+                    
 
                     b.SignalEvents = [];
 
@@ -193,7 +216,7 @@ namespace SigOpsMetricsCalcEngine
                 if (RunCycle)
                     await CycleTimeCalc.RunCycle(validDates, b.SignalEvents);
                 if (RunPhase)
-                    await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents);
+                    phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents, regionCodes));
             }
         }
 
