@@ -62,51 +62,30 @@ namespace SigOpsMetricsCalcEngine
             return result;
         }
 
-        private static DateTime ConsoleInput(string dateType)
+        private static DateTime ConsoleDate(string dateType)
         {
-            Console.Write($"Enter a {dateType} date (MM/DD/YYYY or M/D/YY): ");
-            var start = Console.ReadLine();
-            DateTime parsedDate;
-            var isValidDate = DateTime.TryParse(start, out parsedDate) && parsedDate < DateTime.Today;
-            while (!isValidDate)
+            var isValidDate = false;
+
+            do
             {
-                Console.WriteLine("Please try again with a valid date");
-                start = Console.ReadLine();
-                isValidDate = DateTime.TryParse(start, out parsedDate);
-            }
-            return parsedDate;
+                try
+                {
+                    Console.Write($"Enter a {dateType} date (MM/DD/YYYY or M/D/YY): ");
+                    var start = Console.ReadLine();
+                    isValidDate = DateTime.TryParse(start, out var parsedDate) && parsedDate < DateTime.Today;
+                    return parsedDate;
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("Please try again with a valid date");
+                }
+            } while (!isValidDate);
+
+            throw new InvalidOperationException();
         }
-        static bool ContainsNumber(List<List<long?>> doubleIndexedArray, long? number)
+
+        private static void ConsoleRegion(string? region, List<long?> regionCodes)
         {
-            // Flatten the double-indexed array and check if it contains the number
-            return doubleIndexedArray.Any(innerList => innerList.Contains(number));
-        }
-
-        public static async Task Main(string[] args)
-        {
-            //TODO Fix timeout error and improve memory allocation
-            var phaseInformation = new List<string>();
-
-            Console.WriteLine("Welcome to SigOpsTools Calculation Engine v 0.1!");
-            Console.WriteLine("This tool will currently calculate the following metrics for you:");
-            Console.WriteLine("Cycle Time");
-            Console.WriteLine("Phase Detection");
-            
-
-            //TODO: Change all if statements to correspond with console statements
-            var startDate = ConsoleInput("start");
-            var endDate = ConsoleInput("end");
-            var regionCodes = new List<long?>();
-            var b = new BaseDataAccessLayer();
-
-            var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-             .Select(offset => startDate.AddDays(offset)).ToList();
-
-            Console.WriteLine("Which Region would you like to run calculations on?");
-            Console.WriteLine("1. Metro Central");
-            Console.WriteLine("2.All");
-            var region = Console.ReadLine();
-            //Which region would you like to run this for?
             switch (region)
             {
                 case "1":
@@ -121,6 +100,42 @@ namespace SigOpsMetricsCalcEngine
                     break;
 
             }
+        }
+        static bool ContainsNumber(List<List<long?>> doubleIndexedArray, long? number)
+        {
+            // Flatten the double-indexed array and check if it contains the number
+            return doubleIndexedArray.Any(innerList => innerList.Contains(number));
+        }
+
+        public static async Task Main(string[] args)
+        {
+            //TODO Fix timeout error and improve memory allocation
+            var phaseInformation = new List<string>();
+
+            //Initiate the console application
+            Console.WriteLine("Welcome to SigOpsTools Calculation Engine v 0.1!");
+            Console.WriteLine("This tool will currently calculate the following metrics for you:");
+            Console.WriteLine("Cycle Time");
+            Console.WriteLine("Phase Detection");
+            
+
+            //TODO: Change all if statements to correspond with console statements
+            //Gather start and end date
+            var startDate = ConsoleDate("start");
+            var endDate = ConsoleDate("end");
+            var regionCodes = new List<long?>();
+            var b = new BaseDataAccessLayer();
+
+            var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+             .Select(offset => startDate.AddDays(offset)).ToList();
+
+
+            //Determine region
+            Console.WriteLine("Which Region would you like to run calculations on?");
+            Console.WriteLine("1. Metro Central");
+            Console.WriteLine("2.All");
+            var region = Console.ReadLine();
+            ConsoleRegion(region, regionCodes);
                 
             //TODO As other parts of the code are updated, add the other options here
             //TODO The first option added will be incident data between dates for a region
@@ -183,8 +198,23 @@ namespace SigOpsMetricsCalcEngine
                     Console.WriteLine("Invalid input try again");
                 }
             } while (dirName is ("" or null));
-           
 
+            #if DEBUG
+            //Log all of the variables assigned above
+            //TODO Figure out if I can add the run booleans to an array for multiple selection ex. [RunCycle, RunPhase, RunPreempt, RunFlash, RunRamp] [0,1,0,0,1]
+            Console.WriteLine($"Start Date:{startDate}");
+            Console.WriteLine($"End Date:{endDate}");
+            if(regionCodes.Count > 0)
+                Console.WriteLine($"Region Codes:{regionCodes.Slice(1,5)}");
+            if(RunCycle)
+                Console.WriteLine("Running Cycle Time");
+            else if(RunPhase)
+                Console.WriteLine("Running Phase Detection");
+            Console.WriteLine($"Saving files at:{newDirectoryPath}");
+            Console.WriteLine("If these are the values you predicted press any key...");
+            Console.ReadKey(true);
+
+            #endif
 
             if (RunCycle || RunRamp)
             {
