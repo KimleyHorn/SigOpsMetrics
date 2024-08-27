@@ -15,9 +15,9 @@ namespace SigOpsMetricsCalcEngine.Calcs
 
         public CycleTimeCalc() { }
 
-        public static async Task<bool> RunCycle(List<DateTime> validDates, List<BaseEventLogModel> sigModels)
+        public static async Task<bool> RunCycle(List<DateTime> validDates, List<BaseEventLogModel> sigModels, string filePath)
         {
-            var cycleFilter = new CycleTimeDataAccessLayer(sigModels);
+            var cycleFilter = new CycleTimeDataAccessLayer(sigModels, filePath);
             var isFiltered = await cycleFilter.Filter(validDates.FirstOrDefault(), validDates.LastOrDefault());
             if(isFiltered.Count > 0)
                 return await cycleFilter.Process(isFiltered);

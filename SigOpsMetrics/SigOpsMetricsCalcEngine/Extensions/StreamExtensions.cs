@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Threading.Tasks;
-using SigOpsMetricsCalcEngine.DataAccess;
+﻿using System.Data;
 using SigOpsMetricsCalcEngine.Models;
 
-namespace SigOpsMetrics.API.Classes.Extensions
+namespace SigOpsMetricsCalcEngine.Extensions
 {
     public static class StreamExtensions
     {

@@ -1,18 +1,6 @@
-﻿using System;
-using System.ComponentModel;
-using SigOpsMetricsCalcEngine.DataAccess;
-using SigOpsMetricsCalcEngine.Models;
-using Amazon;
-using Amazon.S3;
-using Amazon.S3.Model;
-using System.IO;
-using System.Threading.Tasks;
-using MySqlConnector;
-using Parquet;
-using SigOpsMetricsCalcEngine.Models;
-using System.Configuration;
-using System.Data;
-using System.Security.Policy;
+﻿using SigOpsMetricsCalcEngine.Models;
+
+namespace SigOpsMetricsCalcEngine.DataAccess;
 
 public class PhaseDetectionDataAccessLayer : BaseDataAccessLayer
 {
@@ -35,27 +23,19 @@ public class PhaseDetectionDataAccessLayer : BaseDataAccessLayer
     public static List<BaseEventLogModel> FilterMissedOrOmitted(List<BaseEventLogModel> events, long? signalID)
     {
         //Brig up issues with parameter
-        var filteredSignals = new List<BaseEventLogModel>();
-        filteredSignals = events.Where(x =>
+        var signals = new List<BaseEventLogModel>();
+        signals = events.Where(x =>
         {
             var ignoreSignals = new List<BaseEventLogModel>();
             if (ignoreSignals.Contains(x) || x.EventCode == 46) return false;
-            if (x.Timestamp.Hour >= 7 && x.Timestamp.Hour <= 17)
-            {
-                if (x.EventCode.Equals(0))
-                {
-                    var nextSignalEvent = events.FirstOrDefault(e =>
-                        (e.SignalID == x.SignalID) && (e.EventParam == x.EventParam));
-                    if (nextSignalEvent.EventCode.Equals(46))
-                    {
-                        ignoreSignals.Add(nextSignalEvent);
-                        return false;
-                    }
-                }
-                return true;
-            }
+            if (x.Timestamp.Hour is < 7 or > 17) return false;
+            if (!x.EventCode.Equals(0)) return true;
+            var nextSignalEvent = events.FirstOrDefault(e =>
+                (e.SignalID == x.SignalID) && (e.EventParam == x.EventParam));
+            if (!nextSignalEvent.EventCode.Equals(46)) return true;
+            ignoreSignals.Add(nextSignalEvent);
             return false;
         }).ToList();
-        return filteredSignals;
+        return signals;
     }
 }

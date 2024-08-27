@@ -5,6 +5,9 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using SigOpsMetricsCalcEngine.Models;
+using Microsoft.Win32;
+using System.Windows;
+
 
 namespace SigOpsMetricsCalcEngine
 {
@@ -19,6 +22,7 @@ namespace SigOpsMetricsCalcEngine
         private static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
         //private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
         internal static string metroCentral = @"SigOpsMC.csv";
+        internal static string newDirectoryPath;
 
 
         static List<List<long?>> GetSignalList(string filePath)
@@ -41,7 +45,7 @@ namespace SigOpsMetricsCalcEngine
 
                 foreach (var value in values)
                 {
-                    if (long.TryParse(value, out long longValue))
+                    if (long.TryParse(value, out var longValue))
                     {
                         longValues.Add(longValue);
                     }
@@ -60,7 +64,7 @@ namespace SigOpsMetricsCalcEngine
 
         private static DateTime ConsoleInput(string dateType)
         {
-            Console.Write($"Enter a {dateType} date (MM/DD/YYYY): ");
+            Console.Write($"Enter a {dateType} date (MM/DD/YYYY or M/D/YY): ");
             var start = Console.ReadLine();
             DateTime parsedDate;
             var isValidDate = DateTime.TryParse(start, out parsedDate) && parsedDate < DateTime.Today;
@@ -80,12 +84,14 @@ namespace SigOpsMetricsCalcEngine
 
         public static async Task Main(string[] args)
         {
+            //TODO Fix timeout error and improve memory allocation
+            var phaseInformation = new List<string>();
 
             Console.WriteLine("Welcome to SigOpsTools Calculation Engine v 0.1!");
             Console.WriteLine("This tool will currently calculate the following metrics for you:");
             Console.WriteLine("Cycle Time");
             Console.WriteLine("Phase Detection");
-
+            
 
             //TODO: Change all if statements to correspond with console statements
             var startDate = ConsoleInput("start");
@@ -142,6 +148,44 @@ namespace SigOpsMetricsCalcEngine
                     Console.WriteLine("Invalid input. Please try again.");
                     break;
             }
+
+            string dirName;
+            do
+            {
+                Console.WriteLine("Where would you like this to be written to?");
+                Console.WriteLine("Enter Directory Name");
+                dirName = Console.ReadLine();
+
+
+                var currentDirectory = Directory.GetCurrentDirectory();
+
+                // Get the parent directory
+                var parentDirectory = Directory.GetParent(currentDirectory);
+                try
+                {
+                    if (parentDirectory != null && dirName != string.Empty)
+                    {
+                        // Specify the new directory name (e.g., "NewFolder")
+                        newDirectoryPath = Path.Combine(parentDirectory.FullName, dirName);
+
+                        // Create the directory in the parent directory
+                        Directory.CreateDirectory(newDirectoryPath);
+
+                        Console.WriteLine("Directory created at: " + newDirectoryPath);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Parent directory not found.");
+                    }
+                }
+                catch (NullReferenceException)
+                {
+                    Console.WriteLine("Invalid input try again");
+                }
+            } while (dirName is ("" or null));
+           
+
+
             if (RunCycle || RunRamp)
             {
                 validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
@@ -186,7 +230,7 @@ namespace SigOpsMetricsCalcEngine
                     if (RunPreempt)
                         await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
                     if (RunCycle)
-                        await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents);
+                        await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents, newDirectoryPath);
                     if (RunRamp)
                         await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
                     if (RunPhase)
@@ -211,7 +255,7 @@ namespace SigOpsMetricsCalcEngine
                 if (RunPreempt)
                     await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents);
                 if (RunCycle)
-                    await CycleTimeCalc.RunCycle(validDates, b.SignalEvents);
+                    await CycleTimeCalc.RunCycle(validDates, b.SignalEvents, newDirectoryPath);
                 if (RunPhase)
                     phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents, regionCodes));
             }

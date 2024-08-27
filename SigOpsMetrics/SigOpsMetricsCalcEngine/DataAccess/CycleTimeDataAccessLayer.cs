@@ -14,12 +14,13 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static readonly List<long?> EventList = [131,132];
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["CYCLE_TIME_TABLE_NAME"] ?? "cycle_time_log";
 
-        private static readonly string? FilePath =
+        private static string? FilePath =
             ConfigurationManager.AppSettings["FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Cycle_Time_CSVs";
 
-        public CycleTimeDataAccessLayer(List<BaseEventLogModel> sigModels)
+        public CycleTimeDataAccessLayer(List<BaseEventLogModel> sigModels, string filePath)
         {
             SignalEvents = sigModels;
+            FilePath = filePath;
         }
 
         /// <summary>
@@ -100,27 +101,28 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         #endregion Write to MySQL
 
-        public static async Task<bool> CalcCycleTimeDifference(List<BaseEventLogModel> baseSignal)
-        {
-            foreach (var signal in baseSignal)
-            {
-                var signalId = signal.SignalID;
 
-                try
-                {
-                    var startCycle = FilterByEventCode(baseSignal, 131);
-                    var endCycle = FilterByEventCode(baseSignal, 316);
+        //public static async Task<bool> CalcCycleTimeDifference(List<BaseEventLogModel> baseSignal)
+        //{
+        //    foreach (var signal in baseSignal)
+        //    {
+        //        var signalId = signal.SignalID;
 
-                    //var CycleTime = new CycleModel(signal.SignalID, signal.Timestamp,)
-                }
-                catch (Exception ex)
-                {
-                    await WriteToErrorLog("CycleTimeCalc", "CalcCycleTime", ex);
-                    return false;
-                }
-            }
-            return true;
-        }
+        //        try
+        //        {
+        //            var startCycle = FilterByEventCode(baseSignal, 131);
+        //            var endCycle = FilterByEventCode(baseSignal, 316);
+
+        //            //var CycleTime = new CycleModel(signal.SignalID, signal.Timestamp,)
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            await WriteToErrorLog("CycleTimeCalc", "CalcCycleTime", ex);
+        //            return false;
+        //        }
+        //    }
+        //    return true;
+        //}
 
         public async Task<bool> Process(List<BaseEventLogModel> isFiltered)
         {

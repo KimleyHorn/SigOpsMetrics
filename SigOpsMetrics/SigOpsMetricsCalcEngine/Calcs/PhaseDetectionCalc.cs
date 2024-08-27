@@ -4,6 +4,7 @@ using Amazon.Runtime.Internal.Transform;
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
+using SigOpsMetricsCalcEngine.DataAccess;
 using SigOpsMetricsCalcEngine.Models;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
@@ -11,39 +12,31 @@ namespace SigOpsMetricsCalcEngine.Calcs;
 
 public class PhaseDetectionCalc
 {
-    private static List<string> _stringDataCollection = new List<string>();
-    private static List<PhaseDetectionModel> _downtimeCollection = new List<PhaseDetectionModel>();
+    private static List<string> _stringDataCollection = [];
+    private static List<PhaseDetectionModel> _downtimeCollection = [];
 
     private static readonly string _fileDirectory = ConfigurationManager.AppSettings["PHASE_OUTPUT_DIRECTORY"];
     public static async Task<List<string>> RunPhase(List<DateTime> validDates, List<BaseEventLogModel> sigModels, List<long?> regionCodes)
     {
         foreach (var date in validDates)
         {
-            var tasks = new List<Task>();
             var lockObject = new object();
 
-            foreach (var signalId in regionCodes)
+            Task.WaitAll(regionCodes.Select((signalId, phase) => Task.Run(() =>
             {
-                tasks.Add(Task.Run(() =>
+                var signalData = sigModels.Where(x => x.SignalID == signalId && x.EventParam == phase && x.Timestamp.Hour >= 7 && x.Timestamp.Hour <= 17).ToList();
+
+                var filteredData = PhaseDetectionDataAccessLayer.FilterMissedOrOmitted(signalData, signalId);
+
+                lock (lockObject)
                 {
-                    var signalData = sigModels.Where(x =>
-                        x.SignalID == signalId &&
-                        x.Timestamp.Hour >= 7 &&
-                        x.Timestamp.Hour <= 17).ToList();
-
-                    var filteredData = PhaseDetectionDataAccessLayer.FilterMissedOrOmitted(signalData, signalId);
-
-                    lock (lockObject)
-                    {
-                        var percentDowntime = CalculateDowntime(signalData.Count, filteredData.Count);
-                        AddToCollections(date, signalId, percentDowntime);
-                    }
-                }));
-            }
-            Task.WaitAll(tasks.ToArray());
+                    var percentDowntime = CalculateDowntime(signalData.Count, filteredData.Count);
+                    AddToCollections(date, signalId, percentDowntime, phase);
+                }
+            })).ToArray());
             SortDowntimeCollection();
             WritePhaseDetectionToCSV(date);
-            _downtimeCollection = new List<PhaseDetectionModel>();
+            _downtimeCollection = [];
         }
         SortStringCollection();
         return _stringDataCollection;
@@ -61,12 +54,12 @@ public class PhaseDetectionCalc
 
             var csvContent = new StringBuilder();
             //Header Line 
-            csvContent.AppendLine("Date,SignalID,Downtime");
+            csvContent.AppendLine("Date,SignalID,Phase,Downtime");
 
             //Writing Objects to CSV
             foreach (var signalInfo in _downtimeCollection.Where(x => x.Date == date))
             {
-                var line = $"{signalInfo.Date.ToShortDateString()},{signalInfo.SignalID},{signalInfo.Downtime}%";
+                var line = $"{signalInfo.Date.ToShortDateString()},{signalInfo.SignalID},{signalInfo.Phase},{signalInfo.Downtime}%";
                 csvContent.AppendLine(line);
             }
 
@@ -114,7 +107,6 @@ public class PhaseDetectionCalc
     }
     #endregion
 
-
     #region DataHelp
     private static float? CalculateDowntime(int? signalData, int? filteredData)
     {
@@ -123,13 +115,14 @@ public class PhaseDetectionCalc
         return percentDowntime;
     }
 
-    private static void AddToCollections(DateTime date, long? signalId, float? percentDowntime)
+    private static void AddToCollections(DateTime date, long? signalId, float? percentDowntime, long phase)
     {
         _downtimeCollection.Add(new PhaseDetectionModel
         {
             Date = date,
             Downtime = percentDowntime,
-            SignalID = signalId
+            SignalID = signalId,
+            Phase = phase
         });
         _stringDataCollection.Add($"Date: {date.ToShortDateString()} - SignalID: {signalId} - Downtime: {percentDowntime}%");
     }

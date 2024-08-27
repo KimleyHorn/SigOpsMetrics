@@ -39,6 +39,20 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         }
 
+        public BaseDataAccessLayer()
+        {
+            try
+            {
+                MySqlConnection = new MySqlConnection(MySqlConnString);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                MySqlConnection = new MySqlConnection(null);
+
+            }
+        }
+
         #region Helper Methods
 
         /// <summary>
