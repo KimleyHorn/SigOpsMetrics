@@ -1,4 +1,5 @@
-﻿using SigOpsMetricsCalcEngine.DataAccess;
+﻿using System.Collections.Concurrent;
+using SigOpsMetricsCalcEngine.DataAccess;
 using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.Calcs
@@ -11,7 +12,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
         /// <param name="validDates">A list of dates in which to process flash events</param>
         /// <param name="sigModels">A list of signals from the BaseDataAccessLayer</param>
         /// <returns>True if all processes succeed</returns>
-        public static async Task<bool> RunFlash(List<DateTime> validDates, List<BaseEventLogModel> sigModels)
+        public static async Task<bool> RunFlash(List<DateTime> validDates, ConcurrentBag<BaseEventLogModel> sigModels)
         {
             var flashFilter = new FlashEventDataAccessLayer(sigModels);
             var isFiltered = await flashFilter.Filter(validDates.FirstOrDefault(), validDates.LastOrDefault());

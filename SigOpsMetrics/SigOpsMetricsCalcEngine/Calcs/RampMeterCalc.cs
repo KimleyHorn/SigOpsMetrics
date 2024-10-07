@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
     {
         public RampMeterCalc() { }
 
-        public static async Task<bool> RunRamp(List<DateTime> validDates, List<BaseEventLogModel> sigModels)
+        public static async Task<bool> RunRamp(List<DateTime> validDates, ConcurrentBag<BaseEventLogModel> sigModels)
         {
             var rampFilter = new RampMeterDataAccessLayer(sigModels);
             //var isFiltered = await rampFilter.Filter(validDates.FirstOrDefault(), validDates.LastOrDefault());

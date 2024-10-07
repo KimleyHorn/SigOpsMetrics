@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,10 +18,9 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         private static string? FilePath =
             ConfigurationManager.AppSettings["FILE_PATH"] ?? @"C:\Development\SigOpsMetrics\Cycle_Time_CSVs";
 
-        public CycleTimeDataAccessLayer(List<BaseEventLogModel> sigModels, string filePath)
+        public CycleTimeDataAccessLayer(ConcurrentBag<BaseEventLogModel> sigModels)
         {
             SignalEvents = sigModels;
-            FilePath = filePath;
         }
 
         /// <summary>
@@ -29,11 +29,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="startDate">The first date the filter looks at</param>
         /// <param name="endDate">The last date the filter looks at</param>
         /// <returns>A filtered list of BaseEventLogModels</returns>
-        public async Task<List<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
+        public async Task<ConcurrentBag<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
         {
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                          .Select(offset => startDate.AddDays(offset)).ToList();
-            var validData = await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp");
+            var validData = new ConcurrentBag<BaseEventLogModel>( await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp"));
             return validData;
         }
 
@@ -124,7 +124,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         //    return true;
         //}
 
-        public async Task<bool> Process(List<BaseEventLogModel> isFiltered)
+        public async Task<bool> Process(ConcurrentBag<BaseEventLogModel> isFiltered)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             catch (Exception e)
             {
                 Console.WriteLine("Error" + e);
-                await WriteToErrorLog("FlashEventDataAccessLayer", "Process", e);
+                //await WriteToErrorLog("FlashEventDataAccessLayer", "Process", e);
                 throw;
             }
         }

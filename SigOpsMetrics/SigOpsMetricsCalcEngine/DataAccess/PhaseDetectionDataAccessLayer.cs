@@ -1,10 +1,11 @@
-﻿using SigOpsMetricsCalcEngine.Models;
+﻿using System.Collections.Concurrent;
+using SigOpsMetricsCalcEngine.Models;
 
 namespace SigOpsMetricsCalcEngine.DataAccess;
 
 public class PhaseDetectionDataAccessLayer : BaseDataAccessLayer
 {
-    public PhaseDetectionDataAccessLayer(List<BaseEventLogModel> sigModels)
+    public PhaseDetectionDataAccessLayer(ConcurrentBag<BaseEventLogModel> sigModels)
     {
         SignalEvents = sigModels;
     }

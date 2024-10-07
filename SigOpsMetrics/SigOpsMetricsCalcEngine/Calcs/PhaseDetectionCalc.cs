@@ -1,9 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
-using Amazon.Runtime.Internal.Transform;
-using Amazon.S3;
-using Amazon.S3.Model;
-using Microsoft.AspNetCore.Mvc.TagHelpers.Cache;
 using SigOpsMetricsCalcEngine.DataAccess;
 using SigOpsMetricsCalcEngine.Models;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
@@ -13,10 +9,10 @@ namespace SigOpsMetricsCalcEngine.Calcs;
 public class PhaseDetectionCalc
 {
     private static List<string> _stringDataCollection = [];
-    private static List<PhaseDetectionModel> _downtimeCollection = [];
-
+    private static ConcurrentBag<PhaseDetectionModel> _downtimeCollection = [];
+    //Todo force use of dynamic file directory
     private static readonly string _fileDirectory = ConfigurationManager.AppSettings["PHASE_OUTPUT_DIRECTORY"];
-    public static async Task<List<string>> RunPhase(List<DateTime> validDates, List<BaseEventLogModel> sigModels, List<long?> regionCodes)
+    public static async Task<List<string>> RunPhase(List<DateTime> validDates, ConcurrentBag<BaseEventLogModel> sigModels, List<long?> regionCodes)
     {
         foreach (var date in validDates)
         {
@@ -28,11 +24,11 @@ public class PhaseDetectionCalc
 
                 var filteredData = PhaseDetectionDataAccessLayer.FilterMissedOrOmitted(signalData, signalId);
 
-                lock (lockObject)
-                {
+                //lock (lockObject)
+                //{
                     var percentDowntime = CalculateDowntime(signalData.Count, filteredData.Count);
                     AddToCollections(date, signalId, percentDowntime, phase);
-                }
+                //}
             })).ToArray());
             SortDowntimeCollection();
             WritePhaseDetectionToCSV(date);
@@ -90,7 +86,7 @@ public class PhaseDetectionCalc
     #region Sorting
     private static void SortDowntimeCollection()
     {
-        _downtimeCollection = _downtimeCollection.OrderBy(x => x.SignalID).ToList();
+        _downtimeCollection = new ConcurrentBag<PhaseDetectionModel>(_downtimeCollection.OrderBy(x => x.SignalID).ToList());
     }
 
     private static void SortStringCollection()

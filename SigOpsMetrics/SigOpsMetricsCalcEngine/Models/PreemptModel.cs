@@ -44,14 +44,38 @@ namespace SigOpsMetricsCalcEngine.Models
 
         public void SetDuration()
         {
-            if (InputOn != null && ExitCall != null)
+            if (InputOn != default || InputOn != null)
             {
-                Duration = ExitCall.Value - InputOn.Value;
+                if (ExitCall != null)
+                {
+                    Duration = ExitCall.Value - InputOn.Value;
+                }
+                else if (DwellService != null)
+                {
+                    Duration = DwellService.Value - InputOn.Value;
+                }
+                else if (TrackClear != null)
+                {
+                    Duration = TrackClear.Value - InputOn.Value;
+                }
+                else if (EntryStart != null)
+                {
+                    Duration = EntryStart.Value - InputOn.Value;
+                }
+                else
+                {
+                    Duration = TimeSpan.Zero;
+                }
+                    
             }
-            else
-            {
-                Duration = TimeSpan.Zero;
-            }
+            //if (InputOn != null && ExitCall != null)
+            //{
+            //    Duration = ExitCall.Value - InputOn.Value;
+            //}
+            //else
+            //{
+            //    Duration = TimeSpan.Zero;
+            //}
         }
 
         public PreemptModel()

@@ -23,9 +23,10 @@ namespace SigOpsMetricsCalcEngine
         //private static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
         internal static string metroCentral = @"SigOpsMC.csv";
         internal static string newDirectoryPath;
+        internal static List<long?>? eventCodes;
 
 
-        static List<List<long?>> GetSignalList(string filePath)
+        private static List<List<long?>> GetSignalList(string filePath)
         { 
             var assembly = Assembly.GetExecutingAssembly();
             var result = new List<List<long?>>();
@@ -101,7 +102,8 @@ namespace SigOpsMetricsCalcEngine
 
             }
         }
-        static bool ContainsNumber(List<List<long?>> doubleIndexedArray, long? number)
+
+        private static bool ContainsNumber(List<List<long?>> doubleIndexedArray, long? number)
         {
             // Flatten the double-indexed array and check if it contains the number
             return doubleIndexedArray.Any(innerList => innerList.Contains(number));
@@ -117,17 +119,16 @@ namespace SigOpsMetricsCalcEngine
             Console.WriteLine("This tool will currently calculate the following metrics for you:");
             Console.WriteLine("Cycle Time");
             Console.WriteLine("Phase Detection");
-            
+
 
             //TODO: Change all if statements to correspond with console statements
             //Gather start and end date
             var startDate = ConsoleDate("start");
             var endDate = ConsoleDate("end");
             var regionCodes = new List<long?>();
-            var b = new BaseDataAccessLayer();
 
             var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-             .Select(offset => startDate.AddDays(offset)).ToList();
+                .Select(offset => startDate.AddDays(offset)).ToList();
 
 
             //Determine region
@@ -136,28 +137,36 @@ namespace SigOpsMetricsCalcEngine
             Console.WriteLine("2.All");
             var region = Console.ReadLine();
             ConsoleRegion(region, regionCodes);
-                
+
             //TODO As other parts of the code are updated, add the other options here
             //TODO The first option added will be incident data between dates for a region
             //Which type of calculation would you like to run?
             Console.WriteLine("Which type of calculation would you like to run?");
             Console.WriteLine("1. Cycle Time");
             Console.WriteLine("2. Phase Detection");
-            //Console.WriteLine("3. Preempt");
+            Console.WriteLine("3. Preempt");
             //Console.WriteLine("4. Flash");
             //Console.WriteLine("5. Ramp Meter");
             //Console.WriteLine("6. Incident");
             //Console.WriteLine("7. All");
 
-            
+
             var calcType = Console.ReadLine();
+            eventCodes = new List<long?>();
             switch (calcType)
             {
+                //TODO Implement multiple selection
                 case "1":
                     RunCycle = true;
+                    eventCodes.AddRange([131, 132]);
                     break;
                 case "2":
                     RunPhase = true;
+                    eventCodes.AddRange([46]);
+                    break;
+                case "3":
+                    RunPreempt = true;
+                    eventCodes.AddRange([102, 105, 106, 104, 107, 111, 707, 708]);
                     break;
                 default:
                     Console.WriteLine("Invalid input. Please try again.");
@@ -171,69 +180,71 @@ namespace SigOpsMetricsCalcEngine
                 Console.WriteLine("Enter Directory Name");
                 dirName = Console.ReadLine();
 
+                if (string.IsNullOrEmpty(dirName))
+                {
+                    throw new NullReferenceException(
+                        "Invalid input. Directory name cannot be empty. Please try again.");
+                }
 
                 var currentDirectory = Directory.GetCurrentDirectory();
-
-                // Get the parent directory
                 var parentDirectory = Directory.GetParent(currentDirectory);
+
+                // Combine the parent directory path with the new directory name
+                newDirectoryPath = Path.Combine(parentDirectory.FullName, dirName);
+
                 try
                 {
-                    if (parentDirectory != null && dirName != string.Empty)
+                    // Check if the directory already exists
+                    if (!Directory.Exists(newDirectoryPath))
                     {
-                        // Specify the new directory name (e.g., "NewFolder")
-                        newDirectoryPath = Path.Combine(parentDirectory.FullName, dirName);
-
-                        // Create the directory in the parent directory
+                        // Create the new directory
                         Directory.CreateDirectory(newDirectoryPath);
-
                         Console.WriteLine("Directory created at: " + newDirectoryPath);
                     }
                     else
                     {
-                        Console.WriteLine("Parent directory not found.");
+                        Console.WriteLine($"Using existing directory at {newDirectoryPath}");
                     }
-                }
-                catch (NullReferenceException)
-                {
-                    Console.WriteLine("Invalid input try again");
-                }
-            } while (dirName is ("" or null));
 
-            #if DEBUG
+                    // Exit the loop since we have a valid directory
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An error occurred: " + ex.Message);
+                    Console.WriteLine("Please try again.");
+                }
+            } while (true);
+            var b = new BaseDataAccessLayer();
+
+
+#if DEBUG
             //Log all of the variables assigned above
             //TODO Figure out if I can add the run booleans to an array for multiple selection ex. [RunCycle, RunPhase, RunPreempt, RunFlash, RunRamp] [0,1,0,0,1]
             Console.WriteLine($"Start Date:{startDate}");
             Console.WriteLine($"End Date:{endDate}");
-            if(regionCodes.Count > 0)
-                Console.WriteLine($"Region Codes:{regionCodes.Slice(1,5)}");
-            if(RunCycle)
+            if (regionCodes.Count > 0)
+                Console.WriteLine($"Region Codes:{regionCodes.Slice(1, 5)}");
+            if (RunCycle)
                 Console.WriteLine("Running Cycle Time");
-            else if(RunPhase)
+            else if (RunPhase)
                 Console.WriteLine("Running Phase Detection");
             Console.WriteLine($"Saving files at:{newDirectoryPath}");
-            Console.WriteLine("If these are the values you predicted press any key...");
+            Console.WriteLine("If these are the values you expected press any key...");
             Console.ReadKey(true);
 
-            #endif
+#endif
+            validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                .Select(offset => startDate.AddDays(offset)).ToList();
 
-            if (RunCycle || RunRamp)
-            {
-                validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-                             .Select(offset => startDate.AddDays(offset)).ToList();
-            }
 
             if (RunPhase)
             {
                 //Creates list of dates from whatever startDate is set to through the previous 7 days
-                endDate = startDate.AddDays(-7);
                 var dateList = CreateDateList(startDate, endDate);
                 validDates.AddRange(dateList);
-
                 regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
             }
-
-            //if (!RunRamp)
-            //    await b.FillData(startDate, endDate, signalCodes, DemoSqlTable);
 
             if (RunCycle)
             {
@@ -243,51 +254,48 @@ namespace SigOpsMetricsCalcEngine
             if (RunRamp)
             {
                 validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-             .Select(offset => startDate.AddDays(offset)).ToList();
+                    .Select(offset => startDate.AddDays(offset)).ToList();
             }
 
-            if (validDates.Count > MaxDays)
-            {
 
-                for (var i = 0; i < validDates.Count; i += MaxDays)
-                {
-                    var remainingDays = validDates.Count - i;
-                    var actualDays = Math.Min(MaxDays, remainingDays);
-                    var truncatedDates = validDates.GetRange(i, actualDays);
-                    await b.ProcessEvents(truncatedDates, signalIdList: regionCodes);
-                    if (RunFlash)
-                        await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
-                    if (RunPreempt)
-                        await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents);
-                    if (RunCycle)
-                        await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents, newDirectoryPath);
-                    if (RunRamp)
-                        await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
-                    if (RunPhase)
-                        //configure some way how returning data w/o mem issues 
-                        //Pass 
-                        phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents, regionCodes));
-                    
+            
 
-                    b.SignalEvents = [];
-
-                }
-            }
-            else if (validDates.Count == 0)
+            for (var i = 0; i < validDates.Count; i += MaxDays)
             {
-                Console.WriteLine("No valid dates found");
-            }
-            else
-            {
-                await b.ProcessEvents(validDates);
+                var currentDate = validDates[i];
+                var remainingDays = validDates.Count - i;
+                await b.ProcessEvents(currentDate, signalIdList: regionCodes, eventCodes);
                 if (RunFlash)
                     await FlashEventCalc.RunFlash(validDates, b.SignalEvents);
                 if (RunPreempt)
-                    await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents);
+                    await PreemptEventCalc.RunPreempt(validDates, b.SignalEvents, newDirectoryPath);
                 if (RunCycle)
                     await CycleTimeCalc.RunCycle(validDates, b.SignalEvents, newDirectoryPath);
                 if (RunPhase)
-                    phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents, regionCodes));
+                    phaseInformation.AddRange(
+                        await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents, regionCodes));
+                //await b.ProcessEvents(truncatedDates, signalIdList: regionCodes, eventCodes);
+                //    if (RunFlash)
+                //        await FlashEventCalc.RunFlash(truncatedDates, b.SignalEvents);
+                //    if (RunPreempt)
+                //        await PreemptEventCalc.RunPreempt(truncatedDates, b.SignalEvents, newDirectoryPath);
+                //    if (RunCycle)
+                //        await CycleTimeCalc.RunCycle(truncatedDates, b.SignalEvents, newDirectoryPath);
+                //    if (RunRamp)
+                //        await RampMeterCalc.RunRamp(truncatedDates, b.SignalEvents);
+                //    if (RunPhase)
+                //        //configure some way how returning data w/o mem issues 
+                //        //Pass 
+                //        phaseInformation.AddRange(await PhaseDetectionCalc.RunPhase(truncatedDates, b.SignalEvents, regionCodes));
+
+
+                b.SignalEvents = [];
+                Console.WriteLine($"There are {remainingDays} left to process");
+            }
+
+            if (validDates.Count == 0)
+            {
+                Console.WriteLine("No valid dates found");
             }
         }
 

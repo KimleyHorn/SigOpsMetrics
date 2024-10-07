@@ -1,4 +1,5 @@
-﻿using SigOpsMetricsCalcEngine.Models;
+﻿using System.Collections.Concurrent;
+using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
 
 using System.Globalization;
@@ -21,7 +22,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// Constructor for the RampMeterDataAccessLayer that takes in a list of signals
         /// </summary>
         /// <param name="sigModels">A list of signals represented by BaseEventLogModels</param>
-        public RampMeterDataAccessLayer(List<BaseEventLogModel> sigModels)
+        public RampMeterDataAccessLayer(ConcurrentBag<BaseEventLogModel> sigModels)
         {
             SignalEvents = sigModels;
         }
@@ -188,16 +189,16 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="startDate">The first date the filter looks at</param>
         /// <param name="endDate">The last date the filter looks at</param>
         /// <returns>A filtered list of BaseEventLogModels</returns>
-        public async Task<List<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
+        public async Task<ConcurrentBag<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
         {
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                          .Select(offset => startDate.AddDays(offset)).ToList();
-            var validData = await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp");
+            var validData = new ConcurrentBag<BaseEventLogModel>(await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp"));
             return validData;
         }
 
 
-        public async Task<bool> Process(List<BaseEventLogModel>? isFiltered = null)
+        public async Task<bool> Process(ConcurrentBag<BaseEventLogModel>? isFiltered = null)
         {
             try
             {
@@ -209,7 +210,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             catch (Exception e)
             {
                 Console.WriteLine("Error" + e);
-                await WriteToErrorLog("FlashEventDataAccessLayer", "Process", e);
+                //await WriteToErrorLog("FlashEventDataAccessLayer", "Process", e);
                 throw;
             }
         }

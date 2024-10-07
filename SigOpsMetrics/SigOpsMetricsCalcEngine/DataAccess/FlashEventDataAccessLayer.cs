@@ -1,4 +1,5 @@
-﻿using SigOpsMetricsCalcEngine.Models;
+﻿using System.Collections.Concurrent;
+using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
 using System.Data;
 
@@ -13,7 +14,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// Constructor for the FlashEventDataAccessLayer that takes in a list of signals
         /// </summary>
         /// <param name="sigModels">A list of signals represented by BaseEventLogModels</param>
-        public FlashEventDataAccessLayer(List<BaseEventLogModel> sigModels)
+        /// <param name="filePath">Inherited from BaseDataAccessLayer</param>
+        public FlashEventDataAccessLayer(ConcurrentBag<BaseEventLogModel> sigModels)
         {
             SignalEvents = sigModels;
         }
@@ -53,7 +55,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             catch (Exception e)
             {
                 Console.WriteLine("Error" + e);
-                await WriteToErrorLog("FlashEventDataAccessLayer", "toMySQL", e);
+                //await WriteToErrorLog("FlashEventDataAccessLayer", "toMySQL", e);
                 throw;
             }
         }
@@ -66,11 +68,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="startDate">The first date the filter looks at</param>
         /// <param name="endDate">The last date the filter looks at</param>
         /// <returns>A filtered list of BaseEventLogModels</returns>
-        public async Task<List<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
+        public async Task<ConcurrentBag<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate)
         {
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                          .Select(offset => startDate.AddDays(offset)).ToList();
-            var validData = await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp");
+            var validData = new ConcurrentBag<BaseEventLogModel>( await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp"));
             return validData;
         }
 
@@ -81,7 +83,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// </summary>
         /// <param name="validSignals">A list of signals that will be written to the MySQL database</param>
         /// <returns> true if the database is written to or if there are no signals to write to the database</returns>
-        public async Task<bool> Process(List<BaseEventLogModel> validSignals)
+        public async Task<bool> Process(ConcurrentBag<BaseEventLogModel> validSignals)
         {
             try
             {
@@ -92,11 +94,13 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             catch (Exception e)
             {
                 Console.WriteLine("Error" + e);
-                await WriteToErrorLog("FlashEventDataAccessLayer", "Process", e);
+                //await WriteToErrorLog("FlashEventDataAccessLayer", "Process", e);
                 throw;
             }
         }
 
         #endregion Driver Method
+
+        
     }
 }
