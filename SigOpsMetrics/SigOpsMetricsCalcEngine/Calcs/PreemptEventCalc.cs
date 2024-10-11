@@ -12,22 +12,22 @@ namespace SigOpsMetricsCalcEngine.Calcs
 
         //TODO add preempt event parameter
         //TODO throw out any event without an exit call
-        private static ConcurrentBag<PreemptModel> _preemptCollection = [];
-        private static string dir;
+        //TODO Add ICalc class
 
         /// <summary>
         /// The method that drives the preempt event processing
         /// </summary>
         /// <param name="validDates">A list of dates in which to process preempt events</param>
         /// <param name="sigModels">A list of signals from the BaseDataAccessLayer</param>
+        /// <param name="dir">Directory where a csv of results is stored</param>
         /// <returns>True if all processes succeed</returns>
-        public static async Task<bool> RunPreempt(List<DateTime> validDates, ConcurrentBag<BaseEventLogModel> sigModels, string dir)
+        public static async Task<bool> Run(List<DateTime> validDates, ConcurrentBag<BaseEventLogModel> sigModels, string dir)
         {
             try
             {
                 var preemptFilter = new PreemptEventDataAccessLayer(sigModels, validDates, dir);
-                //var isFiltered = await preemptFilter.Filter(validDates.FirstOrDefault(), validDates.LastOrDefault());
-                return await preemptFilter.Process(sigModels);
+                var isFiltered = await preemptFilter.Filter(validDates.FirstOrDefault(), validDates.LastOrDefault());
+                return await preemptFilter.Process(isFiltered);
             }
             catch (Exception ex)
             {

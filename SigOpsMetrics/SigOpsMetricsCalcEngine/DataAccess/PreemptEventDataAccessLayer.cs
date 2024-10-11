@@ -32,7 +32,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// </summary>
         /// <param name="baseSignal">A list of BaseEventLogModels to be filtered and converted to a preempt</param>
         /// <returns>True if the operation succeeds, false otherwise</returns>
-        public static async Task<bool> CalcPreemptEvent(ConcurrentBag<BaseEventLogModel> baseSignal)
+        public static async Task<bool> Calc(ConcurrentBag<BaseEventLogModel> baseSignal)
         {
             //Definitely use this logic as a go by to see how to grab data list
             var inputOn = await FilterByEventCode(baseSignal, 102);
@@ -201,7 +201,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
         #endregion Write to MySQL
 
-
         #region Write to CSV
 
         public static async Task WritePreemptToCsv(DateTime date, string dirPath, ConcurrentBag<PreemptModel> preemptBag)
@@ -272,7 +271,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         {
             if (validSignals.Count == 0)
                 return true;
-            await CalcPreemptEvent(validSignals);
+            await Calc(validSignals);
             var date = validSignals.FirstOrDefault().Timestamp;
             await WritePreemptToCsv(date, dir, _preemptList);
             return await WritePreemptSignalsToDb(validSignals) && await WritePreemptEventsToDb(_preemptList);

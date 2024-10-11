@@ -451,8 +451,8 @@ namespace SigOpsMetrics.API.DataAccess
                     {
                         Timestamp = reader.IsDBNull(0) ? DateTime.MinValue : reader.GetDateTime(0),
                         SignalID = reader.IsDBNull(1) ? 0 : reader.GetInt64(1),
-                        EventCode = reader.IsDBNull(2) ? 0 : reader.GetInt64(2),
-                        EventParam = reader.IsDBNull(3) ? 0 : reader.GetInt64(3)
+                        EventCode = (reader.IsDBNull(2) ? 0 : reader.GetInt64(2)) as short?,
+                        EventParam = (reader.IsDBNull(3) ? 0 : reader.GetInt64(3)) as short?
                        
                     };
                     flashes.Add(row);
