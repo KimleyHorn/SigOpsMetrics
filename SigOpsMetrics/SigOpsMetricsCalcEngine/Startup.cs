@@ -1,10 +1,7 @@
 ﻿using SigOpsMetricsCalcEngine.Calcs;
 using SigOpsMetricsCalcEngine.DataAccess;
 using System.Configuration;
-using System.Drawing;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices.JavaScript;
 
 namespace SigOpsMetricsCalcEngine
 {
@@ -21,7 +18,7 @@ namespace SigOpsMetricsCalcEngine
         internal static string metroCentral = @"SigOpsMC.csv";
         internal static string newDirectoryPath;
         internal static List<long?>? eventCodes;
-
+        //internal static bool useSql;
         static DateTime startDate = DateTime.Parse(ConfigurationManager.AppSettings["START_DATE"]);
         static DateTime endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"]);
 
@@ -134,11 +131,11 @@ namespace SigOpsMetricsCalcEngine
             {
                 eventCodes.AddRange([173]);
             }
-            else
-            {
-                Console.WriteLine("Invalid input. Please try again.");
-
-            }
+            //TODO Figure out if/else logic 
+            //else
+            //{
+            //    Console.WriteLine("Invalid input. Please try again.");
+            //}
         }
 
         public static void ConsoleDir(string dirName)
@@ -353,20 +350,22 @@ namespace SigOpsMetricsCalcEngine
             if (useConsole != customStartEnd)
                 throw new ArgumentException("Custom start and end must be enabled to use the console");
 
-            //TODO create a non console version
             var regionCodes = new List<long?>();
             var phaseInformation = new List<string>();
+            var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+    .Select(offset => startDate.AddDays(offset)).ToList();
+            if (startDate == endDate)
+            {
+                endDate = new DateTime(startDate.Year, startDate.Month, startDate.Day, 23, 59, 59, 999);
+                validDates.Add(endDate);
+            }
             if (useConsole)
             {
-                //TODO Fix timeout error and improve memory allocation
-
                 //Initiate the console application
                 Welcome();
                 //Gather start and end date
                 startDate = ConsoleDate("start");
                 endDate = ConsoleDate("end");
-
-                //SignalIDs based on region
 
                 //Determine region
                 RegionPicker(regionCodes);
@@ -374,71 +373,53 @@ namespace SigOpsMetricsCalcEngine
                 var dirName = string.Empty;
                 ConsoleDir(dirName);
 
-
 #if DEBUG
                 ifDebug(startDate, endDate, regionCodes);
 #endif
             }
             else if (!customStartEnd)
             {
-                
-                startDate = DateTime.Today.AddDays(-1);
-                endDate = DateTime.Today;
                 noConsoleDir("Archive");
                 noConsoleCalc();
 #if DEBUG
                 ifDebug(startDate, endDate, regionCodes);
 #endif
             }
+
             var b = new BaseDataAccessLayer();
 
-            var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-                    .Select(offset => startDate.AddDays(offset)).ToList();
-
-                if (_runPhase)
-                {
-                    //Creates list of dates from whatever startDate is set to through the previous 7 days
-                    var dateList = CreateDateList(startDate, endDate);
-                    validDates.AddRange(dateList);
-                    regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
-                }
-
-                if (_runCycle)
-                {
-                    regionCodes = GetSignalList(metroCentral).SelectMany(innerList => innerList).ToList();
-                }
-
-                if (_runRamp)
-                {
-                    validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
-                        .Select(offset => startDate.AddDays(offset)).ToList();
-                }
-
-                for (var i = 0; i < validDates.Count; i += MaxDays)
-                {
-                    var currentDate = validDates[i];
-                    var remainingDays = validDates.Count - i;
-                    await b.ProcessEvents(currentDate, signalIdList: regionCodes, eventCodes);
-                    if (_runFlash)
-                        await FlashEventCalc.Run(validDates, b.SignalEvents, newDirectoryPath);
-                    if (_runPreempt)
-                        await PreemptEventCalc.Run(validDates, b.SignalEvents, newDirectoryPath);
-                    if (_runCycle)
-                        await CycleTimeCalc.RunCycle(validDates, b.SignalEvents, newDirectoryPath);
-                    if (_runPhase)
-                        phaseInformation.AddRange(
-                            await PhaseDetectionCalc.RunPhase(validDates, b.SignalEvents, regionCodes));
-
-
-                    b.SignalEvents = [];
-                    Console.WriteLine($"There are {remainingDays} left to process");
-                }
-
-                if (validDates.Count == 0)
-                {
-                    Console.WriteLine("No valid dates found");
-                }
             
+
+            var archiveDates = await b.GetEventLogsAsync(validDates);
+
+            //Only using sql 
+            if (!archiveDates.Any())
+            {
+                foreach (var t in validDates)
+                {
+                    Console.WriteLine("Data found in SQL. Processing: " + t.Date);
+                }
+                if (chooseCalc[0])
+                    await FlashEventCalc.Run(validDates, b.SignalEvents, newDirectoryPath);
+                if (chooseCalc[2])
+                    await PreemptEventCalc.Run(validDates, b.SignalEvents, newDirectoryPath, true);
+            }
+            //A mix of both
+            else
+            {
+                for (var i = 0; i < archiveDates.Count; i += MaxDays)
+                {
+                    var currentDate = archiveDates[i];
+                    var remainingDays = archiveDates.Count - (i + 1);
+                    await b.ProcessEvents(currentDate, signalIdList: regionCodes, eventCodes);
+                    if (chooseCalc[0])
+                        await FlashEventCalc.Run(archiveDates, b.SignalEvents, newDirectoryPath);
+                    if (chooseCalc[2])
+                        await PreemptEventCalc.Run(archiveDates, b.SignalEvents, newDirectoryPath, false);
+                    b.SignalEvents = [];
+                    Console.WriteLine($"There are {remainingDays} left to pull ");
+                }
+            }
         }
     }
 }

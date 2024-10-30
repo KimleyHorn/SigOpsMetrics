@@ -136,3 +136,11 @@ public class ErrorLogger : IDisposable
         _logWriteSemaphore?.Dispose();
     }
 }
+
+//class DebugLogger
+//{
+//    public DebugLogger()
+//    {
+
+//    }
+//}

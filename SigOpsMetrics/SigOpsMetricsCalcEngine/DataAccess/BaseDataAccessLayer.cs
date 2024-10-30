@@ -25,7 +25,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "mark1";
         internal static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
         internal static MySqlConnection MySqlConnection;
-        private static ErrorLogger _logger;
+        internal static ErrorLogger _logger;
         private static readonly string fileName = GetCurrentFileName();
         private static readonly string filePath = Startup.newDirectoryPath;
 
@@ -137,43 +137,22 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     throw new NullReferenceException("MySqlConnection object is null.");
                 }
 
-                switch (MySqlConnection.State)
-                {
-                    // Handle connection states
-                    case ConnectionState.Broken:
-                        await MySqlConnection.CloseAsync();
-                        await MySqlConnection.OpenAsync();
-#if DEBUG
-            Console.WriteLine("Connection was broken. Reopened connection.");
-#endif
-                        break;
-                    case ConnectionState.Closed:
-                        await MySqlConnection.OpenAsync();
-#if DEBUG
-            Console.WriteLine("Connection opened.");
-#endif
-                        break;
-                    case ConnectionState.Connecting:
-#if DEBUG
-            Console.WriteLine("Connection is currently being established. Awaiting connection.");
-#endif
-                        await Task.Delay(500); // Wait for the connection to establish
-                        break;
-                }
+                await StateSwitcherAsync();
 
                 var bulkCopy = new MySqlBulkCopy(MySqlConnection)
                 {
                     DestinationTableName = $"{MySqlDbName}.{mySqlTableName}"
                 };
-#if DEBUG
-        Console.WriteLine("Bulk Copy Created.");
-#endif
+            #if DEBUG
+                    Console.WriteLine("Bulk Copy Created.");
+            #endif
 
                 // Write data from DataTable to the database
                 await bulkCopy.WriteToServerAsync(dataTable);
-#if DEBUG
-        Console.WriteLine("Bulk Copy Written.");
-#endif
+                
+            #if DEBUG
+                    Console.WriteLine("Bulk Copy Written.");
+            #endif
             }
             catch (NullReferenceException n)
             {
@@ -227,6 +206,70 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
 
             return true;
+        }
+
+
+        internal static async Task StateSwitcherAsync(bool closeConnection = false)
+        {
+#if DEBUG
+        Console.WriteLine($"Current connection state: {MySqlConnection.State}");
+#endif
+            switch (MySqlConnection.State)
+            {
+                case ConnectionState.Broken:
+                    await MySqlConnection.CloseAsync();
+#if DEBUG
+                Console.WriteLine("Connection was broken. Attempting to close and reopen connection.");
+#endif
+                    await MySqlConnection.OpenAsync();
+#if DEBUG
+                Console.WriteLine("Connection reopened successfully.");
+#endif
+                    break;
+                case ConnectionState.Closed:
+#if DEBUG
+                Console.WriteLine("Connection is closed. Attempting to open connection.");
+#endif
+                    await MySqlConnection.OpenAsync();
+#if DEBUG
+                Console.WriteLine("Connection opened successfully.");
+#endif
+                    break;
+                case ConnectionState.Connecting:
+#if DEBUG
+                Console.WriteLine("Connection is currently being established. Awaiting connection.");
+#endif
+                    await Task.Delay(500); // Wait for the connection to establish
+                    break;
+                case ConnectionState.Open:
+#if DEBUG
+                Console.WriteLine("Connection is open. Proceeding with the operation.");
+#endif
+                if (closeConnection)
+                {
+#if DEBUG
+                    Console.WriteLine("Closing connection");
+#endif
+                    await MySqlConnection.CloseAsync();
+                }
+
+                break;
+                case ConnectionState.Executing:
+#if DEBUG
+                Console.WriteLine("Connection is executing a command.");
+#endif
+                    break;
+                case ConnectionState.Fetching:
+#if DEBUG
+                Console.WriteLine("Connection is fetching data.");
+#endif
+                    break;
+                default:
+#if DEBUG
+                Console.WriteLine("Unknown connection state encountered.");
+#endif
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
 
@@ -338,11 +381,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         {
             try
             {
-                var weGood = await CheckDB(mySqlTableName, mySqlColName, MySqlDbName, dates.FirstOrDefault(),
-                    dates.LastOrDefault());
+                //var weGood = await CheckDB(mySqlTableName, mySqlColName, MySqlDbName, dates.FirstOrDefault(),
+                //    dates.LastOrDefault());
                 var filteredSignals = new ConcurrentBag<BaseEventLogModel>(SignalEvents
                     .Where(signal => eventCodes != null && eventCodes.Contains(signal.EventCode)));
-                if (weGood)
+                //if (weGood)
                     return filteredSignals;
             }
             catch (Exception e)
@@ -431,6 +474,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <exception cref="ArgumentException">Thrown when event codes are used without signalIDs</exception>
         public async Task<bool> ProcessEvents(DateTime date, List<long?>? signalIdList, List<long?>? eventCodes)
          {
+             
             if (eventCodes == null || eventCodes.Count == 0)
                 throw new ArgumentException("EventCodes cannot be null or empty.");
 
@@ -460,7 +504,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 Console.WriteLine(date);
                 signalQueue.CompleteAdding();
                 await Task.WhenAll(consumerTasks);
-                Console.WriteLine($"Processing {date.Date} completed successfully");
+                Console.WriteLine($"Processing {date.Day} completed successfully");
 
                 return true;
             }
@@ -473,6 +517,49 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 
             }
          }
+
+        
+        public async Task<List<DateTime>> GetEventLogsAsync(List<DateTime> validDates)
+        {
+
+            await StateSwitcherAsync();
+            var datesToProcess = new List<DateTime>();
+
+            //TODO PARAMETERIZE THIS ONCE PREEMPT CALCULATIONS ARE FINISHED
+            const string query = @"
+        SELECT *
+        FROM preempt_log
+        WHERE Timestamp BETWEEN @StartDate AND @EndDate";
+
+            await using var command = new MySqlCommand(query, MySqlConnection);
+            command.Parameters.Add(new MySqlParameter("@StartDate", MySqlDbType.DateTime) { Value = validDates.FirstOrDefault() });
+            command.Parameters.Add(new MySqlParameter("@EndDate", MySqlDbType.DateTime) { Value = validDates.LastOrDefault() });
+
+            await using var reader = await command.ExecuteReaderAsync();
+            if (!reader.HasRows) return datesToProcess;
+
+            while (await reader.ReadAsync())
+            {
+                var log = new BaseEventLogModel
+                {
+                    Timestamp = reader.GetDateTime("Timestamp"),
+                    SignalID = reader.IsDBNull("SignalID") ? (long?)null : reader.GetInt64("SignalID"),
+                    EventCode = reader.IsDBNull("EventCode") ? (long?)null : reader.GetInt64("EventCode"),
+                    EventParam = reader.IsDBNull("EventParam") ? (long?)null : reader.GetInt64("EventParam")
+                };
+
+                SignalEvents.Add(log);
+
+                // Collect dates that need to be processed later.
+                if (log.Timestamp > validDates.LastOrDefault())
+                {
+                    datesToProcess.Add(log.Timestamp);
+                }
+            }
+
+            return datesToProcess;
+        }
+
 
         /// <summary>
         /// Processes a single S3 object: fetches, deserializes, and enqueues signals.

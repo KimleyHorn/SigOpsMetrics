@@ -18,7 +18,7 @@ namespace SigOpsMetricsCalcEngine.Models
 
         //public Task<ConcurrentBag<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate);
 
-        public Task<bool> Process(ConcurrentBag<BaseEventLogModel> isFiltered);
+        //public Task<bool> Process(ConcurrentBag<BaseEventLogModel> isFiltered, bool archiveFlag);
 
 
 

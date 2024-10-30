@@ -44,38 +44,35 @@ namespace SigOpsMetricsCalcEngine.Models
 
         public void SetDuration()
         {
-            if (InputOn != default || InputOn != null)
+            if (InputOn == default && InputOn == null) return;
+            else
             {
-                if (ExitCall != null)
+                if (ExitCall != null || ExitCall.Value - InputOn.Value > new TimeSpan(0,1,0,0))
                 {
                     Duration = ExitCall.Value - InputOn.Value;
+                    return;
                 }
-                else if (DwellService != null)
+                if(InputOff != null || InputOff.Value - InputOn.Value > new TimeSpan(0,1,0,0))
                 {
-                    Duration = DwellService.Value - InputOn.Value;
+                    Duration = InputOff.Value - InputOn.Value;
                 }
-                else if (TrackClear != null)
-                {
-                    Duration = TrackClear.Value - InputOn.Value;
-                }
-                else if (EntryStart != null)
-                {
-                    Duration = EntryStart.Value - InputOn.Value;
-                }
+                //else if (DwellService != null)
+                //{
+                //    Duration = DwellService.Value - InputOn.Value;
+                //}
+                //else if (TrackClear != null)
+                //{
+                //    Duration = TrackClear.Value - InputOn.Value;
+                //}
+                //else if (EntryStart != null)
+                //{
+                //    Duration = EntryStart.Value - InputOn.Value;
+                //}
                 else
                 {
                     Duration = TimeSpan.Zero;
                 }
-                    
             }
-            //if (InputOn != null && ExitCall != null)
-            //{
-            //    Duration = ExitCall.Value - InputOn.Value;
-            //}
-            //else
-            //{
-            //    Duration = TimeSpan.Zero;
-            //}
         }
 
         public PreemptModel()
