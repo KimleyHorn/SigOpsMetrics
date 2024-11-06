@@ -2,7 +2,6 @@
 using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
 using System.Data;
-using System.Diagnostics.Contracts;
 using System.Text;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
@@ -49,6 +48,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             var exitCall = await FilterByEventCode(baseSignal, 111);
             foreach (var signal in inputOn)
             {
+
                 var signalId = signal.SignalID;
 
                 try
@@ -61,16 +61,16 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
                     //TODO: Rinse and repeat linq query
                     var entryStartEvent = entryStart
-    .Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
-                    //entryStart.TryTake(out entryStartEvent);
-
-
+                        .Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
                     var externalCallOnEvent =
-                        externalCallOn.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
+                        externalCallOn.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
+                            .MinBy(y => y.Timestamp);
                     var externalCallOffEvent =
-                        externalCallOff.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
-                    var trackClearEvent = trackClear.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
-                    //This section determines whether or not an event has a track clear parameter based on the events and event codes provided
+                        externalCallOff.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
+                            .MinBy(y => y.Timestamp);
+                    var trackClearEvent = trackClear
+                        .Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
+                    //This section determines whether an event has a track clear parameter based on the events and event codes provided
 
                     //Humor requested by Senior PM
                     var isChooChoo = trackClearEvent is not null;
@@ -80,9 +80,15 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                         _ => "Other"
                     };
 
-                    var inputOffEvent = inputOff.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
-                    var dwellServiceEvent = dwellService.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
-                    var exitCallEvent = exitCall.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
+                    //Create a function that checks for next input on
+
+                    var inputOffEvent = inputOff.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
+                        .MinBy(y => y.Timestamp);
+                    var dwellServiceEvent = dwellService
+                        .Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
+                    var exitCallEvent = exitCall.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
+                        .MinBy(y => y.Timestamp);
+                    //TODO ask tom about exit call event being mandatory for preempt
                     if (exitCallEvent == null || inputOffEvent == null)
                         continue;
                     if (externalCallOnEvent != null)
@@ -94,12 +100,18 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     {
                         externalOff = true;
                     }
-                    
+
                     var preempt = new PreemptModel(signal.Timestamp, inputOffEvent.Timestamp,
                         entryStartEvent?.Timestamp, trackClearEvent?.Timestamp, dwellServiceEvent?.Timestamp,
                         exitCallEvent?.Timestamp, signalId, preemptType, externalOff, externalOn);
+
                     if (preempt.Duration > new TimeSpan(0, 2, 0, 0))
                         continue;
+                    //if (preempt.ExitCall > nextInput ||
+                    //    preempt.InputOff > nextInput)
+                    //{
+                    //    continue;
+                    //}
 
                     _preemptList.Add(preempt);
 
@@ -312,5 +324,20 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             }
             return await WritePreemptEventsToDb(_preemptList); 
         }
+        #region Helper Functions
+        //Input monitoring function
+        /*
+         * Inputs: current exit call/input off
+         *         Next input on timestamp
+         * Take in exit call timestamp
+         * Compare to next input on timestamp
+         *  Comparing input on means grabbing earlier input on 
+         * Outputs: boolean that tells whether to continue creating the preempt
+         */
+
+        #endregion
+
     }
+
+
 }

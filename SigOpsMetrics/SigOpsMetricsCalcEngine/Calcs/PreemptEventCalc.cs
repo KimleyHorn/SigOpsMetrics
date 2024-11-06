@@ -31,6 +31,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
             }
             catch (Exception ex)
             {
+
                 return false;
 
             }

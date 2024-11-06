@@ -40,7 +40,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             {
                 Console.WriteLine(ex);
                 MySqlConnection = new MySqlConnection(null);
-                
+
                 _logger.WriteToErrorLogAsync(fileName, "constructor", ex, LogLevel.Error)
                     .ConfigureAwait(false)
                     .GetAwaiter().GetResult();
@@ -77,11 +77,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 {
                     break;
                 }
-                foreach(var obj in res.S3Objects)
+                foreach (var obj in res.S3Objects)
                 {
                     allObjects.Add(obj);
                 }
-                    
+
                 //allObjects.AddRange(res.S3Objects);
                 continuationToken = res.NextContinuationToken;
 
@@ -94,7 +94,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             // Regular expression to extract the signal ID from the filename
             var regex = new Regex(@"atspm_(\d+)_\d{4}-\d{2}-\d{2}\.parquet");
 
-            
+
 
             // Filter objects based on allowed signal IDs
             var filteredObjects = allObjects.Where(obj =>
@@ -143,16 +143,16 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 {
                     DestinationTableName = $"{MySqlDbName}.{mySqlTableName}"
                 };
-            #if DEBUG
-                    Console.WriteLine("Bulk Copy Created.");
-            #endif
+#if DEBUG
+                Console.WriteLine("Bulk Copy Created.");
+#endif
 
                 // Write data from DataTable to the database
                 await bulkCopy.WriteToServerAsync(dataTable);
-                
-            #if DEBUG
-                    Console.WriteLine("Bulk Copy Written.");
-            #endif
+
+#if DEBUG
+                Console.WriteLine("Bulk Copy Written.");
+#endif
             }
             catch (NullReferenceException n)
             {
@@ -200,7 +200,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 {
                     await MySqlConnection.CloseAsync();
 #if DEBUG
-            Console.WriteLine("Connection closed.");
+                    Console.WriteLine("Connection closed.");
 #endif
                 }
             }
@@ -208,71 +208,80 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             return true;
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="closeConnection">Whether or not the connection needs to be closed. If true, it always closes the connection. If false, it runs through StateSwitcher method</param>
+        /// <returns>The completed task </returns>
+        /// <exception cref="ArgumentOutOfRangeException">If an unknown connection state is identified</exception>
         internal static async Task StateSwitcherAsync(bool closeConnection = false)
         {
 #if DEBUG
-        Console.WriteLine($"Current connection state: {MySqlConnection.State}");
+            Console.WriteLine($"Current connection state: {MySqlConnection.State}");
 #endif
             switch (MySqlConnection.State)
             {
                 case ConnectionState.Broken:
                     await MySqlConnection.CloseAsync();
 #if DEBUG
-                Console.WriteLine("Connection was broken. Attempting to close and reopen connection.");
+                    Console.WriteLine("Connection was broken. Attempting to close and reopen connection.");
 #endif
                     await MySqlConnection.OpenAsync();
 #if DEBUG
-                Console.WriteLine("Connection reopened successfully.");
+                    Console.WriteLine("Connection reopened successfully.");
 #endif
                     break;
                 case ConnectionState.Closed:
 #if DEBUG
-                Console.WriteLine("Connection is closed. Attempting to open connection.");
+                    Console.WriteLine("Connection is closed. Attempting to open connection.");
 #endif
                     await MySqlConnection.OpenAsync();
 #if DEBUG
-                Console.WriteLine("Connection opened successfully.");
+                    Console.WriteLine("Connection opened successfully.");
 #endif
                     break;
                 case ConnectionState.Connecting:
 #if DEBUG
-                Console.WriteLine("Connection is currently being established. Awaiting connection.");
+                    Console.WriteLine("Connection is currently being established. Awaiting connection.");
 #endif
                     await Task.Delay(500); // Wait for the connection to establish
                     break;
                 case ConnectionState.Open:
 #if DEBUG
-                Console.WriteLine("Connection is open. Proceeding with the operation.");
+                    Console.WriteLine("Connection is open. Proceeding with the operation.");
 #endif
-                if (closeConnection)
-                {
+                    if (closeConnection)
+                    {
 #if DEBUG
-                    Console.WriteLine("Closing connection");
+                        Console.WriteLine("Closing connection");
 #endif
-                    await MySqlConnection.CloseAsync();
-                }
+                        await MySqlConnection.CloseAsync();
+                    }
 
-                break;
+                    break;
                 case ConnectionState.Executing:
 #if DEBUG
-                Console.WriteLine("Connection is executing a command.");
+                    Console.WriteLine("Connection is executing a command.");
 #endif
                     break;
                 case ConnectionState.Fetching:
 #if DEBUG
-                Console.WriteLine("Connection is fetching data.");
+                    Console.WriteLine("Connection is fetching data.");
 #endif
                     break;
                 default:
 #if DEBUG
-                Console.WriteLine("Unknown connection state encountered.");
+                    Console.WriteLine("Unknown connection state encountered.");
 #endif
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         private static string GetCurrentFileName([CallerFilePath] string filePath = "")
         {
             return Path.GetFileName(filePath);
@@ -386,7 +395,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 var filteredSignals = new ConcurrentBag<BaseEventLogModel>(SignalEvents
                     .Where(signal => eventCodes != null && eventCodes.Contains(signal.EventCode)));
                 //if (weGood)
-                    return filteredSignals;
+                return filteredSignals;
             }
             catch (Exception e)
             {
@@ -473,13 +482,13 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <returns>A List of Flash _events that can be used to write to the flash event server</returns>
         /// <exception cref="ArgumentException">Thrown when event codes are used without signalIDs</exception>
         public async Task<bool> ProcessEvents(DateTime date, List<long?>? signalIdList, List<long?>? eventCodes)
-         {
-             
+        {
+
             if (eventCodes == null || eventCodes.Count == 0)
                 throw new ArgumentException("EventCodes cannot be null or empty.");
 
             const int boundedCapacity = 1000;
-            
+
             using var semaphore = new SemaphoreSlim(ThreadCount, maxCount: ThreadCount);
             using var signalQueue = new BlockingCollection<BaseEventLogModel>(boundedCapacity);
             var cts = new CancellationTokenSource();
@@ -514,29 +523,36 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 await _logger.WriteToErrorLogAsync(fileName, "ProcessEvents", e, LogLevel.Error);
                 await cts.CancelAsync();
                 return false;
-                
-            }
-         }
 
-        
-        public async Task<List<DateTime>> GetEventLogsAsync(List<DateTime> validDates)
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="validDates"></param>
+        /// <param name="TableName"></param>
+        /// <returns></returns>
+        public async Task<List<DateTime>> GetEventLogsAsync(List<DateTime> validDates, string TableName)
         {
 
             await StateSwitcherAsync();
             var datesToProcess = new List<DateTime>();
 
             //TODO PARAMETERIZE THIS ONCE PREEMPT CALCULATIONS ARE FINISHED
-            const string query = @"
-        SELECT *
-        FROM preempt_log
-        WHERE Timestamp BETWEEN @StartDate AND @EndDate";
+            var query = $@"
+    SELECT *
+    FROM `{TableName}`
+    WHERE `Timestamp` BETWEEN @StartDate AND @EndDate";
 
             await using var command = new MySqlCommand(query, MySqlConnection);
-            command.Parameters.Add(new MySqlParameter("@StartDate", MySqlDbType.DateTime) { Value = validDates.FirstOrDefault() });
-            command.Parameters.Add(new MySqlParameter("@EndDate", MySqlDbType.DateTime) { Value = validDates.LastOrDefault() });
+            command.Parameters.Add(new MySqlParameter("@StartDate", MySqlDbType.DateTime)
+                { Value = validDates.FirstOrDefault() });
+            command.Parameters.Add(new MySqlParameter("@EndDate", MySqlDbType.DateTime)
+                { Value = validDates.LastOrDefault() });
 
             await using var reader = await command.ExecuteReaderAsync();
-            if (!reader.HasRows) return datesToProcess;
+            if (!reader.HasRows) return validDates;
 
             while (await reader.ReadAsync())
             {

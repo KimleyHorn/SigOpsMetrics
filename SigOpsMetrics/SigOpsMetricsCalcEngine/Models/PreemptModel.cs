@@ -56,18 +56,6 @@ namespace SigOpsMetricsCalcEngine.Models
                 {
                     Duration = InputOff.Value - InputOn.Value;
                 }
-                //else if (DwellService != null)
-                //{
-                //    Duration = DwellService.Value - InputOn.Value;
-                //}
-                //else if (TrackClear != null)
-                //{
-                //    Duration = TrackClear.Value - InputOn.Value;
-                //}
-                //else if (EntryStart != null)
-                //{
-                //    Duration = EntryStart.Value - InputOn.Value;
-                //}
                 else
                 {
                     Duration = TimeSpan.Zero;

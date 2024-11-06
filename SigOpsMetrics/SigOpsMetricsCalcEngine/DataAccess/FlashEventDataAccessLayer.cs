@@ -84,7 +84,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// </summary>
         /// <param name="validSignals">A list of signals that will be written to the MySQL database</param>
         /// <returns> true if the database is written to or if there are no signals to write to the database</returns>
-        public async Task<bool> Process(ConcurrentBag<BaseEventLogModel> validSignals)
+        public async Task<bool> Process(ConcurrentBag<BaseEventLogModel> validSignals, bool archiveFlag)
         {
             try
             {

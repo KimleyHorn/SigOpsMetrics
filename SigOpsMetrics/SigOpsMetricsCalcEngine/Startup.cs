@@ -315,30 +315,35 @@ namespace SigOpsMetricsCalcEngine
             _runPreempt = bool.Parse(ConfigurationManager.AppSettings["RUN_PREEMPT"] ?? "false");
             _runFlash = bool.Parse(ConfigurationManager.AppSettings["RUN_FLASH"] ?? "false");
             eventCodes = new List<long?>();
-            chooseCalc = [ _runCycle, _runPhase, _runPreempt, _runFlash];
+            chooseCalc = [ _runFlash, _runCycle,_runPreempt, _runPhase];
             //TODO Implement multiple selection
-            if (chooseCalc[0])
-            {
-                eventCodes.AddRange([131, 132]);
-            }
 
-            if (chooseCalc[1])
+            try
             {
-                eventCodes.AddRange([46]);
-            }
+                if (chooseCalc[0])
+                {
+                    eventCodes.AddRange([173]);
+                }
 
-            if (chooseCalc[2])
-            {
-                eventCodes.AddRange([102, 105, 106, 104, 107, 111, 707, 708]);
-            }
+                if (chooseCalc[1])
+                {
+                    eventCodes.AddRange([46]);
+                }
 
-            if (chooseCalc[3])
-            {
-                eventCodes.AddRange([173]);
-            }
-            else
+                if (chooseCalc[2])
+                {
+                    eventCodes.AddRange([102, 105, 106, 104, 107, 111, 707, 708]);
+                }
+
+                if (chooseCalc[3])
+                {
+                    eventCodes.AddRange([131, 132]);
+
+                }
+            }catch(Exception e)
             {
                 Console.WriteLine("Invalid input. Please try again.");
+                Console.WriteLine(e.ToString());
             }
         }
 
@@ -351,7 +356,9 @@ namespace SigOpsMetricsCalcEngine
                 throw new ArgumentException("Custom start and end must be enabled to use the console");
 
             var regionCodes = new List<long?>();
-            var phaseInformation = new List<string>();
+
+            //Keep this commented until phase information data pulling is added
+            //var phaseInformation = new List<string>();
             var validDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
     .Select(offset => startDate.AddDays(offset)).ToList();
             if (startDate == endDate)
@@ -388,9 +395,11 @@ namespace SigOpsMetricsCalcEngine
 
             var b = new BaseDataAccessLayer();
 
-            
-
-            var archiveDates = await b.GetEventLogsAsync(validDates);
+            var archiveDates = new List<DateTime>();
+            if (chooseCalc[0])
+                archiveDates = await b.GetEventLogsAsync(validDates, "flash_event_log");
+            if (chooseCalc[2])
+                archiveDates = await b.GetEventLogsAsync(validDates, "preempt_log");
 
             //Only using sql 
             if (!archiveDates.Any())
