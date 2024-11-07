@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
@@ -412,31 +413,34 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="events">The input list of BaseEventLogModels</param>
         /// <param name="eventCode">The event code to filter by</param>
         /// <returns>A filtered list of BaseEventLogModels</returns>
-        public static async Task<ConcurrentBag<BaseEventLogModel>> FilterByEventCode(ConcurrentBag<BaseEventLogModel> events, long eventCode)
+
+        public static async Task<ImmutableList<BaseEventLogModel>> FilterByEventCode(
+            ConcurrentBag<BaseEventLogModel> events, long eventCode)
         {
             try
             {
-                return new ConcurrentBag<BaseEventLogModel>(events.Where(x => x.EventCode == eventCode)
-                    .OrderBy(x => x.Timestamp).ToList());
-
+                return events
+                    .Where(x => x.EventCode == eventCode)
+                    .OrderBy(x => x.Timestamp)
+                    .ToImmutableList();
             }
             catch (Exception e)
             {
                 await _logger.WriteToErrorLogAsync(fileName, "FilterByEventCode", e);
-                return [];
-
+                return ImmutableList<BaseEventLogModel>.Empty;
             }
         }
 
 
+
         /// <summary>
-        /// Starts consumer tasks that filter by event codes and process signals from the BlockingCollection.
-        /// </summary>
-        /// <param name="signalQueue">The BlockingCollection containing signals to process.</param>
-        /// <param name="eventCodes">List of event codes to filter signals.</param>
-        /// <param name="token">Cancellation token for graceful shutdown.</param>
-        /// <returns>A list of consumer tasks.</returns>
-        private IEnumerable<Task> StartFilteredConsumers(BlockingCollection<BaseEventLogModel> signalQueue, List<long?> eventCodes, CancellationToken token)
+    /// Starts consumer tasks that filter by event codes and process signals from the BlockingCollection.
+    /// </summary>
+    /// <param name="signalQueue">The BlockingCollection containing signals to process.</param>
+    /// <param name="eventCodes">List of event codes to filter signals.</param>
+    /// <param name="token">Cancellation token for graceful shutdown.</param>
+    /// <returns>A list of consumer tasks.</returns>
+    private IEnumerable<Task> StartFilteredConsumers(BlockingCollection<BaseEventLogModel> signalQueue, List<long?> eventCodes, CancellationToken token)
         {
             int consumerCount = Environment.ProcessorCount; // Adjust based on your needs
             var consumers = new List<Task>();

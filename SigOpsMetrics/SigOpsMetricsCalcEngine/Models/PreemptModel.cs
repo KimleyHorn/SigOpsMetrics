@@ -47,12 +47,12 @@ namespace SigOpsMetricsCalcEngine.Models
             if (InputOn == default && InputOn == null) return;
             else
             {
-                if (ExitCall != null || ExitCall.Value - InputOn.Value > new TimeSpan(0,1,0,0))
+                if (ExitCall != null && ExitCall.Value - InputOn.Value < new TimeSpan(0,1,0,0))
                 {
                     Duration = ExitCall.Value - InputOn.Value;
                     return;
                 }
-                if(InputOff != null || InputOff.Value - InputOn.Value > new TimeSpan(0,1,0,0))
+                if(InputOff != null && InputOff.Value - InputOn.Value < new TimeSpan(0,1,0,0))
                 {
                     Duration = InputOff.Value - InputOn.Value;
                 }

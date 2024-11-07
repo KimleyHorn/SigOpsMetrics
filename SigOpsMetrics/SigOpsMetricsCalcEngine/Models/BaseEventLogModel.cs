@@ -22,5 +22,13 @@
             EventCode = eventCode;
             EventParam = eventParam;
         }
+
+        public override
+            string ToString()
+        {
+            return
+                $"Signal: {SignalID} \nAt: {Timestamp:yyyy-MM-dd HH:mm:ss}\nEvent Code: {EventCode} \nEvent Parameter: {EventParam}";
+        }
+
     }
 }

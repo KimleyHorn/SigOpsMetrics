@@ -50,6 +50,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             {
 
                 var signalId = signal.SignalID;
+                var nextSignal = inputOn.Where(x => x.SignalID == signal.SignalID && x.Timestamp > signal.Timestamp).MinBy(x => x.Timestamp);
 
                 try
                 {
@@ -82,6 +83,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
                     //Create a function that checks for next input on
 
+
+
                     var inputOffEvent = inputOff.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
                         .MinBy(y => y.Timestamp);
                     var dwellServiceEvent = dwellService
@@ -105,9 +108,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                         entryStartEvent?.Timestamp, trackClearEvent?.Timestamp, dwellServiceEvent?.Timestamp,
                         exitCallEvent?.Timestamp, signalId, preemptType, externalOff, externalOn);
 
-                    if (preempt.Duration > new TimeSpan(0, 2, 0, 0))
-                        continue;
+                    //if (preempt.Duration > new TimeSpan(0, 2, 0, 0))
+                    //    continue;
 
+                    if(nextSignal != null && (preempt.InputOff > nextSignal.Timestamp && preempt.ExitCall > nextSignal.Timestamp))
+                        continue;
                     //Go through _preempt list and find the "last" preempt and compare 
                     _preemptList.Add(preempt);
 
