@@ -95,10 +95,12 @@ namespace SigOpsMetricsCalcEngine.Models
 
         public override string ToString()
         {
+            var dateFormat = "MM/dd/yyyy HH:mm:ss";
+
             return $"{PreemptType} Preempt for Signal {SignalID}, " +
                    $"Duration: {Duration}, " +
-                   $"Start time: {InputOn?.ToString("yyyy-MM-dd HH:mm:ss")}, " +
-                   $@"End time: {ExitCall?.ToString("yyyy-MM-dd HH:mm:ss")}," +
+                   $"Start time: {InputOn?.ToString(dateFormat)}, " +
+                   $@"End time: {ExitCall?.ToString(dateFormat)}," +
                    $@"External Preempt Call On: {ExternalCallOn}, " +
                    $@"External Call Off: {ExternalCallOff}, ";
         }
