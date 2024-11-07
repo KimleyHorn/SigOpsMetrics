@@ -97,8 +97,8 @@ namespace SigOpsMetricsCalcEngine.Models
         {
             return $"{PreemptType} Preempt for Signal {SignalID}, " +
                    $"Duration: {Duration}, " +
-                   $"Start time: {InputOn?.Date}, " +
-                   $@"End time: {ExitCall?.Date}," +
+                   $"Start time: {InputOn?.ToString("yyyy-MM-dd HH:mm:ss")}, " +
+                   $@"End time: {ExitCall?.ToString("yyyy-MM-dd HH:mm:ss")}," +
                    $@"External Preempt Call On: {ExternalCallOn}, " +
                    $@"External Call Off: {ExternalCallOff}, ";
         }
