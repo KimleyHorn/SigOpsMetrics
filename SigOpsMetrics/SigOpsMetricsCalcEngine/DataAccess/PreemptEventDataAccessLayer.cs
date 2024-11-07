@@ -107,12 +107,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
                     if (preempt.Duration > new TimeSpan(0, 2, 0, 0))
                         continue;
-                    //if (preempt.ExitCall > nextInput ||
-                    //    preempt.InputOff > nextInput)
-                    //{
-                    //    continue;
-                    //}
 
+                    //Go through _preempt list and find the "last" preempt and compare 
                     _preemptList.Add(preempt);
 
                     Console.WriteLine(preempt.ToString());

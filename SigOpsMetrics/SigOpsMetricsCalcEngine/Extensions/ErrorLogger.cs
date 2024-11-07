@@ -12,7 +12,7 @@ public enum LogLevel
     Debug
 }
 
-public class ErrorLogger : IDisposable
+public class ErrorLogger : IErrorLogger
 {
     private readonly SemaphoreSlim _logWriteSemaphore = new SemaphoreSlim(1, 1);
     private readonly string _logDirectoryPath;
@@ -72,7 +72,7 @@ public class ErrorLogger : IDisposable
     /// <param name="ex">The exception to log.</param>
     /// <param name="logLevel">The log level of the message.</param>
     /// <returns>A formatted string representing the error message.</returns>
-    private string BuildErrorMessage(string applicationName, string functionName, Exception ex, LogLevel logLevel)
+    public string BuildErrorMessage(string applicationName, string functionName, Exception ex, LogLevel logLevel)
     {
         var sb = new StringBuilder();
         sb.AppendLine("------------------------------------------------------------");
@@ -96,7 +96,7 @@ public class ErrorLogger : IDisposable
     /// </summary>
     /// <param name="errorMessage">The error message to write to the log file.</param>
     /// <returns>A Task representing the asynchronous operation.</returns>
-    private async Task WriteErrorToFileAsync(string errorMessage)
+    public async Task WriteErrorToFileAsync(string errorMessage)
     {
         await _logWriteSemaphore.WaitAsync();
         try
@@ -119,7 +119,7 @@ public class ErrorLogger : IDisposable
     /// <summary>
     /// Rotates the current log file by renaming it with a timestamp and creates a new log file.
     /// </summary>
-    private void RotateLogFile()
+    public void RotateLogFile()
     {
         var archiveFileName = $"errorlog_{DateTime.UtcNow:yyyyMMdd_HHmmss}.txt";
         var archiveFilePath = Path.Combine(_logDirectoryPath, archiveFileName);

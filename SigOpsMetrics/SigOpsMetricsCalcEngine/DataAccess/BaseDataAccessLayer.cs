@@ -10,6 +10,7 @@ using System.Data;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Routing.Constraints;
+using SigOpsMetricsCalcEngine.Startup;
 
 namespace SigOpsMetricsCalcEngine.DataAccess
 {
@@ -27,7 +28,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static MySqlConnection MySqlConnection;
         internal static ErrorLogger _logger;
         private static readonly string fileName = GetCurrentFileName();
-        private static readonly string filePath = Startup.newDirectoryPath;
+        private static readonly string filePath = StartupOps.newDirectoryPath;
 
         public BaseDataAccessLayer()
         {
