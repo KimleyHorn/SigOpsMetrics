@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SigOpsMetricsCalcEngine.Extensions
+﻿namespace SigOpsMetricsCalcEngine.Core.Extensions
 {
     internal class MetricsLogging
     {

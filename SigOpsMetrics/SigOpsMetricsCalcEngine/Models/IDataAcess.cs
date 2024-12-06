@@ -1,26 +1,20 @@
 ﻿using System.Collections.Concurrent;
 
-namespace SigOpsMetricsCalcEngine.Models
+namespace SigOpsMetricsCalcEngine.Core.Models
 {
-    internal interface IDataAccess
+    public interface IDataAccess
     {
         #region Methods
 
-        //public Task<bool> Calc(ConcurrentBag<BaseEventLogModel> baseSignal);
+        public Task<bool> Calc(ConcurrentBag<BaseEventLogModel> baseSignal);
 
-        //public Task<bool> SignalToDB(ConcurrentBag<BaseEventLogModel> signal);
+        public Task<bool> SignalToDB(ConcurrentBag<BaseEventLogModel> signal);
 
-        //public Task<bool> EventToDB<T>(ConcurrentBag<T> events);
+        public Task<bool> SignalToCsv(ConcurrentBag<BaseEventLogModel> signal);
 
-        //public Task<bool> SignalToCsv(ConcurrentBag<BaseEventLogModel> signal);
+        public Task<ConcurrentBag<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate);
 
-        //public Task<bool> EventToCsv<T>(ConcurrentBag<T> events);
-
-        //public Task<ConcurrentBag<BaseEventLogModel>> Filter(DateTime startDate, DateTime endDate);
-
-        //public Task<bool> Process(ConcurrentBag<BaseEventLogModel> isFiltered, bool archiveFlag);
-
-
+        public Task<bool> Process(ConcurrentBag<BaseEventLogModel> isFiltered, bool archiveFlag);
 
         #endregion
     }

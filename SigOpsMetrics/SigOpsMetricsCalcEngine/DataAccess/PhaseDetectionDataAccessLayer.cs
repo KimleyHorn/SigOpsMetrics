@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
-using SigOpsMetricsCalcEngine.Models;
+using SigOpsMetricsCalcEngine.Core.Models;
 
-namespace SigOpsMetricsCalcEngine.DataAccess;
+namespace SigOpsMetricsCalcEngine.Core.DataAccess;
 
 public class PhaseDetectionDataAccessLayer : BaseDataAccessLayer
 {

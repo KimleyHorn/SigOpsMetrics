@@ -1,10 +1,10 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
-using SigOpsMetricsCalcEngine.DataAccess;
-using SigOpsMetricsCalcEngine.Models;
+using SigOpsMetricsCalcEngine.Core.DataAccess;
+using SigOpsMetricsCalcEngine.Core.Models;
 using ConfigurationManager = System.Configuration.ConfigurationManager;
 
-namespace SigOpsMetricsCalcEngine.Calcs;
+namespace SigOpsMetricsCalcEngine.Core.Calcs;
 
 public class PhaseDetectionCalc
 {

@@ -5,15 +5,16 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using MySqlConnector;
 using Parquet;
-using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
 using System.Data;
 using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Routing.Constraints;
-using SigOpsMetricsCalcEngine.Startup;
+using SigOpsMetricsCalcEngine.Core.Extensions;
+using SigOpsMetricsCalcEngine.Core.Models;
+using SigOpsMetricsCalcEngine.Core.Startup;
 
-namespace SigOpsMetricsCalcEngine.DataAccess
+namespace SigOpsMetricsCalcEngine.Core.DataAccess
 {
     public class BaseDataAccessLayer
     {
@@ -23,19 +24,19 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         internal static readonly RegionEndpoint? BucketRegion = RegionEndpoint.USEast1;
         internal static readonly string? FolderName = ConfigurationManager.AppSettings["FOLDER_NAME"];
         internal static readonly int ThreadCount = int.Parse(ConfigurationManager.AppSettings["THREAD_COUNT"] ?? "1");
-        internal ConcurrentBag<BaseEventLogModel> SignalEvents = [];
+        public ConcurrentBag<BaseEventLogModel> SignalEvents = [];
         internal static readonly string MySqlDbName = ConfigurationManager.AppSettings["DB_NAME"] ?? "mark1";
         internal static readonly string? MySqlConnString = ConfigurationManager.AppSettings["CONN_STRING"];
         internal static MySqlConnection MySqlConnection;
         internal static ErrorLogger _logger;
         private static readonly string fileName = GetCurrentFileName();
-        private static readonly string filePath = StartupOps.newDirectoryPath;
+        private static readonly string filePath = StartupOps.directoryPath;
 
         public BaseDataAccessLayer()
         {
             try
             {
-                _logger = new ErrorLogger(filePath);
+                _logger = new ErrorLogger("Test");
                 MySqlConnection = new MySqlConnection(MySqlConnString);
             }
             catch (Exception ex)
@@ -129,14 +130,14 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="mySqlTableName">The name of the MySQL table derived from the app.config file</param>
         /// <param name="dataTable">A collection of objects to be written to the MySQL table</param>
         /// <returns>True if operation was successful</returns>
-        internal static async Task<bool> MySqlWriter(string mySqlTableName, DataTable dataTable)
+        public static async Task<bool> MySqlWriter(string mySqlTableName, DataTable dataTable)
         {
             try
             {
                 // Ensure the connection is not null before proceeding
                 if (MySqlConnection == null)
                 {
-                    throw new NullReferenceException("MySqlConnection object is null.");
+                    throw new NullReferenceException();
                 }
 
                 await StateSwitcherAsync();
@@ -168,17 +169,21 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 await _logger.WriteToErrorLogAsync(fileName, "MySqlWriter", sqlEx);
 
                 // Handle specific MySqlException cases if needed
-                if (sqlEx.Number == 1042) // Unable to connect to any of the specified MySQL hosts
+                switch (sqlEx.Number)
                 {
-                    Console.WriteLine("Could not connect to the MySQL server. Check server availability.");
-                }
-                else if (sqlEx.Number == 1045) // Access denied for user
-                {
-                    Console.WriteLine("Access denied. Check your database username and password.");
-                }
-                else if (sqlEx.Number == 0) // Network-related or instance-specific error
-                {
-                    Console.WriteLine("Network-related or instance-specific error. Check network connection.");
+                    
+                    // Unable to connect to any of the specified MySQL hosts
+                    case 1042:
+                        Console.WriteLine("Could not connect to the MySQL server. Check server availability.");
+                        break;
+                    // Access denied for user
+                    case 1045:
+                        Console.WriteLine("Access denied. Check your database username and password.");
+                        break;
+                    // Network-related or instance-specific error
+                    case 0:
+                        Console.WriteLine("Network-related or instance-specific error. Check network connection.");
+                        break;
                 }
 
                 return false;
@@ -211,73 +216,136 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         }
 
         /// <summary>
-        /// 
+        /// Handles MySQL connection state changes with error handling for timeouts and allows for forced timeouts during testing.
         /// </summary>
         /// <param name="closeConnection">Whether or not the connection needs to be closed. If true, it always closes the connection. If false, it runs through StateSwitcher method</param>
-        /// <returns>The completed task </returns>
+        /// <param name="forceTimeout">Optional parameter to force a connection timeout for testing purposes</param>
+        /// <returns>The completed task</returns>
         /// <exception cref="ArgumentOutOfRangeException">If an unknown connection state is identified</exception>
-        internal static async Task StateSwitcherAsync(bool closeConnection = false)
+        internal static async Task StateSwitcherAsync(bool closeConnection = false, bool forceTimeout = false)
         {
-#if DEBUG
-            Console.WriteLine($"Current connection state: {MySqlConnection.State}");
-#endif
-            switch (MySqlConnection.State)
+            try
             {
-                case ConnectionState.Broken:
-                    await MySqlConnection.CloseAsync();
 #if DEBUG
-                    Console.WriteLine("Connection was broken. Attempting to close and reopen connection.");
+                Console.WriteLine($"Current connection state: {MySqlConnection.State}");
 #endif
-                    await MySqlConnection.OpenAsync();
+                if (forceTimeout)
+                {
 #if DEBUG
-                    Console.WriteLine("Connection reopened successfully.");
+                    Console.WriteLine("Force timeout is enabled. Simulating a connection timeout.");
 #endif
-                    break;
-                case ConnectionState.Closed:
-#if DEBUG
-                    Console.WriteLine("Connection is closed. Attempting to open connection.");
-#endif
-                    await MySqlConnection.OpenAsync();
-#if DEBUG
-                    Console.WriteLine("Connection opened successfully.");
-#endif
-                    break;
-                case ConnectionState.Connecting:
-#if DEBUG
-                    Console.WriteLine("Connection is currently being established. Awaiting connection.");
-#endif
-                    await Task.Delay(500); // Wait for the connection to establish
-                    break;
-                case ConnectionState.Open:
-#if DEBUG
-                    Console.WriteLine("Connection is open. Proceeding with the operation.");
-#endif
-                    if (closeConnection)
-                    {
-#if DEBUG
-                        Console.WriteLine("Closing connection");
-#endif
-                        await MySqlConnection.CloseAsync();
-                    }
+                    throw new TimeoutException("Simulated MySQL timeout for testing.");
+                }
 
-                    break;
-                case ConnectionState.Executing:
+                switch (MySqlConnection.State)
+                {
+                    case ConnectionState.Broken:
+                        await MySqlConnection.CloseAsync();
 #if DEBUG
-                    Console.WriteLine("Connection is executing a command.");
+                        Console.WriteLine("Connection was broken. Attempting to close and reopen connection.");
 #endif
-                    break;
-                case ConnectionState.Fetching:
+                        await RetryOnTimeoutAsync(async () => await MySqlConnection.OpenAsync());
 #if DEBUG
-                    Console.WriteLine("Connection is fetching data.");
+                        Console.WriteLine("Connection reopened successfully.");
 #endif
-                    break;
-                default:
+                        break;
+                    case ConnectionState.Closed:
 #if DEBUG
-                    Console.WriteLine("Unknown connection state encountered.");
+                        Console.WriteLine("Connection is closed. Attempting to open connection.");
 #endif
-                    throw new ArgumentOutOfRangeException();
+                        await RetryOnTimeoutAsync(async () => await MySqlConnection.OpenAsync());
+#if DEBUG
+                        Console.WriteLine("Connection opened successfully.");
+#endif
+                        break;
+                    case ConnectionState.Connecting:
+#if DEBUG
+                        Console.WriteLine("Connection is currently being established. Awaiting connection.");
+#endif
+                        await Task.Delay(500); // Wait for the connection to establish
+                        break;
+                    case ConnectionState.Open:
+#if DEBUG
+                        Console.WriteLine("Connection is open. Proceeding with the operation.");
+#endif
+                        if (closeConnection)
+                        {
+#if DEBUG
+                            Console.WriteLine("Closing connection");
+#endif
+                            await MySqlConnection.CloseAsync();
+                        }
+
+                        break;
+                    case ConnectionState.Executing:
+#if DEBUG
+                        Console.WriteLine("Connection is executing a command.");
+#endif
+                        break;
+                    case ConnectionState.Fetching:
+#if DEBUG
+                        Console.WriteLine("Connection is fetching data.");
+#endif
+                        break;
+                    default:
+#if DEBUG
+                        Console.WriteLine("Unknown connection state encountered.");
+#endif
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+            catch (MySqlException ex) when
+                (ex.Number == 1042 || ex.Number == 1158 || ex.Number == 10060) // Timeout error codes
+            {
+                // Log timeout or take corrective action
+#if DEBUG
+                Console.WriteLine($"Connection timeout occurred: {ex.Message}");
+#endif
+                throw new TimeoutException("Connection timed out. Please check your network or database server.", ex);
+            }
+            catch (TimeoutException te)
+            {
+                await RetryOnTimeoutAsync(() => Task.FromResult(MySqlConnection.OpenAsync()));
+
+            }
+            catch (Exception ex)
+            {
+                // Log unexpected errors
+#if DEBUG
+                Console.WriteLine($"Unexpected error: {ex.Message}");
+#endif
+                throw;
             }
         }
+
+        /// <summary>
+        /// Retries a given action if it times out.
+        /// </summary>
+        /// <param name="action">The asynchronous action to retry.</param>
+        /// <param name="maxRetries">Maximum number of retries.</param>
+        /// <param name="delayBetweenRetries">Delay between retries in milliseconds.</param>
+        private static async Task RetryOnTimeoutAsync(Func<Task> action, int maxRetries = 3, int delayBetweenRetries = 2000)
+        {
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    await action();
+                    return;
+                }
+                catch (MySqlException ex) when (ex.Number == 1042 || ex.Number == 1158 || ex.Number == 10060) // Connection timeout errors
+                {
+#if DEBUG
+                    Console.WriteLine($"Retry {attempt}/{maxRetries} failed: {ex.Message}");
+#endif
+                    if (attempt == maxRetries)
+                        throw; // Rethrow if max retries reached
+                    await Task.Delay(delayBetweenRetries);
+                }
+            }
+        }
+
+
 
         /// <summary>
         /// 
@@ -317,67 +385,79 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <param name="startDate">The first day this method searches for</param>
         /// <param name="endDate">The last day this method searches for</param>
         /// <returns>True if data is present and false if data is not present</returns>
-        private async Task<bool> CheckDB(string mySqlTableName, string mySqlColName, string mySqlDbName, DateTime startDate = new DateTime(),
-            DateTime endDate = new DateTime())
+        public static async Task<List<DateTime>> CheckDBAsync(
+            string mySqlTableName,
+            string mySqlColName,
+            string mySqlDbName,
+            DateTime startDate = default,
+            DateTime endDate = default)
         {
+            await StateSwitcherAsync();
             if (endDate < startDate)
                 throw new ArgumentException("End date cannot be before start date");
 
-            if (startDate == new DateTime())
+            if (startDate == default)
                 startDate = DateTime.Today.AddDays(-1);
 
-            if (endDate == new DateTime())
+            if (endDate == default)
                 endDate = DateTime.Today;
+
+            var missingDates = new List<DateTime>();
 
             try
             {
                 if (MySqlConnection.State == ConnectionState.Closed)
                     await MySqlConnection.OpenAsync();
 
+                // Construct the SQL query
+                var sql = $@"
+            WITH DateRange AS (
+                SELECT @StartDate AS Date
+                UNION ALL
+                SELECT DATE_ADD(Date, INTERVAL 1 DAY)
+                FROM DateRange
+                WHERE Date < @EndDate
+            )
+            SELECT d.Date
+            FROM DateRange d
+            LEFT JOIN {mySqlDbName}.{mySqlTableName} t
+            ON d.Date = DATE(t.{mySqlColName})
+            WHERE t.{mySqlColName} IS NULL;
+        ";
+
                 await using var cmd = MySqlConnection.CreateCommand();
-                cmd.CommandText =
-                    $"SELECT * FROM {mySqlDbName}.{mySqlTableName} WHERE {mySqlColName} BETWEEN @StartDate AND @EndDate";
+                cmd.CommandText = sql;
+
                 cmd.Parameters.AddWithValue("@StartDate", startDate);
-                cmd.Parameters.AddWithValue("@EndDate", endDate.AddDays(1));
+                cmd.Parameters.AddWithValue("@EndDate", endDate);
 
+                // Execute the query
                 await using var reader = await cmd.ExecuteReaderAsync();
-
-                if (!reader.HasRows)
-                {
-                    await MySqlConnection.CloseAsync();
-                    return false;
-                }
 
                 while (await reader.ReadAsync())
                 {
-                    var signalEvent = new BaseEventLogModel
-                    {
-                        Timestamp = reader.GetDateTime("Timestamp"),
-                        SignalID = reader.GetInt64("signalID"),
-                        EventCode = reader.IsDBNull(reader.GetOrdinal("EventCode")) ? (short?)null : (short?)reader.GetInt64(reader.GetOrdinal("EventCode")),
-                        EventParam = reader.IsDBNull(reader.GetOrdinal("EventParam")) ? (short?)null : (short?)reader.GetInt64(reader.GetOrdinal("EventParam"))
-                    };
-                    SignalEvents.Add(signalEvent);
+                    missingDates.Add(reader.GetDateTime(0));
                 }
 
                 await MySqlConnection.CloseAsync();
             }
-            catch (MySqlException t)
+            catch (MySqlException ex)
             {
-                Console.WriteLine("MySQL connection timed out please check on connection health");
-                Console.WriteLine(t);
-                await _logger.WriteToErrorLogAsync(fileName, "CheckDB", t);
-                return false;
+                Console.WriteLine("MySQL connection timed out. Please check the connection health.");
+                Console.WriteLine(ex);
+                await _logger.WriteToErrorLogAsync(fileName, "CheckDB", ex);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                //await WriteToErrorLog("SigOpsMetricsCalcEngine.BaseDataAccessLayer", "CheckDB", e);
-                await _logger.WriteToErrorLogAsync(fileName, "CheckDB", e);
+                Console.WriteLine("An error occurred while checking the database.");
+                Console.WriteLine(ex);
+                await _logger.WriteToErrorLogAsync(fileName, "CheckDB", ex);
                 throw;
             }
 
-            return true;
+            return missingDates;
         }
+
 
         /// <summary>
         /// The method that is used to filter base log event models into flash events and preempt events. This method is flexible and can be used for any event type that is based off of the base log event model
@@ -479,12 +559,12 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         #region Signal Processing
 
         /// <summary>
-        /// The Process Events method will take a list of valid dates and a list of signal Ids and event codes and return a list of events that can be used to write to the flash events server
+        /// A method that takes a list of valid dates and a list of signal Ids and event codes and return a list of events that can be used to write to the database chosen
         /// </summary>
         /// <param name="date">The date the operation is being performed on</param>
         /// <param name="signalIdList">A list of signal Ids to be retrieved</param>
         /// <param name="eventCodes"></param>
-        /// <returns>A List of Flash _events that can be used to write to the flash event server</returns>
+        /// <returns>A List of signals that can be used to write to the flash event server</returns>
         /// <exception cref="ArgumentException">Thrown when event codes are used without signalIDs</exception>
         public async Task<bool> ProcessEvents(DateTime date, List<long?>? signalIdList, List<long?>? eventCodes)
         {
@@ -544,11 +624,12 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             await StateSwitcherAsync();
             var datesToProcess = new List<DateTime>();
 
-            //TODO PARAMETERIZE THIS ONCE PREEMPT CALCULATIONS ARE FINISHED
-            var query = $@"
-    SELECT *
-    FROM `{TableName}`
-    WHERE `Timestamp` BETWEEN @StartDate AND @EndDate";
+            var query = $"""
+                         
+                             SELECT *
+                             FROM `{TableName}`
+                             WHERE `Timestamp` BETWEEN @StartDate AND @EndDate
+                         """;
 
             await using var command = new MySqlCommand(query, MySqlConnection);
             command.Parameters.Add(new MySqlParameter("@StartDate", MySqlDbType.DateTime)
@@ -607,15 +688,15 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 using var ms = new MemoryStream();
                 await response.ResponseStream.CopyToAsync(ms, 81920, token); // 80KB buffer
 
-                ms.Position = 0; // Reset position before deserialization
+                // Reset position before deserialization
+                ms.Position = 0; 
 
                 // Deserialize Parquet data
-                var signalData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms);
+                var signalData = await ParquetConvert.DeserializeAsync<BaseEventLogModel>(ms, cancellationToken: token);
 
                 // Enqueue all deserialized signals
                 foreach (var signal in signalData)
                 {
-                    // This will block if the collection is full, providing backpressure
                     signalQueue.Add(signal, token);
                 }
             }
@@ -623,30 +704,21 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             {
                 Console.WriteLine($"ArgumentException: {ex.Message}, Object Key: {obj.Key}");
                 await _logger.WriteToErrorLogAsync(fileName, "ProcessS3ObjectAsync", ex, LogLevel.Error);
-
-
-                // Optionally, log the exception or handle it as needed
             }
             catch (FormatException ex)
             {
                 Console.WriteLine($"FormatException: {ex.Message}, Object Key: {obj.Key}");
                 await _logger.WriteToErrorLogAsync(fileName, "ProcessS3ObjectAsync", ex, LogLevel.Error);
-
-                // Optionally, log the exception or handle it as needed
             }
             catch (OperationCanceledException ex)
             {
-                // Handle cancellation if needed
                 Console.WriteLine($"Processing canceled for object: {obj.Key}");
                 await _logger.WriteToErrorLogAsync(fileName, "ProcessS3ObjectAsync", ex, LogLevel.Error);
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Unexpected exception: {ex.Message}, Object Key: {obj.Key}");
                 await _logger.WriteToErrorLogAsync(fileName, "ProcessS3ObjectAsync", ex, LogLevel.Error);
-
-                // Optionally, log the exception or handle it as needed
             }
             finally
             {

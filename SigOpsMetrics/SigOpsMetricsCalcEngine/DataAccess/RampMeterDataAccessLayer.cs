@@ -1,17 +1,13 @@
 ﻿using System.Collections.Concurrent;
-using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
-
-using System.Globalization;
-using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using Parquet;
 using Parquet.Data;
-using Parquet.Schema;
+using SigOpsMetricsCalcEngine.Core.Models;
 
-namespace SigOpsMetricsCalcEngine.DataAccess
+namespace SigOpsMetricsCalcEngine.Core.DataAccess
 {
-    internal class RampMeterDataAccessLayer : BaseDataAccessLayer, IDataAccess
+    internal class RampMeterDataAccessLayer : BaseDataAccessLayer
 
     {
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["CYCLE_TIME_TABLE_NAME"] ?? "ramp_meter_log";

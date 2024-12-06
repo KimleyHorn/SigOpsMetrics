@@ -1,4 +1,4 @@
-﻿namespace SigOpsMetricsCalcEngine.Models
+﻿namespace SigOpsMetricsCalcEngine.Core.Models
 {
     public class BaseEventLogModel
     {

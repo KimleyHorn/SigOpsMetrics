@@ -2,9 +2,9 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SigOpsMetricsCalcEngine.Startup;
+namespace SigOpsMetricsCalcEngine.Core.Startup;
 
-public class StartupOps
+public static class StartupOps
 {
     //ChooseCalc order: [_runCycle (0), _runPhase (1), _runPreempt (2),  _runFlash (3)]
     //TODO implement for phase detection for Dev 2
@@ -14,16 +14,48 @@ public class StartupOps
     internal static bool _runCycle;
     internal static bool _runRamp;
     internal static bool _runPhase;
-    internal static bool[] chooseCalc = [_runCycle, _runPhase, _runPreempt, _runFlash];
-    internal static readonly int MaxDays = int.Parse(ConfigurationManager.AppSettings["MAX_DAYS"] ?? "5");
-    internal static readonly int NumWednesday = int.Parse(ConfigurationManager.AppSettings["NUM_WED"] ?? "1");
-    internal static readonly bool useConsole = bool.Parse(ConfigurationManager.AppSettings["USE_CONSOLE"] ?? "false");
-    internal static bool customStartEnd = bool.Parse(ConfigurationManager.AppSettings["USE_START_END"] ?? "false");
+
+    internal static bool[] chooseCalc;
+
+    internal static readonly int MaxDays;
+    internal static readonly int NumWednesday;
+    internal static readonly bool useConsole;
+    internal static bool customStartEnd, backFill;
     internal static string metroCentral = @"SigOpsMC.csv";
-    internal static string newDirectoryPath;
+    internal static string directoryPath;
     internal static List<long?>? eventCodes;
-    internal static DateTime startDate = DateTime.Parse(ConfigurationManager.AppSettings["START_DATE"]);
-    internal static DateTime endDate = DateTime.Parse(ConfigurationManager.AppSettings["END_DATE"]);
+    internal static DateTime startDate;
+    internal static DateTime endDate;
+
+    static StartupOps()
+    {
+        // Initialize boolean flags
+        _runCycle = false;
+        _runPhase = false;
+        _runPreempt = false;
+        _runFlash = false;
+        _runRamp = false;
+
+        chooseCalc = new bool[] { _runCycle, _runPhase, _runPreempt, _runFlash };
+
+        // Initialize configuration-dependent fields with error handling
+        MaxDays = int.TryParse(ConfigurationManager.AppSettings["MAX_DAYS"], out int maxDays) ? maxDays : 5;
+        NumWednesday = int.TryParse(ConfigurationManager.AppSettings["NUM_WED"], out int numWed) ? numWed : 1;
+        useConsole = bool.TryParse(ConfigurationManager.AppSettings["USE_CONSOLE"], out var useCon) && useCon;
+        customStartEnd = bool.TryParse(ConfigurationManager.AppSettings["USE_START_END"], out bool customSE) ? customSE : false;
+        backFill = bool.TryParse(ConfigurationManager.AppSettings["BACKFILL"], out bool fillData) ? fillData : false;
+        //directoryPath = noConsoleDir("Unit Testing");
+        // Handle startDate and endDate with defaults or error handling
+        var startDateString = ConfigurationManager.AppSettings["START_DATE"];
+        var endDateString = ConfigurationManager.AppSettings["END_DATE"];
+
+        startDate = DateTime.TryParse(startDateString, out DateTime parsedStartDate) ? parsedStartDate :
+            DateTime.Now.Date; // Default to today's date
+
+        endDate = DateTime.TryParse(endDateString, out DateTime parsedEndDate) ? parsedEndDate :
+            startDate.AddDays(1); // Default to one day after startDate
+    }
+
 
     internal static void Welcome()
     {
@@ -112,7 +144,7 @@ public class StartupOps
         {
             chooseCalc[int.Parse(t) - 1] = true;
         }
-        //TODO Implement multiple selection
+        
         if (calcType.Contains("1"))
         {
             eventCodes.AddRange([131, 132]);
@@ -139,13 +171,14 @@ public class StartupOps
         //}
     }
 
-    public static void ConsoleDir(string dirName)
+    public static string ConsoleDir()
     {
+        bool goodDir;
         do
         {
             Console.WriteLine("Where would you like this to be written to?");
             Console.WriteLine("Enter Directory Name");
-            dirName = Console.ReadLine();
+            var dirName = Console.ReadLine();
 
             if (string.IsNullOrEmpty(dirName))
             {
@@ -153,35 +186,48 @@ public class StartupOps
                     "Invalid input. Directory name cannot be empty. Please try again.");
             }
 
-            var currentDirectory = Directory.GetCurrentDirectory();
-            var parentDirectory = Directory.GetParent(currentDirectory);
+            directoryPath = NoConsoleDir(dirName);
+            goodDir = !string.IsNullOrEmpty(directoryPath); 
+        } while (!goodDir);
 
-            // Combine the parent directory path with the new directory name
-            newDirectoryPath = Path.Combine(parentDirectory.FullName, dirName);
+        return directoryPath;
+    }
+    public static string NoConsoleDir(string dir)
+    {
+        var currentDirectory = Directory.GetCurrentDirectory();
+        var parentDirectory = Directory.GetParent(currentDirectory);
+        var formattedEndDate = endDate.ToString("MM-dd-yyyy");
 
-            try
+        // Combine path components with formatted dates
+        var newDir = Path.Combine(parentDirectory.FullName, formattedEndDate + dir);
+        
+        try
+        {
+            // Check if the directory already exists
+            if (!Directory.Exists(newDir))
             {
-                // Check if the directory already exists
-                if (!Directory.Exists(newDirectoryPath))
-                {
-                    // Create the new directory
-                    Directory.CreateDirectory(newDirectoryPath);
-                    Console.WriteLine("Directory created at: " + newDirectoryPath);
-                }
-                else
-                {
-                    Console.WriteLine($"Using existing directory at {newDirectoryPath}");
-                }
-
-                // Exit the loop since we have a valid directory
-                break;
+                // Create the new directory
+                Directory.CreateDirectory(newDir);
+                Console.WriteLine("Directory created at: " + newDir);
+                directoryPath = newDir;
+                return newDir;
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine("An error occurred: " + ex.Message);
-                Console.WriteLine("Please try again.");
+                Console.WriteLine($"Using existing directory at {newDir}");
+                return newDir;
             }
-        } while (true);
+
+            // Exit the loop since we have a valid directory
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("An error occurred: " + ex.Message);
+            Console.WriteLine("Please try again.");
+        }
+
+        return newDir;
     }
 
     internal static List<List<long?>> GetSignalList(string filePath)
@@ -264,44 +310,14 @@ public class StartupOps
             Console.WriteLine("Running Cycle Time");
         else if (_runPhase)
             Console.WriteLine("Running Phase Detection");
-        Console.WriteLine($"Saving files at:{newDirectoryPath}");
+        else if(_runPreempt)
+            Console.WriteLine("Running Preemption");
+        Console.WriteLine($"Saving files at:{directoryPath}");
         Console.WriteLine("If these are the values you expected press any key...");
         Console.ReadKey(true);
     }
 
-    public static void noConsoleDir(string dir)
-    {
-        var currentDirectory = Directory.GetCurrentDirectory();
-        var parentDirectory = Directory.GetParent(currentDirectory);
-        var formattedStartDate = startDate.ToString("MM-dd-yyyy");
-        var formattedEndDate = endDate.ToString("MM-dd-yyyy");
 
-        // Combine path components with formatted dates
-        newDirectoryPath = Path.Combine(parentDirectory.FullName, formattedEndDate + dir);
-
-        try
-        {
-            // Check if the directory already exists
-            if (!Directory.Exists(newDirectoryPath))
-            {
-                // Create the new directory
-                Directory.CreateDirectory(newDirectoryPath);
-                Console.WriteLine("Directory created at: " + newDirectoryPath);
-            }
-            else
-            {
-                Console.WriteLine($"Using existing directory at {newDirectoryPath}");
-            }
-
-            // Exit the loop since we have a valid directory
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("An error occurred: " + ex.Message);
-            Console.WriteLine("Please try again.");
-        }
-    }
 
     internal static void noConsoleCalc()
     {

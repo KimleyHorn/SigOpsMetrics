@@ -1,29 +1,31 @@
 ﻿using System.Collections.Concurrent;
-using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
 using System.Data;
 using System.Text;
+using SigOpsMetricsCalcEngine.Core.Models;
 
-namespace SigOpsMetricsCalcEngine.DataAccess
+namespace SigOpsMetricsCalcEngine.Core.DataAccess
 {
-    public class PreemptEventDataAccessLayer : BaseDataAccessLayer, IDataAccess
+    public class PreemptEventDataAccessLayer : IDataAccess
     {
 
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["PREEMPT_TABLE_NAME"];
         private static readonly string? MySqlPreemptTableName = ConfigurationManager.AppSettings["PREEMPT_EVENT_TABLE_NAME"];
         internal static readonly List<long?> EventList = [102, 105, 106, 104, 107, 111, 707, 708];
         private static ConcurrentBag<PreemptModel> _preemptList = [];
+        private static ConcurrentBag<PreemptModel> _badList = [];
         private static List<DateTime> validDates = [];
         private static string dir;
         private static readonly object Lock = new object();
+        private static BaseDataAccessLayer data;
 
         /// <summary>
         /// Constructor for PreemptEventDataAccessLayer class that takes a list of BaseEventLogModel
         /// </summary>
         /// <param name="sigModels">A list of BaseEventLogModels that is passed from the BaseDataAccessLayer</param>
-        public PreemptEventDataAccessLayer(ConcurrentBag<BaseEventLogModel> sigModels, List<DateTime> dates, string dirPath)
+        public PreemptEventDataAccessLayer(BaseDataAccessLayer b, List<DateTime> dates, string dirPath)
         {
-            SignalEvents = sigModels;
+            data = b;
             validDates = dates;
             dir = dirPath;
         }
@@ -34,18 +36,18 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// </summary>
         /// <param name="baseSignal">A list of BaseEventLogModels to be filtered and converted to a preempt</param>
         /// <returns>True if the operation succeeds, false otherwise</returns>
-        public static async Task<bool> Calc(ConcurrentBag<BaseEventLogModel> baseSignal)
+        public async Task<bool> Calc(ConcurrentBag<BaseEventLogModel> baseSignal)
         {
             //TODO Add time delta between input on and entry start
             //Definitely use this logic as a go by to see how to grab data list
-            var inputOn = await FilterByEventCode(baseSignal, 102);
-            var entryStart = await FilterByEventCode(baseSignal, 105);
-            var trackClear = await FilterByEventCode(baseSignal, 106);
-            var externalCallOn = await FilterByEventCode(baseSignal, 707);
-            var externalCallOff = await FilterByEventCode(baseSignal, 708);
-            var inputOff = await FilterByEventCode(baseSignal, 104);
-            var dwellService = await FilterByEventCode(baseSignal, 107);
-            var exitCall = await FilterByEventCode(baseSignal, 111);
+            var inputOn = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 102);
+            var entryStart = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 105);
+            var trackClear = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 106);
+            var externalCallOn = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 707);
+            var externalCallOff = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 708);
+            var inputOff = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 104);
+            var dwellService = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 107);
+            var exitCall = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 111);
             foreach (var signal in inputOn)
             {
 
@@ -57,10 +59,6 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                     //Grabs EventParam from startFlashEvent instead of first from group
                     var externalOn = false;
                     var externalOff = false;
-                    //var entryStartEvent =
-                    //    entryStart.FirstOrDefault(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId);
-
-                    //TODO: Rinse and repeat linq query
                     var entryStartEvent = entryStart
                         .Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
                     var externalCallOnEvent =
@@ -71,8 +69,8 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                             .MinBy(y => y.Timestamp);
                     var trackClearEvent = trackClear
                         .Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
-                    //This section determines whether an event has a track clear parameter based on the events and event codes provided
 
+                    //Determine whether an event has a track clear parameter based on the events and event codes provided
                     //Humor requested by Senior PM
                     var isChooChoo = trackClearEvent is not null;
                     var preemptType = isChooChoo switch
@@ -81,17 +79,12 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                         _ => "Other"
                     };
 
-                    //Create a function that checks for next input on
-
-
-
                     var inputOffEvent = inputOff.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
                         .MinBy(y => y.Timestamp);
                     var dwellServiceEvent = dwellService
                         .Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId).MinBy(y => y.Timestamp);
                     var exitCallEvent = exitCall.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
                         .MinBy(y => y.Timestamp);
-                    //TODO ask tom about exit call event being mandatory for preempt
                     if (exitCallEvent == null || inputOffEvent == null)
                         continue;
                     if (externalCallOnEvent != null)
@@ -108,19 +101,22 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                         entryStartEvent?.Timestamp, trackClearEvent?.Timestamp, dwellServiceEvent?.Timestamp,
                         exitCallEvent?.Timestamp, signalId, preemptType, externalOff, externalOn);
 
-                    //if (preempt.Duration > new TimeSpan(0, 2, 0, 0))
-                    //    continue;
-
-                    if(nextSignal != null && (preempt.InputOff > nextSignal.Timestamp && preempt.ExitCall > nextSignal.Timestamp))
+                    //Console.WriteLine("Failed Preempts----------------------------------------");
+                    if (nextSignal != null && (preempt.InputOff > nextSignal.Timestamp &&
+                                               preempt.ExitCall > nextSignal.Timestamp))
+                    {
+                        //Console.WriteLine(preempt.ToString());
+                        _badList.Add(preempt);
                         continue;
+                    }
+                    //Console.WriteLine("Failed Preempts----------------------------------------");
                     //Go through _preempt list and find the "last" preempt and compare 
                     _preemptList.Add(preempt);
-
-                    Console.WriteLine(preempt.ToString());
+                    //Console.WriteLine(preempt.ToString());
                 }
                 catch (Exception ex)
                 {
-                    await _logger.WriteToErrorLogAsync("PreemptEventCalc", "Calc", ex);
+                    await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventCalc", "Calc", ex);
                     return false;
                 }
             }
@@ -133,10 +129,10 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <summary>
         /// A method that writes all the filtered BaseEventLogModels to the MySQL database
         /// </summary>
-        /// <param name="preempts">An enumerable of BaseEventLogModels that will be written to the MySQL database</param>
+        /// <param name="signal">An enumerable of BaseEventLogModels that will be written to the MySQL database</param>
         /// <returns>True if the operation is successful, false otherwise</returns>
         /// <exception cref="InvalidOperationException">An exception thrown when the MySQL writer fails</exception>
-        public static async Task<bool> WritePreemptSignalsToDb(ConcurrentBag<BaseEventLogModel> preempts)
+        public async Task<bool> SignalToDB(ConcurrentBag<BaseEventLogModel> signal)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -146,7 +142,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             dataTable.Columns.Add("EventParam", typeof(long));
 
             // Populate the DataTable with events data
-            foreach (var eventData in preempts)
+            foreach (var eventData in signal)
             {
                 dataTable.Rows.Add(
                     eventData.Timestamp,
@@ -159,22 +155,26 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             // Open a connection to MySQL
             try
             {
-                return await MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
+                return await BaseDataAccessLayer.MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception ex)
             {
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptSignalsToDb", ex);
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptSignalsToDb", ex);
                 throw;
             }
+        }
+        public Task<bool> SignalToCsv(ConcurrentBag<BaseEventLogModel> signal)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// a method that writes converted preempt events to the preempt event table in the MySQL database
         /// </summary>
-        /// <param name="preempts">A list of preempt event models</param>
+        /// <param name="events">A list of preempt event models</param>
         /// <returns>True if the operation is successful, false otherwise</returns>
         /// <exception cref="InvalidOperationException">An exception thrown when the MySQL writer fails</exception>
-        public static async Task<bool> WritePreemptEventsToDb(ConcurrentBag<PreemptModel> preempts)
+        public async Task<bool> EventToDB(ConcurrentBag<PreemptModel> events)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -191,7 +191,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             dataTable.Columns.Add("ExternalCallOff", typeof(bool));
 
             // Populate the DataTable with events data
-            foreach (var eventData in preempts)
+            foreach (var eventData in events)
             {
                 dataTable.Rows.Add(
                 eventData.InputOn,
@@ -207,15 +207,16 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 eventData.ExternalCallOff
             );
             }
-            // Open a connection to MySQL
+            
             try
             {
-                return await MySqlWriter(MySqlPreemptTableName ?? throw new InvalidOperationException(), dataTable);
+                // Open a connection to MySQL
+                return await BaseDataAccessLayer.MySqlWriter(MySqlPreemptTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error" + ex);
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptSignalsToDb", ex);
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptSignalsToDb", ex);
             }
 
             return false;
@@ -252,25 +253,25 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             catch (UnauthorizedAccessException ex)
             {
                 Console.WriteLine("Error: Access to the path is denied. " + ex.Message);
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
 
             }
             catch (DirectoryNotFoundException ex)
             {
                 Console.WriteLine("Error: Directory not found. " + ex.Message);
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
 
             }
             catch (IOException ex)
             {
                 Console.WriteLine("Error: IO exception. " + ex.Message);
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error: An unexpected error occurred. " + ex.Message);
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
 
             }
         }
@@ -290,13 +291,13 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                     .Select(offset => startDate.AddDays(offset)).ToList();
                 var validData =
-                    new ConcurrentBag<BaseEventLogModel>(await FilterData(allDates, EventList, MySqlTableName ?? " ",
+                    new ConcurrentBag<BaseEventLogModel>(await data.FilterData(allDates, EventList, MySqlTableName ?? " ",
                         "Timestamp"));
                 return validData;
             }
             catch (Exception ex)
             {
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "WritePreemptToCsv", ex);
                 throw;
             }
             
@@ -310,34 +311,30 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         /// <returns>True if the operations succeed, false otherwise</returns>
         public async Task<bool> Process(ConcurrentBag<BaseEventLogModel> validSignals, bool archiveFlag)
         {
-            if (validSignals.Count == 0)
+            try
             {
-                await _logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "Process", new Exception("Preempt filter returned 0 signals. Please try again"));
-                return false;
+                await BaseDataAccessLayer.StateSwitcherAsync();
+                if (validSignals.Count == 0)
+                {
+                    await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "Process", new Exception("Preempt filter returned 0 signals. Please try again"));
+                    return false;
+                }
+
+                await Calc(validSignals);
+                var date = validSignals.FirstOrDefault().Timestamp;
+                await WritePreemptToCsv(date, dir, _preemptList);
+                if (!archiveFlag) return await EventToDB(_preemptList) && await SignalToDB(validSignals);
+                Console.WriteLine("Signals already in DB");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventDataAccessLayer", "Process", ex);
+                throw;
             }
 
-            await Calc(validSignals);
-            var date = validSignals.FirstOrDefault().Timestamp;
-            await WritePreemptToCsv(date, dir, _preemptList);
-            if (!archiveFlag)
-            {
-                await WritePreemptSignalsToDb(validSignals);
-            }
-            return await WritePreemptEventsToDb(_preemptList); 
+
         }
-        #region Helper Functions
-        //Input monitoring function
-        /*
-         * Inputs: current exit call/input off
-         *         Next input on timestamp
-         * Take in exit call timestamp
-         * Compare to next input on timestamp
-         *  Comparing input on means grabbing earlier input on 
-         * Outputs: boolean that tells whether to continue creating the preempt
-         */
-
-        #endregion
-
     }
 
 

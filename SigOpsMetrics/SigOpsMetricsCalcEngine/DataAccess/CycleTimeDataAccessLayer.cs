@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Concurrent;
 using System.Configuration;
-using System.Data;
-using SigOpsMetricsCalcEngine.Models;
+using System.Text;
+using SigOpsMetricsCalcEngine.Core.Models;
 
-namespace SigOpsMetricsCalcEngine.DataAccess
+namespace SigOpsMetricsCalcEngine.Core.DataAccess
 {
-    internal class CycleTimeDataAccessLayer : BaseDataAccessLayer, IDataAccess
+    internal class CycleTimeDataAccessLayer : BaseDataAccessLayer
     {
         internal static readonly List<long?> EventList = [131,132];
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["CYCLE_TIME_TABLE_NAME"] ?? "cycle_time_log";

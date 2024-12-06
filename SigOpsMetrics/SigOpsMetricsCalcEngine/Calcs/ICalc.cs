@@ -1,7 +1,4 @@
-﻿using System.Collections.Concurrent;
-using SigOpsMetricsCalcEngine.Models;
-
-namespace SigOpsMetricsCalcEngine.Calcs
+﻿namespace SigOpsMetricsCalcEngine.Core.Calcs
 {
     internal interface ICalc
     {

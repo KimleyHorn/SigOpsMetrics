@@ -1,5 +1,5 @@
 ﻿using System;
-using SigOpsMetricsCalcEngine.Models;
+using SigOpsMetricsCalcEngine.Core.Models;
 
 namespace SigOpsMetrics.API.Classes.DTOs
 {

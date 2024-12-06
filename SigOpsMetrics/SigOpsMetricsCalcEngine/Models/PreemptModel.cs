@@ -1,6 +1,4 @@
-﻿using Amazon.S3.Model;
-
-namespace SigOpsMetricsCalcEngine.Models
+﻿namespace SigOpsMetricsCalcEngine.Core.Models
 {
     public class PreemptModel : IMetricModel
     {

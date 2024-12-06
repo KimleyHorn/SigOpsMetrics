@@ -1,18 +1,9 @@
-﻿using System.Collections.Concurrent;
-using System.Globalization;
-using System.Text;
-using SigOpsMetricsCalcEngine.DataAccess;
-using SigOpsMetricsCalcEngine.Models;
-using ConfigurationManager = System.Configuration.ConfigurationManager;
+﻿using SigOpsMetricsCalcEngine.Core.DataAccess;
 
-namespace SigOpsMetricsCalcEngine.Calcs
+namespace SigOpsMetricsCalcEngine.Core.Calcs
 {
     internal class PreemptEventCalc
     {
-
-        //TODO add preempt event parameter
-        //TODO throw out any event without an exit call
-
         /// <summary>
         /// The method that drives the preempt event processing
         /// </summary>
@@ -21,7 +12,7 @@ namespace SigOpsMetricsCalcEngine.Calcs
         /// <param name="dir">Directory where a csv of results is stored</param>
         /// <param name="archiveFlag">Boolean that captures whether or not the archive is used</param>
         /// <returns>True if all processes succeed</returns>
-        public static async Task<bool> Run(List<DateTime> validDates, ConcurrentBag<BaseEventLogModel> sigModels, string dir, bool archiveFlag = false)
+        public static async Task<bool> Run(List<DateTime> validDates, BaseDataAccessLayer sigModels, string dir, bool archiveFlag = false)
         {
             try
             {

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SigOpsMetricsCalcEngine.DataAccess;
-using SigOpsMetricsCalcEngine.Models;
+﻿using System.Collections.Concurrent;
+using SigOpsMetricsCalcEngine.Core.DataAccess;
+using SigOpsMetricsCalcEngine.Core.Models;
 
-namespace SigOpsMetricsCalcEngine.Calcs
+namespace SigOpsMetricsCalcEngine.Core.Calcs
 {
     internal class RampMeterCalc
     {

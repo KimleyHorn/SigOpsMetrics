@@ -1,7 +1,7 @@
 ﻿using System.Data;
-using SigOpsMetricsCalcEngine.Models;
+using SigOpsMetricsCalcEngine.Core.Models;
 
-namespace SigOpsMetricsCalcEngine.Extensions
+namespace SigOpsMetricsCalcEngine.Core.Extensions
 {
     public static class StreamExtensions
     {

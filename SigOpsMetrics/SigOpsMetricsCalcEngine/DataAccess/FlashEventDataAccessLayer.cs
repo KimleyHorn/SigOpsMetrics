@@ -1,35 +1,41 @@
 ﻿using System.Collections.Concurrent;
-using SigOpsMetricsCalcEngine.Models;
 using System.Configuration;
 using System.Data;
+using SigOpsMetricsCalcEngine.Core.Models;
 
-namespace SigOpsMetricsCalcEngine.DataAccess
+namespace SigOpsMetricsCalcEngine.Core.DataAccess
 {
-    public class FlashEventDataAccessLayer : BaseDataAccessLayer, IDataAccess
+    public class FlashEventDataAccessLayer : IDataAccess
     {
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"] ?? "flash_event_log";
         internal static List<long?>? EventList;
         private static string dir;
+        private readonly BaseDataAccessLayer data;
 
         /// <summary>
         /// Constructor for the FlashEventDataAccessLayer that takes in a list of signals
         /// </summary>
         /// <param name="sigModels">A list of signals represented by BaseEventLogModels</param>
         /// <param name="filePath">Inherited from BaseDataAccessLayer</param>
-        public FlashEventDataAccessLayer(ConcurrentBag<BaseEventLogModel> sigModels)
+        public FlashEventDataAccessLayer(BaseDataAccessLayer b)
         {
-            SignalEvents = sigModels;
+            data = b;
         }
 
         #region Write to MySQL
 
+        public Task<bool> Calc(ConcurrentBag<BaseEventLogModel> baseSignal)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// A method that writes all the filtered BaseEventLogModels to the MySQL database
         /// </summary>
-        /// <param name="preempts">An enumerable of BaseEventLogModels that will be written to the MySQL database</param>
+        /// <param name="events">An enumerable of BaseEventLogModels that will be written to the MySQL database</param>
         /// <returns>True if the operation is successful, false otherwise</returns>
         /// <exception cref="InvalidOperationException">An exception thrown when the MySQL writer fails</exception>
-        public static async Task<bool> WriteFlashEventsToDb(IEnumerable<BaseEventLogModel> events)
+        public async Task<bool> SignalToDB(ConcurrentBag<BaseEventLogModel> events)
         {
             // Create a DataTable to hold the events data
             var dataTable = new DataTable();
@@ -51,7 +57,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
 
             try
             {
-                return await MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
+                return await BaseDataAccessLayer.MySqlWriter(MySqlTableName ?? throw new InvalidOperationException(), dataTable);
             }
             catch (Exception e)
             {
@@ -59,6 +65,11 @@ namespace SigOpsMetricsCalcEngine.DataAccess
                 //await WriteToErrorLog("FlashEventDataAccessLayer", "toMySQL", e);
                 throw;
             }
+        }
+
+        public Task<bool> SignalToCsv(ConcurrentBag<BaseEventLogModel> signal)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion Write to MySQL
@@ -73,7 +84,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
         {
             var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
                          .Select(offset => startDate.AddDays(offset)).ToList();
-            var validData = new ConcurrentBag<BaseEventLogModel>( await FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp"));
+            var validData = new ConcurrentBag<BaseEventLogModel>( await data.FilterData(allDates, EventList, MySqlTableName ?? " ", "Timestamp"));
             return validData;
         }
 
@@ -90,7 +101,7 @@ namespace SigOpsMetricsCalcEngine.DataAccess
             {
                 if (validSignals.Count == 0)
                     return true;
-                return await WriteFlashEventsToDb(validSignals);
+                return await SignalToDB(validSignals);
             }
             catch (Exception e)
             {
