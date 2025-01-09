@@ -2,7 +2,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace SigOpsMetricsCalcEngine.Core.Startup;
+namespace SigOpsMetricsCalcEngine.Core.Helper;
 
 public static class StartupOps
 {
@@ -44,7 +44,7 @@ public static class StartupOps
         useConsole = bool.TryParse(ConfigurationManager.AppSettings["USE_CONSOLE"], out var useCon) && useCon;
         customStartEnd = bool.TryParse(ConfigurationManager.AppSettings["USE_START_END"], out bool customSE) ? customSE : false;
         backFill = bool.TryParse(ConfigurationManager.AppSettings["BACKFILL"], out bool fillData) ? fillData : false;
-        //directoryPath = noConsoleDir("Unit Testing");
+        directoryPath = NoConsoleDir("test");
         // Handle startDate and endDate with defaults or error handling
         var startDateString = ConfigurationManager.AppSettings["START_DATE"];
         var endDateString = ConfigurationManager.AppSettings["END_DATE"];

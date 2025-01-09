@@ -16,6 +16,7 @@ namespace SigOpsMetricsCalcEngine.Core.Models
 
         public Task<bool> Process(ConcurrentBag<BaseEventLogModel> isFiltered, bool archiveFlag);
 
+
         #endregion
     }
 }

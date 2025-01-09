@@ -2,7 +2,7 @@
 
 namespace SigOpsMetricsCalcEngine.Core.Calcs
 {
-    internal class PreemptEventCalc
+    internal class PreemptEventCalc : ICalc
     {
         /// <summary>
         /// The method that drives the preempt event processing
@@ -22,9 +22,7 @@ namespace SigOpsMetricsCalcEngine.Core.Calcs
             }
             catch (Exception ex)
             {
-
                 return false;
-
             }
 
 

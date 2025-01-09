@@ -18,6 +18,8 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
         private static string dir;
         private static readonly object Lock = new object();
         private static BaseDataAccessLayer data;
+        private CancellationTokenSource cts;
+        private ParallelOptions parallelOptions;
 
         /// <summary>
         /// Constructor for PreemptEventDataAccessLayer class that takes a list of BaseEventLogModel
@@ -28,6 +30,13 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
             data = b;
             validDates = dates;
             dir = dirPath;
+            cts = new CancellationTokenSource();
+            parallelOptions = new ParallelOptions
+            {
+                MaxDegreeOfParallelism = Environment.ProcessorCount,
+                CancellationToken = cts.Token
+            };
+
         }
 
 
@@ -38,8 +47,8 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
         /// <returns>True if the operation succeeds, false otherwise</returns>
         public async Task<bool> Calc(ConcurrentBag<BaseEventLogModel> baseSignal)
         {
-            //TODO Add time delta between input on and entry start
-            //Definitely use this logic as a go by to see how to grab data list
+
+            //TODO Add event parameters to preempt_event_update_log
             var inputOn = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 102);
             var entryStart = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 105);
             var trackClear = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 106);
@@ -48,11 +57,12 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
             var inputOff = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 104);
             var dwellService = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 107);
             var exitCall = await BaseDataAccessLayer.FilterByEventCode(baseSignal, 111);
-            foreach (var signal in inputOn)
+            
+            await Parallel.ForEachAsync(inputOn, parallelOptions, async (signal, cts) =>
             {
-
                 var signalId = signal.SignalID;
-                var nextSignal = inputOn.Where(x => x.SignalID == signal.SignalID && x.Timestamp > signal.Timestamp).MinBy(x => x.Timestamp);
+                var nextSignal = inputOn.Where(x => x.SignalID == signal.SignalID && x.Timestamp > signal.Timestamp)
+                    .MinBy(x => x.Timestamp);
 
                 try
                 {
@@ -86,7 +96,7 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
                     var exitCallEvent = exitCall.Where(x => x.Timestamp >= signal.Timestamp && x.SignalID == signalId)
                         .MinBy(y => y.Timestamp);
                     if (exitCallEvent == null || inputOffEvent == null)
-                        continue;
+                        return;
                     if (externalCallOnEvent != null)
                     {
                         externalOn = true;
@@ -107,8 +117,9 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
                     {
                         //Console.WriteLine(preempt.ToString());
                         _badList.Add(preempt);
-                        continue;
+                        return;
                     }
+
                     //Console.WriteLine("Failed Preempts----------------------------------------");
                     //Go through _preempt list and find the "last" preempt and compare 
                     _preemptList.Add(preempt);
@@ -117,12 +128,12 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
                 catch (Exception ex)
                 {
                     await BaseDataAccessLayer._logger.WriteToErrorLogAsync("PreemptEventCalc", "Calc", ex);
-                    return false;
+                    return;
                 }
-            }
-
+            });
             return true;
         }
+
 
         #region Write to MySQL
 

@@ -1,21 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using SigOpsMetricsCalcEngine.Core.Calcs;
+﻿using SigOpsMetricsCalcEngine.Core.Calcs;
 using SigOpsMetricsCalcEngine.Core.DataAccess;
-using SigOpsMetricsCalcEngine.Core.Extensions;
-
-
-namespace SigOpsMetricsCalcEngine.Core.Startup
+using SigOpsMetricsCalcEngine.Core.Helper;
+namespace SigOpsMetricsCalcEngine.Core
 {
     public class Startup
     {
-        private IServiceCollection _services;
-
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddSingleton<IErrorLogger, ErrorLogger>();
-        }
-
 
         public static async Task Main(string[] args)
         {
@@ -30,13 +19,13 @@ namespace SigOpsMetricsCalcEngine.Core.Startup
             //Keep this commented until phase information data pulling is added
             //var phaseInformation = new List<string>();
             var validDates = Enumerable.Range(0, (StartupOps.endDate - StartupOps.startDate).Days + 1)
-                .Select(offset => StartupOps.startDate.AddDays(offset)).ToList();
+                .Select<int, DateTime>(offset => StartupOps.startDate.AddDays(offset)).ToList();
 
 
             if (StartupOps.startDate == StartupOps.endDate)
             {
-                StartupOps.endDate = new DateTime(StartupOps.startDate.Year, StartupOps.startDate.Month,
-                    StartupOps.startDate.Day, 23, 59, 59, 999);
+                StartupOps.endDate = new DateTime(StartupOps.startDate.Year, StartupOps.endDate.Month,
+                    StartupOps.endDate.Day, 23, 59, 59, 999);
                 validDates.Add(StartupOps.endDate);
             }
 
@@ -64,7 +53,7 @@ namespace SigOpsMetricsCalcEngine.Core.Startup
                 if (StartupOps.backFill)
                 {
                     if (StartupOps.chooseCalc[0])
-                        validDates = await BaseDataAccessLayer.CheckDBAsync("flash_event_log", "Timestamp", "mark1",
+                         validDates = await BaseDataAccessLayer.CheckDBAsync("flash_event_log", "Timestamp", "mark1",
                             StartupOps.startDate, StartupOps.endDate);
                     else if (StartupOps.chooseCalc[2])
                         validDates = await BaseDataAccessLayer.CheckDBAsync("preempt_log", "Timestamp", "mark1",
@@ -74,7 +63,7 @@ namespace SigOpsMetricsCalcEngine.Core.Startup
                 else
                 {
                     validDates = Enumerable.Range(0, (StartupOps.endDate - StartupOps.startDate).Days + 1)
-                        .Select(offset => StartupOps.startDate.AddDays(offset)).ToList();
+                        .Select<int, DateTime>(offset => StartupOps.startDate.AddDays(offset)).ToList();
                 }
                 //StartupOps.ConsoleDir();
 
@@ -125,7 +114,6 @@ namespace SigOpsMetricsCalcEngine.Core.Startup
                     await b.ProcessEvents(currentDate, signalIdList: regionCodes, StartupOps.eventCodes);
                     await BaseDataAccessLayer.StateSwitcherAsync(true);
                     if (StartupOps.chooseCalc[0])
-                        //TODO Reopen SQL connection
                         await FlashEventCalc.Run(archiveDates, b, StartupOps.directoryPath);
                     if (StartupOps.chooseCalc[2])
                         await PreemptEventCalc.Run(archiveDates, b, StartupOps.directoryPath, false);

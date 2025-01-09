@@ -8,7 +8,7 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
     public class FlashEventDataAccessLayer : IDataAccess
     {
         private static readonly string? MySqlTableName = ConfigurationManager.AppSettings["FLASH_EVENT_TABLE_NAME"] ?? "flash_event_log";
-        internal static List<long?>? EventList;
+        internal static List<long?>? EventList = [173];
         private static string dir;
         private readonly BaseDataAccessLayer data;
 

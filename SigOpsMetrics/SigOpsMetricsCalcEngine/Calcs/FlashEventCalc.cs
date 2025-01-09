@@ -2,7 +2,7 @@
 
 namespace SigOpsMetricsCalcEngine.Core.Calcs
 {
-    internal class FlashEventCalc
+    internal class FlashEventCalc : ICalc
     {
         /// <summary>
         /// The method that drives the flash event processing

@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Routing.Constraints;
 using SigOpsMetricsCalcEngine.Core.Extensions;
 using SigOpsMetricsCalcEngine.Core.Models;
-using SigOpsMetricsCalcEngine.Core.Startup;
+using SigOpsMetricsCalcEngine.Core.Helper;
 
 namespace SigOpsMetricsCalcEngine.Core.DataAccess
 {
@@ -494,20 +494,17 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
         /// <param name="eventCode">The event code to filter by</param>
         /// <returns>A filtered list of BaseEventLogModels</returns>
 
-        public static async Task<ImmutableList<BaseEventLogModel>> FilterByEventCode(
+        public static async Task<ConcurrentBag<BaseEventLogModel>> FilterByEventCode(
             ConcurrentBag<BaseEventLogModel> events, long eventCode)
         {
             try
             {
-                return events
-                    .Where(x => x.EventCode == eventCode)
-                    .OrderBy(x => x.Timestamp)
-                    .ToImmutableList();
+                return new ConcurrentBag<BaseEventLogModel>( events.Where(x => x.EventCode == eventCode));
             }
             catch (Exception e)
             {
                 await _logger.WriteToErrorLogAsync(fileName, "FilterByEventCode", e);
-                return ImmutableList<BaseEventLogModel>.Empty;
+                return [];
             }
         }
 
@@ -622,7 +619,6 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
         {
 
             await StateSwitcherAsync();
-            var datesToProcess = new List<DateTime>();
 
             var query = $"""
                          
@@ -640,6 +636,7 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
             await using var reader = await command.ExecuteReaderAsync();
             if (!reader.HasRows) return validDates;
 
+            var datesToProcess = new HashSet<DateTime>(validDates.Select(d => d.Date)); 
             while (await reader.ReadAsync())
             {
                 var log = new BaseEventLogModel
@@ -651,15 +648,10 @@ namespace SigOpsMetricsCalcEngine.Core.DataAccess
                 };
 
                 SignalEvents.Add(log);
-
-                // Collect dates that need to be processed later.
-                if (log.Timestamp > validDates.LastOrDefault())
-                {
-                    datesToProcess.Add(log.Timestamp);
-                }
+                datesToProcess.Remove(log.Timestamp.Date);
             }
 
-            return datesToProcess;
+            return datesToProcess.ToList();
         }
 
 
